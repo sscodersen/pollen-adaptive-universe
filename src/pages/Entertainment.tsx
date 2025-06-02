@@ -1,7 +1,6 @@
-
 import React, { useState } from 'react';
 import { Layout } from '../components/Layout';
-import { Play, Music, GameController2, Sparkles, Volume2 } from 'lucide-react';
+import { Play, Music, Gamepad2, Sparkles, Volume2 } from 'lucide-react';
 
 const Entertainment = () => {
   const [activeMode, setActiveMode] = useState('stories');
@@ -11,7 +10,7 @@ const Entertainment = () => {
   const entertainmentModes = [
     { id: 'stories', name: 'Interactive Stories', icon: Play },
     { id: 'music', name: 'Music Generation', icon: Music },
-    { id: 'games', name: 'Game Creation', icon: GameController2 }
+    { id: 'games', name: 'Game Creation', icon: Gamepad2 }
   ];
 
   const generateContent = async () => {
