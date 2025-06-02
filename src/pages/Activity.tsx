@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { Layout } from '../components/Layout';
+import { AIModelManager } from '../components/AIModelManager';
 import { useApp } from '../contexts/AppContext';
 import { Sparkles, Clock, TrendingUp, Users, FileText, Image, Video, Code } from 'lucide-react';
 
@@ -53,6 +54,11 @@ const Activity = () => {
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2">Activity Dashboard</h1>
           <p className="text-slate-400">Monitor Pollen's evolution and your creative progress</p>
+        </div>
+
+        {/* AI Model Manager */}
+        <div className="mb-8">
+          <AIModelManager />
         </div>
 
         {/* Stats Grid */}

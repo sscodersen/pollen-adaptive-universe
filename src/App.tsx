@@ -9,6 +9,11 @@ import Activity from "./pages/Activity";
 import Playground from "./pages/Playground";
 import Visual from "./pages/Visual";
 import TextEngine from "./pages/TextEngine";
+import Tasks from "./pages/Tasks";
+import Entertainment from "./pages/Entertainment";
+import Search from "./pages/Search";
+import Social from "./pages/Social";
+import Code from "./pages/Code";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
