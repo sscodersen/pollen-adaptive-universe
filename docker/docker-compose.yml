@@ -1,0 +1,61 @@
+
+version: '3.8'
+
+services:
+  pollen-backend:
+    build:
+      context: ./pollen-backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - POLLEN_MODEL_PATH=/app/models/pollen_llmx.pth
+      - PYTHONPATH=/app
+      - ENVIRONMENT=development
+    volumes:
+      - ./pollen-backend:/app
+      - pollen-models:/app/models
+      - pollen-data:/app/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - pollen-network
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    restart: unless-stopped
+    networks:
+      - pollen-network
+
+  # Optional: PostgreSQL for production data storage
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_DB=pollen
+      - POSTGRES_USER=pollen
+      - POSTGRES_PASSWORD=pollen_secure_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - pollen-network
+
+volumes:
+  pollen-models:
+  pollen-data:
+  redis-data:
+  postgres-data:
+
+networks:
+  pollen-network:
+    driver: bridge
