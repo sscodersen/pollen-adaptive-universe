@@ -1,3 +1,4 @@
+
 import { toast } from "@/hooks/use-toast";
 
 interface PollenConfig {
@@ -28,7 +29,7 @@ class PollenAI {
 
   constructor() {
     this.config = {
-      modelEndpoint: process.env.REACT_APP_POLLEN_ENDPOINT || 'http://localhost:8000',
+      modelEndpoint: import.meta.env.VITE_POLLEN_ENDPOINT || 'http://localhost:8000',
       maxTokens: 2048,
       temperature: 0.7,
       learningRate: 0.01
