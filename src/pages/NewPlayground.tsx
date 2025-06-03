@@ -1,139 +1,84 @@
 
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Menu, Paperclip, Send, MoreHorizontal, Download, Heart, MessageCircle, Share2 } from 'lucide-react';
+import { ArrowLeft, Menu, Paperclip, Send, MoreHorizontal, Download, Heart, MessageCircle, Share2, Users, Brain, Zap } from 'lucide-react';
 import { ActivityFeed } from '../components/ActivityFeed';
+import { PersonalWorkspace } from '../components/PersonalWorkspace';
+import { TeamWorkspace } from '../components/TeamWorkspace';
+import { CommunityHub } from '../components/CommunityHub';
 import { pollenAI } from '../services/pollenAI';
 
 const NewPlayground = () => {
-  const [activeTab, setActiveTab] = useState('All Workspace');
-  const [commentText, setCommentText] = useState('');
+  const [activeTab, setActiveTab] = useState('Personal');
   const [activities, setActivities] = useState([]);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [aiStatus, setAiStatus] = useState('ready');
 
   const tabs = [
-    { id: 'All Workspace', name: 'All Workspace', count: null },
-    { id: 'Personal', name: 'Personal', count: null },
-    { id: 'Team', name: 'Team', count: 3 },
-    { id: 'Community', name: 'Community', count: null }
+    { id: 'Personal', name: 'Personal', count: null, icon: Users },
+    { id: 'Team', name: 'Team', count: 3, icon: Brain },
+    { id: 'Community', name: 'Community', count: null, icon: Zap }
   ];
 
   useEffect(() => {
-    // Generate initial content
+    // Initialize with sample content
     generateInitialContent();
     
-    // Set up slower generation interval (every 45 seconds)
-    const interval = setInterval(() => {
-      if (!isGenerating) {
-        generateNewActivity();
-      }
-    }, 45000);
+    // Set up AI status monitoring
+    const statusInterval = setInterval(() => {
+      const stats = pollenAI.getMemoryStats();
+      setAiStatus(stats.isLearning ? 'learning' : 'ready');
+    }, 5000);
 
-    return () => clearInterval(interval);
-  }, [isGenerating]);
+    return () => clearInterval(statusInterval);
+  }, []);
 
   const generateInitialContent = async () => {
     const initialActivities = [
       {
         id: '1',
-        type: 'comment',
+        type: 'ai_insight',
         user: {
-          name: 'Benjamin',
-          avatar: 'bg-green-500',
-          initial: 'B'
+          name: 'Pollen AI',
+          avatar: 'bg-gradient-to-r from-cyan-500 to-purple-500',
+          initial: 'P'
         },
-        action: 'commented on',
-        target: 'Sora UI Kit',
-        content: "What a good design! I like how you dealt with the spacing. Where can I get this file?",
-        timestamp: '1h',
-        replies: [
-          {
-            user: { name: 'Benjamin', avatar: 'bg-blue-500', initial: 'B' },
-            content: 'here is the link supaui.com/download 👍',
-            timestamp: '45m'
-          }
-        ],
-        hasNewReply: true
+        action: 'generated insights for',
+        target: 'Personal Workspace',
+        content: "Based on your recent activity patterns, I've identified 3 optimization opportunities for your workflow.",
+        timestamp: '2m',
+        aiGenerated: true,
+        confidence: 0.92
       },
       {
         id: '2',
-        type: 'generation',
+        type: 'collaboration',
         user: {
-          name: 'Jacob',
+          name: 'Sarah Chen',
           avatar: 'bg-blue-500',
-          initial: 'J'
+          initial: 'S'
         },
-        action: 'generated a new image on',
-        target: 'Midjourney',
-        content: null,
-        image: '/lovable-uploads/f306d6f2-5915-45e7-b800-05894257a2c7.png',
-        timestamp: '8h',
-        actions: ['Download', 'Use image'],
-        likes: []
+        action: 'shared a design system with',
+        target: 'Team Workspace',
+        content: "Updated the component library with new accessibility guidelines and dark mode variants.",
+        timestamp: '1h',
+        teamActivity: true
       }
     ];
     
     setActivities(initialActivities);
   };
 
-  const generateNewActivity = async () => {
-    setIsGenerating(true);
-    
-    try {
-      const modes = ['social', 'news', 'entertainment'];
-      const randomMode = modes[Math.floor(Math.random() * modes.length)];
-      
-      const response = await pollenAI.generate(
-        `Generate ${randomMode} content for the activity feed`,
-        randomMode
-      );
-      
-      const newActivity = {
-        id: Date.now().toString(),
-        type: randomMode === 'social' ? 'comment' : 'generation',
-        user: {
-          name: getRandomName(),
-          avatar: getRandomAvatar(),
-          initial: getRandomName()[0]
-        },
-        action: randomMode === 'social' ? 'shared' : 'generated content on',
-        target: getRandomTarget(randomMode),
-        content: response.content,
-        timestamp: 'now',
-        likes: []
-      };
-      
-      setActivities(prev => [newActivity, ...prev.slice(0, 9)]);
-    } catch (error) {
-      console.error('Failed to generate activity:', error);
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case 'Personal':
+        return <PersonalWorkspace activities={activities} isGenerating={isGenerating} />;
+      case 'Team':
+        return <TeamWorkspace activities={activities} isGenerating={isGenerating} />;
+      case 'Community':
+        return <CommunityHub activities={activities} isGenerating={isGenerating} />;
+      default:
+        return <PersonalWorkspace activities={activities} isGenerating={isGenerating} />;
     }
-    
-    setIsGenerating(false);
-  };
-
-  const getRandomName = () => {
-    const names = ['Alex', 'Sam', 'Jordan', 'Casey', 'Riley', 'Taylor', 'Morgan', 'Avery'];
-    return names[Math.floor(Math.random() * names.length)];
-  };
-
-  const getRandomAvatar = () => {
-    const colors = ['bg-red-500', 'bg-blue-500', 'bg-green-500', 'bg-purple-500', 'bg-orange-500', 'bg-pink-500'];
-    return colors[Math.floor(Math.random() * colors.length)];
-  };
-
-  const getRandomTarget = (mode) => {
-    const targets = {
-      social: ['Design System', 'UI Kit', 'Component Library'],
-      news: ['TechCrunch', 'Wired', 'The Verge'],
-      entertainment: ['Midjourney', 'RunwayML', 'Creative Studio']
-    };
-    const modeTargets = targets[mode] || targets.social;
-    return modeTargets[Math.floor(Math.random() * modeTargets.length)];
-  };
-
-  const handleSubmitComment = () => {
-    if (!commentText.trim()) return;
-    // Handle comment submission
-    setCommentText('');
   };
 
   return (
@@ -144,7 +89,19 @@ const NewPlayground = () => {
           <button className="p-2 hover:bg-gray-800 rounded-lg transition-colors">
             <ArrowLeft className="w-5 h-5" />
           </button>
-          <h1 className="text-xl font-semibold">Activity</h1>
+          <div className="flex items-center space-x-3">
+            <h1 className="text-xl font-semibold">Pollen Platform</h1>
+            <div className={`flex items-center space-x-2 px-3 py-1 rounded-full text-xs ${
+              aiStatus === 'learning' 
+                ? 'bg-yellow-500/20 text-yellow-400' 
+                : 'bg-green-500/20 text-green-400'
+            }`}>
+              <div className={`w-2 h-2 rounded-full ${
+                aiStatus === 'learning' ? 'bg-yellow-400 animate-pulse' : 'bg-green-400'
+              }`}></div>
+              <span>AI {aiStatus === 'learning' ? 'Learning' : 'Ready'}</span>
+            </div>
+          </div>
         </div>
         <button className="p-2 hover:bg-gray-800 rounded-lg transition-colors">
           <Menu className="w-5 h-5" />
@@ -157,13 +114,14 @@ const NewPlayground = () => {
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`flex items-center space-x-2 pb-2 transition-colors ${
+            className={`flex items-center space-x-3 pb-2 px-3 py-2 rounded-lg transition-all duration-200 ${
               activeTab === tab.id
-                ? 'text-white border-b-2 border-white'
-                : 'text-gray-400 hover:text-gray-300'
+                ? 'bg-gradient-to-r from-cyan-500/20 to-purple-500/20 border border-cyan-500/30 text-cyan-300'
+                : 'text-gray-400 hover:text-gray-300 hover:bg-gray-800/50'
             }`}
           >
-            <span>{tab.name}</span>
+            <tab.icon className="w-4 h-4" />
+            <span className="font-medium">{tab.name}</span>
             {tab.count && (
               <span className="bg-red-500 text-white text-xs px-1.5 py-0.5 rounded-full min-w-[20px] text-center">
                 {tab.count}
@@ -173,9 +131,9 @@ const NewPlayground = () => {
         ))}
       </div>
 
-      {/* Activity Feed */}
-      <div className="max-w-2xl mx-auto">
-        <ActivityFeed activities={activities} isGenerating={isGenerating} />
+      {/* Dynamic Content */}
+      <div className="max-w-6xl mx-auto">
+        {renderTabContent()}
       </div>
     </div>
   );

@@ -33,13 +33,16 @@ class PollenAIService {
   }
 
   private initializeLocalMemory() {
-    // Initialize with some base patterns
+    // Initialize with enhanced patterns for different modes
     const basePatterns = [
       { pattern: "UI design", category: "design", weight: 4.2 },
       { pattern: "machine learning", category: "tech", weight: 3.8 },
       { pattern: "user experience", category: "design", weight: 3.5 },
       { pattern: "data visualization", category: "tech", weight: 3.2 },
-      { pattern: "artificial intelligence", category: "tech", weight: 4.0 }
+      { pattern: "artificial intelligence", category: "tech", weight: 4.0 },
+      { pattern: "team collaboration", category: "team", weight: 3.6 },
+      { pattern: "community engagement", category: "community", weight: 3.4 },
+      { pattern: "personal productivity", category: "personal", weight: 3.9 }
     ];
     
     this.localMemory.set('patterns', basePatterns);
@@ -92,8 +95,29 @@ class PollenAIService {
         "🔬 Experimenting with new approaches to personalized user experiences",
         "📊 The story that data tells when we listen carefully is incredible"
       ],
+      personal: [
+        "🎯 Your focus time optimization suggests 25% productivity increase",
+        "📈 Learning pattern analysis shows accelerated skill acquisition",
+        "⚡ Workflow automation opportunities detected in routine tasks",
+        "🧠 Cognitive load reduction strategies available for complex projects",
+        "🎨 Creative block prevention protocols activated based on your patterns"
+      ],
+      team: [
+        "👥 Collaboration efficiency increased by 40% with AI-assisted workflows",
+        "🔄 Cross-functional alignment improved through intelligent task routing",
+        "📋 Project velocity optimization based on team capacity analysis",
+        "💬 Communication patterns suggest optimal meeting scheduling",
+        "🎯 Team goal synchronization achieved through shared AI insights"
+      ],
+      community: [
+        "🌐 Global knowledge sharing accelerated through AI curation",
+        "🤝 Community engagement patterns reveal emerging collaboration trends",
+        "📱 Decentralized learning networks forming around shared interests",
+        "🎉 Collective intelligence amplification through AI-human partnerships",
+        "🔮 Future-focused skill development guided by community insights"
+      ],
       news: [
-        "Breaking: Major breakthrough in sustainable AI computing announced today",
+        "Breaking: Revolutionary advancement in quantum computing announced today",
         "Industry Report: Ethics in AI development gains unprecedented focus",
         "Research Update: New findings on human-AI collaboration effectiveness",
         "Technology News: Open-source AI tools reach new accessibility milestone",
