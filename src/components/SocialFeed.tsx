@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Heart, MessageCircle, Share2, MoreHorizontal, Eye } from 'lucide-react';
+import { Heart, MessageCircle, Share2, MoreHorizontal, Eye, Sparkles } from 'lucide-react';
 import { pollenAI } from '../services/pollenAI';
 
 interface Post {
