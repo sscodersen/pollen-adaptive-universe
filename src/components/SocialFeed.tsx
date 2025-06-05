@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Heart, MessageCircle, Share2, MoreHorizontal, Eye, Sparkles, TrendingUp } from 'lucide-react';
 import { pollenAI } from '../services/pollenAI';
@@ -38,7 +37,10 @@ export const SocialFeed = ({ isGenerating = true }: SocialFeedProps) => {
           'creative breakthrough insights',
           'future of human-AI collaboration',
           'innovation in digital experiences',
-          'patterns in collective intelligence'
+          'patterns in collective intelligence',
+          'sustainable technology solutions',
+          'decentralized innovation networks',
+          'ethical AI development'
         ];
         
         const randomTopic = topics[Math.floor(Math.random() * topics.length)];
@@ -68,15 +70,23 @@ export const SocialFeed = ({ isGenerating = true }: SocialFeedProps) => {
       setGeneratingPost(false);
     };
 
-    generateContent();
-    const interval = setInterval(generateContent, 25000);
-    return () => clearInterval(interval);
+    // Generate initial post after a delay
+    const initialTimeout = setTimeout(generateContent, 3000);
+    
+    // Then generate new posts every 45-60 seconds (much slower)
+    const interval = setInterval(generateContent, Math.random() * 15000 + 45000);
+    
+    return () => {
+      clearTimeout(initialTimeout);
+      clearInterval(interval);
+    };
   }, [isGenerating, generatingPost]);
 
   const generateRandomAuthor = () => {
     const names = [
       'Alex Chen', 'Maya Rodriguez', 'Jordan Smith', 'Riley Kim', 
-      'Sam Johnson', 'Casey Brown', 'Avery Taylor', 'Quinn Davis'
+      'Sam Johnson', 'Casey Brown', 'Avery Taylor', 'Quinn Davis',
+      'Morgan Lee', 'Sage Wilson', 'River Martinez', 'Phoenix Garcia'
     ];
     return names[Math.floor(Math.random() * names.length)];
   };
@@ -84,7 +94,8 @@ export const SocialFeed = ({ isGenerating = true }: SocialFeedProps) => {
   const generateAvatar = () => {
     const colors = [
       'bg-blue-500', 'bg-purple-500', 'bg-pink-500', 'bg-green-500', 
-      'bg-orange-500', 'bg-cyan-500', 'bg-yellow-500', 'bg-red-500'
+      'bg-orange-500', 'bg-cyan-500', 'bg-yellow-500', 'bg-red-500',
+      'bg-indigo-500', 'bg-teal-500', 'bg-rose-500', 'bg-emerald-500'
     ];
     return colors[Math.floor(Math.random() * colors.length)];
   };
@@ -107,7 +118,7 @@ export const SocialFeed = ({ isGenerating = true }: SocialFeedProps) => {
         <div className="flex items-center justify-between mb-4">
           <div>
             <h1 className="text-2xl font-bold text-white">Social Feed</h1>
-            <p className="text-gray-400">AI-generated content continuously evolving</p>
+            <p className="text-gray-400">Anonymous AI-generated content continuously evolving</p>
           </div>
           <div className="flex items-center space-x-4">
             {generatingPost && (
@@ -122,7 +133,7 @@ export const SocialFeed = ({ isGenerating = true }: SocialFeedProps) => {
 
         {/* Filter Tabs */}
         <div className="flex space-x-6">
-          {['Recent', 'Trending', 'Following', 'Discover'].map((tab, index) => (
+          {['Recent', 'Trending', 'Discover', 'AI Generated'].map((tab, index) => (
             <button
               key={tab}
               className={`pb-2 text-sm font-medium transition-colors border-b-2 ${

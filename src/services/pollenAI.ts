@@ -1,5 +1,4 @@
-
-// Pollen AI Service - Frontend Integration
+// Pollen AI Service - Enhanced Frontend Integration
 export interface PollenResponse {
   content: string;
   confidence: number;
@@ -24,11 +23,13 @@ class PollenAIService {
   private baseUrl: string;
   private localMemory: Map<string, any>;
   private isLearning: boolean;
+  private generationQueue: Map<string, Promise<PollenResponse>>;
 
   constructor() {
     this.baseUrl = 'http://localhost:8000';
     this.localMemory = new Map();
     this.isLearning = true;
+    this.generationQueue = new Map();
     this.initializeLocalMemory();
   }
 
@@ -42,7 +43,9 @@ class PollenAIService {
       { pattern: "artificial intelligence", category: "tech", weight: 4.0 },
       { pattern: "team collaboration", category: "team", weight: 3.6 },
       { pattern: "community engagement", category: "community", weight: 3.4 },
-      { pattern: "personal productivity", category: "personal", weight: 3.9 }
+      { pattern: "personal productivity", category: "personal", weight: 3.9 },
+      { pattern: "automation workflows", category: "automation", weight: 4.1 },
+      { pattern: "social networks", category: "social", weight: 3.7 }
     ];
     
     this.localMemory.set('patterns', basePatterns);
@@ -51,6 +54,24 @@ class PollenAIService {
   }
 
   async generate(prompt: string, mode: string = "social"): Promise<PollenResponse> {
+    // Prevent duplicate simultaneous generations
+    const cacheKey = `${prompt}-${mode}`;
+    if (this.generationQueue.has(cacheKey)) {
+      return this.generationQueue.get(cacheKey)!;
+    }
+
+    const generationPromise = this.performGeneration(prompt, mode);
+    this.generationQueue.set(cacheKey, generationPromise);
+
+    try {
+      const result = await generationPromise;
+      return result;
+    } finally {
+      this.generationQueue.delete(cacheKey);
+    }
+  }
+
+  private async performGeneration(prompt: string, mode: string): Promise<PollenResponse> {
     try {
       const response = await fetch(`${this.baseUrl}/generate`, {
         method: 'POST',
@@ -81,71 +102,93 @@ class PollenAIService {
     } catch (error) {
       console.error('Pollen AI generation error:', error);
       
-      // Fallback to local generation
+      // Fallback to enhanced local generation
       return this.generateLocally(prompt, mode);
     }
   }
 
   private generateLocally(prompt: string, mode: string): PollenResponse {
+    // Enhanced templates with more variety
     const templates = {
       social: [
-        "🚀 Exploring the intersection of AI and human creativity...",
-        "💡 Just discovered fascinating patterns in user behavior data",
-        "🌟 Building the future of intelligent interfaces, one component at a time",
-        "🔬 Experimenting with new approaches to personalized user experiences",
-        "📊 The story that data tells when we listen carefully is incredible"
-      ],
-      personal: [
-        "🎯 Your focus time optimization suggests 25% productivity increase",
-        "📈 Learning pattern analysis shows accelerated skill acquisition",
-        "⚡ Workflow automation opportunities detected in routine tasks",
-        "🧠 Cognitive load reduction strategies available for complex projects",
-        "🎨 Creative block prevention protocols activated based on your patterns"
-      ],
-      team: [
-        "👥 Collaboration efficiency increased by 40% with AI-assisted workflows",
-        "🔄 Cross-functional alignment improved through intelligent task routing",
-        "📋 Project velocity optimization based on team capacity analysis",
-        "💬 Communication patterns suggest optimal meeting scheduling",
-        "🎯 Team goal synchronization achieved through shared AI insights"
-      ],
-      community: [
-        "🌐 Global knowledge sharing accelerated through AI curation",
-        "🤝 Community engagement patterns reveal emerging collaboration trends",
-        "📱 Decentralized learning networks forming around shared interests",
-        "🎉 Collective intelligence amplification through AI-human partnerships",
-        "🔮 Future-focused skill development guided by community insights"
-      ],
-      news: [
-        "Breaking: Revolutionary advancement in quantum computing announced today",
-        "Industry Report: Ethics in AI development gains unprecedented focus",
-        "Research Update: New findings on human-AI collaboration effectiveness",
-        "Technology News: Open-source AI tools reach new accessibility milestone",
-        "Innovation Alert: Revolutionary approach to privacy-preserving machine learning"
+        "🚀 The convergence of AI and human creativity is reshaping how we think about innovation. What started as algorithmic assistance has evolved into true collaborative intelligence.",
+        "💡 Fascinating patterns emerging in distributed networks - seeing how collective intelligence naturally forms when the right conditions are met.",
+        "🌟 Building the future isn't about replacing human intuition with AI logic, but creating synergies that amplify both human creativity and machine precision.",
+        "🔬 Experimenting with new models of human-AI collaboration. The most interesting breakthroughs happen at the intersection of structure and spontaneity.",
+        "📊 Data visualization reveals hidden narratives - every dataset contains stories waiting to be discovered through the right analytical lens.",
+        "🎨 Creative AI isn't about automation, it's about expansion - giving human imagination new tools to explore previously impossible territories.",
+        "🌐 Decentralized systems are teaching us that intelligence emerges from connection patterns, not just individual computational power.",
+        "⚡ The future of work isn't human vs AI - it's about creating collaborative ecosystems where both human intuition and machine learning thrive together."
       ],
       entertainment: [
-        "🎬 Generated Interactive Story: 'The Last Algorithm'",
-        "🎮 New AI Game: Adaptive puzzle-solving in quantum realms",
-        "🎵 AI-Composed Music: 'Symphonies of Tomorrow's Cities'",
-        "📚 Interactive Fiction: Choose your path through digital dimensions",
-        "🎭 Virtual Performance: AI-human collaborative theater experience"
+        "🎬 Interactive Narrative: 'The Quantum Mirror' - A story that adapts based on your choices, creating infinite narrative possibilities.",
+        "🎮 Procedural Game World: 'Infinite Gardens' - An ever-evolving ecosystem where your actions reshape the digital landscape in real-time.",
+        "🎵 AI Symphony Generator: 'Harmonic Convergence' - Music that evolves with your mood, creating personalized soundscapes for any moment.",
+        "📚 Collaborative Fiction Engine: 'Shared Worlds' - Stories where multiple creators contribute, and AI weaves their ideas into cohesive narratives.",
+        "🎭 Virtual Performance Space: 'The Digital Stage' - Interactive theater where audience participation shapes the story's direction.",
+        "🎪 Adaptive Entertainment Hub: 'Wonder Algorithms' - Content that learns your preferences and creates unique experiences tailored just for you."
+      ],
+      news: [
+        "🔬 Breakthrough in quantum error correction brings practical quantum computing closer to reality, with implications for cryptography and scientific simulation.",
+        "🌱 Revolutionary carbon capture technology developed by international research consortium shows promise for reversing atmospheric CO2 levels.",
+        "🤖 New AI ethics framework proposed by leading technologists emphasizes human agency and transparent decision-making in automated systems.",
+        "🌍 Global collaboration on climate technology accelerates as nations share breakthrough innovations in renewable energy storage.",
+        "💊 Gene therapy advances offer new hope for rare diseases, with personalized treatments showing remarkable success in clinical trials.",
+        "🔒 Privacy-preserving computation methods advance, enabling secure data analysis without compromising individual information."
+      ],
+      automation: [
+        "⚙️ Workflow Optimization: Smart task routing system reduces manual coordination by 60% while maintaining quality standards.",
+        "🔄 Process Intelligence: AI-powered workflow analysis identifies bottlenecks and suggests improvements in real-time.",
+        "📋 Dynamic Project Management: Adaptive scheduling that responds to changing priorities and resource availability.",
+        "🎯 Goal-Oriented Automation: Systems that understand objectives and autonomously adjust processes to achieve desired outcomes.",
+        "🔧 Self-Healing Workflows: Automation that detects and corrects errors, maintaining system reliability without human intervention.",
+        "📈 Performance Analytics: Continuous monitoring and optimization of automated processes for maximum efficiency."
+      ],
+      shop: [
+        "🛍️ Curated AI Tools Collection: Discover productivity-enhancing software tailored to your workflow patterns and professional goals.",
+        "💎 Premium Digital Assets: High-quality design resources, templates, and creative tools from verified creators worldwide.",
+        "🎯 Personalized Recommendations: AI-powered product discovery that learns from your preferences and suggests relevant items.",
+        "🔧 Professional Services: Expert consultations, custom development, and specialized solutions for your unique challenges.",
+        "📚 Knowledge Products: Courses, guides, and resources created by industry experts and thought leaders.",
+        "⚡ Productivity Boosters: Tools and services designed to streamline your workflow and enhance your professional capabilities."
+      ],
+      community: [
+        "🌐 Global Knowledge Exchange: Connecting experts across disciplines to solve complex challenges through collaborative intelligence.",
+        "🤝 Skill Sharing Networks: Community-driven learning where members teach and learn from each other's expertise.",
+        "💡 Innovation Circles: Small groups focused on exploring emerging technologies and their practical applications.",
+        "🎯 Project Collaboration Hubs: Spaces where community members form teams to work on meaningful initiatives together.",
+        "📱 Peer Learning Networks: Informal knowledge sharing that happens through daily interactions and shared experiences.",
+        "🔮 Future-Building Communities: Groups dedicated to envisioning and creating better technological and social systems."
       ]
     };
 
     const modeTemplates = templates[mode as keyof typeof templates] || templates.social;
-    const content = modeTemplates[Math.floor(Math.random() * modeTemplates.length)];
+    let content = modeTemplates[Math.floor(Math.random() * modeTemplates.length)];
     
     // Add prompt context if provided
-    const finalContent = prompt ? `${content}\n\nContext: ${prompt}` : content;
+    if (prompt && prompt.length > 10) {
+      const keywords = this.extractKeywords(prompt);
+      if (keywords.length > 0) {
+        content += `\n\nExploring: ${keywords.slice(0, 3).join(', ')} through the lens of ${mode} innovation.`;
+      }
+    }
     
-    this.addToMemory(prompt, finalContent, mode);
+    this.addToMemory(prompt, content, mode);
     
     return {
-      content: finalContent,
-      confidence: Math.random() * 0.3 + 0.6, // 0.6-0.9
+      content,
+      confidence: Math.random() * 0.25 + 0.7, // 0.7-0.95
       learning: this.isLearning,
-      reasoning: `Generated ${mode} content using local patterns and templates`
+      reasoning: `Generated ${mode} content using enhanced local patterns and contextual templates`
     };
+  }
+
+  private extractKeywords(text: string): string[] {
+    const words = text.toLowerCase().split(/\s+/);
+    const stopWords = ['the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by', 'about'];
+    return words
+      .filter(word => word.length > 3 && !stopWords.includes(word))
+      .slice(0, 5);
   }
 
   private addToMemory(input: string, output: string, mode: string) {
@@ -165,9 +208,9 @@ class PollenAIService {
     }
     this.localMemory.set('shortTermMemory', shortTerm);
 
-    // Update patterns
+    // Update patterns with better keyword extraction
     const patterns = this.localMemory.get('patterns') || [];
-    const keywords = input.toLowerCase().split(' ').filter(word => word.length > 3);
+    const keywords = this.extractKeywords(input);
     
     keywords.forEach(keyword => {
       const existingPattern = patterns.find((p: any) => p.pattern === keyword);
