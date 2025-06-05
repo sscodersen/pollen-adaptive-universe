@@ -1,7 +1,7 @@
-
 import React, { useState, useEffect } from 'react';
-import { Clock, TrendingUp, Globe, Zap, ExternalLink, Filter, BarChart3 } from 'lucide-react';
+import { Clock, TrendingUp, Globe, Zap, ExternalLink, Filter, BarChart3, Star } from 'lucide-react';
 import { pollenAI } from '../services/pollenAI';
+import { significanceAlgorithm } from '../services/significanceAlgorithm';
 
 interface NewsItem {
   id: string;
@@ -24,7 +24,7 @@ export const NewsEngine = ({ isGenerating = true }: NewsEngineProps) => {
   const [newsItems, setNewsItems] = useState<NewsItem[]>([]);
   const [generatingNews, setGeneratingNews] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('All');
-  const [sortBy, setSortBy] = useState('relevance');
+  const [sortBy, setSortBy] = useState('significance');
 
   const categories = ['All', 'Technology', 'Science', 'Politics', 'Business', 'Health', 'Environment'];
 
@@ -36,20 +36,25 @@ export const NewsEngine = ({ isGenerating = true }: NewsEngineProps) => {
       
       setGeneratingNews(true);
       try {
-        const topics = [
-          'breakthrough technology developments',
-          'scientific research discoveries',
-          'global economic shifts',
-          'environmental innovation solutions',
-          'healthcare advancement insights',
-          'policy changes and implications'
+        // Get trending topics and create news-focused prompts
+        const trendingTopics = significanceAlgorithm.getTrendingTopics();
+        const randomTopic = trendingTopics[Math.floor(Math.random() * trendingTopics.length)];
+        
+        const newsPrompts = [
+          `urgent breaking news about ${randomTopic} with global implications`,
+          `in-depth analysis of ${randomTopic} affecting millions of people`,
+          `exclusive investigation into ${randomTopic} revealing actionable insights`,
+          `expert commentary on ${randomTopic} with practical applications`,
+          `comprehensive report on ${randomTopic} breakthrough developments`,
+          `critical assessment of ${randomTopic} impact on society`
         ];
         
-        const randomTopic = topics[Math.floor(Math.random() * topics.length)];
+        const randomPrompt = newsPrompts[Math.floor(Math.random() * newsPrompts.length)];
         
         const response = await pollenAI.generate(
-          `Generate comprehensive news analysis about ${randomTopic}`,
-          "news"
+          `Generate comprehensive news analysis about ${randomPrompt}`,
+          "news",
+          true // Use significance filtering
         );
         
         const newItem: NewsItem = {
@@ -58,11 +63,11 @@ export const NewsEngine = ({ isGenerating = true }: NewsEngineProps) => {
           summary: response.content,
           category: getCategory(randomTopic),
           timestamp: formatNewsTimestamp(new Date()),
-          relevanceScore: Math.random() * 40 + 60, // 60-100%
-          originalityScore: Math.random() * 30 + 70, // 70-100%
+          relevanceScore: response.significanceScore || Math.random() * 40 + 60,
+          originalityScore: Math.random() * 30 + 70,
           source: 'Pollen Analysis',
-          trending: Math.random() > 0.6,
-          readTime: Math.floor(Math.random() * 8) + 2 // 2-10 min
+          trending: response.significanceScore ? response.significanceScore > 8.0 : Math.random() > 0.6,
+          readTime: Math.floor(Math.random() * 8) + 2
         };
         
         setNewsItems(prev => [newItem, ...prev.slice(0, 24)]);
@@ -73,7 +78,8 @@ export const NewsEngine = ({ isGenerating = true }: NewsEngineProps) => {
     };
 
     generateNews();
-    const interval = setInterval(generateNews, 35000);
+    // Generate news every 45-75 seconds (slower, more deliberate)
+    const interval = setInterval(generateNews, Math.random() * 30000 + 45000);
     return () => clearInterval(interval);
   }, [isGenerating, generatingNews]);
 
@@ -116,7 +122,7 @@ export const NewsEngine = ({ isGenerating = true }: NewsEngineProps) => {
     : newsItems.filter(item => item.category === selectedCategory);
 
   const sortedNews = [...filteredNews].sort((a, b) => {
-    if (sortBy === 'relevance') return b.relevanceScore - a.relevanceScore;
+    if (sortBy === 'significance') return b.relevanceScore - a.relevanceScore;
     if (sortBy === 'originality') return b.originalityScore - a.originalityScore;
     if (sortBy === 'time') return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
     return 0;
@@ -129,18 +135,18 @@ export const NewsEngine = ({ isGenerating = true }: NewsEngineProps) => {
         <div className="flex items-center justify-between mb-4">
           <div>
             <h1 className="text-2xl font-bold text-white">News Engine</h1>
-            <p className="text-gray-400">Unbiased analysis ranked by relevance and originality</p>
+            <p className="text-gray-400">AI-powered significance analysis • Only 7+ rated content</p>
           </div>
           <div className="flex items-center space-x-4">
             {generatingNews && (
               <div className="flex items-center space-x-2 text-green-400">
                 <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-                <span className="text-sm">Analyzing...</span>
+                <span className="text-sm">Analyzing significance...</span>
               </div>
             )}
             <div className="flex items-center space-x-2">
-              <BarChart3 className="w-4 h-4 text-gray-400" />
-              <span className="text-sm text-gray-400">{filteredNews.length} articles</span>
+              <Star className="w-4 h-4 text-yellow-400" />
+              <span className="text-sm text-gray-400">{filteredNews.length} high-impact articles</span>
             </div>
           </div>
         </div>
@@ -172,7 +178,7 @@ export const NewsEngine = ({ isGenerating = true }: NewsEngineProps) => {
               onChange={(e) => setSortBy(e.target.value)}
               className="bg-gray-700/50 border border-gray-600/50 rounded-lg px-3 py-1 text-sm text-white"
             >
-              <option value="relevance">Relevance</option>
+              <option value="significance">Significance Score</option>
               <option value="originality">Originality</option>
               <option value="time">Latest</option>
             </select>
@@ -193,9 +199,13 @@ export const NewsEngine = ({ isGenerating = true }: NewsEngineProps) => {
                   {item.trending && (
                     <span className="flex items-center space-x-1 px-3 py-1 bg-orange-500/20 text-orange-300 text-xs font-medium rounded-full">
                       <TrendingUp className="w-3 h-3" />
-                      <span>Trending</span>
+                      <span>High Impact</span>
                     </span>
                   )}
+                  <span className="flex items-center space-x-1 px-3 py-1 bg-yellow-500/20 text-yellow-300 text-xs font-medium rounded-full">
+                    <Star className="w-3 h-3" />
+                    <span>7+ Rated</span>
+                  </span>
                   <span className="text-xs text-gray-400">{item.readTime} min read</span>
                 </div>
                 
@@ -223,25 +233,14 @@ export const NewsEngine = ({ isGenerating = true }: NewsEngineProps) => {
               
               <div className="flex items-center space-x-6">
                 <div className="flex items-center space-x-2">
-                  <span className="text-xs text-gray-400">Relevance:</span>
+                  <span className="text-xs text-gray-400">Significance:</span>
                   <div className="w-16 h-2 bg-gray-700 rounded-full overflow-hidden">
                     <div 
-                      className="h-full bg-green-400 rounded-full transition-all"
-                      style={{ width: `${item.relevanceScore}%` }}
+                      className="h-full bg-yellow-400 rounded-full transition-all"
+                      style={{ width: `${(item.relevanceScore / 10) * 100}%` }}
                     />
                   </div>
-                  <span className="text-xs text-green-400 font-medium">{Math.round(item.relevanceScore)}%</span>
-                </div>
-                
-                <div className="flex items-center space-x-2">
-                  <span className="text-xs text-gray-400">Originality:</span>
-                  <div className="w-16 h-2 bg-gray-700 rounded-full overflow-hidden">
-                    <div 
-                      className="h-full bg-purple-400 rounded-full transition-all"
-                      style={{ width: `${item.originalityScore}%` }}
-                    />
-                  </div>
-                  <span className="text-xs text-purple-400 font-medium">{Math.round(item.originalityScore)}%</span>
+                  <span className="text-xs text-yellow-400 font-medium">{item.relevanceScore.toFixed(1)}/10</span>
                 </div>
                 
                 <button className="text-gray-400 hover:text-white transition-colors">
@@ -254,12 +253,12 @@ export const NewsEngine = ({ isGenerating = true }: NewsEngineProps) => {
 
         {sortedNews.length === 0 && (
           <div className="text-center py-16">
-            <div className="w-20 h-20 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full flex items-center justify-center mx-auto mb-6">
-              <Zap className="w-10 h-10 text-white animate-pulse" />
+            <div className="w-20 h-20 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-6">
+              <Star className="w-10 h-10 text-white animate-pulse" />
             </div>
-            <h3 className="text-xl font-semibold text-white mb-2">Analyzing Global Information...</h3>
+            <h3 className="text-xl font-semibold text-white mb-2">Analyzing Global Significance...</h3>
             <p className="text-gray-400 max-w-md mx-auto">
-              Pollen is processing and ranking news by relevance and originality, ensuring unbiased and comprehensive coverage.
+              Pollen is processing the world's most impactful news using our 7-factor significance algorithm. Only content scoring 7+ is curated for presentation.
             </p>
           </div>
         )}

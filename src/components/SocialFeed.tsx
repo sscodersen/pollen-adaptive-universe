@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Heart, MessageCircle, Share2, MoreHorizontal, Eye, Sparkles, TrendingUp } from 'lucide-react';
+import { Heart, MessageCircle, Share2, MoreHorizontal, Eye, Sparkles, TrendingUp, Zap } from 'lucide-react';
 import { pollenAI } from '../services/pollenAI';
+import { significanceAlgorithm } from '../services/significanceAlgorithm';
 
 interface Post {
   id: string;
@@ -32,22 +33,28 @@ export const SocialFeed = ({ isGenerating = true }: SocialFeedProps) => {
       
       setGeneratingPost(true);
       try {
-        const topics = [
-          'emerging technology trends',
-          'creative breakthrough insights',
-          'future of human-AI collaboration',
-          'innovation in digital experiences',
-          'patterns in collective intelligence',
-          'sustainable technology solutions',
-          'decentralized innovation networks',
-          'ethical AI development'
+        // Get trending topics from significance algorithm
+        const trendingTopics = significanceAlgorithm.getTrendingTopics();
+        const randomTopic = trendingTopics[Math.floor(Math.random() * trendingTopics.length)];
+        
+        // Enhanced prompt for more diverse content generation
+        const contentTypes = [
+          `breaking news analysis about ${randomTopic}`,
+          `actionable insights on ${randomTopic}`,
+          `global impact assessment of ${randomTopic}`,
+          `innovative solutions in ${randomTopic}`,
+          `expert commentary on ${randomTopic}`,
+          `practical applications of ${randomTopic}`,
+          `emerging trends in ${randomTopic}`,
+          `community success stories with ${randomTopic}`
         ];
         
-        const randomTopic = topics[Math.floor(Math.random() * topics.length)];
+        const randomContentType = contentTypes[Math.floor(Math.random() * contentTypes.length)];
         
         const response = await pollenAI.generate(
-          `Create engaging social content about ${randomTopic}`,
-          "social"
+          `Create engaging social content about ${randomContentType}`,
+          "social",
+          true // Use significance filtering
         );
         
         const newPost: Post = {
@@ -55,12 +62,12 @@ export const SocialFeed = ({ isGenerating = true }: SocialFeedProps) => {
           author: generateRandomAuthor(),
           avatar: generateAvatar(),
           content: response.content,
-          likes: Math.floor(Math.random() * 2000),
-          comments: Math.floor(Math.random() * 200),
-          views: Math.floor(Math.random() * 10000),
+          likes: Math.floor(Math.random() * 5000), // Higher engagement for significant content
+          comments: Math.floor(Math.random() * 500),
+          views: Math.floor(Math.random() * 50000),
           timestamp: formatTimestamp(new Date()),
           type: 'text',
-          trending: Math.random() > 0.7
+          trending: response.significanceScore ? response.significanceScore > 8.5 : Math.random() > 0.6
         };
         
         setPosts(prev => [newPost, ...prev.slice(0, 19)]);
@@ -73,8 +80,8 @@ export const SocialFeed = ({ isGenerating = true }: SocialFeedProps) => {
     // Generate initial post after a delay
     const initialTimeout = setTimeout(generateContent, 3000);
     
-    // Then generate new posts every 45-60 seconds (much slower)
-    const interval = setInterval(generateContent, Math.random() * 15000 + 45000);
+    // Generate new posts every 60-90 seconds (slower as requested)
+    const interval = setInterval(generateContent, Math.random() * 30000 + 60000);
     
     return () => {
       clearTimeout(initialTimeout);
