@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Heart, MessageCircle, Share2, MoreHorizontal, Eye, Sparkles, TrendingUp, Zap } from 'lucide-react';
+import { Heart, MessageCircle, Share2, MoreHorizontal, Eye, Sparkles, TrendingUp, Zap, Send, Image, Video, FileText, Code, BarChart3, Download, Play } from 'lucide-react';
 import { pollenAI } from '../services/pollenAI';
 import { significanceAlgorithm } from '../services/significanceAlgorithm';
+import { aiChatService, type GenerationRequest, type ChatMessage } from '../services/aiChatService';
 
 interface Post {
   id: string;
@@ -24,6 +25,20 @@ interface SocialFeedProps {
 export const SocialFeed = ({ isGenerating = true }: SocialFeedProps) => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [generatingPost, setGeneratingPost] = useState(false);
+  const [chatInput, setChatInput] = useState('');
+  const [selectedGenerationType, setSelectedGenerationType] = useState<GenerationRequest['type']>('reasoning');
+  const [isProcessingChat, setIsProcessingChat] = useState(false);
+
+  const generationTypes = [
+    { type: 'photo' as const, icon: Image, label: 'Photo' },
+    { type: 'video' as const, icon: Video, label: 'Video' },
+    { type: 'task' as const, icon: Zap, label: 'Task' },
+    { type: 'reasoning' as const, icon: BarChart3, label: 'Analysis' },
+    { type: 'coding' as const, icon: Code, label: 'Code' },
+    { type: 'pdf' as const, icon: FileText, label: 'PDF' },
+    { type: 'blog' as const, icon: FileText, label: 'Blog' },
+    { type: 'seo' as const, icon: TrendingUp, label: 'SEO' }
+  ];
 
   useEffect(() => {
     if (!isGenerating) return;
@@ -118,6 +133,53 @@ export const SocialFeed = ({ isGenerating = true }: SocialFeedProps) => {
     return `${Math.floor(diffMins / 1440)}d`;
   };
 
+  const handleChatSubmit = async () => {
+    if (!chatInput.trim() || isProcessingChat) return;
+    
+    setIsProcessingChat(true);
+    try {
+      const request: GenerationRequest = {
+        type: selectedGenerationType,
+        prompt: chatInput
+      };
+      
+      const response = await aiChatService.processGenerationRequest(request);
+      
+      // Convert chat response to social post
+      const aiPost: Post = {
+        id: Date.now().toString(),
+        author: 'Pollen AI Assistant',
+        avatar: 'bg-gradient-to-r from-cyan-500 to-purple-500',
+        content: response.content,
+        likes: Math.floor(Math.random() * 100),
+        comments: Math.floor(Math.random() * 20),
+        views: Math.floor(Math.random() * 1000),
+        timestamp: formatTimestamp(new Date()),
+        type: response.attachments && response.attachments.length > 0 ? 'mixed' : 'text',
+        trending: true,
+        attachments: response.attachments
+      };
+      
+      setPosts(prev => [aiPost, ...prev.slice(0, 19)]);
+      setChatInput('');
+    } catch (error) {
+      console.error('Error processing chat:', error);
+    }
+    setIsProcessingChat(false);
+  };
+
+  const handleDownload = (attachment: any) => {
+    const blob = new Blob([attachment.content || ''], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = attachment.name;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="flex-1 flex flex-col">
       {/* Header */}
@@ -155,6 +217,64 @@ export const SocialFeed = ({ isGenerating = true }: SocialFeedProps) => {
         </div>
       </div>
 
+      {/* AI Chat Input */}
+      <div className="p-4 border-b border-gray-700/50 bg-gray-800/30">
+        <div className="max-w-4xl mx-auto">
+          <div className="flex items-center space-x-2 mb-3">
+            <Sparkles className="w-5 h-5 text-cyan-400" />
+            <span className="text-sm font-medium text-white">AI Assistant - Generate Content</span>
+          </div>
+          
+          {/* Generation Type Selector */}
+          <div className="flex flex-wrap gap-2 mb-3">
+            {generationTypes.map(({ type, icon: Icon, label }) => (
+              <button
+                key={type}
+                onClick={() => setSelectedGenerationType(type)}
+                className={`flex items-center space-x-1 px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+                  selectedGenerationType === type
+                    ? 'bg-cyan-500 text-white'
+                    : 'bg-gray-700/50 text-gray-300 hover:bg-gray-600/50'
+                }`}
+              >
+                <Icon className="w-3 h-3" />
+                <span>{label}</span>
+              </button>
+            ))}
+          </div>
+          
+          {/* Chat Input */}
+          <div className="flex space-x-3">
+            <input
+              type="text"
+              value={chatInput}
+              onChange={(e) => setChatInput(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && handleChatSubmit()}
+              placeholder={`Ask AI to generate ${generationTypes.find(t => t.type === selectedGenerationType)?.label.toLowerCase()}...`}
+              className="flex-1 bg-gray-700/50 border border-gray-600/50 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-cyan-500/50"
+              disabled={isProcessingChat}
+            />
+            <button
+              onClick={handleChatSubmit}
+              disabled={!chatInput.trim() || isProcessingChat}
+              className="bg-gradient-to-r from-cyan-500 to-purple-500 px-6 py-3 rounded-lg font-medium text-white transition-all disabled:opacity-50 flex items-center space-x-2"
+            >
+              {isProcessingChat ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                  <span>Generating...</span>
+                </>
+              ) : (
+                <>
+                  <Send className="w-4 h-4" />
+                  <span>Generate</span>
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      </div>
+
       {/* Feed */}
       <div className="flex-1 overflow-y-auto p-6 space-y-4">
         {posts.map((post) => (
@@ -185,7 +305,59 @@ export const SocialFeed = ({ isGenerating = true }: SocialFeedProps) => {
 
             {/* Post Content */}
             <div className="mb-6">
-              <p className="text-gray-100 leading-relaxed whitespace-pre-line">{post.content}</p>
+              <div className="text-gray-100 leading-relaxed whitespace-pre-line">
+                {post.content}
+              </div>
+              
+              {/* Attachments */}
+              {post.attachments && post.attachments.length > 0 && (
+                <div className="mt-4 space-y-3">
+                  {post.attachments.map((attachment) => (
+                    <div key={attachment.id} className="bg-gray-700/30 rounded-lg p-4 border border-gray-600/30">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          {attachment.type === 'image' && <Image className="w-5 h-5 text-blue-400" />}
+                          {attachment.type === 'video' && <Video className="w-5 h-5 text-red-400" />}
+                          {attachment.type === 'code' && <Code className="w-5 h-5 text-green-400" />}
+                          {attachment.type === 'document' && <FileText className="w-5 h-5 text-yellow-400" />}
+                          {attachment.type === 'analysis' && <BarChart3 className="w-5 h-5 text-purple-400" />}
+                          
+                          <div>
+                            <p className="text-sm font-medium text-white">{attachment.name}</p>
+                            <p className="text-xs text-gray-400 capitalize">{attachment.type} • Ready for use</p>
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-center space-x-2">
+                          {attachment.type === 'video' && (
+                            <button className="p-2 bg-gray-600/50 rounded-lg hover:bg-gray-600 transition-colors">
+                              <Play className="w-4 h-4 text-white" />
+                            </button>
+                          )}
+                          {attachment.downloadable && (
+                            <button
+                              onClick={() => handleDownload(attachment)}
+                              className="p-2 bg-gray-600/50 rounded-lg hover:bg-gray-600 transition-colors"
+                            >
+                              <Download className="w-4 h-4 text-white" />
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                      
+                      {attachment.type === 'image' && attachment.url && (
+                        <div className="mt-3">
+                          <img 
+                            src={attachment.url} 
+                            alt={attachment.name}
+                            className="rounded-lg max-h-64 w-full object-cover"
+                          />
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Post Actions */}
