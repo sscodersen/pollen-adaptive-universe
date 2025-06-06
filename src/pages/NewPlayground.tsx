@@ -21,7 +21,7 @@ const NewPlayground = () => {
   const tabs = [
     { id: 'Social', name: 'Social Feed', icon: Users },
     { id: 'Entertainment', name: 'Entertainment', icon: Play },
-    { id: 'Search', name: 'News Engine', icon: Search },
+    { id: 'Search', name: 'News Intelligence', icon: Search },
     { id: 'Shop', name: 'Smart Shopping', icon: ShoppingBag },
     { id: 'Automation', name: 'Task Automation', icon: Bot },
     { id: 'Community', name: 'Community Hub', icon: Globe },
@@ -122,7 +122,7 @@ const NewPlayground = () => {
 
   return (
     <div className="min-h-screen bg-gray-950 text-white">
-      {/* Enhanced Header with Darker Theme */}
+      {/* Enhanced Header */}
       <div className="flex items-center justify-between p-6 border-b border-gray-800/60 bg-gray-900/80 backdrop-blur-sm">
         <div className="flex items-center space-x-6">
           <button className="p-2 hover:bg-gray-800/60 rounded-lg transition-colors">
@@ -134,7 +134,7 @@ const NewPlayground = () => {
             </div>
             <div>
               <h1 className="text-2xl font-bold">Pollen Intelligence Platform</h1>
-              <p className="text-gray-400 text-sm">AI-Powered • Multi-Domain • Real-Time Analysis</p>
+              <p className="text-gray-400 text-sm">AI-Powered • Multi-Domain • Real-Time Analysis • Production Ready</p>
             </div>
           </div>
           <div className="flex items-center space-x-4">
@@ -151,6 +151,9 @@ const NewPlayground = () => {
             <div className="px-4 py-2 bg-cyan-500/10 text-cyan-400 rounded-full text-sm font-medium border border-cyan-500/20">
               Production Ready
             </div>
+            <div className="px-4 py-2 bg-purple-500/10 text-purple-400 rounded-full text-sm font-medium border border-purple-500/20">
+              Optimized
+            </div>
           </div>
         </div>
         
@@ -159,7 +162,7 @@ const NewPlayground = () => {
         </button>
       </div>
 
-      {/* Enhanced Feature Tabs with Darker Theme */}
+      {/* Enhanced Feature Tabs */}
       <div className="flex space-x-1 px-6 py-4 border-b border-gray-800/60 overflow-x-auto bg-gray-900/40">
         {tabs.map((tab) => (
           <button

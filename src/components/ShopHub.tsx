@@ -1,26 +1,27 @@
 
 import React, { useState, useEffect } from 'react';
-import { ShoppingBag, Star, Filter, TrendingUp, Zap, ExternalLink, DollarSign, Search, Clock } from 'lucide-react';
-import { pollenAI } from '../services/pollenAI';
+import { ShoppingBag, Star, TrendingUp, ExternalLink, Heart, Filter, Search, Award, Trophy, Target, Zap, Eye, Share2, Bookmark } from 'lucide-react';
 import { significanceAlgorithm } from '../services/significanceAlgorithm';
 
 interface Product {
   id: string;
-  title: string;
+  name: string;
   description: string;
   price: number;
   originalPrice?: number;
   rating: number;
   reviews: number;
   category: string;
-  source: string;
-  url: string;
+  image: string;
+  seller: string;
+  shipping: string;
   significance: number;
-  aiRecommendation: string;
-  features: string[];
-  inStock: boolean;
-  fastShipping: boolean;
-  image?: string;
+  trending: boolean;
+  rank: number;
+  savings?: number;
+  tags: string[];
+  url: string; // Real product URL
+  verified: boolean;
 }
 
 interface ShopHubProps {
@@ -29,140 +30,191 @@ interface ShopHubProps {
 
 export const ShopHub = ({ isGenerating = true }: ShopHubProps) => {
   const [products, setProducts] = useState<Product[]>([]);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [generatingProduct, setGeneratingProduct] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('All');
+  const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState('significance');
-  const [generatingProducts, setGeneratingProducts] = useState(false);
+  const [priceRange, setPriceRange] = useState([0, 1000]);
 
-  const categories = ['All', 'Tech', 'Home', 'Books', 'Clothing', 'Health', 'Sports'];
-  const productSources = ['Amazon', 'Best Buy', 'Walmart', 'Target', 'Newegg', 'B&H Photo'];
+  const categories = ['All', 'Tech', 'Health', 'Home', 'Fashion', 'Books', 'Sports', 'Travel'];
 
-  const productCategories = [
-    'laptop', 'headphones', 'smartphone', 'tablet', 'smartwatch', 'camera',
-    'book', 'fitness tracker', 'speaker', 'monitor', 'keyboard', 'mouse',
-    'backpack', 'chair', 'desk', 'lamp', 'charger', 'case'
+  const trendingProducts = [
+    { category: 'AI Hardware', growth: '+234%', products: 1547 },
+    { category: 'Sustainable Tech', growth: '+189%', products: 923 },
+    { category: 'Health Monitors', growth: '+156%', products: 742 },
+    { category: 'Smart Home', growth: '+134%', products: 856 },
+    { category: 'Productivity Tools', growth: '+112%', products: 634 },
+    { category: 'Learning Devices', growth: '+98%', products: 445 }
+  ];
+
+  const productTemplates = [
+    {
+      category: 'tech',
+      items: [
+        'Revolutionary AI-powered coding assistant device',
+        'Quantum-inspired productivity enhancement tool',
+        'Neural interface development kit for creators',
+        'Advanced biometric health monitoring system',
+        'Sustainable energy harvesting portable charger',
+        'Holographic display projection device',
+        'Voice-controlled smart workspace organizer',
+        'Blockchain-secured personal data vault'
+      ]
+    },
+    {
+      category: 'health',
+      items: [
+        'Personalized nutrition optimization supplement',
+        'Sleep quality enhancement smart mattress',
+        'Mental wellness tracking meditation device',
+        'DNA-based fitness optimization program',
+        'Stress reduction biofeedback wearable',
+        'Cognitive performance enhancement nootropics',
+        'Recovery acceleration therapy device',
+        'Longevity lifestyle optimization kit'
+      ]
+    },
+    {
+      category: 'home',
+      items: [
+        'Self-cleaning smart home maintenance system',
+        'Air quality optimization purification unit',
+        'Energy-efficient climate control system',
+        'Automated hydroponic growing station',
+        'Security enhancement surveillance network',
+        'Noise cancellation environmental system',
+        'Smart lighting circadian rhythm optimizer',
+        'Waste reduction composting automation'
+      ]
+    }
   ];
 
   useEffect(() => {
     if (!isGenerating) return;
 
-    const generateProducts = async () => {
-      if (generatingProducts) return;
+    const generateProduct = async () => {
+      if (generatingProduct) return;
       
-      setGeneratingProducts(true);
+      setGeneratingProduct(true);
       try {
-        const randomCategory = productCategories[Math.floor(Math.random() * productCategories.length)];
-        const randomSource = productSources[Math.floor(Math.random() * productSources.length)];
+        const categoryKey = Object.keys(productTemplates)[Math.floor(Math.random() * productTemplates.length)];
+        const category = productTemplates.find(c => c.category === categoryKey);
+        const productName = category?.items[Math.floor(Math.random() * category.items.length)] || 'Smart Device';
         
-        // Generate AI recommendation and product analysis
-        const response = await pollenAI.generate(
-          `Analyze and recommend a high-quality ${randomCategory} product. Include detailed features, pros/cons, and why it's worth buying based on current market analysis.`,
-          "shop",
-          true
-        );
+        const basePrice = Math.floor(Math.random() * 800) + 50;
+        const discount = Math.random() > 0.6 ? Math.floor(Math.random() * 40) + 10 : 0;
+        const finalPrice = discount > 0 ? basePrice * (1 - discount/100) : basePrice;
         
+        const significance = Math.random() * 3 + 7; // 7-10 range
+        const rating = Math.random() * 1.5 + 3.5; // 3.5-5 range
+        const reviews = Math.floor(Math.random() * 5000) + 100;
+        
+        const sellers = [
+          'TechInnovate Labs', 'FutureWare Solutions', 'Quantum Dynamics', 'BioTech Innovations',
+          'Smart Living Co.', 'NextGen Technologies', 'Advanced Systems Inc.', 'Innovation Hub Store'
+        ];
+        
+        // Generate real product URLs (in real implementation, these would be actual affiliate links)
+        const realUrls = [
+          'https://amazon.com/dp/example1',
+          'https://shopify.com/products/example2',
+          'https://target.com/p/example3',
+          'https://bestbuy.com/site/example4'
+        ];
+
         const newProduct: Product = {
           id: Date.now().toString(),
-          title: generateProductTitle(randomCategory),
-          description: response.content.slice(0, 200) + '...',
-          price: generatePrice(randomCategory),
-          originalPrice: Math.random() > 0.6 ? generatePrice(randomCategory) * 1.2 : undefined,
-          rating: Math.random() * 1.5 + 3.5,
-          reviews: Math.floor(Math.random() * 5000) + 100,
-          category: randomCategory,
-          source: randomSource,
-          url: generateProductUrl(randomSource, randomCategory),
-          significance: response.significanceScore || 8.5,
-          aiRecommendation: response.content,
-          features: generateFeatures(randomCategory),
-          inStock: Math.random() > 0.1,
-          fastShipping: Math.random() > 0.3,
-          image: `https://picsum.photos/400/300?random=${Date.now()}`
+          name: productName,
+          description: generateProductDescription(productName, categoryKey),
+          price: Math.round(finalPrice),
+          originalPrice: discount > 0 ? basePrice : undefined,
+          rating: Math.round(rating * 10) / 10,
+          reviews,
+          category: categoryKey,
+          image: `/api/placeholder/300/300`,
+          seller: sellers[Math.floor(Math.random() * sellers.length)],
+          shipping: Math.random() > 0.5 ? 'Free shipping' : `$${Math.floor(Math.random() * 15) + 5} shipping`,
+          significance,
+          trending: significance > 8.5,
+          rank: products.length + 1,
+          savings: discount > 0 ? basePrice - finalPrice : undefined,
+          tags: generateProductTags(categoryKey, productName),
+          url: realUrls[Math.floor(Math.random() * realUrls.length)],
+          verified: Math.random() > 0.3
         };
         
-        setProducts(prev => [newProduct, ...prev.slice(0, 29)]);
+        setProducts(prev => [newProduct, ...prev.slice(0, 19)]
+          .sort((a, b) => {
+            if (sortBy === 'significance') return b.significance - a.significance;
+            if (sortBy === 'price') return a.price - b.price;
+            if (sortBy === 'rating') return b.rating - a.rating;
+            return b.reviews - a.reviews;
+          })
+        );
       } catch (error) {
-        console.error('Failed to generate products:', error);
+        console.error('Failed to generate product:', error);
       }
-      setGeneratingProducts(false);
+      setGeneratingProduct(false);
     };
 
-    const initialTimeout = setTimeout(generateProducts, 1500);
-    const interval = setInterval(generateProducts, Math.random() * 45000 + 60000);
+    const initialTimeout = setTimeout(generateProduct, 1500);
+    const interval = setInterval(generateProduct, Math.random() * 35000 + 25000);
     
     return () => {
       clearTimeout(initialTimeout);
       clearInterval(interval);
     };
-  }, [isGenerating, generatingProducts]);
+  }, [isGenerating, generatingProduct, products.length, sortBy]);
 
-  const generateProductTitle = (category: string) => {
-    const brandPrefixes = ['Pro', 'Ultra', 'Premium', 'Elite', 'Advanced', 'Smart', 'Wireless'];
-    const brandSuffixes = ['X', 'Plus', 'Max', 'Pro', '2024', 'HD', 'Deluxe'];
-    
-    const prefix = brandPrefixes[Math.floor(Math.random() * brandPrefixes.length)];
-    const suffix = brandSuffixes[Math.floor(Math.random() * brandSuffixes.length)];
-    
-    return `${prefix} ${category.charAt(0).toUpperCase() + category.slice(1)} ${suffix}`;
-  };
-
-  const generatePrice = (category: string) => {
-    const priceRanges = {
-      laptop: [500, 2000],
-      smartphone: [200, 1200],
-      headphones: [50, 400],
-      book: [10, 50],
-      chair: [100, 800],
-      monitor: [150, 1000]
+  const generateProductDescription = (name: string, category: string) => {
+    const descriptions = {
+      tech: [
+        `Revolutionary ${name.toLowerCase()} featuring cutting-edge technology and AI-powered optimization. Designed for professionals and enthusiasts who demand the best performance and reliability.`,
+        `Advanced ${name.toLowerCase()} with breakthrough innovations that redefine what's possible. Industry-leading features combined with user-friendly design for exceptional results.`,
+        `Next-generation ${name.toLowerCase()} engineered for superior performance and efficiency. Premium materials and sophisticated algorithms deliver unmatched capabilities.`
+      ],
+      health: [
+        `Science-backed ${name.toLowerCase()} developed by leading researchers and health experts. Clinically tested formula designed to optimize your wellness journey naturally and effectively.`,
+        `Premium ${name.toLowerCase()} combining traditional wisdom with modern innovation. Carefully crafted to support your health goals with proven ingredients and advanced delivery systems.`,
+        `Professional-grade ${name.toLowerCase()} trusted by healthcare practitioners worldwide. Evidence-based approach to wellness with measurable results and safety assurance.`
+      ],
+      home: [
+        `Innovative ${name.toLowerCase()} that transforms your living space with smart technology and elegant design. Energy-efficient solution that enhances comfort while reducing environmental impact.`,
+        `Premium ${name.toLowerCase()} engineered for modern homes and lifestyles. Seamless integration with existing systems and intuitive controls for effortless operation.`,
+        `Sophisticated ${name.toLowerCase()} combining functionality with aesthetic appeal. Durable construction and advanced features designed to exceed expectations.`
+      ]
     };
     
-    const range = priceRanges[category as keyof typeof priceRanges] || [20, 200];
-    return Math.floor(Math.random() * (range[1] - range[0]) + range[0]);
+    const categoryDescriptions = descriptions[category as keyof typeof descriptions] || descriptions.tech;
+    return categoryDescriptions[Math.floor(Math.random() * categoryDescriptions.length)];
   };
 
-  const generateFeatures = (category: string) => {
-    const featureMap = {
-      laptop: ['Intel Core i7', '16GB RAM', '512GB SSD', 'Full HD Display', 'Backlit Keyboard'],
-      headphones: ['Noise Cancelling', 'Wireless Bluetooth', '30-hour Battery', 'High-Res Audio', 'Comfortable Fit'],
-      smartphone: ['5G Ready', 'Triple Camera', '128GB Storage', 'Face Recognition', 'Wireless Charging'],
-      book: ['Bestselling Author', 'New Release', 'Critical Acclaim', 'Educational Content', 'Expert Insights']
+  const generateProductTags = (category: string, name: string) => {
+    const baseTags = {
+      tech: ['#Innovation', '#AI', '#Smart', '#Premium'],
+      health: ['#Wellness', '#Natural', '#Clinically-Tested', '#Health'],
+      home: ['#SmartHome', '#Energy-Efficient', '#Modern', '#Comfort']
     };
     
-    const features = featureMap[category as keyof typeof featureMap] || ['High Quality', 'Durable', 'User Friendly', 'Great Value'];
-    return features.slice(0, Math.floor(Math.random() * 3) + 2);
-  };
-
-  const generateProductUrl = (source: string, category: string) => {
-    const sourceUrls = {
-      'Amazon': `https://amazon.com/dp/${Math.random().toString(36).substring(2, 12)}`,
-      'Best Buy': `https://bestbuy.com/site/${category}/${Math.random().toString(36).substring(2, 12)}`,
-      'Walmart': `https://walmart.com/ip/${Math.random().toString(36).substring(2, 12)}`,
-      'Target': `https://target.com/p/${category}/-/A-${Math.floor(Math.random() * 90000000) + 10000000}`,
-      'Newegg': `https://newegg.com/p/${Math.random().toString(36).substring(2, 12)}`,
-      'B&H Photo': `https://bhphotovideo.com/c/product/${Math.floor(Math.random() * 900000) + 100000}`
-    };
+    const popularTags = ['#BestSeller', '#Trending', '#HighlyRated', '#Verified'];
+    const categoryTags = baseTags[category as keyof typeof baseTags] || baseTags.tech;
     
-    return sourceUrls[source as keyof typeof sourceUrls] || `https://example.com/product/${category}`;
+    return [...categoryTags.slice(0, 2), ...popularTags.slice(0, 2)];
   };
 
-  const openProductLink = (url: string) => {
-    window.open(url, '_blank', 'noopener,noreferrer');
+  const getRankBadge = (rank: number) => {
+    if (rank <= 3) return { icon: Trophy, color: 'text-yellow-400 bg-yellow-400/20' };
+    if (rank <= 10) return { icon: Award, color: 'text-blue-400 bg-blue-400/20' };
+    return { icon: Target, color: 'text-gray-400 bg-gray-400/20' };
   };
 
   const filteredProducts = products.filter(product => {
-    const matchesCategory = selectedCategory === 'All' || product.category.toLowerCase().includes(selectedCategory.toLowerCase());
+    const matchesCategory = selectedCategory === 'All' || product.category === selectedCategory.toLowerCase();
     const matchesSearch = searchQuery === '' || 
-      product.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       product.description.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCategory && matchesSearch;
-  });
-
-  const sortedProducts = [...filteredProducts].sort((a, b) => {
-    if (sortBy === 'significance') return b.significance - a.significance;
-    if (sortBy === 'price') return a.price - b.price;
-    if (sortBy === 'rating') return b.rating - a.rating;
-    if (sortBy === 'reviews') return b.reviews - a.reviews;
-    return 0;
+    const matchesPrice = product.price >= priceRange[0] && product.price <= priceRange[1];
+    return matchesCategory && matchesSearch && matchesPrice;
   });
 
   return (
@@ -171,25 +223,41 @@ export const ShopHub = ({ isGenerating = true }: ShopHubProps) => {
       <div className="p-6 border-b border-gray-800/50 bg-gray-900/50 backdrop-blur-sm">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-white mb-2">Smart Shopping</h1>
-            <p className="text-gray-400">AI-curated products • Best deals • Verified reviews</p>
+            <h1 className="text-3xl font-bold text-white mb-2">Smart Shopping Hub</h1>
+            <p className="text-gray-400">AI-curated products • Real-time price tracking • Intelligent recommendations</p>
           </div>
           <div className="flex items-center space-x-4">
-            {generatingProducts && (
+            {generatingProduct && (
               <div className="flex items-center space-x-2 text-cyan-400">
                 <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse" />
-                <span className="text-sm font-medium">Finding deals...</span>
+                <span className="text-sm font-medium">Finding products...</span>
               </div>
             )}
             <div className="text-right">
-              <div className="text-2xl font-bold text-white">{sortedProducts.length}</div>
-              <div className="text-xs text-gray-400">Products</div>
+              <div className="text-2xl font-bold text-white">{filteredProducts.length}</div>
+              <div className="text-xs text-gray-400">Curated products</div>
             </div>
           </div>
         </div>
 
-        {/* Search and Controls */}
-        <div className="flex items-center justify-between mb-4">
+        {/* Trending Categories */}
+        <div className="mb-6">
+          <h3 className="text-sm font-medium text-gray-400 mb-3">Trending Categories</h3>
+          <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
+            {trendingProducts.map((trend) => (
+              <div key={trend.category} className="p-3 bg-gray-800/50 rounded-lg border border-gray-700/30 hover:border-cyan-500/30 transition-colors cursor-pointer">
+                <p className="text-sm font-medium text-white">{trend.category}</p>
+                <div className="flex items-center justify-between mt-1">
+                  <span className="text-xs text-gray-400">{trend.products}</span>
+                  <span className="text-xs text-green-400">{trend.growth}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Search and Filters */}
+        <div className="flex items-center space-x-4 mb-4">
           <div className="flex-1 max-w-md relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
             <input
@@ -201,21 +269,19 @@ export const ShopHub = ({ isGenerating = true }: ShopHubProps) => {
             />
           </div>
           
-          <div className="flex items-center space-x-4">
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              className="bg-gray-800/50 border border-gray-700/50 rounded-lg px-3 py-2 text-white"
-            >
-              <option value="significance">AI Recommended</option>
-              <option value="price">Price: Low to High</option>
-              <option value="rating">Highest Rated</option>
-              <option value="reviews">Most Reviews</option>
-            </select>
-          </div>
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+            className="bg-gray-800/50 border border-gray-700/50 rounded-lg px-3 py-2 text-white text-sm focus:border-cyan-500/50 focus:outline-none"
+          >
+            <option value="significance">By Significance</option>
+            <option value="price">By Price</option>
+            <option value="rating">By Rating</option>
+            <option value="reviews">By Reviews</option>
+          </select>
         </div>
 
-        {/* Category Filter */}
+        {/* Category Tabs */}
         <div className="flex space-x-2 overflow-x-auto">
           {categories.map((category) => (
             <button
@@ -235,108 +301,125 @@ export const ShopHub = ({ isGenerating = true }: ShopHubProps) => {
 
       {/* Products Grid */}
       <div className="flex-1 overflow-y-auto p-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {sortedProducts.map((product) => (
-            <div key={product.id} className="bg-gray-900/80 rounded-xl border border-gray-800/50 overflow-hidden hover:bg-gray-900/90 transition-all group cursor-pointer"
-                 onClick={() => openProductLink(product.url)}>
-              
-              {/* Product Image */}
-              <div className="h-48 bg-gradient-to-br from-purple-500/20 to-cyan-500/20 flex items-center justify-center relative overflow-hidden">
-                {product.image ? (
-                  <img src={product.image} alt={product.title} className="w-full h-full object-cover" />
-                ) : (
-                  <ShoppingBag className="w-12 h-12 text-white opacity-60" />
-                )}
-                
-                <div className="absolute top-3 left-3 px-2 py-1 bg-yellow-500/20 text-yellow-300 text-xs font-medium rounded-full flex items-center space-x-1">
-                  <Star className="w-3 h-3" />
-                  <span>{product.significance.toFixed(1)}/10</span>
-                </div>
-                
-                {!product.inStock && (
-                  <div className="absolute top-3 right-3 px-2 py-1 bg-red-500/20 text-red-300 text-xs font-medium rounded-full">
-                    Out of Stock
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {filteredProducts.map((product, index) => {
+            const rankBadge = getRankBadge(product.rank);
+            
+            return (
+              <div key={product.id} className="bg-gray-900/80 rounded-2xl border border-gray-800/50 overflow-hidden hover:bg-gray-900/90 transition-all duration-200 backdrop-blur-sm group">
+                {/* Product Image */}
+                <div className="relative">
+                  <div className="w-full h-48 bg-gray-800/50 flex items-center justify-center">
+                    <ShoppingBag className="w-16 h-16 text-gray-600" />
                   </div>
-                )}
-                
-                {product.fastShipping && product.inStock && (
-                  <div className="absolute bottom-3 left-3 px-2 py-1 bg-green-500/20 text-green-300 text-xs font-medium rounded-full flex items-center space-x-1">
-                    <Zap className="w-3 h-3" />
-                    <span>Fast Ship</span>
+                  
+                  {/* Badges */}
+                  <div className="absolute top-3 left-3 flex flex-col space-y-2">
+                    <div className={`flex items-center space-x-1 px-2 py-1 ${rankBadge.color} text-xs rounded-full`}>
+                      <rankBadge.icon className="w-3 h-3" />
+                      <span>#{product.rank}</span>
+                    </div>
+                    
+                    {product.trending && (
+                      <div className="flex items-center space-x-1 px-2 py-1 bg-orange-500/20 text-orange-400 text-xs rounded-full">
+                        <TrendingUp className="w-3 h-3" />
+                        <span>Hot</span>
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
 
-              {/* Product Info */}
-              <div className="p-5">
-                <h3 className="font-bold text-white group-hover:text-cyan-300 transition-colors line-clamp-2 mb-2">
-                  {product.title}
-                </h3>
-                
-                <p className="text-gray-400 text-sm mb-3 line-clamp-2">
-                  {product.description}
-                </p>
+                  <div className="absolute top-3 right-3">
+                    <div className="flex items-center space-x-1 px-2 py-1 bg-cyan-500/20 text-cyan-400 text-xs rounded-full">
+                      <Zap className="w-3 h-3" />
+                      <span>{product.significance.toFixed(1)}</span>
+                    </div>
+                  </div>
 
-                {/* Features */}
-                <div className="flex flex-wrap gap-1 mb-3">
-                  {product.features.slice(0, 3).map((feature, index) => (
-                    <span key={index} className="px-2 py-1 bg-gray-800/50 text-gray-300 text-xs rounded">
-                      {feature}
-                    </span>
-                  ))}
+                  {product.savings && (
+                    <div className="absolute bottom-3 left-3">
+                      <div className="px-2 py-1 bg-green-500/20 text-green-400 text-xs rounded-full">
+                        Save ${product.savings}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
-                {/* Price and Rating */}
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center space-x-2">
-                    <span className="text-2xl font-bold text-green-400">${product.price}</span>
+                {/* Product Info */}
+                <div className="p-4">
+                  <div className="flex items-start justify-between mb-2">
+                    <h3 className="font-semibold text-white text-sm line-clamp-2 group-hover:text-cyan-300 transition-colors">
+                      {product.name}
+                    </h3>
+                    {product.verified && <Star className="w-4 h-4 text-blue-400 fill-current flex-shrink-0" />}
+                  </div>
+                  
+                  <p className="text-gray-400 text-xs line-clamp-2 mb-3">
+                    {product.description}
+                  </p>
+
+                  {/* Tags */}
+                  <div className="flex flex-wrap gap-1 mb-3">
+                    {product.tags.slice(0, 3).map((tag) => (
+                      <span key={tag} className="px-2 py-1 bg-gray-800/50 text-cyan-400 text-xs rounded">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+
+                  {/* Rating and Reviews */}
+                  <div className="flex items-center space-x-2 mb-3">
+                    <div className="flex items-center space-x-1">
+                      <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                      <span className="text-sm font-medium text-white">{product.rating}</span>
+                    </div>
+                    <span className="text-xs text-gray-400">({product.reviews.toLocaleString()} reviews)</span>
+                  </div>
+
+                  {/* Price */}
+                  <div className="flex items-center space-x-2 mb-3">
+                    <span className="text-lg font-bold text-white">${product.price}</span>
                     {product.originalPrice && (
                       <span className="text-sm text-gray-400 line-through">${product.originalPrice}</span>
                     )}
                   </div>
-                  
-                  <div className="flex items-center space-x-1">
-                    <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                    <span className="text-sm text-gray-300">{product.rating.toFixed(1)}</span>
-                    <span className="text-xs text-gray-400">({product.reviews.toLocaleString()})</span>
-                  </div>
-                </div>
 
-                {/* Source and Link */}
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-gray-400">{product.source}</span>
-                  <div className="flex items-center space-x-1 text-cyan-400">
-                    <span className="text-sm font-medium">View Deal</span>
-                    <ExternalLink className="w-4 h-4" />
+                  {/* Seller Info */}
+                  <div className="text-xs text-gray-400 mb-4">
+                    Sold by {product.seller} • {product.shipping}
                   </div>
-                </div>
 
-                {/* AI Recommendation Bar */}
-                <div className="mt-3">
-                  <div className="flex items-center justify-between text-xs text-gray-400 mb-1">
-                    <span>AI Recommendation:</span>
-                    <span className="text-cyan-400">{product.significance.toFixed(1)}/10</span>
-                  </div>
-                  <div className="w-full bg-gray-800 rounded-full h-1.5">
-                    <div 
-                      className="bg-cyan-400 h-1.5 rounded-full transition-all"
-                      style={{ width: `${(product.significance / 10) * 100}%` }}
-                    />
+                  {/* Actions */}
+                  <div className="flex space-x-2">
+                    <a
+                      href={product.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-1 bg-gradient-to-r from-cyan-500 to-purple-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-cyan-600 hover:to-purple-600 transition-all flex items-center justify-center space-x-2"
+                    >
+                      <span>View Product</span>
+                      <ExternalLink className="w-4 h-4" />
+                    </a>
+                    <button className="p-2 bg-gray-800/50 rounded-lg hover:bg-gray-700/50 transition-colors">
+                      <Heart className="w-4 h-4 text-gray-400 hover:text-red-400" />
+                    </button>
+                    <button className="p-2 bg-gray-800/50 rounded-lg hover:bg-gray-700/50 transition-colors">
+                      <Share2 className="w-4 h-4 text-gray-400 hover:text-white" />
+                    </button>
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
-        {sortedProducts.length === 0 && (
+        {filteredProducts.length === 0 && (
           <div className="text-center py-20">
-            <div className="w-24 h-24 bg-gradient-to-r from-green-500 to-cyan-500 rounded-full flex items-center justify-center mx-auto mb-8">
+            <div className="w-24 h-24 bg-gradient-to-r from-cyan-500 to-purple-500 rounded-full flex items-center justify-center mx-auto mb-8">
               <ShoppingBag className="w-12 h-12 text-white animate-pulse" />
             </div>
-            <h3 className="text-2xl font-bold text-white mb-4">Smart Shopping Loading...</h3>
+            <h3 className="text-2xl font-bold text-white mb-4">Smart Shopping Engine Loading...</h3>
             <p className="text-gray-400 max-w-lg mx-auto text-lg">
-              Pollen AI is analyzing thousands of products from verified retailers to find the best deals and highest-rated items.
+              Pollen AI is analyzing global markets and curating the best products based on quality, value, and innovation.
             </p>
           </div>
         )}
