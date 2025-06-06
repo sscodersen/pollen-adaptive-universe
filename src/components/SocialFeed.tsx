@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Heart, MessageCircle, Share2, MoreHorizontal, Eye, Sparkles, TrendingUp, Zap, Send, Image, Video, FileText, Code, BarChart3, Download, Play } from 'lucide-react';
 import { pollenAI } from '../services/pollenAI';
 import { significanceAlgorithm } from '../services/significanceAlgorithm';
-import { aiChatService, type GenerationRequest, type ChatMessage } from '../services/aiChatService';
+import { aiChatService, type GenerationRequest, type ChatMessage, type ChatAttachment } from '../services/aiChatService';
 
 interface Post {
   id: string;
@@ -16,6 +16,7 @@ interface Post {
   timestamp: string;
   type: 'text' | 'image' | 'video' | 'mixed';
   trending?: boolean;
+  attachments?: ChatAttachment[];
 }
 
 interface SocialFeedProps {
