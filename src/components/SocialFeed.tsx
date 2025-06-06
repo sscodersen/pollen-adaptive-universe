@@ -1,22 +1,27 @@
+
 import React, { useState, useEffect } from 'react';
-import { Heart, MessageCircle, Share2, MoreHorizontal, Eye, Sparkles, TrendingUp, Zap, Send, Image, Video, FileText, Code, BarChart3, Download, Play } from 'lucide-react';
+import { Heart, MessageCircle, Share2, MoreHorizontal, Eye, Sparkles, TrendingUp, Zap, Send, Image, Video, FileText, Code, BarChart3, Download, Play, Globe, Star, Clock } from 'lucide-react';
 import { pollenAI } from '../services/pollenAI';
 import { significanceAlgorithm } from '../services/significanceAlgorithm';
-import { aiChatService, type GenerationRequest, type ChatMessage, type ChatAttachment } from '../services/aiChatService';
 
 interface Post {
   id: string;
   author: string;
   avatar: string;
   content: string;
-  images?: string[];
   likes: number;
   comments: number;
   views: number;
   timestamp: string;
-  type: 'text' | 'image' | 'video' | 'mixed';
+  type: 'breakthrough' | 'analysis' | 'trending' | 'tutorial' | 'discussion' | 'innovation';
+  category: 'tech' | 'science' | 'social' | 'business' | 'health' | 'environment';
+  significance: number;
   trending?: boolean;
-  attachments?: ChatAttachment[];
+  media?: {
+    type: 'image' | 'video' | 'code' | 'document';
+    url?: string;
+    preview?: string;
+  };
 }
 
 interface SocialFeedProps {
@@ -26,20 +31,63 @@ interface SocialFeedProps {
 export const SocialFeed = ({ isGenerating = true }: SocialFeedProps) => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [generatingPost, setGeneratingPost] = useState(false);
-  const [chatInput, setChatInput] = useState('');
-  const [selectedGenerationType, setSelectedGenerationType] = useState<GenerationRequest['type']>('reasoning');
-  const [isProcessingChat, setIsProcessingChat] = useState(false);
 
-  const generationTypes = [
-    { type: 'photo' as const, icon: Image, label: 'Photo' },
-    { type: 'video' as const, icon: Video, label: 'Video' },
-    { type: 'task' as const, icon: Zap, label: 'Task' },
-    { type: 'reasoning' as const, icon: BarChart3, label: 'Analysis' },
-    { type: 'coding' as const, icon: Code, label: 'Code' },
-    { type: 'pdf' as const, icon: FileText, label: 'PDF' },
-    { type: 'blog' as const, icon: FileText, label: 'Blog' },
-    { type: 'seo' as const, icon: TrendingUp, label: 'SEO' }
-  ];
+  const postTemplates = {
+    breakthrough: {
+      prompts: [
+        "revolutionary discovery in quantum computing",
+        "breakthrough medical treatment with 95% success rate",
+        "new sustainable energy technology",
+        "AI advancement changing industry standards"
+      ],
+      authors: ["Dr. Sarah Chen", "Research Team Alpha", "Innovation Lab", "Tech Institute"]
+    },
+    analysis: {
+      prompts: [
+        "economic impact analysis of emerging technologies",
+        "social media trends reshaping communication",
+        "climate change solutions effectiveness study",
+        "market disruption from AI automation"
+      ],
+      authors: ["Economic Analyst", "Trend Researcher", "Data Scientist", "Market Expert"]
+    },
+    trending: {
+      prompts: [
+        "viral innovation spreading across industries",
+        "global movement gaining momentum",
+        "technology adoption accelerating worldwide",
+        "cultural shift in digital behavior"
+      ],
+      authors: ["Trend Spotter", "Cultural Analyst", "Tech Observer", "Social Researcher"]
+    },
+    tutorial: {
+      prompts: [
+        "step-by-step guide to implementing AI solutions",
+        "practical framework for digital transformation",
+        "beginner's approach to quantum concepts",
+        "actionable strategies for innovation"
+      ],
+      authors: ["Tech Educator", "Innovation Guide", "Learning Expert", "Skill Builder"]
+    },
+    discussion: {
+      prompts: [
+        "ethical implications of emerging technology",
+        "future of work in automated society",
+        "privacy concerns in digital age",
+        "sustainability versus growth debate"
+      ],
+      authors: ["Ethics Professor", "Future Analyst", "Policy Expert", "Thought Leader"]
+    },
+    innovation: {
+      prompts: [
+        "startup revolutionizing traditional industry",
+        "open-source project changing development",
+        "collaborative platform enabling breakthroughs",
+        "community-driven innovation success"
+      ],
+      authors: ["Startup Founder", "Open Source Dev", "Innovation Hub", "Community Leader"]
+    }
+  };
 
   useEffect(() => {
     if (!isGenerating) return;
@@ -49,41 +97,35 @@ export const SocialFeed = ({ isGenerating = true }: SocialFeedProps) => {
       
       setGeneratingPost(true);
       try {
-        // Get trending topics from significance algorithm
-        const trendingTopics = significanceAlgorithm.getTrendingTopics();
-        const randomTopic = trendingTopics[Math.floor(Math.random() * trendingTopics.length)];
+        const types = Object.keys(postTemplates) as (keyof typeof postTemplates)[];
+        const categories = ['tech', 'science', 'social', 'business', 'health', 'environment'] as const;
         
-        // Enhanced prompt for more diverse content generation
-        const contentTypes = [
-          `breaking news analysis about ${randomTopic}`,
-          `actionable insights on ${randomTopic}`,
-          `global impact assessment of ${randomTopic}`,
-          `innovative solutions in ${randomTopic}`,
-          `expert commentary on ${randomTopic}`,
-          `practical applications of ${randomTopic}`,
-          `emerging trends in ${randomTopic}`,
-          `community success stories with ${randomTopic}`
-        ];
-        
-        const randomContentType = contentTypes[Math.floor(Math.random() * contentTypes.length)];
+        const randomType = types[Math.floor(Math.random() * types.length)];
+        const randomCategory = categories[Math.floor(Math.random() * categories.length)];
+        const template = postTemplates[randomType];
+        const randomPrompt = template.prompts[Math.floor(Math.random() * template.prompts.length)];
+        const randomAuthor = template.authors[Math.floor(Math.random() * template.authors.length)];
         
         const response = await pollenAI.generate(
-          `Create engaging social content about ${randomContentType}`,
+          `Create ${randomType} content about ${randomPrompt} for ${randomCategory} category`,
           "social",
-          true // Use significance filtering
+          true
         );
         
         const newPost: Post = {
           id: Date.now().toString(),
-          author: generateRandomAuthor(),
-          avatar: generateAvatar(),
+          author: randomAuthor,
+          avatar: generateAvatar(randomCategory),
           content: response.content,
-          likes: Math.floor(Math.random() * 5000), // Higher engagement for significant content
-          comments: Math.floor(Math.random() * 500),
-          views: Math.floor(Math.random() * 50000),
+          likes: Math.floor(Math.random() * 10000) + 500,
+          comments: Math.floor(Math.random() * 1000) + 50,
+          views: Math.floor(Math.random() * 100000) + 5000,
           timestamp: formatTimestamp(new Date()),
-          type: 'text',
-          trending: response.significanceScore ? response.significanceScore > 8.5 : Math.random() > 0.6
+          type: randomType,
+          category: randomCategory,
+          significance: response.significanceScore || 8.5,
+          trending: response.significanceScore ? response.significanceScore > 9.0 : Math.random() > 0.7,
+          media: Math.random() > 0.6 ? generateMedia(randomType) : undefined
         };
         
         setPosts(prev => [newPost, ...prev.slice(0, 19)]);
@@ -93,11 +135,8 @@ export const SocialFeed = ({ isGenerating = true }: SocialFeedProps) => {
       setGeneratingPost(false);
     };
 
-    // Generate initial post after a delay
-    const initialTimeout = setTimeout(generateContent, 3000);
-    
-    // Generate new posts every 60-90 seconds (slower as requested)
-    const interval = setInterval(generateContent, Math.random() * 30000 + 60000);
+    const initialTimeout = setTimeout(generateContent, 2000);
+    const interval = setInterval(generateContent, Math.random() * 20000 + 30000);
     
     return () => {
       clearTimeout(initialTimeout);
@@ -105,22 +144,28 @@ export const SocialFeed = ({ isGenerating = true }: SocialFeedProps) => {
     };
   }, [isGenerating, generatingPost]);
 
-  const generateRandomAuthor = () => {
-    const names = [
-      'Alex Chen', 'Maya Rodriguez', 'Jordan Smith', 'Riley Kim', 
-      'Sam Johnson', 'Casey Brown', 'Avery Taylor', 'Quinn Davis',
-      'Morgan Lee', 'Sage Wilson', 'River Martinez', 'Phoenix Garcia'
-    ];
-    return names[Math.floor(Math.random() * names.length)];
+  const generateAvatar = (category: string) => {
+    const avatarMap = {
+      tech: 'bg-gradient-to-r from-blue-500 to-cyan-500',
+      science: 'bg-gradient-to-r from-green-500 to-emerald-500',
+      social: 'bg-gradient-to-r from-purple-500 to-pink-500',
+      business: 'bg-gradient-to-r from-yellow-500 to-orange-500',
+      health: 'bg-gradient-to-r from-red-500 to-rose-500',
+      environment: 'bg-gradient-to-r from-teal-500 to-green-500'
+    };
+    return avatarMap[category as keyof typeof avatarMap] || 'bg-gradient-to-r from-gray-500 to-slate-500';
   };
 
-  const generateAvatar = () => {
-    const colors = [
-      'bg-blue-500', 'bg-purple-500', 'bg-pink-500', 'bg-green-500', 
-      'bg-orange-500', 'bg-cyan-500', 'bg-yellow-500', 'bg-red-500',
-      'bg-indigo-500', 'bg-teal-500', 'bg-rose-500', 'bg-emerald-500'
-    ];
-    return colors[Math.floor(Math.random() * colors.length)];
+  const generateMedia = (type: string) => {
+    const mediaTypes = {
+      breakthrough: { type: 'image' as const, preview: 'Research visualization' },
+      analysis: { type: 'document' as const, preview: 'Data analysis report' },
+      trending: { type: 'video' as const, preview: 'Trend showcase video' },
+      tutorial: { type: 'code' as const, preview: 'Implementation example' },
+      discussion: { type: 'document' as const, preview: 'Discussion summary' },
+      innovation: { type: 'image' as const, preview: 'Innovation showcase' }
+    };
+    return mediaTypes[type as keyof typeof mediaTypes] || { type: 'image' as const, preview: 'Visual content' };
   };
 
   const formatTimestamp = (date: Date) => {
@@ -134,82 +179,63 @@ export const SocialFeed = ({ isGenerating = true }: SocialFeedProps) => {
     return `${Math.floor(diffMins / 1440)}d`;
   };
 
-  const handleChatSubmit = async () => {
-    if (!chatInput.trim() || isProcessingChat) return;
-    
-    setIsProcessingChat(true);
-    try {
-      const request: GenerationRequest = {
-        type: selectedGenerationType,
-        prompt: chatInput
-      };
-      
-      const response = await aiChatService.processGenerationRequest(request);
-      
-      // Convert chat response to social post
-      const aiPost: Post = {
-        id: Date.now().toString(),
-        author: 'Pollen AI Assistant',
-        avatar: 'bg-gradient-to-r from-cyan-500 to-purple-500',
-        content: response.content,
-        likes: Math.floor(Math.random() * 100),
-        comments: Math.floor(Math.random() * 20),
-        views: Math.floor(Math.random() * 1000),
-        timestamp: formatTimestamp(new Date()),
-        type: response.attachments && response.attachments.length > 0 ? 'mixed' : 'text',
-        trending: true,
-        attachments: response.attachments
-      };
-      
-      setPosts(prev => [aiPost, ...prev.slice(0, 19)]);
-      setChatInput('');
-    } catch (error) {
-      console.error('Error processing chat:', error);
-    }
-    setIsProcessingChat(false);
+  const getCategoryColor = (category: string) => {
+    const colors = {
+      tech: 'text-blue-400 bg-blue-400/10',
+      science: 'text-green-400 bg-green-400/10',
+      social: 'text-purple-400 bg-purple-400/10',
+      business: 'text-yellow-400 bg-yellow-400/10',
+      health: 'text-red-400 bg-red-400/10',
+      environment: 'text-teal-400 bg-teal-400/10'
+    };
+    return colors[category as keyof typeof colors] || 'text-gray-400 bg-gray-400/10';
   };
 
-  const handleDownload = (attachment: any) => {
-    const blob = new Blob([attachment.content || ''], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = attachment.name;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+  const getTypeIcon = (type: string) => {
+    const icons = {
+      breakthrough: Sparkles,
+      analysis: BarChart3,
+      trending: TrendingUp,
+      tutorial: FileText,
+      discussion: MessageCircle,
+      innovation: Zap
+    };
+    const IconComponent = icons[type as keyof typeof icons] || Sparkles;
+    return <IconComponent className="w-4 h-4" />;
   };
 
   return (
-    <div className="flex-1 flex flex-col">
-      {/* Header */}
-      <div className="p-6 border-b border-gray-700/50">
-        <div className="flex items-center justify-between mb-4">
+    <div className="flex-1 flex flex-col bg-gray-900">
+      {/* Enhanced Header */}
+      <div className="p-6 border-b border-gray-700/50 bg-gradient-to-r from-gray-800/50 to-gray-900/50">
+        <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-2xl font-bold text-white">Social Feed</h1>
-            <p className="text-gray-400">Anonymous AI-generated content continuously evolving</p>
+            <h1 className="text-3xl font-bold text-white mb-2">Pollen Social Intelligence</h1>
+            <p className="text-gray-400">AI-curated high-significance content • Live global analysis</p>
           </div>
           <div className="flex items-center space-x-4">
             {generatingPost && (
-              <div className="flex items-center space-x-2 text-green-400">
-                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-                <span className="text-sm">Generating...</span>
+              <div className="flex items-center space-x-2 text-cyan-400">
+                <div className="w-3 h-3 bg-cyan-400 rounded-full animate-pulse" />
+                <span className="text-sm font-medium">Generating insights...</span>
               </div>
             )}
-            <span className="text-sm text-gray-400">{posts.length} posts</span>
+            <div className="text-right">
+              <div className="text-2xl font-bold text-white">{posts.length}</div>
+              <div className="text-xs text-gray-400">Active posts</div>
+            </div>
           </div>
         </div>
 
-        {/* Filter Tabs */}
-        <div className="flex space-x-6">
-          {['Recent', 'Trending', 'Discover', 'AI Generated'].map((tab, index) => (
+        {/* Enhanced Filter Tabs */}
+        <div className="flex space-x-8">
+          {['All Content', 'Breakthroughs', 'Analysis', 'Trending', 'Tutorials', 'Discussions'].map((tab, index) => (
             <button
               key={tab}
-              className={`pb-2 text-sm font-medium transition-colors border-b-2 ${
+              className={`pb-3 text-sm font-medium transition-all border-b-2 ${
                 index === 0
-                  ? 'text-blue-400 border-blue-400'
-                  : 'text-gray-400 border-transparent hover:text-white'
+                  ? 'text-cyan-400 border-cyan-400'
+                  : 'text-gray-400 border-transparent hover:text-white hover:border-gray-600'
               }`}
             >
               {tab}
@@ -218,159 +244,91 @@ export const SocialFeed = ({ isGenerating = true }: SocialFeedProps) => {
         </div>
       </div>
 
-      {/* AI Chat Input */}
-      <div className="p-4 border-b border-gray-700/50 bg-gray-800/30">
-        <div className="max-w-4xl mx-auto">
-          <div className="flex items-center space-x-2 mb-3">
-            <Sparkles className="w-5 h-5 text-cyan-400" />
-            <span className="text-sm font-medium text-white">AI Assistant - Generate Content</span>
-          </div>
-          
-          {/* Generation Type Selector */}
-          <div className="flex flex-wrap gap-2 mb-3">
-            {generationTypes.map(({ type, icon: Icon, label }) => (
-              <button
-                key={type}
-                onClick={() => setSelectedGenerationType(type)}
-                className={`flex items-center space-x-1 px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-                  selectedGenerationType === type
-                    ? 'bg-cyan-500 text-white'
-                    : 'bg-gray-700/50 text-gray-300 hover:bg-gray-600/50'
-                }`}
-              >
-                <Icon className="w-3 h-3" />
-                <span>{label}</span>
-              </button>
-            ))}
-          </div>
-          
-          {/* Chat Input */}
-          <div className="flex space-x-3">
-            <input
-              type="text"
-              value={chatInput}
-              onChange={(e) => setChatInput(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleChatSubmit()}
-              placeholder={`Ask AI to generate ${generationTypes.find(t => t.type === selectedGenerationType)?.label.toLowerCase()}...`}
-              className="flex-1 bg-gray-700/50 border border-gray-600/50 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-cyan-500/50"
-              disabled={isProcessingChat}
-            />
-            <button
-              onClick={handleChatSubmit}
-              disabled={!chatInput.trim() || isProcessingChat}
-              className="bg-gradient-to-r from-cyan-500 to-purple-500 px-6 py-3 rounded-lg font-medium text-white transition-all disabled:opacity-50 flex items-center space-x-2"
-            >
-              {isProcessingChat ? (
-                <>
-                  <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
-                  <span>Generating...</span>
-                </>
-              ) : (
-                <>
-                  <Send className="w-4 h-4" />
-                  <span>Generate</span>
-                </>
-              )}
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Feed */}
-      <div className="flex-1 overflow-y-auto p-6 space-y-4">
+      {/* Enhanced Feed */}
+      <div className="flex-1 overflow-y-auto p-6 space-y-6">
         {posts.map((post) => (
-          <div key={post.id} className="bg-gray-800/50 rounded-2xl border border-gray-700/50 p-6 hover:bg-gray-800/70 transition-colors">
-            {/* Post Header */}
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center space-x-3">
-                <div className={`w-12 h-12 ${post.avatar} rounded-full flex items-center justify-center text-white font-medium text-lg`}>
-                  {post.author.split(' ').map(n => n[0]).join('')}
+          <article key={post.id} className="bg-gradient-to-br from-gray-800/60 to-gray-900/60 rounded-2xl border border-gray-700/50 p-6 hover:border-gray-600/50 transition-all duration-300 backdrop-blur-sm">
+            {/* Enhanced Post Header */}
+            <div className="flex items-start justify-between mb-5">
+              <div className="flex items-center space-x-4">
+                <div className={`w-14 h-14 ${post.avatar} rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-lg`}>
+                  {post.author.split(' ').map(n => n[0]).join('').slice(0, 2)}
                 </div>
                 <div>
-                  <div className="flex items-center space-x-2">
-                    <h3 className="font-semibold text-white">{post.author}</h3>
+                  <div className="flex items-center space-x-3 mb-1">
+                    <h3 className="font-bold text-white text-lg">{post.author}</h3>
+                    <div className={`flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium ${getCategoryColor(post.category)}`}>
+                      {getTypeIcon(post.type)}
+                      <span className="capitalize">{post.type}</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <p className="text-sm text-gray-400">{post.timestamp}</p>
+                    <div className="flex items-center space-x-1">
+                      <Star className="w-4 h-4 text-yellow-400" />
+                      <span className="text-sm font-medium text-yellow-400">{post.significance.toFixed(1)}</span>
+                    </div>
                     {post.trending && (
-                      <div className="flex items-center space-x-1 px-2 py-0.5 bg-orange-500/20 text-orange-400 text-xs rounded-full">
+                      <div className="flex items-center space-x-1 px-2 py-1 bg-orange-500/20 text-orange-400 text-xs rounded-full">
                         <TrendingUp className="w-3 h-3" />
                         <span>Trending</span>
                       </div>
                     )}
                   </div>
-                  <p className="text-sm text-gray-400">{post.timestamp}</p>
                 </div>
               </div>
-              <button className="text-gray-400 hover:text-white transition-colors">
+              <button className="text-gray-400 hover:text-white transition-colors p-2 hover:bg-gray-700/50 rounded-lg">
                 <MoreHorizontal className="w-5 h-5" />
               </button>
             </div>
 
-            {/* Post Content */}
+            {/* Enhanced Post Content */}
             <div className="mb-6">
-              <div className="text-gray-100 leading-relaxed whitespace-pre-line">
+              <div className="text-gray-100 leading-relaxed text-lg whitespace-pre-line mb-4">
                 {post.content}
               </div>
               
-              {/* Attachments */}
-              {post.attachments && post.attachments.length > 0 && (
-                <div className="mt-4 space-y-3">
-                  {post.attachments.map((attachment) => (
-                    <div key={attachment.id} className="bg-gray-700/30 rounded-lg p-4 border border-gray-600/30">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-3">
-                          {attachment.type === 'image' && <Image className="w-5 h-5 text-blue-400" />}
-                          {attachment.type === 'video' && <Video className="w-5 h-5 text-red-400" />}
-                          {attachment.type === 'code' && <Code className="w-5 h-5 text-green-400" />}
-                          {attachment.type === 'document' && <FileText className="w-5 h-5 text-yellow-400" />}
-                          {attachment.type === 'analysis' && <BarChart3 className="w-5 h-5 text-purple-400" />}
-                          
-                          <div>
-                            <p className="text-sm font-medium text-white">{attachment.name}</p>
-                            <p className="text-xs text-gray-400 capitalize">{attachment.type} • Ready for use</p>
-                          </div>
-                        </div>
-                        
-                        <div className="flex items-center space-x-2">
-                          {attachment.type === 'video' && (
-                            <button className="p-2 bg-gray-600/50 rounded-lg hover:bg-gray-600 transition-colors">
-                              <Play className="w-4 h-4 text-white" />
-                            </button>
-                          )}
-                          {attachment.downloadable && (
-                            <button
-                              onClick={() => handleDownload(attachment)}
-                              className="p-2 bg-gray-600/50 rounded-lg hover:bg-gray-600 transition-colors"
-                            >
-                              <Download className="w-4 h-4 text-white" />
-                            </button>
-                          )}
-                        </div>
-                      </div>
+              {/* Media Content */}
+              {post.media && (
+                <div className="bg-gray-700/30 rounded-xl p-4 border border-gray-600/30">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      {post.media.type === 'image' && <Image className="w-5 h-5 text-blue-400" />}
+                      {post.media.type === 'video' && <Video className="w-5 h-5 text-red-400" />}
+                      {post.media.type === 'code' && <Code className="w-5 h-5 text-green-400" />}
+                      {post.media.type === 'document' && <FileText className="w-5 h-5 text-yellow-400" />}
                       
-                      {attachment.type === 'image' && attachment.url && (
-                        <div className="mt-3">
-                          <img 
-                            src={attachment.url} 
-                            alt={attachment.name}
-                            className="rounded-lg max-h-64 w-full object-cover"
-                          />
-                        </div>
-                      )}
+                      <div>
+                        <p className="text-sm font-medium text-white">{post.media.preview}</p>
+                        <p className="text-xs text-gray-400 capitalize">{post.media.type} content</p>
+                      </div>
                     </div>
-                  ))}
+                    
+                    <div className="flex items-center space-x-2">
+                      {post.media.type === 'video' && (
+                        <button className="p-2 bg-gray-600/50 rounded-lg hover:bg-gray-600 transition-colors">
+                          <Play className="w-4 h-4 text-white" />
+                        </button>
+                      )}
+                      <button className="p-2 bg-gray-600/50 rounded-lg hover:bg-gray-600 transition-colors">
+                        <Download className="w-4 h-4 text-white" />
+                      </button>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
 
-            {/* Post Actions */}
+            {/* Enhanced Post Actions */}
             <div className="flex items-center justify-between pt-4 border-t border-gray-700/50">
-              <div className="flex items-center space-x-6">
+              <div className="flex items-center space-x-8">
                 <button className="flex items-center space-x-2 text-gray-400 hover:text-red-400 transition-colors group">
                   <Heart className="w-5 h-5 group-hover:scale-110 transition-transform" />
                   <span className="text-sm font-medium">{post.likes.toLocaleString()}</span>
                 </button>
                 <button className="flex items-center space-x-2 text-gray-400 hover:text-blue-400 transition-colors group">
                   <MessageCircle className="w-5 h-5 group-hover:scale-110 transition-transform" />
-                  <span className="text-sm font-medium">{post.comments}</span>
+                  <span className="text-sm font-medium">{post.comments.toLocaleString()}</span>
                 </button>
                 <button className="flex items-center space-x-2 text-gray-400 hover:text-green-400 transition-colors group">
                   <Share2 className="w-5 h-5 group-hover:scale-110 transition-transform" />
@@ -379,20 +337,20 @@ export const SocialFeed = ({ isGenerating = true }: SocialFeedProps) => {
               </div>
               <div className="flex items-center space-x-2 text-gray-400">
                 <Eye className="w-4 h-4" />
-                <span className="text-sm">{post.views.toLocaleString()}</span>
+                <span className="text-sm">{post.views.toLocaleString()} views</span>
               </div>
             </div>
-          </div>
+          </article>
         ))}
 
         {posts.length === 0 && (
-          <div className="text-center py-16">
-            <div className="w-20 h-20 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full flex items-center justify-center mx-auto mb-6">
-              <Sparkles className="w-10 h-10 text-white animate-pulse" />
+          <div className="text-center py-20">
+            <div className="w-24 h-24 bg-gradient-to-r from-cyan-500 to-purple-500 rounded-full flex items-center justify-center mx-auto mb-8">
+              <Sparkles className="w-12 h-12 text-white animate-pulse" />
             </div>
-            <h3 className="text-xl font-semibold text-white mb-2">Pollen is Thinking...</h3>
-            <p className="text-gray-400 max-w-md mx-auto">
-              Our AI is analyzing patterns and generating engaging social content tailored to emerging trends and community interests.
+            <h3 className="text-2xl font-bold text-white mb-4">Pollen Intelligence Initializing...</h3>
+            <p className="text-gray-400 max-w-lg mx-auto text-lg">
+              Our AI is analyzing global patterns, trending topics, and high-significance content across multiple domains to generate meaningful insights.
             </p>
           </div>
         )}
