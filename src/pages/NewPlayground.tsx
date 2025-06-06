@@ -19,7 +19,7 @@ const NewPlayground = () => {
   const [aiStatus, setAiStatus] = useState('ready');
 
   const tabs = [
-    { id: 'Social', name: 'Social Intelligence', icon: Users },
+    { id: 'Social', name: 'Social Feed', icon: Users },
     { id: 'Entertainment', name: 'Entertainment', icon: Play },
     { id: 'Search', name: 'News Engine', icon: Search },
     { id: 'Shop', name: 'Smart Shopping', icon: ShoppingBag },
@@ -121,15 +121,15 @@ const NewPlayground = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white">
-      {/* Enhanced Header */}
-      <div className="flex items-center justify-between p-6 border-b border-gray-800 bg-gradient-to-r from-gray-900 to-gray-800">
+    <div className="min-h-screen bg-gray-950 text-white">
+      {/* Enhanced Header with Darker Theme */}
+      <div className="flex items-center justify-between p-6 border-b border-gray-800/60 bg-gray-900/80 backdrop-blur-sm">
         <div className="flex items-center space-x-6">
-          <button className="p-2 hover:bg-gray-800 rounded-lg transition-colors">
+          <button className="p-2 hover:bg-gray-800/60 rounded-lg transition-colors">
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div className="flex items-center space-x-4">
-            <div className="w-10 h-10 bg-gradient-to-r from-cyan-500 to-purple-500 rounded-xl flex items-center justify-center">
+            <div className="w-10 h-10 bg-gradient-to-r from-cyan-500 to-purple-500 rounded-xl flex items-center justify-center shadow-lg">
               <span className="text-white font-bold text-lg">P</span>
             </div>
             <div>
@@ -138,37 +138,37 @@ const NewPlayground = () => {
             </div>
           </div>
           <div className="flex items-center space-x-4">
-            <div className={`flex items-center space-x-2 px-4 py-2 rounded-full text-sm ${
+            <div className={`flex items-center space-x-2 px-4 py-2 rounded-full text-sm border ${
               aiStatus === 'learning' 
-                ? 'bg-yellow-500/20 text-yellow-400' 
-                : 'bg-green-500/20 text-green-400'
+                ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20' 
+                : 'bg-green-500/10 text-green-400 border-green-500/20'
             }`}>
               <div className={`w-2 h-2 rounded-full ${
                 aiStatus === 'learning' ? 'bg-yellow-400 animate-pulse' : 'bg-green-400'
               }`}></div>
               <span>AI {aiStatus === 'learning' ? 'Learning' : 'Active'}</span>
             </div>
-            <div className="px-4 py-2 bg-cyan-500/20 text-cyan-400 rounded-full text-sm font-medium">
+            <div className="px-4 py-2 bg-cyan-500/10 text-cyan-400 rounded-full text-sm font-medium border border-cyan-500/20">
               Production Ready
             </div>
           </div>
         </div>
         
-        <button className="p-3 hover:bg-gray-800 rounded-lg transition-colors">
+        <button className="p-3 hover:bg-gray-800/60 rounded-lg transition-colors">
           <Menu className="w-6 h-6" />
         </button>
       </div>
 
-      {/* Enhanced Feature Tabs */}
-      <div className="flex space-x-1 px-6 py-4 border-b border-gray-800 overflow-x-auto bg-gray-900/50">
+      {/* Enhanced Feature Tabs with Darker Theme */}
+      <div className="flex space-x-1 px-6 py-4 border-b border-gray-800/60 overflow-x-auto bg-gray-900/40">
         {tabs.map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
             className={`flex items-center space-x-3 px-6 py-3 rounded-xl transition-all duration-200 whitespace-nowrap font-medium ${
               activeTab === tab.id
-                ? 'bg-gradient-to-r from-cyan-500/20 to-purple-500/20 border border-cyan-500/30 text-cyan-300 shadow-lg'
-                : 'text-gray-400 hover:text-gray-300 hover:bg-gray-800/70'
+                ? 'bg-gray-800/60 border border-gray-700/60 text-cyan-300 shadow-lg backdrop-blur-sm'
+                : 'text-gray-400 hover:text-gray-300 hover:bg-gray-800/40'
             }`}
           >
             <tab.icon className="w-5 h-5" />
