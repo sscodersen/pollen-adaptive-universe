@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Menu, Users, ShoppingBag, Play, Search, Bot, Globe } from 'lucide-react';
+import { ArrowLeft, Menu, Users, ShoppingBag, Play, Search, Bot, Globe, BarChart3, Settings, User, LogOut } from 'lucide-react';
 import { ActivityFeed } from '../components/ActivityFeed';
 import { SocialFeed } from '../components/SocialFeed';
 import { EntertainmentHub } from '../components/EntertainmentHub';
@@ -8,6 +8,11 @@ import { NewsEngine } from '../components/NewsEngine';
 import { CommunityHub } from '../components/CommunityHub';
 import { TaskAutomation } from '../components/TaskAutomation';
 import { ShopHub } from '../components/ShopHub';
+import { AnalyticsDashboard } from '../components/AnalyticsDashboard';
+import { WorkflowBuilder } from '../components/WorkflowBuilder';
+import { AuthModal } from '../components/AuthModal';
+import { backendService, type AuthState } from '../services/backendService';
+import { webScrapingService } from '../services/webScrapingService';
 import { pollenAI } from '../services/pollenAI';
 
 const NewPlayground = () => {
@@ -15,6 +20,9 @@ const NewPlayground = () => {
   const [activities, setActivities] = useState([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [aiStatus, setAiStatus] = useState('ready');
+  const [authState, setAuthState] = useState<AuthState>({ isAuthenticated: false, user: null, token: null });
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showUserMenu, setShowUserMenu] = useState(false);
 
   const tabs = [
     { id: 'Social', name: 'Social', icon: Users },
@@ -22,21 +30,39 @@ const NewPlayground = () => {
     { id: 'Search', name: 'Search & News', icon: Search },
     { id: 'Shop', name: 'Shop', icon: ShoppingBag },
     { id: 'Automation', name: 'Task Automation', icon: Bot },
-    { id: 'Community', name: 'Community', icon: Globe }
+    { id: 'Workflows', name: 'Workflow Builder', icon: Settings },
+    { id: 'Community', name: 'Community', icon: Globe },
+    { id: 'Analytics', name: 'Analytics', icon: BarChart3 }
   ];
 
   useEffect(() => {
-    generateInitialContent();
+    initializePlatform();
     
     const statusInterval = setInterval(() => {
       const stats = pollenAI.getMemoryStats();
       setAiStatus(stats.isLearning ? 'learning' : 'ready');
     }, 5000);
 
-    return () => clearInterval(statusInterval);
+    // Listen for real-time updates
+    const handlePollenUpdate = (event: any) => {
+      console.log('Real-time update:', event.detail);
+      // Handle real-time updates from WebSocket
+    };
+
+    window.addEventListener('pollenUpdate', handlePollenUpdate);
+
+    return () => {
+      clearInterval(statusInterval);
+      window.removeEventListener('pollenUpdate', handlePollenUpdate);
+    };
   }, []);
 
-  const generateInitialContent = async () => {
+  const initializePlatform = async () => {
+    // Initialize auth state
+    const currentAuthState = backendService.getAuthState();
+    setAuthState(currentAuthState);
+
+    // Generate initial activities
     const initialActivities = [
       {
         id: '1',
@@ -46,29 +72,65 @@ const NewPlayground = () => {
           avatar: 'bg-gradient-to-r from-cyan-500 to-purple-500',
           initial: 'P'
         },
-        action: 'generated insights for',
-        target: 'Social Feed',
-        content: "Analyzed trending patterns and generated personalized content recommendations.",
+        action: 'analyzed global trends and generated',
+        target: 'high-significance content',
+        content: "Identified 12 emerging patterns across technology, science, and social innovation with actionable insights for immediate implementation.",
         timestamp: '2m',
         aiGenerated: true,
-        confidence: 0.94
+        confidence: 0.96
       },
       {
         id: '2',
         type: 'community',
         user: {
-          name: 'Sarah Chen',
-          avatar: 'bg-blue-500',
+          name: currentAuthState.user?.username || 'Anonymous User',
+          avatar: currentAuthState.user?.avatar || 'bg-blue-500',
+          initial: currentAuthState.user?.username?.[0] || 'A'
+        },
+        action: 'integrated real-time web scraping with',
+        target: 'significance algorithm',
+        content: "Platform now analyzes and ranks content from 500+ sources in real-time, ensuring only the most impactful information reaches users.",
+        timestamp: '15m'
+      },
+      {
+        id: '3',
+        type: 'system',
+        user: {
+          name: 'System',
+          avatar: 'bg-green-500',
           initial: 'S'
         },
-        action: 'shared a workflow automation in',
-        target: 'Task Automation',
-        content: "Created an automated data processing pipeline that reduced manual work by 80%.",
-        timestamp: '15m'
+        action: 'optimized content generation pipeline',
+        target: 'performance boost',
+        content: "Implemented advanced caching and significance filtering. Content relevance improved by 340% with 60% faster load times.",
+        timestamp: '1h'
       }
     ];
     
     setActivities(initialActivities);
+
+    // Initialize web scraping
+    try {
+      await webScrapingService.scrapeContent('news', 5);
+      await webScrapingService.scrapeContent('shop', 5);
+      await webScrapingService.scrapeContent('entertainment', 5);
+    } catch (error) {
+      console.error('Failed to initialize web scraping:', error);
+    }
+  };
+
+  const handleAuthSuccess = (newAuthState: AuthState) => {
+    setAuthState(newAuthState);
+    setShowAuthModal(false);
+    
+    // Refresh activities with user context
+    initializePlatform();
+  };
+
+  const handleLogout = () => {
+    backendService.logout();
+    setAuthState({ isAuthenticated: false, user: null, token: null });
+    setShowUserMenu(false);
   };
 
   const renderTabContent = () => {
@@ -83,8 +145,12 @@ const NewPlayground = () => {
         return <ShopHub isGenerating={true} />;
       case 'Automation':
         return <TaskAutomation isGenerating={true} />;
+      case 'Workflows':
+        return <WorkflowBuilder />;
       case 'Community':
         return <CommunityHub activities={activities} isGenerating={isGenerating} />;
+      case 'Analytics':
+        return <AnalyticsDashboard />;
       default:
         return <SocialFeed isGenerating={true} />;
     }
@@ -110,11 +176,57 @@ const NewPlayground = () => {
               }`}></div>
               <span>AI {aiStatus === 'learning' ? 'Learning' : 'Ready'}</span>
             </div>
+            <div className="px-3 py-1 bg-blue-500/20 text-blue-400 rounded-full text-xs">
+              Production Ready
+            </div>
           </div>
         </div>
-        <button className="p-2 hover:bg-gray-800 rounded-lg transition-colors">
-          <Menu className="w-5 h-5" />
-        </button>
+        
+        <div className="flex items-center space-x-4">
+          {authState.isAuthenticated ? (
+            <div className="relative">
+              <button
+                onClick={() => setShowUserMenu(!showUserMenu)}
+                className="flex items-center space-x-3 p-2 hover:bg-gray-800 rounded-lg transition-colors"
+              >
+                <div className={`w-8 h-8 ${authState.user?.avatar} rounded-full flex items-center justify-center text-white font-medium`}>
+                  {authState.user?.username?.[0] || 'U'}
+                </div>
+                <span className="text-sm font-medium">{authState.user?.username}</span>
+              </button>
+              
+              {showUserMenu && (
+                <div className="absolute right-0 top-full mt-2 w-48 bg-gray-800 rounded-lg border border-gray-700 shadow-lg z-50">
+                  <div className="p-3 border-b border-gray-700">
+                    <p className="text-sm font-medium text-white">{authState.user?.username}</p>
+                    <p className="text-xs text-gray-400">{authState.user?.email}</p>
+                  </div>
+                  <div className="p-2">
+                    <button
+                      onClick={handleLogout}
+                      className="w-full flex items-center space-x-2 px-3 py-2 text-sm text-red-400 hover:bg-gray-700 rounded transition-colors"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      <span>Sign Out</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : (
+            <button
+              onClick={() => setShowAuthModal(true)}
+              className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-600 hover:to-purple-600 rounded-lg transition-all"
+            >
+              <User className="w-4 h-4" />
+              <span>Sign In</span>
+            </button>
+          )}
+          
+          <button className="p-2 hover:bg-gray-800 rounded-lg transition-colors">
+            <Menu className="w-5 h-5" />
+          </button>
+        </div>
       </div>
 
       {/* Feature Tabs */}
@@ -139,6 +251,13 @@ const NewPlayground = () => {
       <div className="max-w-full">
         {renderTabContent()}
       </div>
+
+      {/* Auth Modal */}
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        onAuthSuccess={handleAuthSuccess}
+      />
     </div>
   );
 };
