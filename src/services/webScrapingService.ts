@@ -112,7 +112,7 @@ class WebScrapingService {
     const baseItem = {
       id: `${category}-${Date.now()}-${index}`,
       title: template.title,
-      url: (template as ShopTemplate).url || `https://${source.domain}/${template.path}/${Math.random().toString(36).substring(7)}`,
+      url: category === 'shop' && 'url' in template ? template.url : `https://${source.domain}/${template.path}/${Math.random().toString(36).substring(7)}`,
       description: template.description,
       content: template.content,
       source: source.name,
