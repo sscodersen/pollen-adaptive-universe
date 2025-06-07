@@ -1,3 +1,4 @@
+
 import { significanceAlgorithm } from './significanceAlgorithm';
 
 export interface ScrapedContent {
@@ -109,7 +110,7 @@ class WebScrapingService {
     const templates = this.getContentTemplates(category);
     const template = templates[Math.floor(Math.random() * templates.length)];
 
-    const baseItem = {
+    const baseItem: ScrapedContent = {
       id: `${category}-${Date.now()}-${index}`,
       title: template.title,
       url: category === 'shop' && 'url' in template ? template.url : `https://${source.domain}/${template.path}/${Math.random().toString(36).substring(7)}`,
