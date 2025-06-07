@@ -132,7 +132,7 @@ const NewPlayground = () => {
   const renderTabContent = () => {
     switch (activeTab) {
       case 'Social':
-        return <SocialFeed isGenerating={isGenerating} />;
+        return <SocialFeed />;
       case 'Entertainment':
         return <EntertainmentHub isGenerating={isGenerating} />;
       case 'Search':
@@ -146,7 +146,7 @@ const NewPlayground = () => {
       case 'Analytics':
         return <AnalyticsDashboard />;
       default:
-        return <SocialFeed isGenerating={isGenerating} />;
+        return <SocialFeed />;
     }
   };
 
