@@ -140,7 +140,7 @@ const NewPlayground = () => {
       case 'Shop':
         return <ShopHub isGenerating={isGenerating} />;
       case 'Automation':
-        return <TaskAutomation isGenerating={isGenerating} />;
+        return <TaskAutomation />;
       case 'Community':
         return <CommunityHub activities={activities} isGenerating={isGenerating} />;
       case 'Analytics':
