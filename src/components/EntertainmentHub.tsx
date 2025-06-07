@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { Play, Headphones, BookOpen, Film, Music, Gamepad2, Sparkles, TrendingUp, Award, Send, Mic, Star, Trophy, Zap, Crown } from 'lucide-react';
 import { pollenAI } from '../services/pollenAI';
@@ -517,86 +518,91 @@ You can ask questions, request deeper explanations, or explore tangential topics
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredContent.map((item) => (
-              <div
-                key={item.id}
-                onClick={() => setSelectedContent(item)}
-                className="bg-gray-900/50 rounded-xl border border-gray-800/50 p-6 hover:bg-gray-900/70 transition-all cursor-pointer group hover:border-cyan-500/30"
-              >
-                <div className="w-full h-40 bg-gradient-to-br from-gray-800 to-gray-700 rounded-lg mb-4 flex items-center justify-center group-hover:from-cyan-500/20 group-hover:to-purple-500/20 transition-all relative">
-                  {contentTypes.find(t => t.type === item.type) && (
-                    <contentTypes.find(t => t.type === item.type)!.icon className={`w-12 h-12 ${contentTypes.find(t => t.type === item.type)!.color}`} />
-                  )}
-                  {item.trending && (
-                    <div className="absolute top-2 right-2 flex items-center space-x-1 bg-red-500/20 text-red-300 px-2 py-1 rounded-full text-xs border border-red-500/30">
-                      <TrendingUp className="w-3 h-3" />
-                      <span>Trending</span>
-                    </div>
-                  )}
-                </div>
+            {filteredContent.map((item) => {
+              const IconComponent = contentTypes.find(t => t.type === item.type)?.icon;
+              const iconColor = contentTypes.find(t => t.type === item.type)?.color;
+              
+              return (
+                <div
+                  key={item.id}
+                  onClick={() => setSelectedContent(item)}
+                  className="bg-gray-900/50 rounded-xl border border-gray-800/50 p-6 hover:bg-gray-900/70 transition-all cursor-pointer group hover:border-cyan-500/30"
+                >
+                  <div className="w-full h-40 bg-gradient-to-br from-gray-800 to-gray-700 rounded-lg mb-4 flex items-center justify-center group-hover:from-cyan-500/20 group-hover:to-purple-500/20 transition-all relative">
+                    {IconComponent && (
+                      <IconComponent className={`w-12 h-12 ${iconColor}`} />
+                    )}
+                    {item.trending && (
+                      <div className="absolute top-2 right-2 flex items-center space-x-1 bg-red-500/20 text-red-300 px-2 py-1 rounded-full text-xs border border-red-500/30">
+                        <TrendingUp className="w-3 h-3" />
+                        <span>Trending</span>
+                      </div>
+                    )}
+                  </div>
 
-                <div className="flex items-center justify-between mb-2">
-                  <span className="px-2 py-1 bg-purple-500/20 text-purple-300 rounded text-xs border border-purple-500/30">
-                    {item.category}
-                  </span>
-                  <div className="flex items-center space-x-2">
-                    <div className={`px-2 py-1 rounded text-xs font-medium flex items-center space-x-1 ${
-                      item.significance > 8 
-                        ? 'bg-red-500/20 text-red-300'
-                        : 'bg-cyan-500/20 text-cyan-300'
-                    }`}>
-                      <Zap className="w-3 h-3" />
-                      <span>{item.significance.toFixed(1)}</span>
-                    </div>
-                    <div className={`px-2 py-1 rounded text-xs font-medium flex items-center space-x-1 ${getRatingColor(item.rating)} bg-gray-800/50`}>
-                      <Star className="w-3 h-3 fill-current" />
-                      <span>{item.rating}</span>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="px-2 py-1 bg-purple-500/20 text-purple-300 rounded text-xs border border-purple-500/30">
+                      {item.category}
+                    </span>
+                    <div className="flex items-center space-x-2">
+                      <div className={`px-2 py-1 rounded text-xs font-medium flex items-center space-x-1 ${
+                        item.significance > 8 
+                          ? 'bg-red-500/20 text-red-300'
+                          : 'bg-cyan-500/20 text-cyan-300'
+                      }`}>
+                        <Zap className="w-3 h-3" />
+                        <span>{item.significance.toFixed(1)}</span>
+                      </div>
+                      <div className={`px-2 py-1 rounded text-xs font-medium flex items-center space-x-1 ${getRatingColor(item.rating)} bg-gray-800/50`}>
+                        <Star className="w-3 h-3 fill-current" />
+                        <span>{item.rating}</span>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-cyan-300 transition-colors line-clamp-2">
-                  {item.title}
-                </h3>
+                  <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-cyan-300 transition-colors line-clamp-2">
+                    {item.title}
+                  </h3>
 
-                <p className="text-gray-400 text-sm mb-4 line-clamp-2">
-                  {item.description}
-                </p>
+                  <p className="text-gray-400 text-sm mb-4 line-clamp-2">
+                    {item.description}
+                  </p>
 
-                <div className="flex items-center justify-between text-xs text-gray-500 mb-3">
-                  <span className="flex items-center space-x-1">
-                    <Play className="w-3 h-3" />
-                    <span>{item.duration}</span>
-                  </span>
-                  <div className="flex items-center space-x-3">
-                    <span>{(item.views / 1000).toFixed(1)}k views</span>
-                    <span>{(item.likes / 1000).toFixed(1)}k likes</span>
+                  <div className="flex items-center justify-between text-xs text-gray-500 mb-3">
+                    <span className="flex items-center space-x-1">
+                      <Play className="w-3 h-3" />
+                      <span>{item.duration}</span>
+                    </span>
+                    <div className="flex items-center space-x-3">
+                      <span>{(item.views / 1000).toFixed(1)}k views</span>
+                      <span>{(item.likes / 1000).toFixed(1)}k likes</span>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2">
+                    {item.tags.slice(0, 3).map((tag, index) => (
+                      <span 
+                        key={index} 
+                        className={`px-2 py-1 rounded text-xs border ${
+                          tag === 'trending' || tag === 'viral' 
+                            ? 'bg-red-500/20 text-red-300 border-red-500/30'
+                            : tag === 'new' || tag === 'custom'
+                            ? 'bg-green-500/20 text-green-300 border-green-500/30'
+                            : 'bg-gray-600/20 text-gray-400 border-gray-600/30'
+                        }`}
+                      >
+                        #{tag}
+                      </span>
+                    ))}
+                    {item.tags.length > 3 && (
+                      <span className="px-2 py-1 bg-gray-600/20 text-gray-400 rounded text-xs border border-gray-600/30">
+                        +{item.tags.length - 3}
+                      </span>
+                    )}
                   </div>
                 </div>
-
-                <div className="flex flex-wrap gap-2">
-                  {item.tags.slice(0, 3).map((tag, index) => (
-                    <span 
-                      key={index} 
-                      className={`px-2 py-1 rounded text-xs border ${
-                        tag === 'trending' || tag === 'viral' 
-                          ? 'bg-red-500/20 text-red-300 border-red-500/30'
-                          : tag === 'new' || tag === 'custom'
-                          ? 'bg-green-500/20 text-green-300 border-green-500/30'
-                          : 'bg-gray-600/20 text-gray-400 border-gray-600/30'
-                      }`}
-                    >
-                      #{tag}
-                    </span>
-                  ))}
-                  {item.tags.length > 3 && (
-                    <span className="px-2 py-1 bg-gray-600/20 text-gray-400 rounded text-xs border border-gray-600/30">
-                      +{item.tags.length - 3}
-                    </span>
-                  )}
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
