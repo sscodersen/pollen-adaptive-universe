@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Menu, Users, ShoppingBag, Play, Search, Bot, Globe, BarChart3 } from 'lucide-react';
 import { ActivityFeed } from '../components/ActivityFeed';
@@ -17,10 +18,10 @@ const NewPlayground = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [aiStatus, setAiStatus] = useState('ready');
   const [systemStats, setSystemStats] = useState({
-    totalContent: 0,
-    highSignificance: 0,
-    activeFeeds: 0,
-    processingSpeed: 0
+    totalContent: 5847,
+    highSignificance: 892,
+    activeFeeds: 8,
+    processingSpeed: 167
   });
 
   const tabs = [
@@ -36,13 +37,8 @@ const NewPlayground = () => {
   useEffect(() => {
     initializePlatform();
     
-    const statusInterval = setInterval(() => {
-      updateSystemStatus();
-    }, 5000);
-
-    const statsInterval = setInterval(() => {
-      updateSystemStats();
-    }, 10000);
+    const statusInterval = setInterval(updateSystemStatus, 3000);
+    const statsInterval = setInterval(updateSystemStats, 8000);
 
     return () => {
       clearInterval(statusInterval);
@@ -56,19 +52,17 @@ const NewPlayground = () => {
   };
 
   const updateSystemStats = () => {
-    // Simulate real-time stats updates
-    setSystemStats({
-      totalContent: Math.floor(Math.random() * 1000) + 5000,
-      highSignificance: Math.floor(Math.random() * 200) + 800,
-      activeFeeds: Math.floor(Math.random() * 5) + 7,
-      processingSpeed: Math.floor(Math.random() * 50) + 150
-    });
+    setSystemStats(prev => ({
+      totalContent: prev.totalContent + Math.floor(Math.random() * 10) - 5,
+      highSignificance: prev.highSignificance + Math.floor(Math.random() * 4) - 2,
+      activeFeeds: Math.max(6, Math.min(12, prev.activeFeeds + Math.floor(Math.random() * 3) - 1)),
+      processingSpeed: Math.max(120, Math.min(200, prev.processingSpeed + Math.floor(Math.random() * 20) - 10))
+    }));
   };
 
   const initializePlatform = async () => {
     setIsGenerating(true);
     
-    // Generate initial activities for community hub
     const initialActivities = [
       {
         id: '1',
@@ -115,7 +109,6 @@ const NewPlayground = () => {
     
     setActivities(initialActivities);
 
-    // Initialize web scraping and content generation
     try {
       await Promise.all([
         webScrapingService.scrapeContent('news', 8),
@@ -138,7 +131,7 @@ const NewPlayground = () => {
       case 'Search':
         return <NewsEngine />;
       case 'Shop':
-        return <ShopHub isGenerating={isGenerating} />;
+        return <ShopHub />;
       case 'Automation':
         return <TaskAutomation />;
       case 'Community':
@@ -170,7 +163,7 @@ const NewPlayground = () => {
           
           {/* System Status */}
           <div className="flex items-center space-x-4">
-            <div className={`flex items-center space-x-2 px-4 py-2 rounded-full text-sm border ${
+            <div className={`flex items-center space-x-2 px-4 py-2 rounded-full text-sm border transition-all ${
               aiStatus === 'learning' 
                 ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20' 
                 : 'bg-green-500/10 text-green-400 border-green-500/20'
@@ -184,15 +177,15 @@ const NewPlayground = () => {
             {/* Live Stats */}
             <div className="flex items-center space-x-4 text-xs text-gray-400">
               <div className="flex items-center space-x-1">
-                <div className="w-1.5 h-1.5 bg-cyan-400 rounded-full"></div>
+                <div className="w-1.5 h-1.5 bg-cyan-400 rounded-full animate-pulse"></div>
                 <span>{systemStats.totalContent.toLocaleString()} items</span>
               </div>
               <div className="flex items-center space-x-1">
-                <div className="w-1.5 h-1.5 bg-green-400 rounded-full"></div>
+                <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></div>
                 <span>{systemStats.highSignificance} high-impact</span>
               </div>
               <div className="flex items-center space-x-1">
-                <div className="w-1.5 h-1.5 bg-purple-400 rounded-full"></div>
+                <div className="w-1.5 h-1.5 bg-purple-400 rounded-full animate-pulse"></div>
                 <span>{systemStats.processingSpeed}/min</span>
               </div>
             </div>
