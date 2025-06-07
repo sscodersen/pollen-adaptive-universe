@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { Heart, MessageCircle, Share2, Bookmark, TrendingUp, Award, Zap, Users, Globe, Sparkles } from 'lucide-react';
 import { pollenAI } from '../services/pollenAI';
@@ -40,46 +39,58 @@ export const SocialFeed = ({ isGenerating = false }: SocialFeedProps) => {
     { name: 'Dr. Sarah Chen', username: 'sarahchen_ai', avatar: 'bg-gradient-to-r from-blue-500 to-purple-500', verified: true, badges: ['AI Expert', 'Researcher'] },
     { name: 'Marcus Rodriguez', username: 'marcus_dev', avatar: 'bg-gradient-to-r from-green-500 to-blue-500', verified: true, badges: ['Developer', 'Open Source'] },
     { name: 'Elena Kowalski', username: 'elena_design', avatar: 'bg-gradient-to-r from-pink-500 to-red-500', verified: false, badges: ['Designer'] },
-    { name: 'Dr. James Liu', username: 'james_quantum', avatar: 'bg-gradient-to-r from-purple-500 to-indigo-500', verified: true, badges: ['Physicist', 'Quantum'] },
-    { name: 'Aria Patel', username: 'aria_sustainability', avatar: 'bg-gradient-to-r from-emerald-500 to-teal-500', verified: true, badges: ['Climate Tech', 'Activist'] },
-    { name: 'Roberto Silva', username: 'roberto_biotech', avatar: 'bg-gradient-to-r from-orange-500 to-red-500', verified: false, badges: ['Biotech'] },
-    { name: 'Dr. Maya Zhang', username: 'maya_neuroscience', avatar: 'bg-gradient-to-r from-cyan-500 to-blue-500', verified: true, badges: ['Neuroscientist'] },
-    { name: 'Alex Thompson', username: 'alex_crypto', avatar: 'bg-gradient-to-r from-yellow-500 to-orange-500', verified: false, badges: ['Blockchain'] }
+    { name: 'Alex Chen', username: 'alex_crypto', avatar: 'bg-gradient-to-r from-yellow-500 to-orange-500', verified: false, badges: ['Blockchain'] },
+    { name: 'Maya Thompson', username: 'maya_startup', avatar: 'bg-gradient-to-r from-purple-500 to-pink-500', verified: true, badges: ['Entrepreneur'] },
+    { name: 'James Wilson', username: 'james_fitness', avatar: 'bg-gradient-to-r from-red-500 to-orange-500', verified: false, badges: ['Fitness Coach'] },
+    { name: 'Lisa Zhang', username: 'lisa_finance', avatar: 'bg-gradient-to-r from-emerald-500 to-cyan-500', verified: true, badges: ['Finance Expert'] },
+    { name: 'David Park', username: 'david_travel', avatar: 'bg-gradient-to-r from-indigo-500 to-purple-500', verified: false, badges: ['Travel Blogger'] }
   ];
 
-  const topicTemplates = [
-    { topic: 'AI Research', content: 'breakthrough in neural architecture search is revolutionizing how we approach machine learning optimization. The new method reduces training time by 60% while improving accuracy across diverse datasets.' },
-    { topic: 'Climate Tech', content: 'carbon capture technology just achieved a major milestone - successfully removing 1 million tons of CO2 from the atmosphere while being economically viable at scale.' },
-    { topic: 'Quantum Computing', content: 'quantum error correction just reached a critical threshold. We\'re now seeing stable qubits maintaining coherence for over 100 seconds, bringing practical quantum computers much closer to reality.' },
-    { topic: 'Biotechnology', content: 'gene therapy breakthrough is showing unprecedented success in treating rare genetic disorders. Clinical trials report 95% improvement rates with minimal side effects.' },
-    { topic: 'Space Technology', content: 'reusable rocket technology is making space access 10x more affordable. This opens up incredible opportunities for satellite deployment and space research.' },
-    { topic: 'Renewable Energy', content: 'solar panel efficiency just hit 47% in lab conditions using perovskite-silicon tandem cells. This could revolutionize how we approach sustainable energy generation.' },
-    { topic: 'Neuroscience', content: 'brain-computer interface technology is enabling paralyzed patients to control robotic arms with thought alone. The precision and speed are approaching natural movement.' },
-    { topic: 'Sustainable Tech', content: 'vertical farming breakthrough reduces water usage by 95% while increasing crop yields. This could transform agriculture in water-scarce regions worldwide.' },
-    { topic: 'Digital Privacy', content: 'homomorphic encryption advancement allows computation on encrypted data without decryption. This preserves privacy while enabling powerful analytics.' },
-    { topic: 'Materials Science', content: 'self-healing materials are now stable enough for real-world applications. Infrastructure that repairs itself could dramatically reduce maintenance costs.' }
+  const postTemplates = [
+    // Tech & Innovation Posts
+    { topic: 'AI Research', content: 'Just witnessed a breakthrough in neural architecture search that reduces training time by 60% while improving accuracy. The implications for democratizing AI development are huge! 🚀', category: 'Technology' },
+    { topic: 'Climate Tech', content: 'Amazing news! New carbon capture technology just hit a major milestone - 1 million tons of CO2 removed from atmosphere while being economically viable. This could be a game changer! 🌱', category: 'Climate' },
+    { topic: 'Quantum Computing', content: 'Quantum error correction breakthrough! Stable qubits maintaining coherence for over 100 seconds. We\'re getting closer to practical quantum computers every day! ⚛️', category: 'Science' },
+    
+    // Lifestyle & Personal Posts
+    { topic: 'Productivity', content: 'Finally found the perfect morning routine! 6am workout, 30min meditation, then deep work blocks. Productivity up 40% this month. What works for you? ☀️', category: 'Lifestyle' },
+    { topic: 'Learning', content: 'Been learning Python for 3 months now. Just built my first machine learning model! The feeling when your code actually works is unmatched 😄', category: 'Education' },
+    { topic: 'Travel', content: 'Just got back from Iceland! The Northern Lights were incredible. Sometimes you need to disconnect from tech and reconnect with nature 🌌', category: 'Travel' },
+    
+    // Industry & Business Posts
+    { topic: 'Startup Life', content: 'Month 6 of building our startup. Learned more about customer discovery in the past week than in my entire MBA. Talk to your users, early and often! 💡', category: 'Business' },
+    { topic: 'Remote Work', content: 'Unpopular opinion: The best remote work setup isn\'t about the fanciest gear, it\'s about clear boundaries and communication. Less Slack, more focus time! 🏠', category: 'Work' },
+    { topic: 'Investment', content: 'Interesting trend: 73% of Gen Z is investing in sustainable ETFs. The next generation is literally putting their money where their values are 📈', category: 'Finance' },
+    
+    // Creative & Arts Posts
+    { topic: 'Design', content: 'Working on UI for accessibility has completely changed how I think about design. Good design isn\'t just beautiful, it\'s inclusive. Every pixel should have purpose ✨', category: 'Design' },
+    { topic: 'Music', content: 'Discovered this amazing artist who creates music entirely with AI tools, then performs it live with traditional instruments. The future of creativity is collaborative! 🎵', category: 'Arts' },
+    { topic: 'Photography', content: 'Spent the weekend doing street photography with just my phone. Sometimes constraints breed the most creativity. The best camera is the one you have with you 📸', category: 'Arts' },
+    
+    // Social & Community Posts
+    { topic: 'Community', content: 'Organized my first local tech meetup! 50 people showed up to talk about AI ethics. There\'s so much hunger for meaningful conversations about technology\'s impact 🤝', category: 'Community' },
+    { topic: 'Volunteering', content: 'Teaching coding to kids at the local library. Their questions are so much better than any interview I\'ve ever had. \'Why do computers only understand 1s and 0s?\' 👨‍🏫', category: 'Education' },
+    { topic: 'Wellness', content: 'Week 2 of digital detox evenings. Reading actual books, having real conversations. My brain feels less scattered. Maybe we don\'t need to be always-on? 🧘‍♀️', category: 'Wellness' }
   ];
 
   const generatePost = useCallback(async () => {
     const user = realUsers[Math.floor(Math.random() * realUsers.length)];
-    const template = topicTemplates[Math.floor(Math.random() * topicTemplates.length)];
+    const template = postTemplates[Math.floor(Math.random() * postTemplates.length)];
     
-    const content = `Just witnessed a major ${template.content}`;
-    
-    const scored = significanceAlgorithm.scoreContent(content, 'social', 'Community Member');
+    const scored = significanceAlgorithm.scoreContent(template.content, 'social', 'Community Member');
     
     const post: Post = {
       id: Date.now().toString() + Math.random(),
       user,
-      content,
+      content: template.content,
       timestamp: `${Math.floor(Math.random() * 60) + 1}m`,
       likes: Math.floor(Math.random() * 2000) + 50,
       comments: Math.floor(Math.random() * 300) + 5,
       shares: Math.floor(Math.random() * 500) + 10,
-      tags: [template.topic, scored.significanceScore > 8 ? 'High Impact' : 'Trending'],
+      tags: [template.topic, template.category, scored.significanceScore > 8 ? 'High Impact' : 'Trending'],
       trending: scored.significanceScore > 7.5,
       significance: scored.significanceScore,
-      category: template.topic,
+      category: template.category,
       engagement: Math.floor(Math.random() * 100) + 50,
       quality: Math.floor(scored.significanceScore * 10)
     };
@@ -90,7 +101,7 @@ export const SocialFeed = ({ isGenerating = false }: SocialFeedProps) => {
   const loadPosts = useCallback(async () => {
     setLoading(true);
     const newPosts = await Promise.all(
-      Array.from({ length: 8 }, () => generatePost())
+      Array.from({ length: 12 }, () => generatePost())
     );
     setPosts(newPosts.sort((a, b) => b.significance - a.significance));
     setLoading(false);
@@ -98,7 +109,7 @@ export const SocialFeed = ({ isGenerating = false }: SocialFeedProps) => {
 
   useEffect(() => {
     loadPosts();
-    const interval = setInterval(loadPosts, 30000); // Refresh every 30 seconds
+    const interval = setInterval(loadPosts, 30000);
     return () => clearInterval(interval);
   }, [loadPosts]);
 
@@ -173,7 +184,7 @@ export const SocialFeed = ({ isGenerating = false }: SocialFeedProps) => {
       <div className="p-6 space-y-6">
         {loading ? (
           <div className="space-y-6">
-            {[...Array(5)].map((_, i) => (
+            {[...Array(8)].map((_, i) => (
               <div key={i} className="bg-gray-900/50 rounded-xl p-6 border border-gray-800/50 animate-pulse">
                 <div className="flex items-center space-x-4 mb-4">
                   <div className="w-12 h-12 bg-gray-700 rounded-full"></div>
