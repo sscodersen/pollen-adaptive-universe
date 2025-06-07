@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Play, Headphones, BookOpen, Film, Music, Gamepad2, Sparkles, TrendingUp, Award, Send, Mic } from 'lucide-react';
+import { Play, Headphones, BookOpen, Film, Music, Gamepad2, Sparkles, TrendingUp, Award, Send, Mic, Star, Trophy, Zap, Crown } from 'lucide-react';
 import { pollenAI } from '../services/pollenAI';
 import { significanceAlgorithm } from '../services/significanceAlgorithm';
 
@@ -21,6 +21,10 @@ interface ContentItem {
   trending: boolean;
   views: number;
   likes: number;
+  shares: number;
+  comments: number;
+  rating: number;
+  difficulty?: string;
   thumbnail?: string;
 }
 
@@ -60,8 +64,9 @@ Your choice will determine not just your story, but the very nature of the reali
 
 [Interactive elements respond to your selections, creating a unique narrative experience]`,
         category: 'Sci-Fi Interactive',
-        tags: ['interactive', 'sci-fi', 'choice-driven'],
-        duration: '15-30 min'
+        tags: ['interactive', 'sci-fi', 'choice-driven', 'trending'],
+        duration: '15-30 min',
+        difficulty: 'Medium'
       },
       {
         type: 'music' as const,
@@ -77,9 +82,11 @@ Key Features:
 - Seamless 30-minute loop with no repetition
 - Binaural beats for enhanced focus
 
-The composition begins with ethereal pads, slowly building into a complex tapestry of synthesized orchestral elements. Each listen reveals new layers and subtle variations.`,
+The composition begins with ethereal pads, slowly building into a complex tapestry of synthesized orchestral elements. Each listen reveals new layers and subtle variations.
+
+[Audio player interface would be embedded here with visualization]`,
         category: 'AI Music',
-        tags: ['ambient', 'ai-generated', 'adaptive'],
+        tags: ['ambient', 'ai-generated', 'adaptive', 'focus'],
         duration: '30 min'
       },
       {
@@ -99,7 +106,7 @@ A journey through hypothetical cities of 2050, showcasing:
 
 The AI considered factors like population density, climate adaptation, renewable energy integration, and social equity to generate these urban visions.
 
-[Video would display here with AI-generated visuals and narration]
+[Video player interface would be embedded here with 4K playback]
 
 Technical Details:
 - Generated using neural rendering techniques
@@ -107,7 +114,7 @@ Technical Details:
 - Physics-based environmental simulations
 - Culturally diverse architectural styles`,
         category: 'Future Concepts',
-        tags: ['ai-video', 'futurism', 'sustainability'],
+        tags: ['ai-video', 'futurism', 'sustainability', 'viral'],
         duration: '12 min'
       },
       {
@@ -134,9 +141,9 @@ Key Insights:
 2. Bio-quantum hybrid systems show promise for sustainable computing
 3. Regulatory frameworks are rapidly evolving to address new capabilities
 
-[Audio would play here with natural AI-generated speech and discussion]`,
+[Audio interface would play here with natural AI-generated speech and discussion]`,
         category: 'Tech Analysis',
-        tags: ['ai-podcast', 'technology', 'analysis'],
+        tags: ['ai-podcast', 'technology', 'analysis', 'educational'],
         duration: '18 min'
       },
       {
@@ -169,8 +176,9 @@ Features:
 
 The AI continuously learns from player interactions to create increasingly sophisticated and engaging challenges.`,
         category: 'Cognitive Games',
-        tags: ['ai-game', 'puzzle', 'adaptive'],
-        duration: '5-20 min'
+        tags: ['ai-game', 'puzzle', 'adaptive', 'competitive'],
+        duration: '5-20 min',
+        difficulty: 'Adaptive'
       },
       {
         type: 'interactive' as const,
@@ -184,7 +192,7 @@ Current Session: Introduction to Emergent Technologies
 
 Mentor: "Hello! I've analyzed your interaction patterns and believe you'd benefit from a visual-kinesthetic approach to learning. Shall we explore how artificial intelligence is transforming different industries?"
 
-[Interactive conversation interface]
+[Interactive conversation interface would be embedded here]
 
 Available Topics:
 - AI in Healthcare: Personalized medicine and diagnostics
@@ -200,7 +208,7 @@ The AI mentor adapts its:
 
 You can ask questions, request deeper explanations, or explore tangential topics. The mentor maintains context throughout our conversation and builds on previous sessions.`,
         category: 'Educational',
-        tags: ['ai-mentor', 'interactive', 'learning'],
+        tags: ['ai-mentor', 'interactive', 'learning', 'personalized'],
         duration: 'Unlimited'
       }
     ];
@@ -220,9 +228,13 @@ You can ask questions, request deeper explanations, or explore tangential topics
         category: template.category,
         tags: template.tags,
         significance: scored.significanceScore,
-        trending: scored.significanceScore > 7.5,
+        trending: scored.significanceScore > 7.5 || template.tags.includes('trending') || template.tags.includes('viral'),
         views: Math.floor(Math.random() * 100000) + 5000,
-        likes: Math.floor(Math.random() * 10000) + 500
+        likes: Math.floor(Math.random() * 10000) + 500,
+        shares: Math.floor(Math.random() * 5000) + 100,
+        comments: Math.floor(Math.random() * 2000) + 50,
+        rating: Math.round((Math.random() * 2 + 3) * 10) / 10, // 3.0-5.0 rating
+        difficulty: template.difficulty
       };
     });
 
@@ -238,7 +250,7 @@ You can ask questions, request deeper explanations, or explore tangential topics
 
   useEffect(() => {
     loadContent();
-    const interval = setInterval(loadContent, 60000); // Refresh every minute
+    const interval = setInterval(loadContent, 120000); // Refresh every 2 minutes
     return () => clearInterval(interval);
   }, [loadContent]);
 
@@ -260,11 +272,14 @@ You can ask questions, request deeper explanations, or explore tangential topics
         content: response.content,
         duration: 'Variable',
         category: 'Custom Generated',
-        tags: ['custom', 'ai-generated', 'prompt-based'],
+        tags: ['custom', 'ai-generated', 'prompt-based', 'new'],
         significance: scored.significanceScore,
         trending: true,
         views: 0,
-        likes: 0
+        likes: 0,
+        shares: 0,
+        comments: 0,
+        rating: 4.5
       };
       
       setContent(prev => [customContent, ...prev]);
@@ -282,6 +297,23 @@ You can ask questions, request deeper explanations, or explore tangential topics
     return item.type === filter;
   });
 
+  const getRatingColor = (rating: number) => {
+    if (rating >= 4.5) return 'text-green-400';
+    if (rating >= 4.0) return 'text-yellow-400';
+    return 'text-orange-400';
+  };
+
+  const getDifficultyBadge = (difficulty?: string) => {
+    if (!difficulty) return null;
+    const colors = {
+      'Easy': 'bg-green-500/20 text-green-300 border-green-500/30',
+      'Medium': 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30',
+      'Hard': 'bg-red-500/20 text-red-300 border-red-500/30',
+      'Adaptive': 'bg-purple-500/20 text-purple-300 border-purple-500/30'
+    };
+    return colors[difficulty as keyof typeof colors] || colors.Medium;
+  };
+
   if (selectedContent) {
     return (
       <div className="flex-1 bg-gray-950">
@@ -296,19 +328,31 @@ You can ask questions, request deeper explanations, or explore tangential topics
                 <span>← Back to Entertainment</span>
               </button>
               <div className="flex items-center space-x-3">
-                <div className={`px-3 py-1 rounded-full text-xs font-medium ${
+                <div className={`px-3 py-1 rounded-full text-xs font-medium flex items-center space-x-1 ${
                   selectedContent.significance > 8 
                     ? 'bg-red-500/20 text-red-300 border border-red-500/30'
                     : 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30'
                 }`}>
-                  {selectedContent.significance.toFixed(1)} Quality
+                  <Trophy className="w-3 h-3" />
+                  <span>{selectedContent.significance.toFixed(1)} Quality</span>
                 </div>
-                <div className="flex items-center space-x-2 text-gray-400 text-sm">
-                  <span>{selectedContent.views.toLocaleString()} views</span>
-                  <span>•</span>
-                  <span>{selectedContent.likes.toLocaleString()} likes</span>
+                <div className={`px-3 py-1 rounded-full text-xs font-medium flex items-center space-x-1 ${getRatingColor(selectedContent.rating)} bg-gray-800/50 border border-gray-700/50`}>
+                  <Star className="w-3 h-3 fill-current" />
+                  <span>{selectedContent.rating}/5.0</span>
                 </div>
+                {selectedContent.difficulty && (
+                  <div className={`px-3 py-1 rounded-full text-xs font-medium border ${getDifficultyBadge(selectedContent.difficulty)}`}>
+                    {selectedContent.difficulty}
+                  </div>
+                )}
               </div>
+            </div>
+
+            <div className="flex items-center space-x-6 text-gray-400 text-sm">
+              <span>{selectedContent.views.toLocaleString()} views</span>
+              <span>{selectedContent.likes.toLocaleString()} likes</span>
+              <span>{selectedContent.shares.toLocaleString()} shares</span>
+              <span>{selectedContent.comments.toLocaleString()} comments</span>
             </div>
           </div>
         </div>
@@ -321,6 +365,12 @@ You can ask questions, request deeper explanations, or explore tangential topics
                 {selectedContent.category}
               </span>
               <span className="text-gray-400 text-sm">{selectedContent.duration}</span>
+              {selectedContent.trending && (
+                <div className="flex items-center space-x-1 px-3 py-1 bg-red-500/20 text-red-300 rounded-full text-sm border border-red-500/30">
+                  <TrendingUp className="w-3 h-3" />
+                  <span>Trending</span>
+                </div>
+              )}
             </div>
             <h1 className="text-4xl font-bold text-white mb-4">{selectedContent.title}</h1>
             <p className="text-xl text-gray-300 leading-relaxed">{selectedContent.description}</p>
@@ -337,7 +387,16 @@ You can ask questions, request deeper explanations, or explore tangential topics
           {/* Tags */}
           <div className="flex flex-wrap gap-2 mt-8 pt-6 border-t border-gray-800/50">
             {selectedContent.tags.map((tag, index) => (
-              <span key={index} className="px-3 py-1 bg-gray-700/50 text-gray-300 rounded-full text-sm border border-gray-600/50">
+              <span 
+                key={index} 
+                className={`px-3 py-1 rounded-full text-sm border ${
+                  tag === 'trending' || tag === 'viral' 
+                    ? 'bg-red-500/20 text-red-300 border-red-500/30'
+                    : tag === 'new' || tag === 'custom'
+                    ? 'bg-green-500/20 text-green-300 border-green-500/30'
+                    : 'bg-gray-700/50 text-gray-300 border-gray-600/50'
+                }`}
+              >
                 #{tag}
               </span>
             ))}
@@ -362,12 +421,19 @@ You can ask questions, request deeper explanations, or explore tangential topics
                 <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
                 <span>Generating</span>
               </div>
+              <div className="px-4 py-2 bg-purple-500/10 text-purple-300 rounded-full text-sm font-medium border border-purple-500/20 flex items-center space-x-2">
+                <Crown className="w-4 h-4" />
+                <span>Premium AI</span>
+              </div>
             </div>
           </div>
 
           {/* Custom Content Generator */}
           <div className="bg-gray-800/50 rounded-xl border border-gray-700/50 p-4 mb-6">
-            <h3 className="text-lg font-semibold text-white mb-3">Create Custom Content</h3>
+            <h3 className="text-lg font-semibold text-white mb-3 flex items-center space-x-2">
+              <Sparkles className="w-5 h-5 text-cyan-400" />
+              <span>Create Custom Content</span>
+            </h3>
             <div className="flex space-x-3">
               <div className="flex-1 relative">
                 <input
@@ -375,7 +441,7 @@ You can ask questions, request deeper explanations, or explore tangential topics
                   value={userPrompt}
                   onChange={(e) => setUserPrompt(e.target.value)}
                   placeholder="Describe what you want to create... (e.g., 'a story about time travel' or 'relaxing music for studying')"
-                  className="w-full bg-gray-700/50 border border-gray-600/50 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:border-cyan-500/50 focus:outline-none"
+                  className="w-full bg-gray-700/50 border border-gray-600/50 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:border-cyan-500/50 focus:outline-none transition-colors"
                   onKeyPress={(e) => e.key === 'Enter' && generateCustomContent()}
                 />
               </div>
@@ -463,12 +529,18 @@ You can ask questions, request deeper explanations, or explore tangential topics
               <div
                 key={item.id}
                 onClick={() => setSelectedContent(item)}
-                className="bg-gray-900/50 rounded-xl border border-gray-800/50 p-6 hover:bg-gray-900/70 transition-all cursor-pointer group"
+                className="bg-gray-900/50 rounded-xl border border-gray-800/50 p-6 hover:bg-gray-900/70 transition-all cursor-pointer group hover:border-cyan-500/30"
               >
                 {/* Content Preview */}
-                <div className="w-full h-40 bg-gradient-to-br from-gray-800 to-gray-700 rounded-lg mb-4 flex items-center justify-center group-hover:from-cyan-500/20 group-hover:to-purple-500/20 transition-all">
+                <div className="w-full h-40 bg-gradient-to-br from-gray-800 to-gray-700 rounded-lg mb-4 flex items-center justify-center group-hover:from-cyan-500/20 group-hover:to-purple-500/20 transition-all relative">
                   {contentTypes.find(t => t.type === item.type) && (
                     <contentTypes.find(t => t.type === item.type)!.icon className={`w-12 h-12 ${contentTypes.find(t => t.type === item.type)!.color}`} />
+                  )}
+                  {item.trending && (
+                    <div className="absolute top-2 right-2 flex items-center space-x-1 bg-red-500/20 text-red-300 px-2 py-1 rounded-full text-xs border border-red-500/30">
+                      <TrendingUp className="w-3 h-3" />
+                      <span>Trending</span>
+                    </div>
                   )}
                 </div>
 
@@ -477,16 +549,23 @@ You can ask questions, request deeper explanations, or explore tangential topics
                   <span className="px-2 py-1 bg-purple-500/20 text-purple-300 rounded text-xs border border-purple-500/30">
                     {item.category}
                   </span>
-                  <div className={`px-2 py-1 rounded text-xs font-medium ${
-                    item.significance > 8 
-                      ? 'bg-red-500/20 text-red-300'
-                      : 'bg-cyan-500/20 text-cyan-300'
-                  }`}>
-                    {item.significance.toFixed(1)}
+                  <div className="flex items-center space-x-2">
+                    <div className={`px-2 py-1 rounded text-xs font-medium flex items-center space-x-1 ${
+                      item.significance > 8 
+                        ? 'bg-red-500/20 text-red-300'
+                        : 'bg-cyan-500/20 text-cyan-300'
+                    }`}>
+                      <Zap className="w-3 h-3" />
+                      <span>{item.significance.toFixed(1)}</span>
+                    </div>
+                    <div className={`px-2 py-1 rounded text-xs font-medium flex items-center space-x-1 ${getRatingColor(item.rating)} bg-gray-800/50`}>
+                      <Star className="w-3 h-3 fill-current" />
+                      <span>{item.rating}</span>
+                    </div>
                   </div>
                 </div>
 
-                <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-cyan-300 transition-colors">
+                <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-cyan-300 transition-colors line-clamp-2">
                   {item.title}
                 </h3>
 
@@ -496,7 +575,10 @@ You can ask questions, request deeper explanations, or explore tangential topics
 
                 {/* Meta Info */}
                 <div className="flex items-center justify-between text-xs text-gray-500 mb-3">
-                  <span>{item.duration}</span>
+                  <span className="flex items-center space-x-1">
+                    <Play className="w-3 h-3" />
+                    <span>{item.duration}</span>
+                  </span>
                   <div className="flex items-center space-x-3">
                     <span>{(item.views / 1000).toFixed(1)}k views</span>
                     <span>{(item.likes / 1000).toFixed(1)}k likes</span>
@@ -505,11 +587,25 @@ You can ask questions, request deeper explanations, or explore tangential topics
 
                 {/* Tags */}
                 <div className="flex flex-wrap gap-2">
-                  {item.tags.slice(0, 2).map((tag, index) => (
-                    <span key={index} className="px-2 py-1 bg-gray-600/20 text-gray-400 rounded text-xs border border-gray-600/30">
+                  {item.tags.slice(0, 3).map((tag, index) => (
+                    <span 
+                      key={index} 
+                      className={`px-2 py-1 rounded text-xs border ${
+                        tag === 'trending' || tag === 'viral' 
+                          ? 'bg-red-500/20 text-red-300 border-red-500/30'
+                          : tag === 'new' || tag === 'custom'
+                          ? 'bg-green-500/20 text-green-300 border-green-500/30'
+                          : 'bg-gray-600/20 text-gray-400 border-gray-600/30'
+                      }`}
+                    >
                       #{tag}
                     </span>
                   ))}
+                  {item.tags.length > 3 && (
+                    <span className="px-2 py-1 bg-gray-600/20 text-gray-400 rounded text-xs border border-gray-600/30">
+                      +{item.tags.length - 3}
+                    </span>
+                  )}
                 </div>
               </div>
             ))}
