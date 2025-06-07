@@ -17,6 +17,12 @@ const NewPlayground = () => {
   const [activities, setActivities] = useState([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [aiStatus, setAiStatus] = useState('ready');
+  const [systemStats, setSystemStats] = useState({
+    totalContent: 0,
+    highSignificance: 0,
+    activeFeeds: 0,
+    processingSpeed: 0
+  });
 
   const tabs = [
     { id: 'Social', name: 'Social Feed', icon: Users },
@@ -32,29 +38,50 @@ const NewPlayground = () => {
     initializePlatform();
     
     const statusInterval = setInterval(() => {
-      const stats = pollenAI.getMemoryStats();
-      setAiStatus(stats.isLearning ? 'learning' : 'ready');
+      updateSystemStatus();
     }, 5000);
+
+    const statsInterval = setInterval(() => {
+      updateSystemStats();
+    }, 10000);
 
     return () => {
       clearInterval(statusInterval);
+      clearInterval(statsInterval);
     };
   }, []);
 
+  const updateSystemStatus = () => {
+    const stats = pollenAI.getMemoryStats();
+    setAiStatus(stats.isLearning ? 'learning' : 'ready');
+  };
+
+  const updateSystemStats = () => {
+    // Simulate real-time stats updates
+    setSystemStats({
+      totalContent: Math.floor(Math.random() * 1000) + 5000,
+      highSignificance: Math.floor(Math.random() * 200) + 800,
+      activeFeeds: Math.floor(Math.random() * 5) + 7,
+      processingSpeed: Math.floor(Math.random() * 50) + 150
+    });
+  };
+
   const initializePlatform = async () => {
+    setIsGenerating(true);
+    
     // Generate initial activities for community hub
     const initialActivities = [
       {
         id: '1',
         type: 'ai_insight',
         user: {
-          name: 'Pollen AI',
+          name: 'Pollen Intelligence',
           avatar: 'bg-gradient-to-r from-cyan-500 to-purple-500',
           initial: 'P'
         },
-        action: 'analyzed global patterns and generated',
-        target: 'high-significance content across all domains',
-        content: "Successfully identified and curated 247 high-impact developments across technology, science, business, and social innovation with comprehensive significance scoring and real-time trend analysis.",
+        action: 'analyzed global content patterns and generated',
+        target: 'high-significance insights across all domains',
+        content: "Successfully processed 12,847 content sources and identified 347 high-impact developments using the 7-factor significance algorithm. Real-time analysis shows 97% accuracy in trend prediction and content relevance scoring.",
         timestamp: '2m',
         aiGenerated: true,
         confidence: 0.97
@@ -67,9 +94,9 @@ const NewPlayground = () => {
           avatar: 'bg-gradient-to-r from-green-500 to-blue-500',
           initial: 'C'
         },
-        action: 'integrated multi-domain content generation with',
-        target: 'significance algorithm optimization',
-        content: "Platform now generates personalized content across social, news, entertainment, and shopping domains with 95% relevance accuracy and real-time adaptation to user preferences.",
+        action: 'optimized content generation algorithms with',
+        target: 'multi-domain significance scoring',
+        content: "Platform algorithms now generate personalized content across social, news, entertainment, and shopping domains with 95% relevance accuracy. New significance scoring ensures only high-impact content reaches users.",
         timestamp: '15m'
       },
       {
@@ -80,43 +107,47 @@ const NewPlayground = () => {
           avatar: 'bg-gradient-to-r from-purple-500 to-pink-500',
           initial: 'G'
         },
-        action: 'connected with distributed intelligence network',
-        target: 'collaborative insight generation',
-        content: "Successfully established connections with 12,000+ content sources and analysis engines worldwide, enabling comprehensive perspective synthesis and breakthrough discovery acceleration.",
+        action: 'connected with distributed intelligence sources',
+        target: 'enhanced content curation and ranking',
+        content: "Successfully integrated with 15,000+ verified content sources worldwide. Real-time significance analysis enables breakthrough discovery acceleration and unbiased information synthesis.",
         timestamp: '1h'
       }
     ];
     
     setActivities(initialActivities);
 
-    // Initialize web scraping services
+    // Initialize web scraping and content generation
     try {
-      await webScrapingService.scrapeContent('news', 5);
-      await webScrapingService.scrapeContent('shop', 5);
-      await webScrapingService.scrapeContent('entertainment', 5);
+      await Promise.all([
+        webScrapingService.scrapeContent('news', 8),
+        webScrapingService.scrapeContent('shop', 10),
+        webScrapingService.scrapeContent('entertainment', 6)
+      ]);
     } catch (error) {
-      console.error('Failed to initialize web scraping:', error);
+      console.error('Platform initialization error:', error);
+    } finally {
+      setIsGenerating(false);
     }
   };
 
   const renderTabContent = () => {
     switch (activeTab) {
       case 'Social':
-        return <SocialFeed isGenerating={true} />;
+        return <SocialFeed isGenerating={isGenerating} />;
       case 'Entertainment':
-        return <EntertainmentHub isGenerating={true} />;
+        return <EntertainmentHub isGenerating={isGenerating} />;
       case 'Search':
-        return <NewsEngine isGenerating={true} />;
+        return <NewsEngine isGenerating={isGenerating} />;
       case 'Shop':
-        return <ShopHub isGenerating={true} />;
+        return <ShopHub isGenerating={isGenerating} />;
       case 'Automation':
-        return <TaskAutomation isGenerating={true} />;
+        return <TaskAutomation isGenerating={isGenerating} />;
       case 'Community':
         return <CommunityHub activities={activities} isGenerating={isGenerating} />;
       case 'Analytics':
         return <AnalyticsDashboard />;
       default:
-        return <SocialFeed isGenerating={true} />;
+        return <SocialFeed isGenerating={isGenerating} />;
     }
   };
 
@@ -137,6 +168,8 @@ const NewPlayground = () => {
               <p className="text-gray-400 text-sm">AI-Powered • Multi-Domain • Real-Time Analysis • Production Ready</p>
             </div>
           </div>
+          
+          {/* System Status */}
           <div className="flex items-center space-x-4">
             <div className={`flex items-center space-x-2 px-4 py-2 rounded-full text-sm border ${
               aiStatus === 'learning' 
@@ -148,10 +181,27 @@ const NewPlayground = () => {
               }`}></div>
               <span>AI {aiStatus === 'learning' ? 'Learning' : 'Active'}</span>
             </div>
+            
+            {/* Live Stats */}
+            <div className="flex items-center space-x-4 text-xs text-gray-400">
+              <div className="flex items-center space-x-1">
+                <div className="w-1.5 h-1.5 bg-cyan-400 rounded-full"></div>
+                <span>{systemStats.totalContent.toLocaleString()} items</span>
+              </div>
+              <div className="flex items-center space-x-1">
+                <div className="w-1.5 h-1.5 bg-green-400 rounded-full"></div>
+                <span>{systemStats.highSignificance} high-impact</span>
+              </div>
+              <div className="flex items-center space-x-1">
+                <div className="w-1.5 h-1.5 bg-purple-400 rounded-full"></div>
+                <span>{systemStats.processingSpeed}/min</span>
+              </div>
+            </div>
+            
             <div className="px-4 py-2 bg-cyan-500/10 text-cyan-400 rounded-full text-sm font-medium border border-cyan-500/20">
               Production Ready
             </div>
-            <div className="px-4 py-2 bg-purple-500/10 text-purple-400 rounded-full text-sm font-medium border border-purple-500/20">
+            <div className="px-4 py-2 bg-green-500/10 text-green-400 rounded-full text-sm font-medium border border-green-500/20">
               Optimized
             </div>
           </div>
@@ -176,12 +226,15 @@ const NewPlayground = () => {
           >
             <tab.icon className="w-5 h-5" />
             <span>{tab.name}</span>
+            {tab.id === activeTab && (
+              <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></div>
+            )}
           </button>
         ))}
       </div>
 
       {/* Dynamic Content */}
-      <div className="max-w-full">
+      <div className="flex-1">
         {renderTabContent()}
       </div>
     </div>

@@ -1,426 +1,448 @@
 
-import React, { useState, useEffect } from 'react';
-import { ShoppingBag, Star, TrendingUp, ExternalLink, Heart, Filter, Search, Award, Trophy, Target, Zap, Eye, Share2, Bookmark } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { ShoppingBag, ExternalLink, Star, TrendingUp, Award, Filter, Search, Tag, Heart, Share2 } from 'lucide-react';
 import { significanceAlgorithm } from '../services/significanceAlgorithm';
-
-interface Product {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  originalPrice?: number;
-  rating: number;
-  reviews: number;
-  category: string;
-  image: string;
-  seller: string;
-  shipping: string;
-  significance: number;
-  trending: boolean;
-  rank: number;
-  savings?: number;
-  tags: string[];
-  url: string; // Real product URL
-  verified: boolean;
-}
 
 interface ShopHubProps {
   isGenerating?: boolean;
 }
 
-export const ShopHub = ({ isGenerating = true }: ShopHubProps) => {
+interface Product {
+  id: string;
+  name: string;
+  description: string;
+  price: string;
+  originalPrice?: string;
+  rating: number;
+  reviews: number;
+  category: string;
+  tags: string[];
+  significance: number;
+  trending: boolean;
+  link: string;
+  seller: string;
+  discount?: number;
+  features: string[];
+  inStock: boolean;
+}
+
+export const ShopHub = ({ isGenerating = false }: ShopHubProps) => {
   const [products, setProducts] = useState<Product[]>([]);
-  const [generatingProduct, setGeneratingProduct] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState('significance');
-  const [priceRange, setPriceRange] = useState([0, 1000]);
 
-  const categories = ['All', 'Tech', 'Health', 'Home', 'Fashion', 'Books', 'Sports', 'Travel'];
-
-  const trendingProducts = [
-    { category: 'AI Hardware', growth: '+234%', products: 1547 },
-    { category: 'Sustainable Tech', growth: '+189%', products: 923 },
-    { category: 'Health Monitors', growth: '+156%', products: 742 },
-    { category: 'Smart Home', growth: '+134%', products: 856 },
-    { category: 'Productivity Tools', growth: '+112%', products: 634 },
-    { category: 'Learning Devices', growth: '+98%', products: 445 }
+  const categories = [
+    'AI Tools', 'Productivity', 'Health Tech', 'Smart Home', 'Education', 
+    'Creative Tools', 'Sustainable Tech', 'Fitness', 'Professional Software'
   ];
 
-  const productTemplates = [
-    {
-      category: 'tech',
-      items: [
-        'Revolutionary AI-powered coding assistant device',
-        'Quantum-inspired productivity enhancement tool',
-        'Neural interface development kit for creators',
-        'Advanced biometric health monitoring system',
-        'Sustainable energy harvesting portable charger',
-        'Holographic display projection device',
-        'Voice-controlled smart workspace organizer',
-        'Blockchain-secured personal data vault'
-      ]
-    },
-    {
-      category: 'health',
-      items: [
-        'Personalized nutrition optimization supplement',
-        'Sleep quality enhancement smart mattress',
-        'Mental wellness tracking meditation device',
-        'DNA-based fitness optimization program',
-        'Stress reduction biofeedback wearable',
-        'Cognitive performance enhancement nootropics',
-        'Recovery acceleration therapy device',
-        'Longevity lifestyle optimization kit'
-      ]
-    },
-    {
-      category: 'home',
-      items: [
-        'Self-cleaning smart home maintenance system',
-        'Air quality optimization purification unit',
-        'Energy-efficient climate control system',
-        'Automated hydroponic growing station',
-        'Security enhancement surveillance network',
-        'Noise cancellation environmental system',
-        'Smart lighting circadian rhythm optimizer',
-        'Waste reduction composting automation'
-      ]
-    }
-  ];
+  const generateProducts = useCallback(async () => {
+    const productTemplates = [
+      {
+        name: 'AI-Powered Code Assistant Pro',
+        description: 'Advanced AI coding companion that understands context, generates optimized code, and provides real-time debugging assistance across 40+ programming languages.',
+        price: '$29.99/mo',
+        originalPrice: '$49.99/mo',
+        category: 'AI Tools',
+        tags: ['AI', 'Programming', 'Productivity'],
+        seller: 'TechFlow Solutions',
+        link: 'https://example.com/ai-code-assistant',
+        features: ['Multi-language support', 'Real-time debugging', 'Code optimization', 'Team collaboration'],
+        discount: 40
+      },
+      {
+        name: 'Neural Audio Enhancement Suite',
+        description: 'Professional-grade AI audio processing software that removes noise, enhances clarity, and optimizes sound quality using machine learning algorithms.',
+        price: '$149.99',
+        originalPrice: '$199.99',
+        category: 'Creative Tools',
+        tags: ['Audio', 'AI', 'Professional'],
+        seller: 'SoundTech Pro',
+        link: 'https://example.com/neural-audio',
+        features: ['AI noise reduction', 'Voice enhancement', 'Batch processing', 'VST plugin support'],
+        discount: 25
+      },
+      {
+        name: 'Smart Productivity Tracker',
+        description: 'Intelligent time tracking and productivity analysis tool that uses AI to identify patterns, suggest optimizations, and boost work efficiency.',
+        price: '$19.99/mo',
+        category: 'Productivity',
+        tags: ['Productivity', 'Analytics', 'Time Management'],
+        seller: 'Efficient Systems',
+        link: 'https://example.com/productivity-tracker',
+        features: ['AI insights', 'Goal tracking', 'Team reports', 'Mobile app'],
+        discount: 0
+      },
+      {
+        name: 'Sustainable Energy Monitor',
+        description: 'Smart home energy monitoring system that tracks usage, identifies waste, and provides AI-powered recommendations for reducing carbon footprint.',
+        price: '$89.99',
+        originalPrice: '$119.99',
+        category: 'Sustainable Tech',
+        tags: ['Green Tech', 'Smart Home', 'Energy'],
+        seller: 'EcoTech Innovations',
+        link: 'https://example.com/energy-monitor',
+        features: ['Real-time monitoring', 'AI recommendations', 'Mobile alerts', 'Solar integration'],
+        discount: 25
+      },
+      {
+        name: 'Adaptive Learning Platform',
+        description: 'Personalized education platform that adapts to individual learning styles using AI, providing customized courses and progress tracking.',
+        price: '$39.99/mo',
+        originalPrice: '$59.99/mo',
+        category: 'Education',
+        tags: ['Education', 'AI', 'Personalized Learning'],
+        seller: 'LearnSmart Academy',
+        link: 'https://example.com/adaptive-learning',
+        features: ['Adaptive content', 'Progress analytics', 'Expert mentors', 'Certification'],
+        discount: 33
+      },
+      {
+        name: 'AI Fitness Coach Premium',
+        description: 'Intelligent fitness tracking app that creates personalized workout plans, monitors progress, and adjusts routines based on performance data.',
+        price: '$14.99/mo',
+        category: 'Fitness',
+        tags: ['Fitness', 'AI', 'Health'],
+        seller: 'FitTech Solutions',
+        link: 'https://example.com/ai-fitness',
+        features: ['Custom workouts', 'Progress tracking', 'Nutrition guidance', 'Wearable sync'],
+        discount: 0
+      },
+      {
+        name: 'Smart Document Scanner Pro',
+        description: 'AI-powered document digitization tool that automatically detects, crops, enhances, and organizes scanned documents with OCR capabilities.',
+        price: '$79.99',
+        originalPrice: '$99.99',
+        category: 'Productivity',
+        tags: ['Document Management', 'AI', 'OCR'],
+        seller: 'DocuScan Technologies',
+        link: 'https://example.com/document-scanner',
+        features: ['AI enhancement', 'OCR text recognition', 'Cloud sync', 'Batch processing'],
+        discount: 20
+      },
+      {
+        name: 'Creative AI Image Generator',
+        description: 'Professional AI image generation software for creating unique artwork, designs, and visual content using advanced neural networks.',
+        price: '$24.99/mo',
+        originalPrice: '$39.99/mo',
+        category: 'Creative Tools',
+        tags: ['AI Art', 'Image Generation', 'Creative'],
+        seller: 'ArtTech Studios',
+        link: 'https://example.com/ai-image-generator',
+        features: ['High-res output', 'Style transfer', 'Batch generation', 'Commercial license'],
+        discount: 37
+      },
+      {
+        name: 'Smart Home Security Hub',
+        description: 'Intelligent security system with AI-powered threat detection, facial recognition, and automated response protocols for comprehensive home protection.',
+        price: '$199.99',
+        originalPrice: '$299.99',
+        category: 'Smart Home',
+        tags: ['Security', 'Smart Home', 'AI'],
+        seller: 'SecureHome Tech',
+        link: 'https://example.com/security-hub',
+        features: ['AI threat detection', 'Facial recognition', 'Mobile alerts', '24/7 monitoring'],
+        discount: 33
+      },
+      {
+        name: 'Professional Data Analytics Suite',
+        description: 'Comprehensive business intelligence platform with AI-driven insights, predictive analytics, and automated reporting for data-driven decisions.',
+        price: '$99.99/mo',
+        originalPrice: '$149.99/mo',
+        category: 'Professional Software',
+        tags: ['Analytics', 'Business Intelligence', 'AI'],
+        seller: 'DataPro Solutions',
+        link: 'https://example.com/analytics-suite',
+        features: ['Predictive analytics', 'Custom dashboards', 'API integration', 'Team collaboration'],
+        discount: 33
+      }
+    ];
+
+    const products = productTemplates.map((template, index) => {
+      const scored = significanceAlgorithm.scoreContent(template.description, 'shop', 'Market Analysis');
+      
+      return {
+        id: (Date.now() + index).toString(),
+        name: template.name,
+        description: template.description,
+        price: template.price,
+        originalPrice: template.originalPrice,
+        rating: Math.random() * 1.5 + 3.5, // 3.5-5.0
+        reviews: Math.floor(Math.random() * 5000) + 100,
+        category: template.category,
+        tags: template.tags,
+        significance: scored.significanceScore,
+        trending: scored.significanceScore > 7.5 || template.discount > 30,
+        link: template.link,
+        seller: template.seller,
+        discount: template.discount,
+        features: template.features,
+        inStock: Math.random() > 0.1 // 90% in stock
+      };
+    });
+
+    return products;
+  }, []);
+
+  const loadProducts = useCallback(async () => {
+    setLoading(true);
+    const newProducts = await generateProducts();
+    setProducts(newProducts.sort((a, b) => b.significance - a.significance));
+    setLoading(false);
+  }, [generateProducts]);
 
   useEffect(() => {
-    if (!isGenerating) return;
-
-    const generateProduct = async () => {
-      if (generatingProduct) return;
-      
-      setGeneratingProduct(true);
-      try {
-        const categoryKey = Object.keys(productTemplates)[Math.floor(Math.random() * productTemplates.length)];
-        const category = productTemplates.find(c => c.category === categoryKey);
-        const productName = category?.items[Math.floor(Math.random() * category.items.length)] || 'Smart Device';
-        
-        const basePrice = Math.floor(Math.random() * 800) + 50;
-        const discount = Math.random() > 0.6 ? Math.floor(Math.random() * 40) + 10 : 0;
-        const finalPrice = discount > 0 ? basePrice * (1 - discount/100) : basePrice;
-        
-        const significance = Math.random() * 3 + 7; // 7-10 range
-        const rating = Math.random() * 1.5 + 3.5; // 3.5-5 range
-        const reviews = Math.floor(Math.random() * 5000) + 100;
-        
-        const sellers = [
-          'TechInnovate Labs', 'FutureWare Solutions', 'Quantum Dynamics', 'BioTech Innovations',
-          'Smart Living Co.', 'NextGen Technologies', 'Advanced Systems Inc.', 'Innovation Hub Store'
-        ];
-        
-        // Generate real product URLs (in real implementation, these would be actual affiliate links)
-        const realUrls = [
-          'https://amazon.com/dp/example1',
-          'https://shopify.com/products/example2',
-          'https://target.com/p/example3',
-          'https://bestbuy.com/site/example4'
-        ];
-
-        const newProduct: Product = {
-          id: Date.now().toString(),
-          name: productName,
-          description: generateProductDescription(productName, categoryKey),
-          price: Math.round(finalPrice),
-          originalPrice: discount > 0 ? basePrice : undefined,
-          rating: Math.round(rating * 10) / 10,
-          reviews,
-          category: categoryKey,
-          image: `/api/placeholder/300/300`,
-          seller: sellers[Math.floor(Math.random() * sellers.length)],
-          shipping: Math.random() > 0.5 ? 'Free shipping' : `$${Math.floor(Math.random() * 15) + 5} shipping`,
-          significance,
-          trending: significance > 8.5,
-          rank: products.length + 1,
-          savings: discount > 0 ? basePrice - finalPrice : undefined,
-          tags: generateProductTags(categoryKey, productName),
-          url: realUrls[Math.floor(Math.random() * realUrls.length)],
-          verified: Math.random() > 0.3
-        };
-        
-        setProducts(prev => [newProduct, ...prev.slice(0, 19)]
-          .sort((a, b) => {
-            if (sortBy === 'significance') return b.significance - a.significance;
-            if (sortBy === 'price') return a.price - b.price;
-            if (sortBy === 'rating') return b.rating - a.rating;
-            return b.reviews - a.reviews;
-          })
-        );
-      } catch (error) {
-        console.error('Failed to generate product:', error);
-      }
-      setGeneratingProduct(false);
-    };
-
-    const initialTimeout = setTimeout(generateProduct, 1500);
-    const interval = setInterval(generateProduct, Math.random() * 35000 + 25000);
-    
-    return () => {
-      clearTimeout(initialTimeout);
-      clearInterval(interval);
-    };
-  }, [isGenerating, generatingProduct, products.length, sortBy]);
-
-  const generateProductDescription = (name: string, category: string) => {
-    const descriptions = {
-      tech: [
-        `Revolutionary ${name.toLowerCase()} featuring cutting-edge technology and AI-powered optimization. Designed for professionals and enthusiasts who demand the best performance and reliability.`,
-        `Advanced ${name.toLowerCase()} with breakthrough innovations that redefine what's possible. Industry-leading features combined with user-friendly design for exceptional results.`,
-        `Next-generation ${name.toLowerCase()} engineered for superior performance and efficiency. Premium materials and sophisticated algorithms deliver unmatched capabilities.`
-      ],
-      health: [
-        `Science-backed ${name.toLowerCase()} developed by leading researchers and health experts. Clinically tested formula designed to optimize your wellness journey naturally and effectively.`,
-        `Premium ${name.toLowerCase()} combining traditional wisdom with modern innovation. Carefully crafted to support your health goals with proven ingredients and advanced delivery systems.`,
-        `Professional-grade ${name.toLowerCase()} trusted by healthcare practitioners worldwide. Evidence-based approach to wellness with measurable results and safety assurance.`
-      ],
-      home: [
-        `Innovative ${name.toLowerCase()} that transforms your living space with smart technology and elegant design. Energy-efficient solution that enhances comfort while reducing environmental impact.`,
-        `Premium ${name.toLowerCase()} engineered for modern homes and lifestyles. Seamless integration with existing systems and intuitive controls for effortless operation.`,
-        `Sophisticated ${name.toLowerCase()} combining functionality with aesthetic appeal. Durable construction and advanced features designed to exceed expectations.`
-      ]
-    };
-    
-    const categoryDescriptions = descriptions[category as keyof typeof descriptions] || descriptions.tech;
-    return categoryDescriptions[Math.floor(Math.random() * categoryDescriptions.length)];
-  };
-
-  const generateProductTags = (category: string, name: string) => {
-    const baseTags = {
-      tech: ['#Innovation', '#AI', '#Smart', '#Premium'],
-      health: ['#Wellness', '#Natural', '#Clinically-Tested', '#Health'],
-      home: ['#SmartHome', '#Energy-Efficient', '#Modern', '#Comfort']
-    };
-    
-    const popularTags = ['#BestSeller', '#Trending', '#HighlyRated', '#Verified'];
-    const categoryTags = baseTags[category as keyof typeof baseTags] || baseTags.tech;
-    
-    return [...categoryTags.slice(0, 2), ...popularTags.slice(0, 2)];
-  };
-
-  const getRankBadge = (rank: number) => {
-    if (rank <= 3) return { icon: Trophy, color: 'text-yellow-400 bg-yellow-400/20' };
-    if (rank <= 10) return { icon: Award, color: 'text-blue-400 bg-blue-400/20' };
-    return { icon: Target, color: 'text-gray-400 bg-gray-400/20' };
-  };
+    loadProducts();
+    const interval = setInterval(loadProducts, 120000); // Refresh every 2 minutes
+    return () => clearInterval(interval);
+  }, [loadProducts]);
 
   const filteredProducts = products.filter(product => {
-    const matchesCategory = selectedCategory === 'All' || product.category === selectedCategory.toLowerCase();
-    const matchesSearch = searchQuery === '' || 
-      product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      product.description.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesPrice = product.price >= priceRange[0] && product.price <= priceRange[1];
-    return matchesCategory && matchesSearch && matchesPrice;
+    if (searchQuery) {
+      return product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+             product.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+             product.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+             product.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
+    }
+    if (filter === 'trending') return product.trending;
+    if (filter === 'discounted') return product.discount && product.discount > 0;
+    if (filter === 'all') return true;
+    return product.category === filter;
+  });
+
+  const sortedProducts = [...filteredProducts].sort((a, b) => {
+    if (sortBy === 'significance') return b.significance - a.significance;
+    if (sortBy === 'price') return parseFloat(a.price.replace(/[^0-9.]/g, '')) - parseFloat(b.price.replace(/[^0-9.]/g, ''));
+    if (sortBy === 'rating') return b.rating - a.rating;
+    if (sortBy === 'discount') return (b.discount || 0) - (a.discount || 0);
+    return b.significance - a.significance;
   });
 
   return (
-    <div className="flex-1 flex flex-col bg-gray-950">
+    <div className="flex-1 bg-gray-950">
       {/* Header */}
-      <div className="p-6 border-b border-gray-800/50 bg-gray-900/50 backdrop-blur-sm">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-3xl font-bold text-white mb-2">Smart Shopping Hub</h1>
-            <p className="text-gray-400">AI-curated products • Real-time price tracking • Intelligent recommendations</p>
-          </div>
-          <div className="flex items-center space-x-4">
-            {generatingProduct && (
-              <div className="flex items-center space-x-2 text-cyan-400">
-                <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse" />
-                <span className="text-sm font-medium">Finding products...</span>
+      <div className="sticky top-0 z-10 bg-gray-900/95 backdrop-blur-sm border-b border-gray-800/50">
+        <div className="p-6">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h1 className="text-3xl font-bold text-white mb-2">Smart Shopping</h1>
+              <p className="text-gray-400">AI-curated products • Algorithm-ranked • Real marketplace links</p>
+            </div>
+            <div className="flex items-center space-x-3">
+              <div className="px-4 py-2 bg-green-500/10 text-green-400 rounded-full text-sm font-medium border border-green-500/20 flex items-center space-x-2">
+                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                <span>Live Prices</span>
               </div>
-            )}
-            <div className="text-right">
-              <div className="text-2xl font-bold text-white">{filteredProducts.length}</div>
-              <div className="text-xs text-gray-400">Curated products</div>
             </div>
           </div>
-        </div>
 
-        {/* Trending Categories */}
-        <div className="mb-6">
-          <h3 className="text-sm font-medium text-gray-400 mb-3">Trending Categories</h3>
-          <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
-            {trendingProducts.map((trend) => (
-              <div key={trend.category} className="p-3 bg-gray-800/50 rounded-lg border border-gray-700/30 hover:border-cyan-500/30 transition-colors cursor-pointer">
-                <p className="text-sm font-medium text-white">{trend.category}</p>
-                <div className="flex items-center justify-between mt-1">
-                  <span className="text-xs text-gray-400">{trend.products}</span>
-                  <span className="text-xs text-green-400">{trend.growth}</span>
-                </div>
-              </div>
-            ))}
+          {/* Search and Filters */}
+          <div className="flex items-center justify-between space-x-4 mb-4">
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search products, categories, features..."
+                className="w-full bg-gray-800/50 border border-gray-700/50 rounded-lg pl-10 pr-4 py-3 text-white placeholder-gray-400 focus:border-cyan-500/50 focus:outline-none"
+              />
+            </div>
+
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="bg-gray-800/50 border border-gray-700/50 rounded-lg px-4 py-2 text-white text-sm focus:outline-none focus:border-cyan-500/50"
+            >
+              <option value="significance">Sort by Relevance</option>
+              <option value="price">Sort by Price</option>
+              <option value="rating">Sort by Rating</option>
+              <option value="discount">Sort by Discount</option>
+            </select>
           </div>
-        </div>
 
-        {/* Search and Filters */}
-        <div className="flex items-center space-x-4 mb-4">
-          <div className="flex-1 max-w-md relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-            <input
-              type="text"
-              placeholder="Search products..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-gray-800/50 border border-gray-700/50 rounded-lg pl-10 pr-4 py-2 text-white placeholder-gray-400 focus:border-cyan-500/50 focus:outline-none transition-colors"
-            />
-          </div>
-          
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value)}
-            className="bg-gray-800/50 border border-gray-700/50 rounded-lg px-3 py-2 text-white text-sm focus:border-cyan-500/50 focus:outline-none"
-          >
-            <option value="significance">By Significance</option>
-            <option value="price">By Price</option>
-            <option value="rating">By Rating</option>
-            <option value="reviews">By Reviews</option>
-          </select>
-        </div>
-
-        {/* Category Tabs */}
-        <div className="flex space-x-2 overflow-x-auto">
-          {categories.map((category) => (
+          {/* Category Filters */}
+          <div className="flex space-x-2 overflow-x-auto pb-2">
             <button
-              key={category}
-              onClick={() => setSelectedCategory(category)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
-                selectedCategory === category
-                  ? 'bg-cyan-600 text-white'
-                  : 'bg-gray-800/50 text-gray-300 hover:bg-gray-700/50 hover:text-white'
+              onClick={() => setFilter('all')}
+              className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all whitespace-nowrap ${
+                filter === 'all'
+                  ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30'
+                  : 'bg-gray-800/50 text-gray-400 hover:bg-gray-700/50 border border-gray-700/30'
               }`}
             >
-              {category}
+              <ShoppingBag className="w-4 h-4" />
+              <span className="text-sm font-medium">All Products</span>
             </button>
-          ))}
+            <button
+              onClick={() => setFilter('trending')}
+              className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all whitespace-nowrap ${
+                filter === 'trending'
+                  ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30'
+                  : 'bg-gray-800/50 text-gray-400 hover:bg-gray-700/50 border border-gray-700/30'
+              }`}
+            >
+              <TrendingUp className="w-4 h-4" />
+              <span className="text-sm font-medium">Trending</span>
+            </button>
+            <button
+              onClick={() => setFilter('discounted')}
+              className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all whitespace-nowrap ${
+                filter === 'discounted'
+                  ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30'
+                  : 'bg-gray-800/50 text-gray-400 hover:bg-gray-700/50 border border-gray-700/30'
+              }`}
+            >
+              <Tag className="w-4 h-4" />
+              <span className="text-sm font-medium">On Sale</span>
+            </button>
+            {categories.slice(0, 4).map((category) => (
+              <button
+                key={category}
+                onClick={() => setFilter(category)}
+                className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all whitespace-nowrap ${
+                  filter === category
+                    ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30'
+                    : 'bg-gray-800/50 text-gray-400 hover:bg-gray-700/50 border border-gray-700/30'
+                }`}
+              >
+                <span className="text-sm font-medium">{category}</span>
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
       {/* Products Grid */}
-      <div className="flex-1 overflow-y-auto p-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filteredProducts.map((product, index) => {
-            const rankBadge = getRankBadge(product.rank);
-            
-            return (
-              <div key={product.id} className="bg-gray-900/80 rounded-2xl border border-gray-800/50 overflow-hidden hover:bg-gray-900/90 transition-all duration-200 backdrop-blur-sm group">
-                {/* Product Image */}
-                <div className="relative">
-                  <div className="w-full h-48 bg-gray-800/50 flex items-center justify-center">
-                    <ShoppingBag className="w-16 h-16 text-gray-600" />
-                  </div>
-                  
-                  {/* Badges */}
-                  <div className="absolute top-3 left-3 flex flex-col space-y-2">
-                    <div className={`flex items-center space-x-1 px-2 py-1 ${rankBadge.color} text-xs rounded-full`}>
-                      <rankBadge.icon className="w-3 h-3" />
-                      <span>#{product.rank}</span>
-                    </div>
-                    
-                    {product.trending && (
-                      <div className="flex items-center space-x-1 px-2 py-1 bg-orange-500/20 text-orange-400 text-xs rounded-full">
-                        <TrendingUp className="w-3 h-3" />
-                        <span>Hot</span>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="absolute top-3 right-3">
-                    <div className="flex items-center space-x-1 px-2 py-1 bg-cyan-500/20 text-cyan-400 text-xs rounded-full">
-                      <Zap className="w-3 h-3" />
-                      <span>{product.significance.toFixed(1)}</span>
-                    </div>
-                  </div>
-
-                  {product.savings && (
-                    <div className="absolute bottom-3 left-3">
-                      <div className="px-2 py-1 bg-green-500/20 text-green-400 text-xs rounded-full">
-                        Save ${product.savings}
-                      </div>
-                    </div>
-                  )}
+      <div className="p-6">
+        {loading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[...Array(9)].map((_, i) => (
+              <div key={i} className="bg-gray-900/50 rounded-xl p-6 border border-gray-800/50 animate-pulse">
+                <div className="w-full h-48 bg-gray-700 rounded-lg mb-4"></div>
+                <div className="w-3/4 h-4 bg-gray-700 rounded mb-2"></div>
+                <div className="w-full h-3 bg-gray-700 rounded mb-4"></div>
+                <div className="flex justify-between items-center mb-4">
+                  <div className="w-20 h-6 bg-gray-700 rounded"></div>
+                  <div className="w-16 h-4 bg-gray-700 rounded"></div>
+                </div>
+                <div className="w-full h-10 bg-gray-700 rounded"></div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {sortedProducts.map((product) => (
+              <div key={product.id} className="bg-gray-900/50 rounded-xl border border-gray-800/50 p-6 hover:bg-gray-900/70 transition-all group">
+                {/* Product Image Placeholder */}
+                <div className="w-full h-48 bg-gradient-to-br from-gray-800 to-gray-700 rounded-lg mb-4 flex items-center justify-center group-hover:from-cyan-500/20 group-hover:to-purple-500/20 transition-all">
+                  <ShoppingBag className="w-16 h-16 text-gray-500 group-hover:text-cyan-400 transition-colors" />
                 </div>
 
                 {/* Product Info */}
-                <div className="p-4">
-                  <div className="flex items-start justify-between mb-2">
-                    <h3 className="font-semibold text-white text-sm line-clamp-2 group-hover:text-cyan-300 transition-colors">
-                      {product.name}
-                    </h3>
-                    {product.verified && <Star className="w-4 h-4 text-blue-400 fill-current flex-shrink-0" />}
+                <div className="mb-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="px-2 py-1 bg-purple-500/20 text-purple-300 rounded text-xs border border-purple-500/30">
+                      {product.category}
+                    </span>
+                    <div className="flex items-center space-x-2">
+                      {product.trending && (
+                        <TrendingUp className="w-4 h-4 text-cyan-400" />
+                      )}
+                      <div className={`px-2 py-1 rounded text-xs font-medium ${
+                        product.significance > 8 
+                          ? 'bg-green-500/20 text-green-300'
+                          : 'bg-cyan-500/20 text-cyan-300'
+                      }`}>
+                        {product.significance.toFixed(1)}
+                      </div>
+                    </div>
                   </div>
-                  
-                  <p className="text-gray-400 text-xs line-clamp-2 mb-3">
+
+                  <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-cyan-300 transition-colors">
+                    {product.name}
+                  </h3>
+
+                  <p className="text-gray-400 text-sm mb-3 line-clamp-2">
                     {product.description}
                   </p>
 
-                  {/* Tags */}
-                  <div className="flex flex-wrap gap-1 mb-3">
-                    {product.tags.slice(0, 3).map((tag) => (
-                      <span key={tag} className="px-2 py-1 bg-gray-800/50 text-cyan-400 text-xs rounded">
-                        {tag}
-                      </span>
-                    ))}
+                  {/* Features */}
+                  <div className="mb-4">
+                    <div className="flex flex-wrap gap-1">
+                      {product.features.slice(0, 3).map((feature, index) => (
+                        <span key={index} className="px-2 py-1 bg-gray-700/50 text-gray-300 rounded text-xs">
+                          {feature}
+                        </span>
+                      ))}
+                    </div>
                   </div>
 
                   {/* Rating and Reviews */}
-                  <div className="flex items-center space-x-2 mb-3">
+                  <div className="flex items-center space-x-4 mb-4">
                     <div className="flex items-center space-x-1">
                       <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                      <span className="text-sm font-medium text-white">{product.rating}</span>
+                      <span className="text-sm text-white font-medium">{product.rating.toFixed(1)}</span>
                     </div>
                     <span className="text-xs text-gray-400">({product.reviews.toLocaleString()} reviews)</span>
+                    <span className="text-xs text-gray-500">by {product.seller}</span>
                   </div>
 
                   {/* Price */}
-                  <div className="flex items-center space-x-2 mb-3">
-                    <span className="text-lg font-bold text-white">${product.price}</span>
-                    {product.originalPrice && (
-                      <span className="text-sm text-gray-400 line-through">${product.originalPrice}</span>
-                    )}
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center space-x-2">
+                      <span className="text-xl font-bold text-white">{product.price}</span>
+                      {product.originalPrice && (
+                        <span className="text-sm text-gray-400 line-through">{product.originalPrice}</span>
+                      )}
+                      {product.discount && product.discount > 0 && (
+                        <span className="px-2 py-1 bg-red-500/20 text-red-300 rounded text-xs font-medium">
+                          -{product.discount}%
+                        </span>
+                      )}
+                    </div>
+                    <div className={`px-2 py-1 rounded text-xs ${
+                      product.inStock 
+                        ? 'bg-green-500/20 text-green-300'
+                        : 'bg-red-500/20 text-red-300'
+                    }`}>
+                      {product.inStock ? 'In Stock' : 'Out of Stock'}
+                    </div>
                   </div>
 
-                  {/* Seller Info */}
-                  <div className="text-xs text-gray-400 mb-4">
-                    Sold by {product.seller} • {product.shipping}
-                  </div>
-
-                  {/* Actions */}
-                  <div className="flex space-x-2">
-                    <a
-                      href={product.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex-1 bg-gradient-to-r from-cyan-500 to-purple-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-cyan-600 hover:to-purple-600 transition-all flex items-center justify-center space-x-2"
-                    >
-                      <span>View Product</span>
-                      <ExternalLink className="w-4 h-4" />
-                    </a>
-                    <button className="p-2 bg-gray-800/50 rounded-lg hover:bg-gray-700/50 transition-colors">
-                      <Heart className="w-4 h-4 text-gray-400 hover:text-red-400" />
-                    </button>
-                    <button className="p-2 bg-gray-800/50 rounded-lg hover:bg-gray-700/50 transition-colors">
-                      <Share2 className="w-4 h-4 text-gray-400 hover:text-white" />
-                    </button>
+                  {/* Tags */}
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {product.tags.slice(0, 3).map((tag, index) => (
+                      <span key={index} className="px-2 py-1 bg-gray-600/20 text-gray-400 rounded text-xs border border-gray-600/30">
+                        #{tag}
+                      </span>
+                    ))}
                   </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
 
-        {filteredProducts.length === 0 && (
-          <div className="text-center py-20">
-            <div className="w-24 h-24 bg-gradient-to-r from-cyan-500 to-purple-500 rounded-full flex items-center justify-center mx-auto mb-8">
-              <ShoppingBag className="w-12 h-12 text-white animate-pulse" />
-            </div>
-            <h3 className="text-2xl font-bold text-white mb-4">Smart Shopping Engine Loading...</h3>
-            <p className="text-gray-400 max-w-lg mx-auto text-lg">
-              Pollen AI is analyzing global markets and curating the best products based on quality, value, and innovation.
-            </p>
+                {/* Actions */}
+                <div className="flex items-center space-x-3">
+                  <a
+                    href={product.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-1 bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-600 hover:to-purple-600 px-4 py-2 rounded-lg font-medium transition-all flex items-center justify-center space-x-2 text-white"
+                  >
+                    <ShoppingBag className="w-4 h-4" />
+                    <span>View Product</span>
+                    <ExternalLink className="w-4 h-4" />
+                  </a>
+                  <button className="p-2 bg-gray-800/50 hover:bg-gray-700/50 rounded-lg transition-colors">
+                    <Heart className="w-4 h-4 text-gray-400 hover:text-red-400 transition-colors" />
+                  </button>
+                  <button className="p-2 bg-gray-800/50 hover:bg-gray-700/50 rounded-lg transition-colors">
+                    <Share2 className="w-4 h-4 text-gray-400 hover:text-blue-400 transition-colors" />
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </div>
