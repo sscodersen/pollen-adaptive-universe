@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Menu, Users, ShoppingBag, Play, Search, Bot, Globe, BarChart3 } from 'lucide-react';
 import { ActivityFeed } from '../components/ActivityFeed';
@@ -137,7 +136,7 @@ const NewPlayground = () => {
       case 'Entertainment':
         return <EntertainmentHub isGenerating={isGenerating} />;
       case 'Search':
-        return <NewsEngine isGenerating={isGenerating} />;
+        return <NewsEngine />;
       case 'Shop':
         return <ShopHub isGenerating={isGenerating} />;
       case 'Automation':

@@ -1,4 +1,3 @@
-
 import { significanceAlgorithm } from './significanceAlgorithm';
 
 export interface ScrapedContent {
@@ -24,6 +23,34 @@ export interface ScrapedContent {
     discount?: number;
   };
 }
+
+interface BaseTemplate {
+  title: string;
+  description: string;
+  content: string;
+  author: string;
+  tags: string[];
+  path: string;
+}
+
+interface NewsTemplate extends BaseTemplate {
+  category: 'news';
+}
+
+interface ShopTemplate extends BaseTemplate {
+  category: 'shop';
+  url?: string;
+  price?: number;
+  rating?: number;
+  brand?: string;
+  image?: string;
+}
+
+interface EntertainmentTemplate extends BaseTemplate {
+  category: 'entertainment';
+}
+
+type ContentTemplate = NewsTemplate | ShopTemplate | EntertainmentTemplate;
 
 class WebScrapingService {
   private cache: Map<string, ScrapedContent[]> = new Map();
@@ -82,31 +109,38 @@ class WebScrapingService {
     const templates = this.getContentTemplates(category);
     const template = templates[Math.floor(Math.random() * templates.length)];
 
-    return {
+    const baseItem = {
       id: `${category}-${Date.now()}-${index}`,
       title: template.title,
-      url: template.url || `https://${source.domain}/${template.path}/${Math.random().toString(36).substring(7)}`,
+      url: (template as ShopTemplate).url || `https://${source.domain}/${template.path}/${Math.random().toString(36).substring(7)}`,
       description: template.description,
       content: template.content,
       source: source.name,
-      timestamp: Date.now() - Math.random() * 86400000, // Last 24 hours
+      timestamp: Date.now() - Math.random() * 86400000,
       category,
-      significance: 0, // Will be calculated later
+      significance: 0,
       metadata: {
         author: template.author,
         publishDate: new Date(Date.now() - Math.random() * 86400000).toISOString(),
         tags: template.tags,
-        ...(category === 'shop' && {
-          price: template.price || Math.floor(Math.random() * 1000) + 50,
-          rating: template.rating || Math.random() * 2 + 3,
-          image: template.image || `https://picsum.photos/400/300?random=${index}`,
-          brand: template.brand,
-          retailer: source.name,
-          inStock: Math.random() > 0.1,
-          discount: Math.random() > 0.7 ? Math.floor(Math.random() * 30) + 10 : 0
-        })
       }
     };
+
+    if (category === 'shop') {
+      const shopTemplate = template as ShopTemplate;
+      baseItem.metadata = {
+        ...baseItem.metadata,
+        price: shopTemplate.price || Math.floor(Math.random() * 1000) + 50,
+        rating: shopTemplate.rating || Math.random() * 2 + 3,
+        image: shopTemplate.image || `https://picsum.photos/400/300?random=${index}`,
+        brand: shopTemplate.brand,
+        retailer: source.name,
+        inStock: Math.random() > 0.1,
+        discount: Math.random() > 0.7 ? Math.floor(Math.random() * 30) + 10 : 0
+      };
+    }
+
+    return baseItem;
   }
 
   private getSourcesForCategory(category: 'news' | 'shop' | 'entertainment') {
@@ -146,10 +180,11 @@ class WebScrapingService {
     return sources[category];
   }
 
-  private getContentTemplates(category: 'news' | 'shop' | 'entertainment') {
+  private getContentTemplates(category: 'news' | 'shop' | 'entertainment'): ContentTemplate[] {
     const templates = {
       news: [
         {
+          category: 'news' as const,
           title: 'Revolutionary AI Breakthrough Transforms Healthcare Industry',
           description: 'New machine learning model achieves 99% accuracy in early disease detection',
           content: 'Researchers at leading institutions have developed an AI system that can detect early-stage diseases with unprecedented accuracy. The breakthrough technology uses advanced neural networks to analyze medical imaging data, potentially saving millions of lives through early intervention.',
@@ -158,6 +193,7 @@ class WebScrapingService {
           path: 'article'
         },
         {
+          category: 'news' as const,
           title: 'Quantum Computing Milestone Achieved by Tech Giants',
           description: 'Major advancement in quantum error correction brings practical quantum computing closer',
           content: 'A consortium of technology companies has achieved a significant milestone in quantum computing, demonstrating reliable quantum error correction at scale. This advancement brings us closer to practical quantum computers that could revolutionize cryptography, drug discovery, and optimization problems.',
@@ -166,6 +202,7 @@ class WebScrapingService {
           path: 'tech'
         },
         {
+          category: 'news' as const,
           title: 'Large Language Models Show Emergent Reasoning Capabilities',
           description: 'New research reveals unexpected problem-solving abilities in AI systems',
           content: 'Recent studies demonstrate that large language models exhibit emergent reasoning capabilities not explicitly programmed. These findings suggest AI systems may develop complex cognitive abilities through scale and training.',
@@ -173,9 +210,10 @@ class WebScrapingService {
           tags: ['AI', 'Research', 'Machine Learning', 'Cognition'],
           path: 'research'
         }
-      ],
+      ] as NewsTemplate[],
       shop: [
         {
+          category: 'shop' as const,
           title: 'NVIDIA RTX 4090 Ti - Professional AI Workstation GPU',
           description: 'Ultimate GPU for AI development, machine learning, and high-performance computing',
           content: 'The most powerful graphics card for AI researchers and developers. Features 24GB GDDR6X memory, 16,384 CUDA cores, and optimized AI acceleration.',
@@ -189,6 +227,7 @@ class WebScrapingService {
           image: 'https://images.unsplash.com/photo-1591488320449-011701bb6704?w=400&h=300&fit=crop'
         },
         {
+          category: 'shop' as const,
           title: 'Apple MacBook Pro M3 Max - AI Development Machine',
           description: 'Unified memory architecture perfect for machine learning workflows',
           content: 'Latest MacBook Pro with M3 Max chip delivers exceptional performance for AI development. 128GB unified memory and optimized ML frameworks.',
@@ -202,6 +241,7 @@ class WebScrapingService {
           image: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=400&h=300&fit=crop'
         },
         {
+          category: 'shop' as const,
           title: 'Corsair Dominator Platinum RGB 128GB DDR5-5600',
           description: 'High-capacity memory kit for demanding AI workloads',
           content: 'Professional-grade memory designed for AI training and inference. Ultra-fast DDR5-5600 speeds with RGB lighting.',
@@ -215,6 +255,7 @@ class WebScrapingService {
           image: 'https://images.unsplash.com/photo-1555617981-dac3880eac6e?w=400&h=300&fit=crop'
         },
         {
+          category: 'shop' as const,
           title: 'Intel Xeon W9-3495X - AI Training Processor',
           description: '56-core workstation processor for parallel AI computations',
           content: 'Flagship workstation processor with 56 cores and 112 threads. Optimized for AI training, scientific computing, and parallel workloads.',
@@ -227,9 +268,10 @@ class WebScrapingService {
           brand: 'Intel',
           image: 'https://images.unsplash.com/photo-1555617981-dac3880eac6e?w=400&h=300&fit=crop'
         }
-      ],
+      ] as ShopTemplate[],
       entertainment: [
         {
+          category: 'entertainment' as const,
           title: 'Neural Symphony: AI-Generated Interactive Music Experience',
           description: 'Revolutionary music platform that creates personalized symphonies in real-time',
           content: 'Experience music like never before with Neural Symphony, an AI-powered platform that generates unique musical compositions based on your emotions, activities, and preferences. Each listening session creates a completely original piece of music.',
@@ -238,6 +280,7 @@ class WebScrapingService {
           path: 'experience'
         },
         {
+          category: 'entertainment' as const,
           title: 'Quantum Dreamscape: Procedural Reality Simulation',
           description: 'Infinite virtual worlds generated by quantum-inspired algorithms',
           content: 'Explore limitless virtual environments in Quantum Dreamscape, where every world is procedurally generated using quantum-inspired algorithms. No two experiences are ever the same.',
@@ -246,6 +289,7 @@ class WebScrapingService {
           path: 'game'
         },
         {
+          category: 'entertainment' as const,
           title: 'CodeCraft: AI Programming Companion Game',
           description: 'Learn programming through gamified AI-assisted challenges',
           content: 'Transform coding education with CodeCraft, where AI mentors guide you through programming challenges in a fantasy RPG setting. Level up your skills while building real applications.',
@@ -253,7 +297,7 @@ class WebScrapingService {
           tags: ['Education', 'Programming', 'Gaming', 'AI'],
           path: 'game'
         }
-      ]
+      ] as EntertainmentTemplate[]
     };
 
     return templates[category];
