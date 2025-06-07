@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { Play, Headphones, BookOpen, Film, Music, Gamepad2, Sparkles, TrendingUp, Award, Send, Mic, Star, Trophy, Zap, Crown } from 'lucide-react';
 import { pollenAI } from '../services/pollenAI';
@@ -233,7 +232,7 @@ You can ask questions, request deeper explanations, or explore tangential topics
         likes: Math.floor(Math.random() * 10000) + 500,
         shares: Math.floor(Math.random() * 5000) + 100,
         comments: Math.floor(Math.random() * 2000) + 50,
-        rating: Math.round((Math.random() * 2 + 3) * 10) / 10, // 3.0-5.0 rating
+        rating: Math.round((Math.random() * 2 + 3) * 10) / 10,
         difficulty: template.difficulty
       };
     });
@@ -250,7 +249,7 @@ You can ask questions, request deeper explanations, or explore tangential topics
 
   useEffect(() => {
     loadContent();
-    const interval = setInterval(loadContent, 120000); // Refresh every 2 minutes
+    const interval = setInterval(loadContent, 120000);
     return () => clearInterval(interval);
   }, [loadContent]);
 
@@ -317,7 +316,6 @@ You can ask questions, request deeper explanations, or explore tangential topics
   if (selectedContent) {
     return (
       <div className="flex-1 bg-gray-950">
-        {/* Content Header */}
         <div className="sticky top-0 z-10 bg-gray-900/95 backdrop-blur-sm border-b border-gray-800/50">
           <div className="p-6">
             <div className="flex items-center justify-between mb-4">
@@ -357,7 +355,6 @@ You can ask questions, request deeper explanations, or explore tangential topics
           </div>
         </div>
 
-        {/* Content Display */}
         <div className="p-6 max-w-4xl mx-auto">
           <div className="mb-6">
             <div className="flex items-center space-x-4 mb-4">
@@ -384,7 +381,6 @@ You can ask questions, request deeper explanations, or explore tangential topics
             </div>
           </div>
 
-          {/* Tags */}
           <div className="flex flex-wrap gap-2 mt-8 pt-6 border-t border-gray-800/50">
             {selectedContent.tags.map((tag, index) => (
               <span 
@@ -408,7 +404,6 @@ You can ask questions, request deeper explanations, or explore tangential topics
 
   return (
     <div className="flex-1 bg-gray-950">
-      {/* Header */}
       <div className="sticky top-0 z-10 bg-gray-900/95 backdrop-blur-sm border-b border-gray-800/50">
         <div className="p-6">
           <div className="flex items-center justify-between mb-6">
@@ -428,7 +423,6 @@ You can ask questions, request deeper explanations, or explore tangential topics
             </div>
           </div>
 
-          {/* Custom Content Generator */}
           <div className="bg-gray-800/50 rounded-xl border border-gray-700/50 p-4 mb-6">
             <h3 className="text-lg font-semibold text-white mb-3 flex items-center space-x-2">
               <Sparkles className="w-5 h-5 text-cyan-400" />
@@ -465,7 +459,6 @@ You can ask questions, request deeper explanations, or explore tangential topics
             </div>
           </div>
 
-          {/* Filters */}
           <div className="flex space-x-2 overflow-x-auto">
             <button
               onClick={() => setFilter('all')}
@@ -507,7 +500,6 @@ You can ask questions, request deeper explanations, or explore tangential topics
         </div>
       </div>
 
-      {/* Content Grid */}
       <div className="p-6">
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -531,7 +523,6 @@ You can ask questions, request deeper explanations, or explore tangential topics
                 onClick={() => setSelectedContent(item)}
                 className="bg-gray-900/50 rounded-xl border border-gray-800/50 p-6 hover:bg-gray-900/70 transition-all cursor-pointer group hover:border-cyan-500/30"
               >
-                {/* Content Preview */}
                 <div className="w-full h-40 bg-gradient-to-br from-gray-800 to-gray-700 rounded-lg mb-4 flex items-center justify-center group-hover:from-cyan-500/20 group-hover:to-purple-500/20 transition-all relative">
                   {contentTypes.find(t => t.type === item.type) && (
                     <contentTypes.find(t => t.type === item.type)!.icon className={`w-12 h-12 ${contentTypes.find(t => t.type === item.type)!.color}`} />
@@ -544,7 +535,6 @@ You can ask questions, request deeper explanations, or explore tangential topics
                   )}
                 </div>
 
-                {/* Content Info */}
                 <div className="flex items-center justify-between mb-2">
                   <span className="px-2 py-1 bg-purple-500/20 text-purple-300 rounded text-xs border border-purple-500/30">
                     {item.category}
@@ -573,7 +563,6 @@ You can ask questions, request deeper explanations, or explore tangential topics
                   {item.description}
                 </p>
 
-                {/* Meta Info */}
                 <div className="flex items-center justify-between text-xs text-gray-500 mb-3">
                   <span className="flex items-center space-x-1">
                     <Play className="w-3 h-3" />
@@ -585,7 +574,6 @@ You can ask questions, request deeper explanations, or explore tangential topics
                   </div>
                 </div>
 
-                {/* Tags */}
                 <div className="flex flex-wrap gap-2">
                   {item.tags.slice(0, 3).map((tag, index) => (
                     <span 
