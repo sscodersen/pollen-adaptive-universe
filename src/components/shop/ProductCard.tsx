@@ -23,7 +23,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           </span>
           <div className="flex items-center space-x-2">
             {product.trending && (
-              <TrendingUp className="w-4 h-4 text-cyan-400" title="Trending" />
+              <span title="Trending">
+                <TrendingUp className="w-4 h-4 text-cyan-400" />
+              </span>
             )}
             <div className={`px-2 py-1 rounded text-xs font-medium ${
               product.significance > 8 

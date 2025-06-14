@@ -125,7 +125,7 @@ const NewPlayground = () => {
       case 'Search':
         return <NewsEngine isGenerating={isGenerating} />;
       case 'Shop':
-        return <ShopHub isGenerating={isGenerating} />;
+        return <ShopHub />;
       case 'Automation':
         return <TaskAutomation isGenerating={isGenerating} />;
       case 'Community':
