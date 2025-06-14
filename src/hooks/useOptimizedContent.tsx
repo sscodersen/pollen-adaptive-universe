@@ -1,5 +1,5 @@
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { webScrapingService } from '../services/webScrapingService';
 
 interface ContentItem {
@@ -15,12 +15,12 @@ interface ContentItem {
 export const useOptimizedContent = (category: string, limit: number = 20) => {
   const [content, setContent] = useState<ContentItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [lastUpdate, setLastUpdate] = useState(0);
+  const lastUpdateRef = useRef(0);
 
   const loadContent = useCallback(async () => {
     const now = Date.now();
     // Avoid too frequent updates
-    if (now - lastUpdate < 30000) return;
+    if (now - lastUpdateRef.current < 30000) return;
 
     setLoading(true);
     try {
@@ -40,13 +40,13 @@ export const useOptimizedContent = (category: string, limit: number = 20) => {
       }));
 
       setContent(mappedContent);
-      setLastUpdate(now);
+      lastUpdateRef.current = now;
     } catch (error) {
       console.error(`Error loading ${category} content:`, error);
     } finally {
       setLoading(false);
     }
-  }, [category, limit, lastUpdate]);
+  }, [category, limit]);
 
   const sortedContent = useMemo(() => 
     [...content].sort((a, b) => b.significance - a.significance),

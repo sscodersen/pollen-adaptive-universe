@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { ArrowLeft, Menu, Users, ShoppingBag, Play, Search, Bot, Globe, BarChart3 } from 'lucide-react';
 import { ActivityFeed } from '../components/ActivityFeed';
@@ -109,7 +108,7 @@ const NewPlayground = () => {
     };
   }, []);
 
-  const renderTabContent = () => {
+  const renderedTabContent = useMemo(() => {
     const contentMap = {
       Social: <SocialFeed />,
       Entertainment: <EntertainmentHub />,
@@ -121,7 +120,7 @@ const NewPlayground = () => {
     };
 
     return contentMap[activeTab as keyof typeof contentMap] || <SocialFeed />;
-  };
+  }, [activeTab, activities]);
 
   if (isInitializing) {
     return (
@@ -220,7 +219,7 @@ const NewPlayground = () => {
       {/* Dynamic Content */}
       <div className="flex-1">
         <ErrorBoundary>
-          {renderTabContent()}
+          {renderedTabContent}
         </ErrorBoundary>
       </div>
     </div>
