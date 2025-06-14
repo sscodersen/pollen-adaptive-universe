@@ -1,3 +1,4 @@
+
 import { significanceAlgorithm } from './significanceAlgorithm';
 
 export interface ScrapedContent {
@@ -52,9 +53,9 @@ class PollenWeaverService {
         significance: significanceAlgorithm.scoreContent(item.content, category).significanceScore
       }));
 
-      // Filter and sort by significance
+      // Sort by significance, but don't filter out content here.
+      // This ensures all scraped content is available to the component.
       const highQualityContent = scoredContent
-        .filter(item => item.significance > 7.0)
         .sort((a, b) => b.significance - a.significance)
         .slice(0, limit);
 
