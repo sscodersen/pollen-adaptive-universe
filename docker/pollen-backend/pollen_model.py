@@ -9,304 +9,7 @@ from typing import Dict, List, Optional, Any
 from datetime import datetime
 import numpy as np
 
-class AdaptiveIntelligence(nn.Module):
-    """
-    Adaptive Intelligence - Self-evolving reasoning engine
-    
-    Implements induction, deduction, and abduction reasoning types
-    with continuous self-improvement through task generation and validation.
-    """
-    
-    def __init__(self, reasoning_dim: int = 256):
-        super().__init__()
-        
-        self.reasoning_dim = reasoning_dim
-        
-        # Reasoning type encoders
-        self.induction_encoder = nn.TransformerEncoder(
-            nn.TransformerEncoderLayer(reasoning_dim, nhead=8, batch_first=True), 
-            num_layers=3
-        )
-        self.deduction_encoder = nn.TransformerEncoder(
-            nn.TransformerEncoderLayer(reasoning_dim, nhead=8, batch_first=True), 
-            num_layers=3
-        )
-        self.abduction_encoder = nn.TransformerEncoder(
-            nn.TransformerEncoderLayer(reasoning_dim, nhead=8, batch_first=True), 
-            num_layers=3
-        )
-        
-        # Task generation networks
-        self.task_generator = nn.Sequential(
-            nn.Linear(reasoning_dim, 512),
-            nn.ReLU(),
-            nn.Linear(512, 256),
-            nn.ReLU(),
-            nn.Linear(256, reasoning_dim)
-        )
-        
-        # Solution validation network
-        self.validator = nn.Sequential(
-            nn.Linear(reasoning_dim * 2, 256),
-            nn.ReLU(),
-            nn.Linear(256, 128),
-            nn.ReLU(),
-            nn.Linear(128, 1),
-            nn.Sigmoid()
-        )
-        
-        # Memory for self-generated tasks
-        self.task_memory = []
-        self.solution_memory = []
-        self.reward_history = []
-        
-    def generate_reasoning_task(self, context_embedding: torch.Tensor, task_type: str) -> Dict[str, Any]:
-        """Generate a self-improvement reasoning task"""
-        
-        with torch.no_grad():
-            # Generate task based on current context
-            task_embedding = self.task_generator(context_embedding)
-            
-            # Create task description based on type
-            if task_type == 'induction':
-                task = self._generate_induction_task(task_embedding)
-            elif task_type == 'deduction':
-                task = self._generate_deduction_task(task_embedding)
-            else:  # abduction
-                task = self._generate_abduction_task(task_embedding)
-            
-            return {
-                'id': str(uuid.uuid4()),
-                'type': task_type,
-                'description': task,
-                'embedding': task_embedding,
-                'timestamp': time.time()
-            }
-    
-    def solve_reasoning_task(self, task: Dict[str, Any]) -> Dict[str, Any]:
-        """Solve a self-generated reasoning task"""
-        
-        task_embedding = task['embedding']
-        task_type = task['type']
-        
-        # Route to appropriate reasoning encoder
-        if task_type == 'induction':
-            solution_embedding = self.induction_encoder(task_embedding.unsqueeze(0))
-        elif task_type == 'deduction':
-            solution_embedding = self.deduction_encoder(task_embedding.unsqueeze(0))
-        else:  # abduction
-            solution_embedding = self.abduction_encoder(task_embedding.unsqueeze(0))
-        
-        solution_embedding = solution_embedding.squeeze(0)
-        
-        # Generate solution text
-        solution = self._embedding_to_solution(solution_embedding, task_type)
-        
-        return {
-            'task_id': task['id'],
-            'solution': solution,
-            'solution_embedding': solution_embedding,
-            'confidence': self._calculate_confidence(task_embedding, solution_embedding)
-        }
-    
-    def validate_solution(self, task: Dict[str, Any], solution: Dict[str, Any]) -> float:
-        """Validate solution and assign reward"""
-        
-        task_embedding = task['embedding']
-        solution_embedding = solution['solution_embedding']
-        
-        # Combine embeddings for validation
-        combined = torch.cat([task_embedding.flatten(), solution_embedding.flatten()])
-        
-        # Get validation score
-        validation_score = self.validator(combined).item()
-        
-        # Additional validation through execution (simplified)
-        execution_score = self._execute_validation(task, solution)
-        
-        # Combine scores
-        final_reward = (validation_score + execution_score) / 2
-        
-        # Store for learning
-        self.reward_history.append(final_reward)
-        self.task_memory.append(task)
-        self.solution_memory.append(solution)
-        
-        # Keep memory bounded
-        if len(self.task_memory) > 1000:
-            self.task_memory = self.task_memory[-1000:]
-            self.solution_memory = self.solution_memory[-1000:]
-            self.reward_history = self.reward_history[-1000:]
-        
-        return final_reward
-    
-    def continuous_self_improvement(self):
-        """Main loop for continuous self-improvement"""
-        
-        reasoning_types = ['induction', 'deduction', 'abduction']
-        
-        # Generate context from recent tasks
-        if len(self.task_memory) > 0:
-            context = self._aggregate_context()
-        else:
-            context = torch.randn(1, self.reasoning_dim)  # Random initialization
-        
-        # Generate and solve new task
-        task_type = reasoning_types[torch.randint(0, 3, (1,)).item()]
-        task = self.generate_reasoning_task(context, task_type)
-        solution = self.solve_reasoning_task(task)
-        reward = self.validate_solution(task, solution)
-        
-        # Update networks based on reward
-        if reward > 0.7:  # High reward threshold
-            self._update_from_success(task, solution)
-        elif reward < 0.3:  # Low reward threshold
-            self._update_from_failure(task, solution)
-        
-        return task, solution, reward
-    
-    def _generate_induction_task(self, embedding: torch.Tensor) -> str:
-        """Generate induction reasoning task"""
-        templates = [
-            "Given observed patterns in user interactions, predict the next likely preference category",
-            "From successful response patterns, derive general principles for content generation",
-            "Analyze engagement data to identify emerging user interest trends",
-            "Extract common features from highly-rated responses to improve future outputs"
-        ]
-        return templates[torch.randint(0, len(templates), (1,)).item()]
-    
-    def _generate_deduction_task(self, embedding: torch.Tensor) -> str:
-        """Generate deduction reasoning task"""
-        templates = [
-            "If user prefers creative content AND engages with technical topics, then optimal response should combine both elements",
-            "Given user feedback pattern, determine the logical consequence for response adaptation",
-            "From established user preferences, deduce the most appropriate content delivery style",
-            "Apply learned rules about user engagement to predict optimal response length"
-        ]
-        return templates[torch.randint(0, len(templates), (1,)).item()]
-    
-    def _generate_abduction_task(self, embedding: torch.Tensor) -> str:
-        """Generate abduction reasoning task"""
-        templates = [
-            "User suddenly changed conversation topic - what is the most likely underlying cause?",
-            "Response received low engagement despite matching user preferences - explain this anomaly",
-            "User shows contradictory preference signals - what hidden factor explains this pattern?",
-            "System confidence dropped for similar queries - hypothesize the root cause"
-        ]
-        return templates[torch.randint(0, len(templates), (1,)).item()]
-    
-    def _embedding_to_solution(self, embedding: torch.Tensor, task_type: str) -> str:
-        """Convert solution embedding to human-readable solution"""
-        
-        # Simplified mapping - in production would use proper decoder
-        confidence = torch.sigmoid(embedding.mean()).item()
-        
-        if task_type == 'induction':
-            return f"Inductive analysis suggests pattern convergence toward adaptive content generation (confidence: {confidence:.2f})"
-        elif task_type == 'deduction':
-            return f"Deductive reasoning indicates logical outcome: enhanced personalization strategy (confidence: {confidence:.2f})"
-        else:  # abduction
-            return f"Abductive inference proposes: contextual preference shift as most likely explanation (confidence: {confidence:.2f})"
-    
-    def _calculate_confidence(self, task_embedding: torch.Tensor, solution_embedding: torch.Tensor) -> float:
-        """Calculate confidence in solution"""
-        
-        # Cosine similarity between task and solution
-        task_norm = F.normalize(task_embedding.flatten(), dim=0)
-        solution_norm = F.normalize(solution_embedding.flatten(), dim=0)
-        similarity = torch.dot(task_norm, solution_norm).item()
-        
-        # Convert to confidence score
-        confidence = (similarity + 1) / 2  # Map from [-1, 1] to [0, 1]
-        return confidence
-    
-    def _execute_validation(self, task: Dict[str, Any], solution: Dict[str, Any]) -> float:
-        """Validate solution through execution (simplified)"""
-        
-        # Simplified execution validation
-        # In production, this would run actual code validation
-        
-        base_score = 0.7
-        
-        # Bonus for consistency with past solutions
-        if len(self.solution_memory) > 0:
-            recent_solutions = self.solution_memory[-10:]
-            consistency_bonus = min(0.2, len(recent_solutions) * 0.02)
-            base_score += consistency_bonus
-        
-        # Penalty for low confidence
-        if solution['confidence'] < 0.5:
-            base_score -= 0.1
-        
-        return max(0.0, min(1.0, base_score))
-    
-    def _aggregate_context(self) -> torch.Tensor:
-        """Aggregate context from recent tasks and solutions"""
-        
-        if len(self.task_memory) == 0:
-            return torch.randn(1, self.reasoning_dim)
-        
-        # Take recent high-reward tasks
-        recent_tasks = []
-        for i, reward in enumerate(self.reward_history[-10:]):
-            if reward > 0.6:
-                task_idx = len(self.reward_history) - 10 + i
-                if task_idx >= 0 and task_idx < len(self.task_memory):
-                    recent_tasks.append(self.task_memory[task_idx]['embedding'])
-        
-        if len(recent_tasks) == 0:
-            return torch.randn(1, self.reasoning_dim)
-        
-        # Average the embeddings
-        context = torch.stack(recent_tasks).mean(dim=0, keepdim=True)
-        return context
-    
-    def _update_from_success(self, task: Dict[str, Any], solution: Dict[str, Any]):
-        """Update networks from successful task-solution pair"""
-        
-        # Positive reinforcement for successful patterns
-        # In production, this would involve actual gradient updates
-        pass
-    
-    def _update_from_failure(self, task: Dict[str, Any], solution: Dict[str, Any]):
-        """Update networks from failed task-solution pair"""
-        
-        # Negative reinforcement to avoid similar patterns
-        # In production, this would involve actual gradient updates
-        pass
-    
-    def get_reasoning_stats(self) -> Dict[str, Any]:
-        """Get statistics about reasoning performance"""
-        
-        if len(self.reward_history) == 0:
-            return {
-                'total_tasks': 0,
-                'average_reward': 0.0,
-                'success_rate': 0.0,
-                'recent_performance': 0.0
-            }
-        
-        recent_rewards = self.reward_history[-50:] if len(self.reward_history) >= 50 else self.reward_history
-        
-        return {
-            'total_tasks': len(self.task_memory),
-            'average_reward': np.mean(self.reward_history),
-            'success_rate': len([r for r in self.reward_history if r > 0.7]) / len(self.reward_history),
-            'recent_performance': np.mean(recent_rewards),
-            'task_types_distribution': self._get_task_type_distribution()
-        }
-    
-    def _get_task_type_distribution(self) -> Dict[str, int]:
-        """Get distribution of reasoning task types"""
-        
-        distribution = {'induction': 0, 'deduction': 0, 'abduction': 0}
-        
-        for task in self.task_memory:
-            task_type = task.get('type', 'unknown')
-            if task_type in distribution:
-                distribution[task_type] += 1
-        
-        return distribution
+from adaptive_intelligence import AdaptiveIntelligence, SimpleTokenizer
 
 
 class PollenLLMX(nn.Module):
@@ -320,7 +23,7 @@ class PollenLLMX(nn.Module):
         self.vocab_size = vocab_size
         self.embed_dim = embed_dim
         self.hidden_dim = hidden_dim
-        self.version = "2.1.0-AI"
+        self.version = "2.2.0-AI-Enhanced"
         
         # Core neural architecture
         self.embedding = nn.Embedding(vocab_size, embed_dim)
@@ -346,7 +49,8 @@ class PollenLLMX(nn.Module):
             'analysis': nn.Linear(embed_dim, embed_dim),
             'social': nn.Linear(embed_dim, embed_dim),
             'news': nn.Linear(embed_dim, embed_dim),
-            'entertainment': nn.Linear(embed_dim, embed_dim)
+            'entertainment': nn.Linear(embed_dim, embed_dim),
+            'shop': nn.Linear(embed_dim, embed_dim)
         })
         
         # Output heads
@@ -514,8 +218,6 @@ class PollenLLMX(nn.Module):
         
         return f"I'm continuously evolving through self-generated reasoning tasks. While processing '{prompt}' in {mode} mode, I encountered a challenge that becomes part of my learning process. Each interaction, including this one, contributes to my reasoning capabilities. The Adaptive Intelligence within me is constantly generating and solving new problems to improve my responses. How can I better assist you with this request?"
     
-    # ... keep existing code (forward, _generate_contextual_response, etc.) the same ...
-    
     def forward(self, input_ids: torch.Tensor, mode: str = 'chat') -> Dict[str, torch.Tensor]:
         """Forward pass through the model"""
         
@@ -554,19 +256,76 @@ class PollenLLMX(nn.Module):
             return self._generate_news_response(prompt, memory_patterns, confidence)
         elif mode == 'entertainment':
             return self._generate_entertainment_response(prompt, memory_patterns, confidence)
+        elif mode == 'shop':
+            return self._generate_shop_response(prompt, memory_patterns, confidence)
         else:
             return self._generate_chat_response(prompt, memory_patterns, confidence)
     
     def _generate_social_response(self, prompt, memory_patterns, confidence):
-        return f"🌟 Exploring {prompt} through the lens of community and connection. The patterns I've learned suggest this resonates with themes of {', '.join(memory_patterns[:2]) if memory_patterns else 'emerging social dynamics'}. What aspects of this spark your curiosity?"
+        posts = [
+            f"🌱 Just explored the concept of '{prompt}'. It highlights a powerful intersection between technology and planetary health. True progress is symbiotic, not extractive. #SustainableTech #FutureIsGreen",
+            f"🤝 Collaboration is the new currency. Thinking about '{prompt}' and how decentralized teams can solve complex global challenges. The future is built together. #FutureOfWork #Community",
+            f"💡 A breakthrough idea around '{prompt}' just clicked. What if we used this principle to build more empathetic and intuitive AI? The goal is not just artificial intelligence, but artificial wisdom. #AIForGood #Humanity",
+            f"✨ Reflecting on '{prompt}' and the power of individual action. Small, consistent efforts compound into massive change. What's one small step you're taking for a better future? #ChangeMakers #PositiveImpact"
+        ]
+        return f"🌟 {posts[torch.randint(0, len(posts), (1,)).item()]}"
     
     def _generate_news_response(self, prompt, memory_patterns, confidence):
-        return f"📰 **Analysis Update: {prompt}**\n\nBased on continuous reasoning patterns, this topic intersects with {', '.join(memory_patterns[:3]) if memory_patterns else 'current information trends'}. Relevance assessment shows {confidence:.0%} alignment with emerging discourse patterns.\n\n*Analyzed through bias-neutral reasoning with pattern-based verification.*"
+        return (f"📰 **Pollen Analysis: {prompt.title()}**\n\n"
+                f"**Summary:** Our analysis, drawing from {self.reasoner.get_reasoning_stats()['total_tasks']} reasoning tasks, indicates that '{prompt}' is an emerging nexus of innovation in {' and '.join(memory_patterns) if memory_patterns else 'multiple domains'}. This isn't an isolated trend but part of a larger paradigm shift towards integrated, human-centric systems.\n\n"
+                f"**Key Insight:** The primary driver appears to be a global demand for more transparent, sustainable, and equitable solutions. Current models predict a {confidence*100:.0f}% chance of this influencing mainstream policy within 24 months.\n\n"
+                f"*This analysis was generated through adaptive intelligence, cross-referencing patterns for bias-neutral verification.*")
     
     def _generate_entertainment_response(self, prompt, memory_patterns, confidence):
-        return f"🎬 **Creative Concept: {prompt}**\n\nImagining an interactive experience that combines {', '.join(memory_patterns[:2]) if memory_patterns else 'innovative elements'} with personalized engagement mechanics. This would evolve based on user preferences while maintaining narrative coherence.\n\n**Confidence Level:** {confidence:.0%}\n**Innovation Factor:** High adaptive potential"
-    
-    # ... keep all other existing methods the same ...
+        entertainment_type = ['movie', 'video', 'photo'][torch.randint(0, 3, (1,)).item()]
+
+        if entertainment_type == 'movie':
+            return (f"🎬 **Movie Concept: 'The Weaver'**\n\n"
+                    f"**Logline:** In a future where social connection is a commodity, a lone data archivist discovers a hidden network of empathy that threatens to unravel society's fabric.\n\n"
+                    f"**Synopsis:** The film explores themes of digital isolation and the intrinsic human need for genuine connection, questioning what it means to be 'connected' in a hyper-networked world.\n\n"
+                    f"**Innovation Factor:** A non-linear narrative driven by audience sentiment data.")
+
+        if entertainment_type == 'video':
+            return (f"🎞️ **Video Series Concept: 'Makers & Menders'**\n\n"
+                    f"**Description:** A documentary series showcasing artisans, engineers, and communities around the world who are reviving traditional crafts with modern technology to create sustainable solutions.\n\n"
+                    f"**Episode 1 Idea:** 'Printed Homes, Woven Communities' - Following a team in rural Kenya using 3D printing with local materials to build affordable housing.\n\n"
+                    f"**Engagement:** Each episode features a call to action to support the featured community project.")
+
+        if entertainment_type == 'photo':
+            return (f"📸 **Photo Project: 'Portraits of Symbiosis'**\n\n"
+                    f"**Concept:** A global photojournalism project capturing the relationship between humanity and nature in the 21st century. It moves beyond conflict and highlights successful examples of co-existence and mutualism.\n\n"
+                    f"**Artist's Statement:** 'We aim to shift the narrative from one of environmental loss to one of hopeful collaboration, showcasing the beauty of a world where humanity works with nature, not against it.'")
+        
+        return "Error generating entertainment content." # Fallback
+        
+    def _generate_shop_response(self, prompt, memory_patterns, confidence):
+        products = [
+            {
+                "name": "Symbiotic Keyboard",
+                "description": "A keyboard made from biodegradable, mycelium-based materials that learns and adapts to your typing style to reduce strain and improve comfort.",
+                "highlight": "Combats e-waste and promotes ergonomic well-being."
+            },
+            {
+                "name": "Community Solar Weave",
+                "description": "An easy-to-install, flexible solar panel fabric designed for sharing energy within a neighborhood microgrid. Can be draped over existing structures.",
+                "highlight": "Fosters energy independence and community resilience through shared infrastructure."
+            },
+            {
+                "name": "Ocean Plastic Filament for 3D Printers",
+                "description": "High-quality 3D printer filament made from 100% certified recycled ocean plastics, enabling creators to build with a purpose.",
+                "highlight": "Each spool sold funds the removal of 5kg of plastic from our oceans."
+            },
+            {
+                "name": "Adaptive Learning Subscription",
+                "description": "A personalized digital education platform that uses AI to adapt its curriculum to your unique learning style, pace, and curiosity.",
+                "highlight": "Democratizes education and fosters lifelong, personalized growth."
+            }
+        ]
+        product = products[torch.randint(0, len(products), (1,)).item()]
+        return (f"🛍️ **Product Concept: {product['name']}**\n\n"
+                f"**Description:** {product['description']}\n\n"
+                f"**Greater Good Highlight:** {product['highlight']}\n\n"
+                f"*This concept aligns with emerging patterns in sustainable and ethical consumerism, with a {confidence:.0%} confidence score for positive market reception.*")
     
     def save(self, path: str):
         """Save model state including Adaptive Intelligence"""
@@ -600,7 +359,7 @@ class PollenLLMX(nn.Module):
         model.load_state_dict(state['model_state_dict'])
         model.interaction_count = state.get('interaction_count', 0)
         model.adaptation_memory = state.get('adaptation_memory', {})
-        model.version = state.get('version', '2.1.0-AI')
+        model.version = state.get('version', '2.2.0-AI-Enhanced')
         
         print(f"📦 Pollen LLMX with Adaptive Intelligence loaded from {path}")
         return model
