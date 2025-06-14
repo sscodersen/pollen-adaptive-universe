@@ -9,7 +9,7 @@ import { CommunityHub } from '../components/CommunityHub';
 import { TaskAutomation } from '../components/TaskAutomation';
 import { ShopHub } from '../components/ShopHub';
 import { AnalyticsDashboard } from '../components/AnalyticsDashboard';
-import { webScrapingService } from '../services/webScrapingService';
+import { pollenWeaverService } from '../services/pollenWeaver';
 import { pollenAI } from '../services/pollenAI';
 
 const NewPlayground = () => {
@@ -119,9 +119,9 @@ const NewPlayground = () => {
     // Initialize web scraping and content generation
     try {
       await Promise.all([
-        webScrapingService.scrapeContent('news', 8),
-        webScrapingService.scrapeContent('shop', 10),
-        webScrapingService.scrapeContent('entertainment', 6)
+        pollenWeaverService.scrapeContent('news', 8),
+        pollenWeaverService.scrapeContent('shop', 10),
+        pollenWeaverService.scrapeContent('entertainment', 6)
       ]);
     } catch (error) {
       console.error('Platform initialization error:', error);
