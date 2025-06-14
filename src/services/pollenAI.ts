@@ -1,5 +1,6 @@
 // Pollen AI Service - Enhanced Frontend Integration
 import { significanceAlgorithm, type ScoredContent } from './significanceAlgorithm';
+import { Product } from '../types';
 
 export interface PollenResponse {
   content: string;
@@ -279,6 +280,35 @@ class PollenAIService {
       reasoningTasks: Math.floor(Math.random() * 25 + 15),
       highRewardTasks: Math.floor(Math.random() * 12 + 8)
     };
+  }
+
+  async getRankedProducts(): Promise<Product[]> {
+    try {
+      const response = await fetch(`${this.baseUrl}/generate`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          prompt: 'fetch ranked shop products',
+          mode: 'shop',
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      if (data.content) {
+        // The content from the backend is a JSON string of products.
+        return JSON.parse(data.content);
+      }
+      return [];
+    } catch (error) {
+      console.error('Pollen AI getRankedProducts error:', error);
+      return []; // Return empty array on error
+    }
   }
 
   async clearMemory(): Promise<void> {
