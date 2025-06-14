@@ -1,4 +1,3 @@
-
 import { significanceAlgorithm, type ScoredContent } from './significanceAlgorithm';
 import { pollenAI } from './pollenAI';
 
@@ -133,28 +132,34 @@ class ContentCuratorService {
   private generateTitleForCategory(category: 'news' | 'shop' | 'entertainment'): string {
     const titles = {
       news: [
-        'Revolutionary AI Breakthrough Changes Industry Standards',
-        'Global Climate Initiative Shows Unprecedented Results',
-        'Quantum Computing Milestone Achieved by Research Team',
-        'Medical Innovation Offers Hope for Millions',
-        'Space Exploration Reveals Groundbreaking Discovery',
-        'Economic Policy Shift Creates New Opportunities'
+        'AI Breakthrough Set to Revolutionize Global Manufacturing',
+        'International Climate Accord Shows Unprecedented Early Success',
+        'Quantum Computing Supremacy Claimed by Research Consortium',
+        'Gene-Editing Innovation Offers New Hope for Genetic Disorders',
+        'Deep Space Telescope Captures Groundbreaking Images of Exoplanet',
+        'New Economic Models Predict Major Shift in Global Trade',
+        'Breakthrough in Battery Technology Promises 10x Energy Density',
+        'AI-Powered Drug Discovery Platform Accelerates Clinical Trials'
       ],
       shop: [
-        'Professional-Grade AI Development Kit - 40% Off',
-        'Premium Productivity Software Bundle - Lifetime License',
-        'High-Performance Computing Workstation - Verified Seller',
-        'Advanced Analytics Platform - Enterprise Edition',
-        'Creative Design Suite - Professional Tools',
-        'Automation Hardware Kit - Complete Solution'
+        'Enterprise AI Development Suite - 50% Off for Teams',
+        'Ultimate Productivity Software Bundle - Limited Lifetime Deal',
+        'High-Performance Quantum-Resistant Encryption Appliance',
+        'Next-Gen Data Analytics Platform - Now with Predictive AI',
+        'Professional Suite of Creative Tools for AR/VR Development',
+        'Complete Robotics & Automation Starter Kit for R&D',
+        'AI-Powered Code Completion Assistant - Pro License',
+        'Ergonomic Bio-Integrated VR Gloves for Immersive Design'
       ],
       entertainment: [
-        'Interactive AI-Powered Adventure Game',
-        'Immersive Virtual Reality Experience',
-        'Creative Coding Challenge Platform',
-        'Multiplayer Strategy Simulation',
-        'Educational Gaming Experience',
-        'Interactive Storytelling Platform'
+        '"Chrono Weaver": An Interactive AI-Powered Time-Bending Saga',
+        '"Aetheria": An Immersive Open-World VR Experience',
+        '"CodeCraft": A Competitive Creative Coding Platform',
+        '"Galactic Imperium": A Deep Multiplayer Grand Strategy Simulation',
+        '"NeuroLearn": The Gamified Educational Experience for STEM',
+        '"The Oracle": An Interactive Storytelling Platform with AI GM',
+        'AI-Generated "Dreamscape" Music for Adaptive Focus',
+        'Procedurally Generated Art Installation "Polymorph"'
       ]
     };
 

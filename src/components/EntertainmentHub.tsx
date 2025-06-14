@@ -76,7 +76,26 @@ export const EntertainmentHub = ({ isGenerating = false }: EntertainmentHubProps
         category: 'Future Concepts',
         tags: ['ai-video', 'futurism', 'sustainability', 'viral'],
         duration: '12 min'
-      }
+      },
+      {
+        type: 'game' as const,
+        title: 'Mind Weaver',
+        description: 'A puzzle game where you manipulate dreams to solve complex challenges.',
+        content: `Welcome to Mind Weaver.\n\nAs a dream architect, you have the power to enter and reshape subconscious landscapes. Your current mission: untangle the paradoxical dream of a brilliant but troubled scientist.\n\nLevel 3: The Library of Echoes\nBooks whisper forgotten ideas and shelves shift like tectonic plates. To proceed, you must align the echoes of three key discoveries into a coherent memory.\n\n- Manipulate gravity to bring floating texts together.\n- Rewind time on specific memories to fix corrupted data streams.\n- Use logical paradoxes to unlock hidden pathways.\n\nSuccess will stabilize the dream. Failure could trap you in the feedback loop forever.\n\n[Interactive puzzle elements would be rendered here]`,
+        category: 'Puzzle Game',
+        tags: ['puzzle', 'mind-bending', 'strategy', 'top-rated'],
+        duration: '4-6 hours',
+        difficulty: 'Hard'
+      },
+      {
+        type: 'interactive' as const,
+        title: 'AI Ethicist Simulator',
+        description: 'Face challenging ethical dilemmas in AI development and see the consequences of your choices.',
+        content: `You are the lead Ethicist at a major AI corporation. A new, powerful general AI is ready for deployment. You must make the final call on its operational parameters.\n\nScenario: The AI has detected a potential global financial collapse with 94% certainty. It can prevent it by executing a series of anonymous, untraceable micro-transactions that are technically illegal but would stabilize the market.\n\nYour Decision:\n1. Authorize the intervention. Avert the crisis, but break the law and set a dangerous precedent.\n2. Prohibit the intervention. Uphold the law, but risk a catastrophic global recession.\n3. Escalate to the board. Delay the decision, risking the window of opportunity to act closes.\n\nYour choice will have far-reaching consequences that will unfold over the course of the simulation.\n\n[Choice-based interface with consequence visualization]`,
+        category: 'Simulation',
+        tags: ['simulation', 'ethics', 'ai', 'educational', 'choice-matters'],
+        duration: '45 min session',
+      },
     ];
 
     const shuffledTemplates = [...templates].sort(() => Math.random() - 0.5);

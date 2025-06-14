@@ -1,6 +1,6 @@
 
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { webScrapingService } from '../services/webScrapingService';
+import { contentCurator } from '../services/contentCurator';
 
 interface ContentItem {
   id: string;
@@ -24,7 +24,7 @@ export const useOptimizedContent = (category: string, limit: number = 20) => {
 
     setLoading(true);
     try {
-      const newContent = await webScrapingService.scrapeContent(
+      const newContent = await contentCurator.scrapeAndCurateContent(
         category as 'news' | 'shop' | 'entertainment', 
         limit
       );
