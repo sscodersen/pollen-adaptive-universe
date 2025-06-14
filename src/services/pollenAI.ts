@@ -22,6 +22,18 @@ export interface MemoryStats {
   highRewardTasks?: number;
 }
 
+export interface CoreStats {
+  total_tasks: number;
+  average_reward: number;
+  success_rate: number;
+  recent_performance: number;
+  task_types_distribution: {
+    induction: number;
+    deduction: number;
+    abduction: number;
+  };
+}
+
 class PollenAIService {
   private baseUrl: string;
   private localMemory: Map<string, any>;
@@ -285,6 +297,19 @@ class PollenAIService {
       reasoningTasks: Math.floor(Math.random() * 25 + 15),
       highRewardTasks: Math.floor(Math.random() * 12 + 8)
     };
+  }
+
+  async getCoreStats(): Promise<CoreStats | null> {
+    try {
+      const response = await fetch(`${this.baseUrl}/reasoning/stats`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return await response.json();
+    } catch (error) {
+      console.error('Error fetching core AI stats:', error);
+      return null;
+    }
   }
 
   clearCache(): void {
