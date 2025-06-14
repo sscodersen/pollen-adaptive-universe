@@ -22,18 +22,6 @@ export interface MemoryStats {
   highRewardTasks?: number;
 }
 
-export interface CoreStats {
-  total_tasks: number;
-  average_reward: number;
-  success_rate: number;
-  recent_performance: number;
-  task_types_distribution: {
-    induction: number;
-    deduction: number;
-    abduction: number;
-  };
-}
-
 class PollenAIService {
   private baseUrl: string;
   private localMemory: Map<string, any>;
@@ -193,35 +181,35 @@ class PollenAIService {
   private getOptimizedTemplates(mode: string, trendingTopic: string): string[] {
     const templates = {
       social: [
-        `🚀 Groundbreaking development in ${trendingTopic}: A new framework is set to redefine industry standards, impacting over 2 billion users globally. Early trials show a 98% success rate.`,
-        `💡 Major shift in ${trendingTopic}: Key players are reporting unprecedented 400% efficiency gains across 50+ countries. The technology is open-source and available now.`,
-        `🌟 Unlocking new potentials in ${trendingTopic}: Researchers have achieved a pivotal breakthrough with vast applications. Immediate benefits are being reported by early adopters.`,
-        `🔬 Paradigm-shifting innovation in ${trendingTopic}: New methodologies are enabling solutions previously thought impossible, with verified global impact and sustainable long-term implementation.`
+        `🚀 Revolutionary breakthrough in ${trendingTopic}: Global research teams announce collaborative solution affecting 2.1 billion users worldwide. Implementation begins next quarter with verified 95% success rate.`,
+        `💡 Critical development in ${trendingTopic}: Industry leaders report 300% efficiency improvements across 47 countries. Real-world applications available immediately.`,
+        `🌟 Unprecedented advancement in ${trendingTopic}: Scientists achieve milestone breakthrough with practical applications for millions. Early adopters see immediate benefits.`,
+        `🔬 Game-changing innovation in ${trendingTopic}: New methodologies enable previously impossible solutions with verified global impact and sustainable implementation.`
       ],
       news: [
-        `🔬 BREAKING: Advanced research in ${trendingTopic} has produced a significant breakthrough with implications for global supply chains. Regulatory bodies have fast-tracked approval.`,
-        `🌱 URGENT: A coalition of 50 nations has launched a $5B initiative for ${trendingTopic}. The goal is full implementation within 24 months, targeting key environmental goals.`,
-        `🤖 EXCLUSIVE: A novel ${trendingTopic} technology is demonstrating transformative results in live pilots. Experts predict a complete paradigm shift with immediate, widespread practical applications.`
+        `🔬 BREAKING: ${trendingTopic} research yields major breakthrough affecting global health systems. Clinical trials show 94% success rate with immediate deployment approved.`,
+        `🌱 URGENT: International ${trendingTopic} initiative launches with $2.4B funding. 47 countries commit to implementation within 18 months.`,
+        `🤖 EXCLUSIVE: ${trendingTopic} technology demonstrates unprecedented results. Industry experts predict paradigm shift with immediate practical applications.`
       ],
       shop: [
-        `🛍️ ELITE: Professional-grade ${trendingTopic} hardware, certified by industry leaders. Comes with a 5-year performance guarantee and 24/7 expert support.`,
-        `💎 STRATEGIC BUNDLE: A limited collection of ${trendingTopic} software from top developers. Enterprise-grade power at a 40% discount for the next 72 hours.`,
-        `🎯 AI-VERIFIED: A curated selection of ${trendingTopic} essentials, trusted by over a million professionals worldwide. Achieve peak performance with these tools.`
+        `🛍️ PREMIUM: Professional-grade ${trendingTopic} tools from verified suppliers. Industry-leading 4.9/5 rating with 30-day performance guarantee.`,
+        `💎 EXCLUSIVE: Limited ${trendingTopic} collection from top manufacturers. Enterprise-quality at 35% below standard pricing.`,
+        `🎯 RECOMMENDED: AI-curated ${trendingTopic} essentials trusted by 750,000+ professionals globally.`
       ],
       entertainment: [
-        `🎬 A New Reality: '${trendingTopic}: The Nexus' - an adaptive cinematic experience where audience choices dynamically shape the plot, leading to thousands of unique endings.`,
-        `🎮 Living World: 'Project ${trendingTopic}' - a persistent, procedurally generated universe where player actions have permanent, large-scale consequences on the digital ecosystem.`,
-        `🎵 Bio-Symphony: 'Aethelred's ${trendingTopic}' - Personalized soundscapes that adapt to your biometric data, generating unique, focus-enhancing audio experiences in real-time.`
+        `🎬 Interactive Experience: '${trendingTopic} Chronicles' - Adaptive storytelling that evolves based on your choices, creating infinite narrative possibilities.`,
+        `🎮 Procedural World: 'Dynamic ${trendingTopic}' - Ever-changing environments where your actions reshape the digital landscape in real-time.`,
+        `🎵 AI Creation: '${trendingTopic} Symphony' - Personalized content that adapts to your preferences, generating unique experiences for every session.`
       ],
       automation: [
-        `⚙️ Autonomous Optimization: Our ${trendingTopic} workflow system automates over 85% of manual tasks, enhancing quality control and tripling output efficiency.`,
-        `🔄 Predictive Processing: AI-driven ${trendingTopic} analysis anticipates system bottlenecks and autonomously reallocates resources for seamless, uninterrupted operation.`,
-        `📋 Cognitive Management: Dynamic ${trendingTopic} scheduling now learns from project outcomes, optimizing future timelines and resource allocation with 99% accuracy.`
+        `⚙️ Smart Optimization: ${trendingTopic} workflow system reduces manual tasks by 70% while maintaining quality standards and improving efficiency.`,
+        `🔄 Intelligent Processing: AI-powered ${trendingTopic} analysis identifies bottlenecks and suggests improvements with real-time optimization.`,
+        `📋 Adaptive Management: Dynamic ${trendingTopic} scheduling responds to changing priorities and resource availability automatically.`
       ],
       community: [
-        `🌐 Decentralized Collaboration: The ${trendingTopic} global network connects experts to solve critical challenges using a blockchain-verified collaborative intelligence model.`,
-        `🤝 Skill Symbiosis: A community-driven ${trendingTopic} platform where members exchange skills and knowledge, earning reputation and tangible rewards for their contributions.`,
-        `💡 Open Innovation Foundry: Collaborative ${trendingTopic} sandboxes where community teams prototype and launch high-impact initiatives with direct access to venture funding.`
+        `🌐 Global Network: ${trendingTopic} knowledge exchange connecting experts worldwide to solve complex challenges through collaborative intelligence.`,
+        `🤝 Skill Exchange: Community-driven ${trendingTopic} learning where members share expertise and learn from each other's experiences.`,
+        `💡 Innovation Hub: Collaborative ${trendingTopic} spaces where community members form teams to work on meaningful initiatives together.`
       ]
     };
 
@@ -297,19 +285,6 @@ class PollenAIService {
       reasoningTasks: Math.floor(Math.random() * 25 + 15),
       highRewardTasks: Math.floor(Math.random() * 12 + 8)
     };
-  }
-
-  async getCoreStats(): Promise<CoreStats | null> {
-    try {
-      const response = await fetch(`${this.baseUrl}/reasoning/stats`);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      return await response.json();
-    } catch (error) {
-      console.error('Error fetching core AI stats:', error);
-      return null;
-    }
   }
 
   clearCache(): void {

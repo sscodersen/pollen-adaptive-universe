@@ -1,30 +1,34 @@
 
-from typing import Optional, Dict, Any
-from fastapi import Header
+from fastapi import Depends
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from typing import Dict, Any
+import uuid
+import time
 
-def get_user_session(x_session_id: Optional[str] = Header(None)) -> str:
-    """Gets user session from header or provides a default."""
-    return x_session_id or "default_user"
+security = HTTPBearer(auto_error=False)
+
+def get_user_session(credentials: HTTPAuthorizationCredentials = Depends(security)) -> str:
+    if credentials:
+        return credentials.credentials
+    return f"anon-{uuid.uuid4().hex[:8]}"
 
 def process_request(request: Any, user_session: str) -> Dict[str, Any]:
-    """Processes the incoming request data."""
-    processed = request.dict()
-    processed["user_session"] = user_session
-    return processed
+    return {
+        "prompt": request.prompt,
+        "mode": request.mode,
+        "context": request.context or {},
+        "user_session": user_session,
+        "timestamp": time.time()
+    }
 
 def format_response(response: Dict[str, Any], generation_time: float, user_session: str) -> Dict[str, Any]:
-    """Formats the final response."""
-    if 'metadata' not in response:
-        response['metadata'] = {}
-    
-    response['metadata'].update({
-        "generation_time": generation_time,
-        "user_session": user_session
-    })
-    
-    # Ensure top-level keys are present
-    response.setdefault('content', 'No content generated.')
-    response.setdefault('confidence', 0.5)
-    
-    return response
-
+    return {
+        "content": response["content"],
+        "confidence": response.get("confidence", 0.8),
+        "reasoning": response.get("reasoning"),
+        "metadata": {
+            "generation_time": generation_time,
+            "user_session": user_session[:8] + "...",
+            "model_version": response.get("model_version", "2.0.0")
+        }
+    }

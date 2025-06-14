@@ -1,3 +1,4 @@
+
 import { significanceAlgorithm, type ScoredContent } from './significanceAlgorithm';
 import { pollenAI } from './pollenAI';
 
@@ -14,7 +15,6 @@ export interface WebContent {
   price?: number;
   rating?: number;
   image?: string;
-  videoUrl?: string;
 }
 
 class ContentCuratorService {
@@ -69,20 +69,16 @@ class ContentCuratorService {
     for (let i = 0; i < count; i++) {
       const source = sources[Math.floor(Math.random() * sources.length)];
       
-      const isVideo = category === 'entertainment' && Math.random() > 0.5;
-      const promptType = isVideo ? 'a cinematic trailer' : 'an engaging content piece';
-
+      // Generate content using Pollen AI
       const response = await pollenAI.generate(
-        `Generate a high-impact description for ${promptType} about a trending topic for ${source.name}`,
+        `Generate high-impact ${category} content for ${source.name}`,
         category,
-        false
+        false // Don't filter yet, we'll do it after
       );
-      
-      const title = this.generateTitleForCategory(category, isVideo);
 
       const item: WebContent = {
         id: `${category}-${Date.now()}-${i}`,
-        title: title,
+        title: this.generateTitleForCategory(category),
         url: this.generateUrlForSource(source),
         description: response.content.slice(0, 200) + '...',
         content: response.content,
@@ -93,13 +89,6 @@ class ContentCuratorService {
         ...(category === 'shop' && {
           price: Math.floor(Math.random() * 500) + 10,
           rating: Math.random() * 2 + 3,
-          image: `https://picsum.photos/400/300?random=${i}`
-        }),
-        ...(isVideo && {
-          videoUrl: `https://www.youtube.com/embed/${['dQw4w9WgXcQ', '3_lAb8m9MpI', 'QH2-TGUlwu4'][i % 3]}`,
-          image: `https://i.ytimg.com/vi/${['dQw4w9WgXcQ', '3_lAb8m9MpI', 'QH2-TGUlwu4'][i % 3]}/hqdefault.jpg`
-        }),
-        ...(!isVideo && category === 'entertainment' && {
           image: `https://picsum.photos/400/300?random=${i}`
         })
       };
@@ -141,49 +130,35 @@ class ContentCuratorService {
     return sources[category];
   }
 
-  private generateTitleForCategory(category: 'news' | 'shop' | 'entertainment', isVideo: boolean = false): string {
+  private generateTitleForCategory(category: 'news' | 'shop' | 'entertainment'): string {
     const titles = {
       news: [
-        'AI Breakthrough Set to Revolutionize Global Manufacturing',
-        'International Climate Accord Shows Unprecedented Early Success',
-        'Quantum Computing Supremacy Claimed by Research Consortium',
-        'Gene-Editing Innovation Offers New Hope for Genetic Disorders',
-        'Deep Space Telescope Captures Groundbreaking Images of Exoplanet',
-        'New Economic Models Predict Major Shift in Global Trade',
-        'Breakthrough in Battery Technology Promises 10x Energy Density',
-        'AI-Powered Drug Discovery Platform Accelerates Clinical Trials'
+        'Revolutionary AI Breakthrough Changes Industry Standards',
+        'Global Climate Initiative Shows Unprecedented Results',
+        'Quantum Computing Milestone Achieved by Research Team',
+        'Medical Innovation Offers Hope for Millions',
+        'Space Exploration Reveals Groundbreaking Discovery',
+        'Economic Policy Shift Creates New Opportunities'
       ],
       shop: [
-        'Enterprise AI Development Suite - 50% Off for Teams',
-        'Ultimate Productivity Software Bundle - Limited Lifetime Deal',
-        'High-Performance Quantum-Resistant Encryption Appliance',
-        'Next-Gen Data Analytics Platform - Now with Predictive AI',
-        'Professional Suite of Creative Tools for AR/VR Development',
-        'Complete Robotics & Automation Starter Kit for R&D',
-        'AI-Powered Code Completion Assistant - Pro License',
-        'Ergonomic Bio-Integrated VR Gloves for Immersive Design'
+        'Professional-Grade AI Development Kit - 40% Off',
+        'Premium Productivity Software Bundle - Lifetime License',
+        'High-Performance Computing Workstation - Verified Seller',
+        'Advanced Analytics Platform - Enterprise Edition',
+        'Creative Design Suite - Professional Tools',
+        'Automation Hardware Kit - Complete Solution'
       ],
       entertainment: [
-        '"Chrono Weaver": An Interactive AI-Powered Time-Bending Saga',
-        '"Aetheria": An Immersive Open-World VR Experience',
-        '"CodeCraft": A Competitive Creative Coding Platform',
-        '"Galactic Imperium": A Deep Multiplayer Grand Strategy Simulation',
-        '"NeuroLearn": The Gamified Educational Experience for STEM',
-        '"The Oracle": An Interactive Storytelling Platform with AI GM',
-        'AI-Generated "Dreamscape" Music for Adaptive Focus',
-        'Procedurally Generated Art Installation "Polymorph"'
-      ],
-      video: [
-        'Official Trailer: "Aetheria"',
-        'First Look: "Galactic Imperium" Gameplay',
-        'Behind the Scenes of "NeuroLearn"',
-        '"The Oracle" - A New Interactive Film Experience',
-        'Teaser: "Polymorph" Visuals',
-        'Developer Diary: Building "Chrono Weaver"'
+        'Interactive AI-Powered Adventure Game',
+        'Immersive Virtual Reality Experience',
+        'Creative Coding Challenge Platform',
+        'Multiplayer Strategy Simulation',
+        'Educational Gaming Experience',
+        'Interactive Storytelling Platform'
       ]
     };
 
-    const categoryTitles = isVideo ? titles.video : titles[category];
+    const categoryTitles = titles[category];
     return categoryTitles[Math.floor(Math.random() * categoryTitles.length)];
   }
 

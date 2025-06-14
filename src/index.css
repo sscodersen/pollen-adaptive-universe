@@ -53,8 +53,6 @@
 
   body {
     @apply bg-background text-foreground;
-    background-color: hsl(var(--background));
-    background-image: radial-gradient(circle at 25% 25%, hsl(210, 20%, 15%) 0%, hsl(var(--background)) 40%);
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 }

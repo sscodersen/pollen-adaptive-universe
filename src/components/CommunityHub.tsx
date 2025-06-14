@@ -1,12 +1,14 @@
+
 import React, { useState, useEffect } from 'react';
 import { Users, TrendingUp, MessageCircle, Heart, Zap, Globe } from 'lucide-react';
 import { pollenAI } from '../services/pollenAI';
 
 interface CommunityHubProps {
   activities: any[];
+  isGenerating: boolean;
 }
 
-export const CommunityHub = ({ activities }: CommunityHubProps) => {
+export const CommunityHub = ({ activities, isGenerating }: CommunityHubProps) => {
   const [communityStats, setCommunityStats] = useState({
     totalMembers: 12847,
     activeToday: 1205,
