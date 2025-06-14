@@ -16,7 +16,8 @@ import {
 
 
 const StatCard = ({ icon: Icon, title, value, unit, colorClass, description }) => (
-  <div className={`bg-gray-900/50 rounded-xl p-5 flex flex-col justify-between border-l-4 ${colorClass}`}>
+  <div className={`relative bg-white/5 rounded-xl p-5 flex flex-col justify-between border-t border-white/10 overflow-hidden`}>
+    <div className={`absolute top-0 left-0 h-1 w-full bg-gradient-to-r ${colorClass}`}></div>
     <div>
       <div className="flex items-center space-x-3 mb-2">
         <Icon className="w-5 h-5 text-gray-300" />
@@ -65,7 +66,7 @@ export const AiCoreStats = () => {
 
   if (loading && !stats) {
     return (
-      <div className="bg-gray-950/50 backdrop-blur-xl rounded-xl border border-gray-800/60 p-6 flex items-center justify-center h-96">
+      <div className="bg-black/20 backdrop-blur-xl rounded-xl border border-white/10 p-6 flex items-center justify-center h-96">
         <LoadingSpinner />
         <span className="ml-3 text-gray-400">Syncing with AI Core...</span>
       </div>
@@ -74,7 +75,7 @@ export const AiCoreStats = () => {
 
   if (!stats) {
     return (
-      <div className="bg-gray-950/50 backdrop-blur-xl rounded-xl border border-gray-800/60 p-6 text-center h-96 flex flex-col items-center justify-center">
+      <div className="bg-black/20 backdrop-blur-xl rounded-xl border border-white/10 p-6 text-center h-96 flex flex-col items-center justify-center">
         <BrainCircuit className="w-12 h-12 text-red-500 mb-4" />
         <h3 className="text-xl font-bold text-white">Connection Error</h3>
         <p className="text-gray-400">Could not retrieve stats from the AI Core.</p>
@@ -88,13 +89,13 @@ export const AiCoreStats = () => {
   })) : [];
 
   return (
-    <div className="bg-gray-950/50 backdrop-blur-xl rounded-xl border border-gray-800/60 p-6 h-full flex flex-col">
+    <div className="bg-black/20 backdrop-blur-xl rounded-xl border border-white/10 p-6 h-full flex flex-col">
       <div className="flex items-center space-x-4 mb-6">
         <div className="w-12 h-12 bg-gradient-to-br from-cyan-500 to-purple-500 rounded-xl flex items-center justify-center shadow-lg animate-pulse">
           <BrainCircuit className="w-6 h-6 text-white" />
         </div>
         <div>
-          <h3 className="text-2xl font-bold text-white">Absolute Zero Reasoner</h3>
+          <h3 className="text-2xl font-bold text-white">Adaptive Intelligence</h3>
           <p className="text-gray-400">Real-time self-improvement statistics.</p>
         </div>
       </div>
@@ -105,7 +106,7 @@ export const AiCoreStats = () => {
           title="Total Tasks" 
           value={stats.total_tasks.toLocaleString()} 
           unit="" 
-          colorClass="border-cyan-500"
+          colorClass="from-cyan-400 to-cyan-600"
           description="Total reasoning cycles executed."
         />
         <StatCard 
@@ -113,7 +114,7 @@ export const AiCoreStats = () => {
           title="Success Rate" 
           value={(stats.success_rate * 100).toFixed(1)} 
           unit="%" 
-          colorClass="border-green-500"
+          colorClass="from-green-400 to-green-600"
           description="Percentage of tasks solved correctly."
         />
         <StatCard 
@@ -121,7 +122,7 @@ export const AiCoreStats = () => {
           title="Performance" 
           value={(stats.recent_performance * 100).toFixed(1)} 
           unit="%" 
-          colorClass="border-purple-500"
+          colorClass="from-purple-400 to-purple-600"
           description="Success rate over last 100 tasks."
         />
         <StatCard 
@@ -129,7 +130,7 @@ export const AiCoreStats = () => {
           title="Average Reward" 
           value={stats.average_reward.toFixed(3)} 
           unit="" 
-          colorClass="border-yellow-500"
+          colorClass="from-yellow-400 to-yellow-600"
           description="Average learning gain per task."
         />
       </div>

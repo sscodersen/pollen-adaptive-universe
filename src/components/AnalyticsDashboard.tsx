@@ -4,7 +4,7 @@ import { AiCoreStats } from './AiCoreStats';
 import { Bot, Cpu, Database } from 'lucide-react';
 
 const InfoCard = ({ icon: Icon, title, children }) => (
-  <div className="bg-gray-900/50 rounded-lg p-6 border border-gray-800/50">
+  <div className="bg-white/5 rounded-lg p-6 border border-white/10">
     <div className="flex items-center space-x-4 mb-3">
       <Icon className="w-6 h-6 text-cyan-400" />
       <h3 className="text-xl font-semibold text-white">{title}</h3>
@@ -33,7 +33,7 @@ export const AnalyticsDashboard = () => {
         
         <div className="space-y-6">
           <InfoCard icon={Bot} title="What is Pollen?">
-            Pollen is a simulated self-improving AI. It doesn't use pre-existing data but learns from scratch by generating internal "reasoning tasks" and evaluating its own success. This process, called the Absolute Zero Reasoner, allows it to continuously refine its problem-solving and content-generation abilities.
+            Pollen is a simulated self-improving AI. It doesn't use pre-existing data but learns from scratch by generating internal "reasoning tasks" and evaluating its own success. This process, called Adaptive Intelligence, allows it to continuously refine its problem-solving and content-generation abilities.
           </InfoCard>
           <InfoCard icon={Cpu} title="How It Works">
             The AI core constantly runs cycles of induction, deduction, and abduction to build its understanding. Each successful task reinforces positive pathways, increasing its performance over time. The "reward" metric indicates how effectively it's learning.
