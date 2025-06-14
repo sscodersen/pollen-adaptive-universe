@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { BrainCircuit, TrendingUp, CheckCircle, Percent, Zap } from 'lucide-react';
+import { BrainCircuit, TrendingUp, CheckCircle, Percent, Zap, Activity } from 'lucide-react';
 import { pollenAI, type CoreStats } from '../services/pollenAI';
 import { LoadingSpinner } from './optimized/LoadingSpinner';
 import {
@@ -16,19 +16,18 @@ import {
 
 
 const StatCard = ({ icon: Icon, title, value, unit, colorClass, description }) => (
-  <div className={`relative bg-white/5 rounded-xl p-5 flex flex-col justify-between border-t border-white/10 overflow-hidden`}>
-    <div className={`absolute top-0 left-0 h-1 w-full bg-gradient-to-r ${colorClass}`}></div>
+    <div className={`relative bg-black/20 rounded-xl p-5 flex flex-col justify-between border border-white/10`}>
     <div>
       <div className="flex items-center space-x-3 mb-2">
-        <Icon className="w-5 h-5 text-gray-300" />
+        <Icon className={`w-5 h-5 ${colorClass}`} />
         <p className="text-sm text-gray-400">{title}</p>
       </div>
       <p className="text-3xl font-bold text-white">
         {value}
-        <span className="text-lg font-normal text-gray-400 ml-1">{unit}</span>
+        <span className="text-lg font-normal text-gray-400 ml-1.5">{unit}</span>
       </p>
     </div>
-    <p className="text-xs text-gray-500 mt-3">{description}</p>
+    <p className="text-xs text-gray-500 mt-3 h-8">{description}</p>
   </div>
 );
 
@@ -89,24 +88,24 @@ export const AiCoreStats = () => {
   })) : [];
 
   return (
-    <div className="bg-black/20 backdrop-blur-xl rounded-xl border border-white/10 p-6 h-full flex flex-col">
+    <div className="bg-black/20 backdrop-blur-xl rounded-2xl border border-white/10 p-6 h-full flex flex-col">
       <div className="flex items-center space-x-4 mb-6">
-        <div className="w-12 h-12 bg-gradient-to-br from-cyan-500 to-purple-500 rounded-xl flex items-center justify-center shadow-lg animate-pulse">
-          <BrainCircuit className="w-6 h-6 text-white" />
+        <div className="w-12 h-12 bg-gradient-to-br from-cyan-500 to-purple-500 rounded-xl flex items-center justify-center shadow-lg">
+          <BrainCircuit className="w-7 h-7 text-white" />
         </div>
         <div>
-          <h3 className="text-2xl font-bold text-white">Adaptive Intelligence</h3>
-          <p className="text-gray-400">Real-time self-improvement statistics.</p>
+          <h3 className="text-2xl font-bold text-white">Core Statistics</h3>
+          <p className="text-gray-400">Real-time self-improvement metrics.</p>
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         <StatCard 
           icon={Zap} 
           title="Total Tasks" 
           value={stats.total_tasks.toLocaleString()} 
           unit="" 
-          colorClass="from-cyan-400 to-cyan-600"
+          colorClass="text-cyan-400"
           description="Total reasoning cycles executed."
         />
         <StatCard 
@@ -114,7 +113,7 @@ export const AiCoreStats = () => {
           title="Success Rate" 
           value={(stats.success_rate * 100).toFixed(1)} 
           unit="%" 
-          colorClass="from-green-400 to-green-600"
+          colorClass="text-green-400"
           description="Percentage of tasks solved correctly."
         />
         <StatCard 
@@ -122,7 +121,7 @@ export const AiCoreStats = () => {
           title="Performance" 
           value={(stats.recent_performance * 100).toFixed(1)} 
           unit="%" 
-          colorClass="from-purple-400 to-purple-600"
+          colorClass="text-purple-400"
           description="Success rate over last 100 tasks."
         />
         <StatCard 
@@ -130,27 +129,30 @@ export const AiCoreStats = () => {
           title="Average Reward" 
           value={stats.average_reward.toFixed(3)} 
           unit="" 
-          colorClass="from-yellow-400 to-yellow-600"
+          colorClass="text-yellow-400"
           description="Average learning gain per task."
         />
       </div>
 
       <div className="flex-grow">
-        <h4 className="text-lg font-semibold text-white mb-3">Task Type Distribution</h4>
+        <div className="flex items-center gap-3 mb-3">
+          <Activity className="w-5 h-5 text-gray-300"/>
+          <h4 className="text-lg font-semibold text-white">Task Type Distribution</h4>
+        </div>
         <div className="w-full h-64">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={chartData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
+            <BarChart data={chartData} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
               <defs>
                 <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#22d3ee" stopOpacity={0.8}/>
-                    <stop offset="95%" stopColor="#a855f7" stopOpacity={0.5}/>
+                    <stop offset="95%" stopColor="#c084fc" stopOpacity={0.3}/>
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" strokeOpacity={0.1} />
-              <XAxis dataKey="name" tick={{ fill: '#9ca3af' }} tickLine={{ stroke: '#4b5563' }} />
-              <YAxis tick={{ fill: '#9ca3af' }} tickLine={{ stroke: '#4b5563' }} />
-              <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(107, 114, 128, 0.1)' }}/>
-              <Bar dataKey="tasks" fill="url(#colorUv)" />
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+              <XAxis dataKey="name" tick={{ fill: '#9ca3af', fontSize: 12 }} tickLine={{ stroke: '#4b5563' }} axisLine={{ stroke: '#4b5563' }} />
+              <YAxis tick={{ fill: '#9ca3af', fontSize: 12 }} tickLine={{ stroke: '#4b5563' }} axisLine={{ stroke: '#4b5563' }} />
+              <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(192, 132, 252, 0.1)' }}/>
+              <Bar dataKey="tasks" fill="url(#colorUv)" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
