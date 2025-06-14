@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { ShoppingBag, ExternalLink, Star, TrendingUp, Award, Filter, Search, Tag, Heart, Share2 } from 'lucide-react';
 import { significanceAlgorithm } from '../services/significanceAlgorithm';
@@ -40,142 +41,122 @@ export const ShopHub = ({ isGenerating = false }: ShopHubProps) => {
   const generateProducts = useCallback(async () => {
     const productTemplates = [
       {
-        name: 'ChatGPT Plus',
-        description: 'Advanced AI assistant with GPT-4, faster response times, and priority access during peak hours.',
-        price: '$20.00/mo',
+        name: 'AI-Powered Code Assistant Pro',
+        description: 'Advanced AI coding companion that understands context, generates optimized code, and provides real-time debugging assistance across 40+ programming languages.',
+        price: '$29.99/mo',
+        originalPrice: '$49.99/mo',
         category: 'AI Tools',
-        tags: ['AI', 'Assistant', 'Productivity'],
-        seller: 'OpenAI',
-        link: 'https://openai.com/chatgpt/pricing',
-        features: ['GPT-4 access', 'Faster responses', 'Priority access', 'Plugin support'],
-        discount: 0
+        tags: ['AI', 'Programming', 'Productivity'],
+        seller: 'TechFlow Solutions',
+        link: 'https://example.com/ai-code-assistant',
+        features: ['Multi-language support', 'Real-time debugging', 'Code optimization', 'Team collaboration'],
+        discount: 40
       },
       {
-        name: 'Notion Pro',
-        description: 'All-in-one workspace for notes, tasks, wikis, and databases. Perfect for teams and personal productivity.',
-        price: '$8.00/mo',
-        originalPrice: '$10.00/mo',
-        category: 'Productivity',
-        tags: ['Productivity', 'Notes', 'Collaboration'],
-        seller: 'Notion Labs',
-        link: 'https://notion.so/pricing',
-        features: ['Unlimited blocks', 'File uploads', 'Version history', 'Advanced permissions'],
-        discount: 20
-      },
-      {
-        name: 'Adobe Creative Cloud',
-        description: 'Complete collection of creative apps including Photoshop, Illustrator, Premiere Pro, and more.',
-        price: '$52.99/mo',
-        originalPrice: '$72.99/mo',
+        name: 'Neural Audio Enhancement Suite',
+        description: 'Professional-grade AI audio processing software that removes noise, enhances clarity, and optimizes sound quality using machine learning algorithms.',
+        price: '$149.99',
+        originalPrice: '$199.99',
         category: 'Creative Tools',
-        tags: ['Design', 'Photo Editing', 'Video'],
-        seller: 'Adobe',
-        link: 'https://adobe.com/creativecloud/plans.html',
-        features: ['20+ creative apps', 'Cloud storage', 'Font library', 'Stock photos'],
-        discount: 27
+        tags: ['Audio', 'AI', 'Professional'],
+        seller: 'SoundTech Pro',
+        link: 'https://example.com/neural-audio',
+        features: ['AI noise reduction', 'Voice enhancement', 'Batch processing', 'VST plugin support'],
+        discount: 25
       },
       {
-        name: 'Figma Professional',
-        description: 'Collaborative interface design tool with advanced prototyping and design system features.',
-        price: '$12.00/mo',
-        category: 'Creative Tools',
-        tags: ['Design', 'UI/UX', 'Collaboration'],
-        seller: 'Figma',
-        link: 'https://figma.com/pricing',
-        features: ['Unlimited projects', 'Version history', 'Advanced prototyping', 'Design systems'],
-        discount: 0
-      },
-      {
-        name: 'Spotify Premium',
-        description: 'Ad-free music streaming with offline downloads and high-quality audio.',
-        price: '$9.99/mo',
-        category: 'Entertainment',
-        tags: ['Music', 'Streaming', 'Audio'],
-        seller: 'Spotify',
-        link: 'https://spotify.com/premium',
-        features: ['Ad-free listening', 'Offline downloads', 'High quality audio', 'Unlimited skips'],
-        discount: 0
-      },
-      {
-        name: 'Grammarly Premium',
-        description: 'AI-powered writing assistant with advanced grammar checking, style suggestions, and plagiarism detection.',
-        price: '$12.00/mo',
-        originalPrice: '$30.00/mo',
+        name: 'Smart Productivity Tracker',
+        description: 'Intelligent time tracking and productivity analysis tool that uses AI to identify patterns, suggest optimizations, and boost work efficiency.',
+        price: '$19.99/mo',
         category: 'Productivity',
-        tags: ['Writing', 'AI', 'Productivity'],
-        seller: 'Grammarly',
-        link: 'https://grammarly.com/premium',
-        features: ['Advanced grammar', 'Style suggestions', 'Plagiarism detection', 'Goal setting'],
-        discount: 60
-      },
-      {
-        name: 'GitHub Copilot',
-        description: 'AI pair programmer that helps you write code faster with intelligent suggestions.',
-        price: '$10.00/mo',
-        category: 'AI Tools',
-        tags: ['AI', 'Programming', 'Code Assistant'],
-        seller: 'GitHub',
-        link: 'https://github.com/features/copilot',
-        features: ['AI code suggestions', 'Multi-language support', 'IDE integration', 'Context-aware'],
+        tags: ['Productivity', 'Analytics', 'Time Management'],
+        seller: 'Efficient Systems',
+        link: 'https://example.com/productivity-tracker',
+        features: ['AI insights', 'Goal tracking', 'Team reports', 'Mobile app'],
         discount: 0
       },
       {
-        name: 'Canva Pro',
-        description: 'Professional design platform with premium templates, brand kit, and collaboration features.',
-        price: '$12.99/mo',
-        originalPrice: '$14.99/mo',
-        category: 'Creative Tools',
-        tags: ['Design', 'Templates', 'Branding'],
-        seller: 'Canva',
-        link: 'https://canva.com/pricing',
-        features: ['Premium templates', 'Brand kit', 'Background remover', 'Team collaboration'],
-        discount: 13
+        name: 'Sustainable Energy Monitor',
+        description: 'Smart home energy monitoring system that tracks usage, identifies waste, and provides AI-powered recommendations for reducing carbon footprint.',
+        price: '$89.99',
+        originalPrice: '$119.99',
+        category: 'Sustainable Tech',
+        tags: ['Green Tech', 'Smart Home', 'Energy'],
+        seller: 'EcoTech Innovations',
+        link: 'https://example.com/energy-monitor',
+        features: ['Real-time monitoring', 'AI recommendations', 'Mobile alerts', 'Solar integration'],
+        discount: 25
       },
       {
-        name: 'Linear',
-        description: 'Modern issue tracking and project management tool built for high-performance teams.',
-        price: '$8.00/mo',
-        category: 'Productivity',
-        tags: ['Project Management', 'Issue Tracking', 'Team'],
-        seller: 'Linear',
-        link: 'https://linear.app/pricing',
-        features: ['Issue tracking', 'Project roadmaps', 'Team collaboration', 'Git integration'],
-        discount: 0
+        name: 'Adaptive Learning Platform',
+        description: 'Personalized education platform that adapts to individual learning styles using AI, providing customized courses and progress tracking.',
+        price: '$39.99/mo',
+        originalPrice: '$59.99/mo',
+        category: 'Education',
+        tags: ['Education', 'AI', 'Personalized Learning'],
+        seller: 'LearnSmart Academy',
+        link: 'https://example.com/adaptive-learning',
+        features: ['Adaptive content', 'Progress analytics', 'Expert mentors', 'Certification'],
+        discount: 33
       },
       {
-        name: 'Slack Pro',
-        description: 'Team communication platform with unlimited message history and advanced collaboration features.',
-        price: '$7.25/mo',
-        originalPrice: '$8.75/mo',
-        category: 'Productivity',
-        tags: ['Communication', 'Team', 'Collaboration'],
-        seller: 'Slack',
-        link: 'https://slack.com/pricing',
-        features: ['Unlimited history', 'Guest access', 'Voice/video calls', 'App integrations'],
-        discount: 17
-      },
-      {
-        name: 'Zoom Pro',
-        description: 'Professional video conferencing with recording, cloud storage, and advanced meeting features.',
+        name: 'AI Fitness Coach Premium',
+        description: 'Intelligent fitness tracking app that creates personalized workout plans, monitors progress, and adjusts routines based on performance data.',
         price: '$14.99/mo',
-        category: 'Productivity',
-        tags: ['Video Conferencing', 'Remote Work', 'Communication'],
-        seller: 'Zoom',
-        link: 'https://zoom.us/pricing',
-        features: ['HD video/audio', 'Cloud recording', 'Admin features', 'Phone support'],
+        category: 'Fitness',
+        tags: ['Fitness', 'AI', 'Health'],
+        seller: 'FitTech Solutions',
+        link: 'https://example.com/ai-fitness',
+        features: ['Custom workouts', 'Progress tracking', 'Nutrition guidance', 'Wearable sync'],
         discount: 0
       },
       {
-        name: 'Loom Pro',
-        description: 'Screen recording and video messaging tool for async communication and tutorials.',
-        price: '$8.00/mo',
-        originalPrice: '$10.00/mo',
+        name: 'Smart Document Scanner Pro',
+        description: 'AI-powered document digitization tool that automatically detects, crops, enhances, and organizes scanned documents with OCR capabilities.',
+        price: '$79.99',
+        originalPrice: '$99.99',
         category: 'Productivity',
-        tags: ['Screen Recording', 'Video', 'Communication'],
-        seller: 'Loom',
-        link: 'https://loom.com/pricing',
-        features: ['HD recording', 'Custom branding', 'Video editing', 'Analytics'],
+        tags: ['Document Management', 'AI', 'OCR'],
+        seller: 'DocuScan Technologies',
+        link: 'https://example.com/document-scanner',
+        features: ['AI enhancement', 'OCR text recognition', 'Cloud sync', 'Batch processing'],
         discount: 20
+      },
+      {
+        name: 'Creative AI Image Generator',
+        description: 'Professional AI image generation software for creating unique artwork, designs, and visual content using advanced neural networks.',
+        price: '$24.99/mo',
+        originalPrice: '$39.99/mo',
+        category: 'Creative Tools',
+        tags: ['AI Art', 'Image Generation', 'Creative'],
+        seller: 'ArtTech Studios',
+        link: 'https://example.com/ai-image-generator',
+        features: ['High-res output', 'Style transfer', 'Batch generation', 'Commercial license'],
+        discount: 37
+      },
+      {
+        name: 'Smart Home Security Hub',
+        description: 'Intelligent security system with AI-powered threat detection, facial recognition, and automated response protocols for comprehensive home protection.',
+        price: '$199.99',
+        originalPrice: '$299.99',
+        category: 'Smart Home',
+        tags: ['Security', 'Smart Home', 'AI'],
+        seller: 'SecureHome Tech',
+        link: 'https://example.com/security-hub',
+        features: ['AI threat detection', 'Facial recognition', 'Mobile alerts', '24/7 monitoring'],
+        discount: 33
+      },
+      {
+        name: 'Professional Data Analytics Suite',
+        description: 'Comprehensive business intelligence platform with AI-driven insights, predictive analytics, and automated reporting for data-driven decisions.',
+        price: '$99.99/mo',
+        originalPrice: '$149.99/mo',
+        category: 'Professional Software',
+        tags: ['Analytics', 'Business Intelligence', 'AI'],
+        seller: 'DataPro Solutions',
+        link: 'https://example.com/analytics-suite',
+        features: ['Predictive analytics', 'Custom dashboards', 'API integration', 'Team collaboration'],
+        discount: 33
       }
     ];
 
@@ -188,17 +169,17 @@ export const ShopHub = ({ isGenerating = false }: ShopHubProps) => {
         description: template.description,
         price: template.price,
         originalPrice: template.originalPrice,
-        rating: Math.random() * 1.5 + 3.5,
+        rating: Math.random() * 1.5 + 3.5, // 3.5-5.0
         reviews: Math.floor(Math.random() * 5000) + 100,
         category: template.category,
         tags: template.tags,
         significance: scored.significanceScore,
-        trending: scored.significanceScore > 7.5 || (template.discount && template.discount > 30),
+        trending: scored.significanceScore > 7.5 || template.discount > 30,
         link: template.link,
         seller: template.seller,
         discount: template.discount,
         features: template.features,
-        inStock: Math.random() > 0.05
+        inStock: Math.random() > 0.1 // 90% in stock
       };
     });
 
@@ -214,7 +195,7 @@ export const ShopHub = ({ isGenerating = false }: ShopHubProps) => {
 
   useEffect(() => {
     loadProducts();
-    const interval = setInterval(loadProducts, 120000);
+    const interval = setInterval(loadProducts, 120000); // Refresh every 2 minutes
     return () => clearInterval(interval);
   }, [loadProducts]);
 
@@ -247,7 +228,7 @@ export const ShopHub = ({ isGenerating = false }: ShopHubProps) => {
           <div className="flex items-center justify-between mb-6">
             <div>
               <h1 className="text-3xl font-bold text-white mb-2">Smart Shopping</h1>
-              <p className="text-gray-400">AI-curated products • Real marketplace links • Verified sellers</p>
+              <p className="text-gray-400">AI-curated products • Algorithm-ranked • Real marketplace links</p>
             </div>
             <div className="flex items-center space-x-3">
               <div className="px-4 py-2 bg-green-500/10 text-green-400 rounded-full text-sm font-medium border border-green-500/20 flex items-center space-x-2">
@@ -427,7 +408,7 @@ export const ShopHub = ({ isGenerating = false }: ShopHubProps) => {
                         ? 'bg-green-500/20 text-green-300'
                         : 'bg-red-500/20 text-red-300'
                     }`}>
-                      {product.inStock ? 'Available' : 'Out of Stock'}
+                      {product.inStock ? 'In Stock' : 'Out of Stock'}
                     </div>
                   </div>
 
@@ -450,7 +431,7 @@ export const ShopHub = ({ isGenerating = false }: ShopHubProps) => {
                     className="flex-1 bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-600 hover:to-purple-600 px-4 py-2 rounded-lg font-medium transition-all flex items-center justify-center space-x-2 text-white"
                   >
                     <ShoppingBag className="w-4 h-4" />
-                    <span>Visit Site</span>
+                    <span>View Product</span>
                     <ExternalLink className="w-4 h-4" />
                   </a>
                   <button className="p-2 bg-gray-800/50 hover:bg-gray-700/50 rounded-lg transition-colors">
