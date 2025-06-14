@@ -1,5 +1,6 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
-import { ShoppingBag, ExternalLink, Star, TrendingUp, Award, Filter, Search, Tag, Heart, Share2 } from 'lucide-react';
+import { ShoppingBag, ExternalLink, Star, TrendingUp, Award, Filter, Search, Tag, Heart, Share2, RefreshCw } from 'lucide-react';
 import { significanceAlgorithm } from '../services/significanceAlgorithm';
 
 interface ShopHubProps {
@@ -164,7 +165,7 @@ export const ShopHub = ({ isGenerating = false }: ShopHubProps) => {
 
   useEffect(() => {
     loadProducts();
-    const interval = setInterval(loadProducts, 30000);
+    const interval = setInterval(loadProducts, 10000); // Refresh every 10 seconds
     return () => clearInterval(interval);
   }, [loadProducts]);
 
@@ -204,6 +205,14 @@ export const ShopHub = ({ isGenerating = false }: ShopHubProps) => {
                 <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
                 <span>Live Prices</span>
               </div>
+              <button
+                onClick={loadProducts}
+                className="p-2.5 bg-gray-800/50 hover:bg-gray-700/50 rounded-lg transition-colors text-gray-400 hover:text-cyan-400 disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={loading}
+                aria-label="Refresh products"
+              >
+                <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+              </button>
             </div>
           </div>
 
