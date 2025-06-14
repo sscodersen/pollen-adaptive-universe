@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { Search, ExternalLink, TrendingUp, Clock, Award, Filter, Globe, Zap, BookOpen, Eye } from 'lucide-react';
 import { pollenAI } from '../services/pollenAI';
@@ -100,27 +99,33 @@ This breakthrough represents years of dedicated research and international coope
     };
   }, []);
 
-  const loadNews = useCallback(async () => {
-    setLoading(true);
-    const newsPromises = newsTopics.map(topic => generateNewsContent(topic));
-    const newArticles = await Promise.all(newsPromises);
-    
-    // Add a few more varied articles
-    const additionalArticles = await Promise.all([
-      generateNewsContent(newsTopics[Math.floor(Math.random() * newsTopics.length)]),
-      generateNewsContent(newsTopics[Math.floor(Math.random() * newsTopics.length)])
-    ]);
-    
-    const allArticles = [...newArticles, ...additionalArticles];
-    setArticles(allArticles.sort((a, b) => b.significance - a.significance));
-    setLoading(false);
+  const streamNews = useCallback(async () => {
+    try {
+      const topic = newsTopics[Math.floor(Math.random() * newsTopics.length)];
+      const newArticle = await generateNewsContent(topic);
+      setArticles(prev => {
+        if (prev.find(a => a.title === newArticle.title)) return prev;
+        const updatedArticles = [newArticle, ...prev];
+        return updatedArticles.slice(0, 30); // Prepend and limit to 30 articles
+      });
+    } catch (error) {
+      console.error('Failed to stream news article:', error);
+    }
   }, [generateNewsContent]);
 
   useEffect(() => {
-    loadNews();
-    const interval = setInterval(loadNews, 45000); // Refresh every 45 seconds
+    const initialLoad = async () => {
+      setLoading(true);
+      const newsPromises = newsTopics.slice(0, 8).map(topic => generateNewsContent(topic));
+      const newArticles = await Promise.all(newsPromises);
+      setArticles(newArticles.sort((a, b) => b.significance - a.significance));
+      setLoading(false);
+    };
+
+    initialLoad();
+    const interval = setInterval(streamNews, 5000); // Stream in new article every 5 seconds
     return () => clearInterval(interval);
-  }, [loadNews]);
+  }, [generateNewsContent, streamNews]);
 
   const filteredArticles = articles.filter(article => {
     if (searchQuery) {

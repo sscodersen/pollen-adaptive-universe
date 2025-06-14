@@ -16,6 +16,7 @@ interface ContentItem {
   description: string;
   type: 'video' | 'audio' | 'story' | 'game' | 'music' | 'interactive';
   content: string;
+  videoUrl?: string;
   duration: string;
   category: string;
   tags: string[];
@@ -72,6 +73,7 @@ export const EntertainmentHub = ({ isGenerating = false }: EntertainmentHubProps
         type: 'video' as const,
         title: 'Future Cities Visualization',
         description: 'AI-generated exploration of sustainable urban environments in 2050.',
+        videoUrl: 'https://www.youtube.com/embed/UwsrzCVZAb8',
         content: `🎬 AI-Generated Video: "Cities of Tomorrow"\n\nThis visualization was created using advanced AI models trained on architectural data, urban planning principles, and environmental science research.\n\nVideo Description:\nA journey through hypothetical cities of 2050, showcasing:\n- Vertical farms integrated into skyscrapers\n- Autonomous transportation networks\n- Carbon-negative building materials\n- Community spaces designed for human connection\n\nThe AI considered factors like population density, climate adaptation, renewable energy integration, and social equity to generate these urban visions.\n\n[Video player interface would be embedded here with 4K playback]\n\nTechnical Details:\n- Generated using neural rendering techniques\n- 4K resolution with realistic lighting\n- Physics-based environmental simulations\n- Culturally diverse architectural styles`,
         category: 'Future Concepts',
         tags: ['ai-video', 'futurism', 'sustainability', 'viral'],
@@ -109,6 +111,7 @@ export const EntertainmentHub = ({ isGenerating = false }: EntertainmentHubProps
         description: template.description,
         type: template.type,
         content: template.content,
+        videoUrl: (template as any).videoUrl,
         duration: template.duration,
         category: template.category,
         tags: template.tags,
@@ -160,6 +163,7 @@ export const EntertainmentHub = ({ isGenerating = false }: EntertainmentHubProps
         description: `AI-generated content based on your prompt: "${userPrompt}"`,
         type: 'interactive',
         content: response.content,
+        videoUrl: null,
         duration: 'Variable',
         category: 'Custom Generated',
         tags: ['custom', 'ai-generated', 'prompt-based', 'new'],
@@ -197,7 +201,7 @@ export const EntertainmentHub = ({ isGenerating = false }: EntertainmentHubProps
   }
 
   return (
-    <div className="flex-1 bg-gray-950">
+    <div className="flex-1 bg-gray-950 h-full flex flex-col">
       {/* Header */}
       <div className="sticky top-0 z-10 bg-gray-900/95 backdrop-blur-sm border-b border-gray-800/50">
         <div className="p-6">
@@ -267,7 +271,7 @@ export const EntertainmentHub = ({ isGenerating = false }: EntertainmentHubProps
       </div>
 
       {/* Content Grid */}
-      <div className="p-6">
+      <div className="p-6 overflow-y-auto">
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[...Array(6)].map((_, i) => (
