@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
-import { BarChart3, TrendingUp, Users, Eye, Heart, MessageCircle, Zap, Globe } from 'lucide-react';
+import { BarChart3, TrendingUp, Users, Eye, Heart, MessageCircle, Zap, Globe, Cpu, Sparkles, History } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from 'recharts';
 
 interface AnalyticsData {
@@ -12,6 +11,12 @@ interface AnalyticsData {
     totalEngagement: number;
     activeUsers: number;
     contentGenerated: number;
+  };
+  modelInsights: {
+    modelConfidence: number;
+    learningRate: number;
+    dailyAdaptations: number;
+    reasoningTasks: number;
   };
 }
 
@@ -52,7 +57,14 @@ export const AnalyticsDashboard = () => {
       contentGenerated: 5672
     };
 
-    setAnalyticsData({ engagement, contentTypes, userActivity, performance });
+    const modelInsights = {
+      modelConfidence: 0.964,
+      learningRate: 0.0015,
+      dailyAdaptations: 42,
+      reasoningTasks: 1823,
+    };
+
+    setAnalyticsData({ engagement, contentTypes, userActivity, performance, modelInsights });
   };
 
   if (!analyticsData) {
@@ -234,6 +246,52 @@ export const AnalyticsDashboard = () => {
             <Bar dataKey="new" fill="#10B981" radius={[4, 4, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
+      </div>
+
+      {/* AI Model Insights */}
+      <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
+        <h3 className="text-lg font-semibold text-white mb-4 flex items-center space-x-2">
+          <Cpu className="w-5 h-5 text-purple-400" />
+          <span>AI Model Insights</span>
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-700/50">
+            <div className="flex items-center space-x-3">
+              <TrendingUp className="w-7 h-7 text-cyan-400" />
+              <div>
+                <p className="text-sm text-gray-400">Model Confidence</p>
+                <p className="text-2xl font-bold text-white">{(analyticsData.modelInsights.modelConfidence * 100).toFixed(1)}%</p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-700/50">
+            <div className="flex items-center space-x-3">
+              <Sparkles className="w-7 h-7 text-yellow-400" />
+              <div>
+                <p className="text-sm text-gray-400">Learning Rate</p>
+                <p className="text-2xl font-bold text-white">{analyticsData.modelInsights.learningRate}</p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-700/50">
+            <div className="flex items-center space-x-3">
+              <History className="w-7 h-7 text-green-400" />
+              <div>
+                <p className="text-sm text-gray-400">Daily Adaptations</p>
+                <p className="text-2xl font-bold text-white">{analyticsData.modelInsights.dailyAdaptations}</p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-700/50">
+            <div className="flex items-center space-x-3">
+              <Zap className="w-7 h-7 text-red-400" />
+              <div>
+                <p className="text-sm text-gray-400">Reasoning Tasks</p>
+                <p className="text-2xl font-bold text-white">{analyticsData.modelInsights.reasoningTasks.toLocaleString()}</p>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
