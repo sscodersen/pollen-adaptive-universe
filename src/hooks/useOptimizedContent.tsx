@@ -10,6 +10,8 @@ interface ContentItem {
   category: string;
   significance: number;
   timestamp: number;
+  videoUrl?: string;
+  image?: string;
 }
 
 export const useOptimizedContent = (category: string, limit: number = 20) => {
@@ -36,7 +38,9 @@ export const useOptimizedContent = (category: string, limit: number = 20) => {
         content: item.content,
         category: item.category,
         significance: item.significance,
-        timestamp: item.timestamp
+        timestamp: item.timestamp,
+        videoUrl: item.videoUrl,
+        image: item.image
       }));
 
       setContent(mappedContent);
@@ -60,7 +64,7 @@ export const useOptimizedContent = (category: string, limit: number = 20) => {
 
   useEffect(() => {
     loadContent();
-    const interval = setInterval(loadContent, 60000); // Every minute
+    const interval = setInterval(loadContent, 30000); // Every 30 seconds
     return () => clearInterval(interval);
   }, [loadContent]);
 

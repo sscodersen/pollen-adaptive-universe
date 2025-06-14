@@ -14,6 +14,7 @@ export interface WebContent {
   price?: number;
   rating?: number;
   image?: string;
+  videoUrl?: string;
 }
 
 class ContentCuratorService {
@@ -68,16 +69,20 @@ class ContentCuratorService {
     for (let i = 0; i < count; i++) {
       const source = sources[Math.floor(Math.random() * sources.length)];
       
-      // Generate content using Pollen AI
+      const isVideo = category === 'entertainment' && Math.random() > 0.5;
+      const promptType = isVideo ? 'a cinematic trailer' : 'an engaging content piece';
+
       const response = await pollenAI.generate(
-        `Generate high-impact ${category} content for ${source.name}`,
+        `Generate a high-impact description for ${promptType} about a trending topic for ${source.name}`,
         category,
-        false // Don't filter yet, we'll do it after
+        false
       );
+      
+      const title = this.generateTitleForCategory(category, isVideo);
 
       const item: WebContent = {
         id: `${category}-${Date.now()}-${i}`,
-        title: this.generateTitleForCategory(category),
+        title: title,
         url: this.generateUrlForSource(source),
         description: response.content.slice(0, 200) + '...',
         content: response.content,
@@ -88,6 +93,13 @@ class ContentCuratorService {
         ...(category === 'shop' && {
           price: Math.floor(Math.random() * 500) + 10,
           rating: Math.random() * 2 + 3,
+          image: `https://picsum.photos/400/300?random=${i}`
+        }),
+        ...(isVideo && {
+          videoUrl: `https://www.youtube.com/embed/${['dQw4w9WgXcQ', '3_lAb8m9MpI', 'QH2-TGUlwu4'][i % 3]}`,
+          image: `https://i.ytimg.com/vi/${['dQw4w9WgXcQ', '3_lAb8m9MpI', 'QH2-TGUlwu4'][i % 3]}/hqdefault.jpg`
+        }),
+        ...(!isVideo && category === 'entertainment' && {
           image: `https://picsum.photos/400/300?random=${i}`
         })
       };
@@ -129,7 +141,7 @@ class ContentCuratorService {
     return sources[category];
   }
 
-  private generateTitleForCategory(category: 'news' | 'shop' | 'entertainment'): string {
+  private generateTitleForCategory(category: 'news' | 'shop' | 'entertainment', isVideo: boolean = false): string {
     const titles = {
       news: [
         'AI Breakthrough Set to Revolutionize Global Manufacturing',
@@ -160,10 +172,18 @@ class ContentCuratorService {
         '"The Oracle": An Interactive Storytelling Platform with AI GM',
         'AI-Generated "Dreamscape" Music for Adaptive Focus',
         'Procedurally Generated Art Installation "Polymorph"'
+      ],
+      video: [
+        'Official Trailer: "Aetheria"',
+        'First Look: "Galactic Imperium" Gameplay',
+        'Behind the Scenes of "NeuroLearn"',
+        '"The Oracle" - A New Interactive Film Experience',
+        'Teaser: "Polymorph" Visuals',
+        'Developer Diary: Building "Chrono Weaver"'
       ]
     };
 
-    const categoryTitles = titles[category];
+    const categoryTitles = isVideo ? titles.video : titles[category];
     return categoryTitles[Math.floor(Math.random() * categoryTitles.length)];
   }
 

@@ -1,23 +1,46 @@
 
 import React, { useState, useEffect } from 'react';
-import { BrainCircuit, TrendingUp, CheckCircle, Percent, BarChart } from 'lucide-react';
+import { BrainCircuit, TrendingUp, CheckCircle, Percent, Zap } from 'lucide-react';
 import { pollenAI, type CoreStats } from '../services/pollenAI';
 import { LoadingSpinner } from './optimized/LoadingSpinner';
+import {
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  CartesianGrid
+} from 'recharts';
 
-const StatCard = ({ icon: Icon, title, value, unit, colorClass }) => (
-  <div className="bg-gray-900/50 rounded-lg p-4 flex items-center space-x-4 border border-gray-800/50">
-    <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${colorClass}`}>
-      <Icon className="w-5 h-5 text-white" />
-    </div>
+
+const StatCard = ({ icon: Icon, title, value, unit, colorClass, description }) => (
+  <div className={`bg-gray-900/50 rounded-xl p-5 flex flex-col justify-between border-l-4 ${colorClass}`}>
     <div>
-      <p className="text-sm text-gray-400">{title}</p>
-      <p className="text-xl font-bold text-white">
+      <div className="flex items-center space-x-3 mb-2">
+        <Icon className="w-5 h-5 text-gray-300" />
+        <p className="text-sm text-gray-400">{title}</p>
+      </div>
+      <p className="text-3xl font-bold text-white">
         {value}
-        <span className="text-sm font-normal text-gray-400 ml-1">{unit}</span>
+        <span className="text-lg font-normal text-gray-400 ml-1">{unit}</span>
       </p>
     </div>
+    <p className="text-xs text-gray-500 mt-3">{description}</p>
   </div>
 );
+
+const CustomTooltip = ({ active, payload, label }) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-gray-950/80 backdrop-blur-sm p-2 border border-gray-700 rounded-md shadow-lg">
+        <p className="label text-white font-bold">{`${label.charAt(0).toUpperCase() + label.slice(1)}`}</p>
+        <p className="intro text-cyan-400">{`Tasks: ${payload[0].value}`}</p>
+      </div>
+    );
+  }
+  return null;
+};
 
 export const AiCoreStats = () => {
   const [stats, setStats] = useState<CoreStats | null>(null);
@@ -25,14 +48,16 @@ export const AiCoreStats = () => {
 
   useEffect(() => {
     const fetchStats = async () => {
-      setLoading(true);
+      // Don't set loading to true on interval fetches to avoid flicker
       const coreStats = await pollenAI.getCoreStats();
-      setStats(coreStats);
+      if (coreStats) {
+        setStats(coreStats);
+      }
       setLoading(false);
     };
 
     fetchStats();
-    const interval = setInterval(fetchStats, 15000); // Refresh every 15 seconds
+    const interval = setInterval(fetchStats, 5000); // Refresh every 5 seconds for more "real-time" feel
 
     return () => clearInterval(interval);
   }, []);
@@ -55,11 +80,16 @@ export const AiCoreStats = () => {
       </div>
     );
   }
+  
+  const chartData = stats ? Object.entries(stats.task_types_distribution).map(([name, value]) => ({
+    name,
+    tasks: value,
+  })) : [];
 
   return (
-    <div className="bg-gray-950/50 backdrop-blur-xl rounded-xl border border-gray-800/60 p-6">
+    <div className="bg-gray-950/50 backdrop-blur-xl rounded-xl border border-gray-800/60 p-6 h-full flex flex-col">
       <div className="flex items-center space-x-4 mb-6">
-        <div className="w-12 h-12 bg-gradient-to-br from-cyan-500 to-purple-500 rounded-xl flex items-center justify-center shadow-lg">
+        <div className="w-12 h-12 bg-gradient-to-br from-cyan-500 to-purple-500 rounded-xl flex items-center justify-center shadow-lg animate-pulse">
           <BrainCircuit className="w-6 h-6 text-white" />
         </div>
         <div>
@@ -68,27 +98,59 @@ export const AiCoreStats = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-        <StatCard icon={BarChart} title="Total Reasoning Tasks" value={stats.total_tasks} unit="tasks" colorClass="bg-cyan-500/80" />
-        <StatCard icon={CheckCircle} title="Success Rate" value={(stats.success_rate * 100).toFixed(1)} unit="%" colorClass="bg-green-500/80" />
-        <StatCard icon={TrendingUp} title="Recent Performance" value={(stats.recent_performance * 100).toFixed(1)} unit="%" colorClass="bg-purple-500/80" />
-        <StatCard icon={Percent} title="Average Reward" value={stats.average_reward.toFixed(3)} unit="reward" colorClass="bg-yellow-500/80" />
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <StatCard 
+          icon={Zap} 
+          title="Total Tasks" 
+          value={stats.total_tasks.toLocaleString()} 
+          unit="" 
+          colorClass="border-cyan-500"
+          description="Total reasoning cycles executed."
+        />
+        <StatCard 
+          icon={CheckCircle} 
+          title="Success Rate" 
+          value={(stats.success_rate * 100).toFixed(1)} 
+          unit="%" 
+          colorClass="border-green-500"
+          description="Percentage of tasks solved correctly."
+        />
+        <StatCard 
+          icon={TrendingUp} 
+          title="Performance" 
+          value={(stats.recent_performance * 100).toFixed(1)} 
+          unit="%" 
+          colorClass="border-purple-500"
+          description="Success rate over last 100 tasks."
+        />
+        <StatCard 
+          icon={Percent} 
+          title="Average Reward" 
+          value={stats.average_reward.toFixed(3)} 
+          unit="" 
+          colorClass="border-yellow-500"
+          description="Average learning gain per task."
+        />
       </div>
 
-      <div>
+      <div className="flex-grow">
         <h4 className="text-lg font-semibold text-white mb-3">Task Type Distribution</h4>
-        <div className="space-y-3">
-          {Object.entries(stats.task_types_distribution).map(([type, count]) => (
-            <div key={type}>
-              <div className="flex justify-between mb-1">
-                <span className="text-sm font-medium text-gray-300 capitalize">{type}</span>
-                <span className="text-sm text-gray-400">{count} tasks</span>
-              </div>
-              <div className="w-full bg-gray-800/50 rounded-full h-2.5">
-                <div className="bg-gradient-to-r from-cyan-400 to-purple-400 h-2.5 rounded-full" style={{ width: `${(count / Math.max(stats.total_tasks, 1)) * 100}%` }}></div>
-              </div>
-            </div>
-          ))}
+        <div className="w-full h-64">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={chartData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
+              <defs>
+                <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#22d3ee" stopOpacity={0.8}/>
+                    <stop offset="95%" stopColor="#a855f7" stopOpacity={0.5}/>
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" strokeOpacity={0.1} />
+              <XAxis dataKey="name" tick={{ fill: '#9ca3af' }} tickLine={{ stroke: '#4b5563' }} />
+              <YAxis tick={{ fill: '#9ca3af' }} tickLine={{ stroke: '#4b5563' }} />
+              <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(107, 114, 128, 0.1)' }}/>
+              <Bar dataKey="tasks" fill="url(#colorUv)" />
+            </BarChart>
+          </ResponsiveContainer>
         </div>
       </div>
     </div>
