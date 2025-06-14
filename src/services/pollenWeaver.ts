@@ -75,19 +75,21 @@ class PollenWeaverService {
     const sources = this.getSourcesForCategory(category);
     const content: ScrapedContent[] = [];
 
-    for (let i = 0; i < count; i++) {
+    // Get a mutable, shuffled copy of templates to ensure variety and no duplicates
+    const templates = [...this.getContentTemplates(category)].sort(() => Math.random() - 0.5);
+
+    const templatesToUse = templates.slice(0, count);
+
+    for (let i = 0; i < templatesToUse.length; i++) {
       const source = sources[Math.floor(Math.random() * sources.length)];
-      const item = await this.generateScrapedItem(category, source, i);
+      const item = await this.generateScrapedItem(category, source, i, templatesToUse[i]);
       content.push(item);
     }
 
     return content;
   }
 
-  private async generateScrapedItem(category: 'news' | 'shop' | 'entertainment', source: any, index: number): Promise<ScrapedContent> {
-    const templates = this.getContentTemplates(category);
-    const template = templates[Math.floor(Math.random() * templates.length)];
-
+  private async generateScrapedItem(category: 'news' | 'shop' | 'entertainment', source: any, index: number, template: any): Promise<ScrapedContent> {
     const metadata: any = {
         author: template.author,
         publishDate: new Date(Date.now() - Math.random() * 86400000).toISOString(),
