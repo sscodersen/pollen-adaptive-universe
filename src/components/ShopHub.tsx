@@ -1,7 +1,7 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
-import { ShoppingBag, ExternalLink, Star, TrendingUp, Award, Filter, Search, Tag, Heart, Share2, RefreshCw } from 'lucide-react';
+import { ShoppingBag, ExternalLink, Star, TrendingUp, Search, Tag, Heart, Share2, RefreshCw } from 'lucide-react';
 import { significanceAlgorithm } from '../services/significanceAlgorithm';
+import { webScrapingService, ScrapedContent } from '../services/webScrapingService';
 
 interface ShopHubProps {
   isGenerating?: boolean;
@@ -37,131 +37,41 @@ export const ShopHub = ({ isGenerating = false }: ShopHubProps) => {
     'Fashion', 'Home Goods', 'Wellness', 'Eco-Friendly', 'Health Tech'
   ];
 
-  const generateProducts = useCallback(async () => {
-    const productTemplates = [
-      {
-        name: 'Allbirds Wool Runners',
-        description: 'Sustainable and comfortable everyday sneakers made from merino wool and recycled materials.',
-        price: '$95.00',
-        category: 'Fashion',
-        tags: ['Sustainable', 'Footwear', 'Comfort'],
-        seller: 'Allbirds',
-        link: 'https://www.allbirds.com/products/womens-wool-runners',
-        features: ['Merino Wool Upper', 'SweetFoam™ midsole', 'Machine washable', 'Carbon neutral'],
-        discount: 0
-      },
-      {
-        name: 'Click & Grow Smart Garden 3',
-        description: 'An innovative indoor garden that cares for itself. Grow fresh, flavourful herbs, fruits or vegetables in your home.',
-        price: '$99.95',
-        category: 'Home Goods',
-        tags: ['Gardening', 'Smart Home', 'Wellness'],
-        seller: 'Click & Grow',
-        link: 'https://www.clickandgrow.com/products/the-smart-garden-3',
-        features: ['Automated watering', 'Perfect amount of light', 'Nutrient-rich soil', '3 complimentary plant pods'],
-        discount: 0
-      },
-      {
-        name: 'Fellow Stagg EKG Electric Kettle',
-        description: 'A beautifully designed electric kettle for the perfect pour-over coffee. Variable temperature control and a precision spout.',
-        price: '$165.00',
-        originalPrice: '$195.00',
-        category: 'Home Goods',
-        tags: ['Coffee', 'Kitchen', 'Design'],
-        seller: 'Fellow',
-        link: 'https://fellowproducts.com/products/stagg-ekg-electric-pour-over-kettle',
-        features: ['Variable temperature control', 'LCD screen', '60-minute hold mode', 'Precision pour spout'],
-        discount: 15
-      },
-      {
-        name: 'Patagonia Nano Puff Jacket',
-        description: 'Warm, windproof, water-resistant—the Nano Puff® Jacket uses incredibly lightweight and highly compressible 60-g PrimaLoft® Gold Insulation Eco.',
-        price: '$239.00',
-        category: 'Fashion',
-        tags: ['Outdoor', 'Sustainable', 'Recycled'],
-        seller: 'Patagonia',
-        link: 'https://www.patagonia.com/product/mens-nano-puff-jacket/84212.html',
-        features: ['100% recycled polyester shell', 'PrimaLoft® Gold Insulation', 'P.U.R.E.™ technology', 'Fair Trade Certified™ sewn'],
-        discount: 0
-      },
-      {
-        name: 'Theragun Mini',
-        description: 'A portable, powerful percussive therapy device. Compact but powerful, the Theragun mini is the most agile massage device that goes wherever you do.',
-        price: '$199.00',
-        category: 'Wellness',
-        tags: ['Fitness', 'Recovery', 'Health'],
-        seller: 'Therabody',
-        link: 'https://www.therabody.com/us/en-us/mini-us.html',
-        features: ['QuietForce Technology', '3 Speed Settings', '150-minute battery life', 'Ergonomic grip'],
-        discount: 0
-      },
-      {
-        name: 'Blueland The Clean Essentials Kit',
-        description: 'A revolutionary way to clean your home without plastic waste. Reusable bottles and tablet refills for hand soap, multi-surface cleaner, and more.',
-        price: '$39.00',
-        category: 'Eco-Friendly',
-        tags: ['Sustainable', 'Cleaning', 'Zero Waste'],
-        seller: 'Blueland',
-        link: 'https://www.blueland.com/products/the-clean-essentials',
-        features: ['Reduces plastic waste', 'Non-toxic formulas', 'Reusable bottles', 'Compostable packaging'],
-        discount: 0
-      },
-      {
-        name: 'Oura Ring Gen3',
-        description: 'A smart ring that tracks your sleep, activity, recovery, temperature, heart rate, stress, and more.',
-        price: '$299.00',
-        category: 'Health Tech',
-        tags: ['Wearable', 'Health', 'Sleep Tracking'],
-        seller: 'Oura',
-        link: 'https://ouraring.com/',
-        features: ['24/7 heart rate monitoring', 'Advanced sleep analysis', 'Readiness score', '7-day battery life'],
-        discount: 0
-      },
-      {
-        name: 'LARQ Bottle PureVis™',
-        description: 'The world’s first self-cleaning water bottle and water purification system. It uses PureVis technology to eliminate up to 99% of bio-contaminants.',
-        price: '$99.00',
-        category: 'Wellness',
-        tags: ['Health', 'Outdoors', 'Tech', 'Sustainable'],
-        seller: 'LARQ',
-        link: 'https://www.livelarq.com/product/larq-bottle-purevis',
-        features: ['Self-cleaning mode', 'Eliminates bacteria & viruses', 'Keeps water cold for 24 hours', 'USB rechargeable'],
-        discount: 0
-      }
-    ];
+  const loadProducts = useCallback(async () => {
+    setLoading(true);
+    const scrapedProducts = await webScrapingService.scrapeContent('shop', 40);
 
-    const products = productTemplates.map((template, index) => {
-      const scored = significanceAlgorithm.scoreContent(template.description, 'shop', 'Market Analysis');
-      
+    const newProducts = scrapedProducts.map((scraped): Product => {
+      const metadata = scraped.metadata as any;
+      const priceNum = metadata.price || 0;
+      const originalPriceNum = metadata.originalPrice;
+      const discountNum = metadata.discount || 0;
+
+      const scored = significanceAlgorithm.scoreContent(scraped.content, 'shop', 'Market Analysis');
+
       return {
-        id: (Date.now() + index).toString(),
-        name: template.name,
-        description: template.description,
-        price: template.price,
-        originalPrice: template.originalPrice,
-        rating: Math.random() * 1.5 + 3.5,
+        id: scraped.id,
+        name: scraped.title,
+        description: scraped.description,
+        price: `$${priceNum.toFixed(2)}`,
+        originalPrice: originalPriceNum ? `$${originalPriceNum.toFixed(2)}` : undefined,
+        rating: metadata.rating || (Math.random() * 1.5 + 3.5),
         reviews: Math.floor(Math.random() * 5000) + 100,
-        category: template.category,
-        tags: template.tags,
+        category: metadata.productCategory || 'General',
+        tags: scraped.metadata?.tags || [],
         significance: scored.significanceScore,
-        trending: scored.significanceScore > 7.5 || (template.discount && template.discount > 30),
-        link: template.link,
-        seller: template.seller,
-        discount: template.discount,
-        features: template.features,
-        inStock: Math.random() > 0.05
+        trending: scored.significanceScore > 7.5 || discountNum > 10,
+        link: metadata.link || scraped.url,
+        seller: metadata.author || scraped.source,
+        discount: discountNum,
+        features: metadata.features || [],
+        inStock: Math.random() > 0.05,
       };
     });
 
-    return products;
-  }, []);
-
-  const loadProducts = useCallback(async () => {
-    setLoading(true);
-    const newProducts = await generateProducts();
     setProducts(newProducts.sort((a, b) => b.significance - a.significance));
     setLoading(false);
-  }, [generateProducts]);
+  }, []);
 
   useEffect(() => {
     loadProducts();
@@ -295,7 +205,7 @@ export const ShopHub = ({ isGenerating = false }: ShopHubProps) => {
 
       {/* Products Grid */}
       <div className="p-6">
-        {loading ? (
+        {loading && products.length === 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[...Array(9)].map((_, i) => (
               <div key={i} className="bg-gray-900/50 rounded-xl p-6 border border-gray-800/50 animate-pulse">
