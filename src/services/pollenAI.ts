@@ -284,7 +284,6 @@ class PollenAIService {
 
   async getRankedProducts(): Promise<Product[]> {
     try {
-      console.log("Fetching ranked products...");
       const response = await fetch(`${this.baseUrl}/generate`, {
         method: 'POST',
         headers: {
@@ -297,19 +296,14 @@ class PollenAIService {
       });
 
       if (!response.ok) {
-        console.error("getRankedProducts response not ok:", response);
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       const data = await response.json();
-      console.log("getRankedProducts data received:", data);
       if (data.content) {
         // The content from the backend is a JSON string of products.
-        const products = JSON.parse(data.content);
-        console.log("Parsed products:", products);
-        return products;
+        return JSON.parse(data.content);
       }
-      console.warn("No content in data, returning empty array.");
       return [];
     } catch (error) {
       console.error('Pollen AI getRankedProducts error:', error);

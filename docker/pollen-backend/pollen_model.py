@@ -301,16 +301,17 @@ class PollenLLMX(nn.Module):
         return "Error generating entertainment content." # Fallback
         
     def _generate_shop_response(self, prompt, memory_patterns, confidence):
-        shuffled_templates = random.sample(PRODUCT_CATALOG, len(PRODUCT_CATALOG))
-        
-        new_products = []
-        for index, template in enumerate(shuffled_templates):
+        products = []
+        for index, template in enumerate(PRODUCT_CATALOG):
             metadata = template.get("metadata", {})
             price_num = metadata.get("price", 0)
             original_price_num = metadata.get("originalPrice")
             discount_num = metadata.get("discount", 0)
 
-            significance_score = round(random.uniform(5.0, 9.5), 2)
+            # Use deterministic values for stability
+            significance_score = round(7.5 + (index % 10) * 0.2, 2)
+            rating = metadata.get("rating") or round(4.0 + (index % 10) / 10, 1)
+            reviews = 100 + index * 50
 
             product = {
                 "id": f"{template['title'].replace(' ', '-')}-{index}",
@@ -318,23 +319,23 @@ class PollenLLMX(nn.Module):
                 "description": template['description'],
                 "price": f"${price_num:.2f}",
                 "originalPrice": f"${original_price_num:.2f}" if original_price_num else None,
-                "rating": metadata.get("rating") or round(random.uniform(3.5, 5.0), 1),
-                "reviews": math.floor(random.random() * 5000) + 100,
+                "rating": rating,
+                "reviews": reviews,
                 "category": metadata.get("productCategory", "General"),
                 "tags": template.get("tags", []),
                 "significance": significance_score,
-                "trending": significance_score > 7.5 or discount_num > 10,
+                "trending": significance_score > 8.5 or discount_num > 0,
                 "link": metadata.get("link", "#"),
                 "seller": template.get("author", "Mock Seller"),
                 "discount": discount_num,
                 "features": metadata.get("features", []),
-                "inStock": random.random() > 0.05,
+                "inStock": True,  # Ensure all products are in stock
             }
-            new_products.append(product)
+            products.append(product)
 
-        new_products.sort(key=lambda p: p['significance'], reverse=True)
+        products.sort(key=lambda p: p['significance'], reverse=True)
 
-        return json.dumps(new_products)
+        return json.dumps(products)
     
     def save(self, path: str):
         """Save model state including Adaptive Intelligence"""
