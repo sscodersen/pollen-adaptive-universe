@@ -18,10 +18,6 @@ export interface ScrapedContent {
     price?: number;
     rating?: number;
     image?: string;
-    brand?: string;
-    retailer?: string;
-    inStock?: boolean;
-    discount?: number;
   };
 }
 
@@ -41,6 +37,7 @@ class WebScrapingService {
     }
 
     try {
+      // In production, this would call actual scraping APIs
       const scrapedData = await this.performScraping(category, limit * 2);
       
       // Score content for significance
@@ -55,6 +52,7 @@ class WebScrapingService {
         .sort((a, b) => b.significance - a.significance)
         .slice(0, limit);
 
+      // Cache results
       this.cache.set(cacheKey, highQualityContent);
       this.lastScrape.set(cacheKey, now);
 
@@ -66,6 +64,7 @@ class WebScrapingService {
   }
 
   private async performScraping(category: 'news' | 'shop' | 'entertainment', count: number): Promise<ScrapedContent[]> {
+    // Simulate real web scraping with high-quality content
     const sources = this.getSourcesForCategory(category);
     const content: ScrapedContent[] = [];
 
@@ -85,7 +84,7 @@ class WebScrapingService {
     return {
       id: `${category}-${Date.now()}-${index}`,
       title: template.title,
-      url: template.url || `https://${source.domain}/${template.path}/${Math.random().toString(36).substring(7)}`,
+      url: `https://${source.domain}/${template.path}/${Math.random().toString(36).substring(7)}`,
       description: template.description,
       content: template.content,
       source: source.name,
@@ -97,13 +96,9 @@ class WebScrapingService {
         publishDate: new Date(Date.now() - Math.random() * 86400000).toISOString(),
         tags: template.tags,
         ...(category === 'shop' && {
-          price: template.price || Math.floor(Math.random() * 1000) + 50,
-          rating: template.rating || Math.random() * 2 + 3,
-          image: template.image || `https://picsum.photos/400/300?random=${index}`,
-          brand: template.brand,
-          retailer: source.name,
-          inStock: Math.random() > 0.1,
-          discount: Math.random() > 0.7 ? Math.floor(Math.random() * 30) + 10 : 0
+          price: Math.floor(Math.random() * 1000) + 50,
+          rating: Math.random() * 2 + 3,
+          image: `https://picsum.photos/400/300?random=${index}`
         })
       }
     };
@@ -117,9 +112,7 @@ class WebScrapingService {
         { name: 'MIT Technology Review', domain: 'technologyreview.com' },
         { name: 'IEEE Spectrum', domain: 'spectrum.ieee.org' },
         { name: 'Nature', domain: 'nature.com' },
-        { name: 'Science Daily', domain: 'sciencedaily.com' },
-        { name: 'The Verge', domain: 'theverge.com' },
-        { name: 'ArXiv', domain: 'arxiv.org' }
+        { name: 'Science Daily', domain: 'sciencedaily.com' }
       ],
       shop: [
         { name: 'Amazon', domain: 'amazon.com' },
@@ -127,9 +120,7 @@ class WebScrapingService {
         { name: 'Best Buy', domain: 'bestbuy.com' },
         { name: 'B&H Photo', domain: 'bhphotovideo.com' },
         { name: 'Micro Center', domain: 'microcenter.com' },
-        { name: 'Apple', domain: 'apple.com' },
-        { name: 'NVIDIA', domain: 'nvidia.com' },
-        { name: 'Corsair', domain: 'corsair.com' }
+        { name: 'NewEgg Business', domain: 'neweggbusiness.com' }
       ],
       entertainment: [
         { name: 'Steam', domain: 'steampowered.com' },
@@ -137,9 +128,7 @@ class WebScrapingService {
         { name: 'Spotify', domain: 'spotify.com' },
         { name: 'Netflix', domain: 'netflix.com' },
         { name: 'YouTube', domain: 'youtube.com' },
-        { name: 'Twitch', domain: 'twitch.tv' },
-        { name: 'Discord', domain: 'discord.com' },
-        { name: 'Reddit', domain: 'reddit.com' }
+        { name: 'Twitch', domain: 'twitch.tv' }
       ]
     };
 
@@ -164,68 +153,24 @@ class WebScrapingService {
           author: 'Michael Rodriguez',
           tags: ['Quantum Computing', 'Technology', 'Innovation', 'Science'],
           path: 'tech'
-        },
-        {
-          title: 'Large Language Models Show Emergent Reasoning Capabilities',
-          description: 'New research reveals unexpected problem-solving abilities in AI systems',
-          content: 'Recent studies demonstrate that large language models exhibit emergent reasoning capabilities not explicitly programmed. These findings suggest AI systems may develop complex cognitive abilities through scale and training.',
-          author: 'Dr. Emily Watson',
-          tags: ['AI', 'Research', 'Machine Learning', 'Cognition'],
-          path: 'research'
         }
       ],
       shop: [
         {
-          title: 'NVIDIA RTX 4090 Ti - Professional AI Workstation GPU',
-          description: 'Ultimate GPU for AI development, machine learning, and high-performance computing',
-          content: 'The most powerful graphics card for AI researchers and developers. Features 24GB GDDR6X memory, 16,384 CUDA cores, and optimized AI acceleration.',
-          author: 'NVIDIA',
-          tags: ['GPU', 'AI Hardware', 'Workstation', 'NVIDIA'],
-          path: 'product',
-          url: 'https://www.nvidia.com/en-us/geforce/graphics-cards/40-series/rtx-4090/',
-          price: 1599,
-          rating: 4.8,
-          brand: 'NVIDIA',
-          image: 'https://images.unsplash.com/photo-1591488320449-011701bb6704?w=400&h=300&fit=crop'
+          title: 'Professional AI Development Workstation - RTX 4090 Setup',
+          description: 'Complete AI/ML development setup with cutting-edge GPU and optimized cooling',
+          content: 'Pre-configured workstation designed specifically for AI development and machine learning tasks. Features RTX 4090 GPU, 128GB RAM, and optimized cooling system for sustained high-performance computing.',
+          author: 'TechPro Solutions',
+          tags: ['AI Hardware', 'Workstation', 'GPU', 'Development'],
+          path: 'product'
         },
         {
-          title: 'Apple MacBook Pro M3 Max - AI Development Machine',
-          description: 'Unified memory architecture perfect for machine learning workflows',
-          content: 'Latest MacBook Pro with M3 Max chip delivers exceptional performance for AI development. 128GB unified memory and optimized ML frameworks.',
-          author: 'Apple',
-          tags: ['Laptop', 'AI Development', 'Apple', 'M3'],
-          path: 'product',
-          url: 'https://www.apple.com/macbook-pro/',
-          price: 3999,
-          rating: 4.7,
-          brand: 'Apple',
-          image: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=400&h=300&fit=crop'
-        },
-        {
-          title: 'Corsair Dominator Platinum RGB 128GB DDR5-5600',
-          description: 'High-capacity memory kit for demanding AI workloads',
-          content: 'Professional-grade memory designed for AI training and inference. Ultra-fast DDR5-5600 speeds with RGB lighting.',
-          author: 'Corsair',
-          tags: ['Memory', 'DDR5', 'AI Hardware', 'RGB'],
-          path: 'product',
-          url: 'https://www.corsair.com/us/en/Categories/Products/Memory/DOMINATOR-PLATINUM-RGB-DDR5-Memory/p/CMT128GX5M4B5600C40',
-          price: 899,
-          rating: 4.6,
-          brand: 'Corsair',
-          image: 'https://images.unsplash.com/photo-1555617981-dac3880eac6e?w=400&h=300&fit=crop'
-        },
-        {
-          title: 'Intel Xeon W9-3495X - AI Training Processor',
-          description: '56-core workstation processor for parallel AI computations',
-          content: 'Flagship workstation processor with 56 cores and 112 threads. Optimized for AI training, scientific computing, and parallel workloads.',
-          author: 'Intel',
-          tags: ['CPU', 'Workstation', 'AI Training', 'Intel'],
-          path: 'product',
-          url: 'https://www.intel.com/content/www/us/en/products/processors/xeon/w-processors.html',
-          price: 5889,
-          rating: 4.5,
-          brand: 'Intel',
-          image: 'https://images.unsplash.com/photo-1555617981-dac3880eac6e?w=400&h=300&fit=crop'
+          title: 'Advanced Neural Network Training Software Suite',
+          description: 'Professional-grade ML training platform with visual workflow builder',
+          content: 'Comprehensive software suite for training and deploying neural networks. Includes visual workflow builder, automated hyperparameter tuning, and production deployment tools.',
+          author: 'AI Solutions Inc.',
+          tags: ['Software', 'AI Training', 'Machine Learning', 'Tools'],
+          path: 'software'
         }
       ],
       entertainment: [
@@ -244,14 +189,6 @@ class WebScrapingService {
           author: 'Virtual Worlds Studio',
           tags: ['Virtual Reality', 'Procedural', 'Gaming', 'Simulation'],
           path: 'game'
-        },
-        {
-          title: 'CodeCraft: AI Programming Companion Game',
-          description: 'Learn programming through gamified AI-assisted challenges',
-          content: 'Transform coding education with CodeCraft, where AI mentors guide you through programming challenges in a fantasy RPG setting. Level up your skills while building real applications.',
-          author: 'EduTech Games',
-          tags: ['Education', 'Programming', 'Gaming', 'AI'],
-          path: 'game'
         }
       ]
     };
@@ -260,36 +197,31 @@ class WebScrapingService {
   }
 
   async getTrendingKeywords(category?: 'news' | 'shop' | 'entertainment'): Promise<string[]> {
+    // In production, this would analyze scraped content for trending keywords
     const trending = {
       news: [
         'artificial intelligence breakthroughs',
         'quantum computing advances',
-        'machine learning research',
-        'neural network optimization',
-        'AI safety protocols',
-        'autonomous systems development',
-        'large language models',
-        'computer vision improvements'
+        'renewable energy innovation',
+        'biotechnology developments',
+        'space exploration missions',
+        'autonomous vehicle progress'
       ],
       shop: [
         'AI development hardware',
         'professional workstations',
-        'machine learning GPUs',
-        'high-capacity memory',
-        'workstation processors',
-        'AI training systems',
-        'development tools',
-        'cloud computing resources'
+        'machine learning software',
+        'automation tools',
+        'productivity suites',
+        'creative design platforms'
       ],
       entertainment: [
-        'AI-generated content',
-        'procedural entertainment',
-        'interactive experiences',
+        'interactive AI experiences',
+        'procedural content generation',
         'virtual reality platforms',
-        'generative gaming',
-        'AI music creation',
-        'adaptive storytelling',
-        'personalized media'
+        'AI-generated music',
+        'collaborative gaming',
+        'educational simulations'
       ]
     };
 
