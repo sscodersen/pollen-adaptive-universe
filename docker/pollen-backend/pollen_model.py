@@ -1,4 +1,3 @@
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -10,9 +9,9 @@ from typing import Dict, List, Optional, Any
 from datetime import datetime
 import numpy as np
 
-class AbsoluteZeroReasoner(nn.Module):
+class AdaptiveIntelligence(nn.Module):
     """
-    Absolute Zero Reasoner - Self-evolving reasoning engine
+    Adaptive Intelligence - Self-evolving reasoning engine
     
     Implements induction, deduction, and abduction reasoning types
     with continuous self-improvement through task generation and validation.
@@ -312,7 +311,7 @@ class AbsoluteZeroReasoner(nn.Module):
 
 class PollenLLMX(nn.Module):
     """
-    Pollen LLMX with Absolute Zero Reasoner integration
+    Pollen LLMX with Adaptive Intelligence integration
     """
     
     def __init__(self, vocab_size: int = 10000, embed_dim: int = 256, hidden_dim: int = 512):
@@ -321,7 +320,7 @@ class PollenLLMX(nn.Module):
         self.vocab_size = vocab_size
         self.embed_dim = embed_dim
         self.hidden_dim = hidden_dim
-        self.version = "2.0.0-AZR"
+        self.version = "2.1.0-AI"
         
         # Core neural architecture
         self.embedding = nn.Embedding(vocab_size, embed_dim)
@@ -336,8 +335,8 @@ class PollenLLMX(nn.Module):
             num_layers=6
         )
         
-        # Absolute Zero Reasoner integration
-        self.reasoner = AbsoluteZeroReasoner(embed_dim)
+        # Adaptive Intelligence integration
+        self.reasoner = AdaptiveIntelligence(embed_dim)
         
         # Mode adapters
         self.mode_adapters = nn.ModuleDict({
@@ -374,7 +373,7 @@ class PollenLLMX(nn.Module):
             while self.reasoning_active:
                 try:
                     task, solution, reward = self.reasoner.continuous_self_improvement()
-                    print(f"🧠 AZR: {task['type']} task completed, reward: {reward:.3f}")
+                    print(f"🧠 Adaptive Intelligence: {task['type']} task completed, reward: {reward:.3f}")
                     await asyncio.sleep(30)  # Run every 30 seconds
                 except Exception as e:
                     print(f"Reasoning loop error: {e}")
@@ -392,7 +391,7 @@ class PollenLLMX(nn.Module):
         user_session: str = 'default',
         max_length: int = 512
     ) -> Dict[str, Any]:
-        """Generate response using AZR-enhanced reasoning"""
+        """Generate response using Adaptive Intelligence-enhanced reasoning"""
         
         try:
             # Tokenize input
@@ -406,11 +405,11 @@ class PollenLLMX(nn.Module):
                 outputs = self.forward(input_tensor, mode=mode)
                 confidence = outputs['confidence'].item()
                 
-                # Get reasoning context from AZR
+                # Get reasoning context from Adaptive Intelligence
                 reasoning_stats = self.reasoner.get_reasoning_stats()
                 
                 # Generate reasoning-enhanced response
-                response_content = self._generate_azr_response(
+                response_content = self._generate_adaptive_response(
                     prompt=prompt,
                     mode=mode,
                     context=context,
@@ -425,24 +424,24 @@ class PollenLLMX(nn.Module):
                 return {
                     'content': response_content,
                     'confidence': confidence,
-                    'reasoning': self._generate_azr_reasoning(prompt, mode, confidence, reasoning_stats),
+                    'reasoning': self._generate_adaptive_reasoning(prompt, mode, confidence, reasoning_stats),
                     'metadata': {
                         'interaction_count': self.interaction_count,
                         'mode': mode,
                         'model_version': self.version,
-                        'azr_stats': reasoning_stats
+                        'adaptive_intelligence_stats': reasoning_stats
                     }
                 }
                 
         except Exception as e:
             return {
-                'content': self._azr_fallback_response(prompt, mode),
+                'content': self._adaptive_fallback_response(prompt, mode),
                 'confidence': 0.5,
-                'reasoning': f"AZR fallback response due to error: {str(e)}",
+                'reasoning': f"Adaptive Intelligence fallback response due to error: {str(e)}",
                 'metadata': {'error': True, 'fallback': True}
             }
     
-    def _generate_azr_response(
+    def _generate_adaptive_response(
         self,
         prompt: str,
         mode: str,
@@ -451,20 +450,20 @@ class PollenLLMX(nn.Module):
         confidence: float,
         reasoning_stats: Dict[str, Any]
     ) -> str:
-        """Generate response enhanced with AZR insights"""
+        """Generate response enhanced with Adaptive Intelligence insights"""
         
         # Base response generation
         base_response = self._generate_contextual_response(prompt, mode, context, memory_context, confidence)
         
-        # Enhance with AZR reasoning
+        # Enhance with Adaptive Intelligence reasoning
         if reasoning_stats['total_tasks'] > 0:
-            azr_enhancement = self._apply_azr_enhancement(base_response, reasoning_stats, mode)
-            return azr_enhancement
+            enhancement = self._apply_adaptive_enhancement(base_response, reasoning_stats, mode)
+            return enhancement
         
         return base_response
     
-    def _apply_azr_enhancement(self, base_response: str, reasoning_stats: Dict[str, Any], mode: str) -> str:
-        """Apply AZR reasoning enhancement to base response"""
+    def _apply_adaptive_enhancement(self, base_response: str, reasoning_stats: Dict[str, Any], mode: str) -> str:
+        """Apply Adaptive Intelligence reasoning enhancement to base response"""
         
         if reasoning_stats['recent_performance'] > 0.8:
             enhancement_prefix = "🧠 **Enhanced with high-confidence reasoning:** "
@@ -490,30 +489,30 @@ class PollenLLMX(nn.Module):
         
         return enhancement_prefix + base_response + context_note
     
-    def _generate_azr_reasoning(self, prompt: str, mode: str, confidence: float, reasoning_stats: Dict[str, Any]) -> str:
-        """Generate AZR-enhanced reasoning explanation"""
+    def _generate_adaptive_reasoning(self, prompt: str, mode: str, confidence: float, reasoning_stats: Dict[str, Any]) -> str:
+        """Generate Adaptive Intelligence-enhanced reasoning explanation"""
         
         reasoning_parts = [
             f"Mode: {mode}",
             f"Confidence: {confidence:.0%}",
-            f"AZR Tasks: {reasoning_stats['total_tasks']}",
+            f"AI Tasks: {reasoning_stats['total_tasks']}",
             f"Success Rate: {reasoning_stats.get('success_rate', 0):.0%}",
             f"Recent Performance: {reasoning_stats.get('recent_performance', 0):.0%}"
         ]
         
         if reasoning_stats.get('recent_performance', 0) > 0.8:
-            reasoning_parts.append("High-confidence AZR reasoning active")
+            reasoning_parts.append("High-confidence Adaptive Intelligence reasoning active")
         elif reasoning_stats.get('recent_performance', 0) > 0.6:
-            reasoning_parts.append("Moderate AZR reasoning integration")
+            reasoning_parts.append("Moderate Adaptive Intelligence reasoning integration")
         else:
-            reasoning_parts.append("Learning-mode AZR development")
+            reasoning_parts.append("Learning-mode Adaptive Intelligence development")
         
         return " | ".join(reasoning_parts)
     
-    def _azr_fallback_response(self, prompt: str, mode: str) -> str:
-        """AZR-enhanced fallback response"""
+    def _adaptive_fallback_response(self, prompt: str, mode: str) -> str:
+        """Adaptive Intelligence-enhanced fallback response"""
         
-        return f"I'm continuously evolving through self-generated reasoning tasks. While processing '{prompt}' in {mode} mode, I encountered a challenge that becomes part of my learning process. Each interaction, including this one, contributes to my reasoning capabilities. The Absolute Zero Reasoner within me is constantly generating and solving new problems to improve my responses. How can I better assist you with this request?"
+        return f"I'm continuously evolving through self-generated reasoning tasks. While processing '{prompt}' in {mode} mode, I encountered a challenge that becomes part of my learning process. Each interaction, including this one, contributes to my reasoning capabilities. The Adaptive Intelligence within me is constantly generating and solving new problems to improve my responses. How can I better assist you with this request?"
     
     # ... keep existing code (forward, _generate_contextual_response, etc.) the same ...
     
@@ -570,7 +569,7 @@ class PollenLLMX(nn.Module):
     # ... keep all other existing methods the same ...
     
     def save(self, path: str):
-        """Save model state including AZR"""
+        """Save model state including Adaptive Intelligence"""
         
         state = {
             'model_state_dict': self.state_dict(),
@@ -580,15 +579,15 @@ class PollenLLMX(nn.Module):
             'vocab_size': self.vocab_size,
             'embed_dim': self.embed_dim,
             'hidden_dim': self.hidden_dim,
-            'azr_stats': self.reasoner.get_reasoning_stats()
+            'adaptive_intelligence_stats': self.reasoner.get_reasoning_stats()
         }
         
         torch.save(state, path)
-        print(f"💾 Pollen LLMX with AZR saved to {path}")
+        print(f"💾 Pollen LLMX with Adaptive Intelligence saved to {path}")
     
     @classmethod
     def load(cls, path: str):
-        """Load model state including AZR"""
+        """Load model state including Adaptive Intelligence"""
         
         state = torch.load(path, map_location='cpu')
         
@@ -601,9 +600,9 @@ class PollenLLMX(nn.Module):
         model.load_state_dict(state['model_state_dict'])
         model.interaction_count = state.get('interaction_count', 0)
         model.adaptation_memory = state.get('adaptation_memory', {})
-        model.version = state.get('version', '2.0.0-AZR')
+        model.version = state.get('version', '2.1.0-AI')
         
-        print(f"📦 Pollen LLMX with AZR loaded from {path}")
+        print(f"📦 Pollen LLMX with Adaptive Intelligence loaded from {path}")
         return model
 
 
