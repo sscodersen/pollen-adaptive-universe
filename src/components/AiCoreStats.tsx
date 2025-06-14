@@ -10,7 +10,8 @@ import {
   XAxis,
   YAxis,
   Tooltip,
-  CartesianGrid
+  CartesianGrid,
+  TooltipProps
 } from 'recharts';
 
 
@@ -30,11 +31,11 @@ const StatCard = ({ icon: Icon, title, value, unit, colorClass, description }) =
   </div>
 );
 
-const CustomTooltip = ({ active, payload, label }) => {
+const CustomTooltip = ({ active, payload, label }: TooltipProps<number, string>) => {
   if (active && payload && payload.length) {
     return (
       <div className="bg-gray-950/80 backdrop-blur-sm p-2 border border-gray-700 rounded-md shadow-lg">
-        <p className="label text-white font-bold">{`${label.charAt(0).toUpperCase() + label.slice(1)}`}</p>
+        <p className="label text-white font-bold">{`${String(label).charAt(0).toUpperCase() + String(label).slice(1)}`}</p>
         <p className="intro text-cyan-400">{`Tasks: ${payload[0].value}`}</p>
       </div>
     );
