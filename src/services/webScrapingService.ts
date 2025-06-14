@@ -150,7 +150,8 @@ class WebScrapingService {
           content: 'Researchers at leading institutions have developed an AI system that can detect early-stage diseases with unprecedented accuracy. The breakthrough technology uses advanced neural networks to analyze medical imaging data, potentially saving millions of lives through early intervention.',
           author: 'Dr. Sarah Chen',
           tags: ['AI', 'Healthcare', 'Technology', 'Innovation'],
-          path: 'article'
+          path: 'article',
+          metadata: {}
         },
         {
           title: 'Quantum Computing Milestone Achieved by Tech Giants',
@@ -158,7 +159,8 @@ class WebScrapingService {
           content: 'A consortium of technology companies has achieved a significant milestone in quantum computing, demonstrating reliable quantum error correction at scale. This advancement brings us closer to practical quantum computers that could revolutionize cryptography, drug discovery, and optimization problems.',
           author: 'Michael Rodriguez',
           tags: ['Quantum Computing', 'Technology', 'Innovation', 'Science'],
-          path: 'tech'
+          path: 'tech',
+          metadata: {}
         }
       ],
       shop: [
@@ -260,7 +262,8 @@ class WebScrapingService {
           content: 'Experience music like never before with Neural Symphony, an AI-powered platform that generates unique musical compositions based on your emotions, activities, and preferences. Each listening session creates a completely original piece of music.',
           author: 'Harmonic AI Studios',
           tags: ['AI Music', 'Interactive', 'Generative', 'Audio'],
-          path: 'experience'
+          path: 'experience',
+          metadata: {}
         },
         {
           title: 'Quantum Dreamscape: Procedural Reality Simulation',
@@ -268,7 +271,8 @@ class WebScrapingService {
           content: 'Explore limitless virtual environments in Quantum Dreamscape, where every world is procedurally generated using quantum-inspired algorithms. No two experiences are ever the same.',
           author: 'Virtual Worlds Studio',
           tags: ['Virtual Reality', 'Procedural', 'Gaming', 'Simulation'],
-          path: 'game'
+          path: 'game',
+          metadata: {}
         }
       ]
     };
