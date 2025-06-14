@@ -33,7 +33,7 @@ export const ShopHub = ({ isGenerating = false }: ShopHubProps) => {
   const [sortBy, setSortBy] = useState('significance');
 
   const categories = [
-    'Fashion', 'Home Goods', 'Wellness', 'Eco-Friendly'
+    'Fashion', 'Home Goods', 'Wellness', 'Eco-Friendly', 'Health Tech'
   ];
 
   const generateProducts = useCallback(async () => {
@@ -103,6 +103,28 @@ export const ShopHub = ({ isGenerating = false }: ShopHubProps) => {
         seller: 'Blueland',
         link: 'https://www.blueland.com/products/the-clean-essentials',
         features: ['Reduces plastic waste', 'Non-toxic formulas', 'Reusable bottles', 'Compostable packaging'],
+        discount: 0
+      },
+      {
+        name: 'Oura Ring Gen3',
+        description: 'A smart ring that tracks your sleep, activity, recovery, temperature, heart rate, stress, and more.',
+        price: '$299.00',
+        category: 'Health Tech',
+        tags: ['Wearable', 'Health', 'Sleep Tracking'],
+        seller: 'Oura',
+        link: 'https://ouraring.com/',
+        features: ['24/7 heart rate monitoring', 'Advanced sleep analysis', 'Readiness score', '7-day battery life'],
+        discount: 0
+      },
+      {
+        name: 'LARQ Bottle PureVis™',
+        description: 'The world’s first self-cleaning water bottle and water purification system. It uses PureVis technology to eliminate up to 99% of bio-contaminants.',
+        price: '$99.00',
+        category: 'Wellness',
+        tags: ['Health', 'Outdoors', 'Tech', 'Sustainable'],
+        seller: 'LARQ',
+        link: 'https://www.livelarq.com/product/larq-bottle-purevis',
+        features: ['Self-cleaning mode', 'Eliminates bacteria & viruses', 'Keeps water cold for 24 hours', 'USB rechargeable'],
         discount: 0
       }
     ];
