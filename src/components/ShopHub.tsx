@@ -33,8 +33,8 @@ export const ShopHub = ({ isGenerating = false }: ShopHubProps) => {
   const [sortBy, setSortBy] = useState('significance');
 
   const categories = [
-    'AI Tools', 'Productivity', 'Health Tech', 'Smart Home', 'Education', 
-    'Creative Tools', 'Sustainable Tech', 'Fitness', 'Professional Software'
+    'AI Tools', 'Productivity', 'Creative Tools', 'Health Tech', 
+    'Fashion', 'Home Goods', 'Wellness', 'Eco-Friendly'
   ];
 
   const generateProducts = useCallback(async () => {
@@ -63,50 +63,71 @@ export const ShopHub = ({ isGenerating = false }: ShopHubProps) => {
         discount: 20
       },
       {
-        name: 'Adobe Creative Cloud',
-        description: 'Complete collection of creative apps including Photoshop, Illustrator, Premiere Pro, and more.',
-        price: '$52.99/mo',
-        originalPrice: '$72.99/mo',
-        category: 'Creative Tools',
-        tags: ['Design', 'Photo Editing', 'Video'],
-        seller: 'Adobe',
-        link: 'https://adobe.com/creativecloud/plans.html',
-        features: ['20+ creative apps', 'Cloud storage', 'Font library', 'Stock photos'],
-        discount: 27
-      },
-      {
-        name: 'Figma Professional',
-        description: 'Collaborative interface design tool with advanced prototyping and design system features.',
-        price: '$12.00/mo',
-        category: 'Creative Tools',
-        tags: ['Design', 'UI/UX', 'Collaboration'],
-        seller: 'Figma',
-        link: 'https://figma.com/pricing',
-        features: ['Unlimited projects', 'Version history', 'Advanced prototyping', 'Design systems'],
+        name: 'Allbirds Wool Runners',
+        description: 'Sustainable and comfortable everyday sneakers made from merino wool and recycled materials.',
+        price: '$95.00',
+        category: 'Fashion',
+        tags: ['Sustainable', 'Footwear', 'Comfort'],
+        seller: 'Allbirds',
+        link: 'https://www.allbirds.com/products/womens-wool-runners',
+        features: ['Merino Wool Upper', 'SweetFoam™ midsole', 'Machine washable', 'Carbon neutral'],
         discount: 0
       },
       {
-        name: 'Spotify Premium',
-        description: 'Ad-free music streaming with offline downloads and high-quality audio.',
-        price: '$9.99/mo',
-        category: 'Entertainment',
-        tags: ['Music', 'Streaming', 'Audio'],
-        seller: 'Spotify',
-        link: 'https://spotify.com/premium',
-        features: ['Ad-free listening', 'Offline downloads', 'High quality audio', 'Unlimited skips'],
+        name: 'Click & Grow Smart Garden 3',
+        description: 'An innovative indoor garden that cares for itself. Grow fresh, flavourful herbs, fruits or vegetables in your home.',
+        price: '$99.95',
+        category: 'Home Goods',
+        tags: ['Gardening', 'Smart Home', 'Wellness'],
+        seller: 'Click & Grow',
+        link: 'https://www.clickandgrow.com/products/the-smart-garden-3',
+        features: ['Automated watering', 'Perfect amount of light', 'Nutrient-rich soil', '3 complimentary plant pods'],
         discount: 0
       },
       {
-        name: 'Grammarly Premium',
-        description: 'AI-powered writing assistant with advanced grammar checking, style suggestions, and plagiarism detection.',
-        price: '$12.00/mo',
-        originalPrice: '$30.00/mo',
-        category: 'Productivity',
-        tags: ['Writing', 'AI', 'Productivity'],
-        seller: 'Grammarly',
-        link: 'https://grammarly.com/premium',
-        features: ['Advanced grammar', 'Style suggestions', 'Plagiarism detection', 'Goal setting'],
-        discount: 60
+        name: 'Fellow Stagg EKG Electric Kettle',
+        description: 'A beautifully designed electric kettle for the perfect pour-over coffee. Variable temperature control and a precision spout.',
+        price: '$165.00',
+        originalPrice: '$195.00',
+        category: 'Home Goods',
+        tags: ['Coffee', 'Kitchen', 'Design'],
+        seller: 'Fellow',
+        link: 'https://fellowproducts.com/products/stagg-ekg-electric-pour-over-kettle',
+        features: ['Variable temperature control', 'LCD screen', '60-minute hold mode', 'Precision pour spout'],
+        discount: 15
+      },
+      {
+        name: 'Patagonia Nano Puff Jacket',
+        description: 'Warm, windproof, water-resistant—the Nano Puff® Jacket uses incredibly lightweight and highly compressible 60-g PrimaLoft® Gold Insulation Eco.',
+        price: '$239.00',
+        category: 'Fashion',
+        tags: ['Outdoor', 'Sustainable', 'Recycled'],
+        seller: 'Patagonia',
+        link: 'https://www.patagonia.com/product/mens-nano-puff-jacket/84212.html',
+        features: ['100% recycled polyester shell', 'PrimaLoft® Gold Insulation', 'P.U.R.E.™ technology', 'Fair Trade Certified™ sewn'],
+        discount: 0
+      },
+      {
+        name: 'Theragun Mini',
+        description: 'A portable, powerful percussive therapy device. Compact but powerful, the Theragun mini is the most agile massage device that goes wherever you do.',
+        price: '$199.00',
+        category: 'Wellness',
+        tags: ['Fitness', 'Recovery', 'Health'],
+        seller: 'Therabody',
+        link: 'https://www.therabody.com/us/en-us/mini-us.html',
+        features: ['QuietForce Technology', '3 Speed Settings', '150-minute battery life', 'Ergonomic grip'],
+        discount: 0
+      },
+      {
+        name: 'Blueland The Clean Essentials Kit',
+        description: 'A revolutionary way to clean your home without plastic waste. Reusable bottles and tablet refills for hand soap, multi-surface cleaner, and more.',
+        price: '$39.00',
+        category: 'Eco-Friendly',
+        tags: ['Sustainable', 'Cleaning', 'Zero Waste'],
+        seller: 'Blueland',
+        link: 'https://www.blueland.com/products/the-clean-essentials',
+        features: ['Reduces plastic waste', 'Non-toxic formulas', 'Reusable bottles', 'Compostable packaging'],
+        discount: 0
       },
       {
         name: 'GitHub Copilot',
@@ -143,39 +164,15 @@ export const ShopHub = ({ isGenerating = false }: ShopHubProps) => {
         discount: 0
       },
       {
-        name: 'Slack Pro',
-        description: 'Team communication platform with unlimited message history and advanced collaboration features.',
-        price: '$7.25/mo',
-        originalPrice: '$8.75/mo',
-        category: 'Productivity',
-        tags: ['Communication', 'Team', 'Collaboration'],
-        seller: 'Slack',
-        link: 'https://slack.com/pricing',
-        features: ['Unlimited history', 'Guest access', 'Voice/video calls', 'App integrations'],
-        discount: 17
-      },
-      {
-        name: 'Zoom Pro',
-        description: 'Professional video conferencing with recording, cloud storage, and advanced meeting features.',
-        price: '$14.99/mo',
-        category: 'Productivity',
-        tags: ['Video Conferencing', 'Remote Work', 'Communication'],
-        seller: 'Zoom',
-        link: 'https://zoom.us/pricing',
-        features: ['HD video/audio', 'Cloud recording', 'Admin features', 'Phone support'],
+        name: 'Oura Ring Gen3',
+        description: 'A smart ring that tracks your sleep, activity, recovery, temperature, heart rate, stress, and more.',
+        price: '$299.00',
+        category: 'Health Tech',
+        tags: ['Wearable', 'Health', 'Sleep Tracking'],
+        seller: 'Oura',
+        link: 'https://ouraring.com/',
+        features: ['24/7 heart rate monitoring', 'Advanced sleep analysis', 'Readiness score', '7-day battery life'],
         discount: 0
-      },
-      {
-        name: 'Loom Pro',
-        description: 'Screen recording and video messaging tool for async communication and tutorials.',
-        price: '$8.00/mo',
-        originalPrice: '$10.00/mo',
-        category: 'Productivity',
-        tags: ['Screen Recording', 'Video', 'Communication'],
-        seller: 'Loom',
-        link: 'https://loom.com/pricing',
-        features: ['HD recording', 'Custom branding', 'Video editing', 'Analytics'],
-        discount: 20
       }
     ];
 
@@ -317,7 +314,7 @@ export const ShopHub = ({ isGenerating = false }: ShopHubProps) => {
               <Tag className="w-4 h-4" />
               <span className="text-sm font-medium">On Sale</span>
             </button>
-            {categories.slice(0, 4).map((category) => (
+            {categories.map((category) => (
               <button
                 key={category}
                 onClick={() => setFilter(category)}
