@@ -33,35 +33,11 @@ export const ShopHub = ({ isGenerating = false }: ShopHubProps) => {
   const [sortBy, setSortBy] = useState('significance');
 
   const categories = [
-    'AI Tools', 'Productivity', 'Creative Tools', 'Health Tech', 
     'Fashion', 'Home Goods', 'Wellness', 'Eco-Friendly'
   ];
 
   const generateProducts = useCallback(async () => {
     const productTemplates = [
-      {
-        name: 'ChatGPT Plus',
-        description: 'Advanced AI assistant with GPT-4, faster response times, and priority access during peak hours.',
-        price: '$20.00/mo',
-        category: 'AI Tools',
-        tags: ['AI', 'Assistant', 'Productivity'],
-        seller: 'OpenAI',
-        link: 'https://openai.com/chatgpt/pricing',
-        features: ['GPT-4 access', 'Faster responses', 'Priority access', 'Plugin support'],
-        discount: 0
-      },
-      {
-        name: 'Notion Pro',
-        description: 'All-in-one workspace for notes, tasks, wikis, and databases. Perfect for teams and personal productivity.',
-        price: '$8.00/mo',
-        originalPrice: '$10.00/mo',
-        category: 'Productivity',
-        tags: ['Productivity', 'Notes', 'Collaboration'],
-        seller: 'Notion Labs',
-        link: 'https://notion.so/pricing',
-        features: ['Unlimited blocks', 'File uploads', 'Version history', 'Advanced permissions'],
-        discount: 20
-      },
       {
         name: 'Allbirds Wool Runners',
         description: 'Sustainable and comfortable everyday sneakers made from merino wool and recycled materials.',
@@ -128,51 +104,6 @@ export const ShopHub = ({ isGenerating = false }: ShopHubProps) => {
         link: 'https://www.blueland.com/products/the-clean-essentials',
         features: ['Reduces plastic waste', 'Non-toxic formulas', 'Reusable bottles', 'Compostable packaging'],
         discount: 0
-      },
-      {
-        name: 'GitHub Copilot',
-        description: 'AI pair programmer that helps you write code faster with intelligent suggestions.',
-        price: '$10.00/mo',
-        category: 'AI Tools',
-        tags: ['AI', 'Programming', 'Code Assistant'],
-        seller: 'GitHub',
-        link: 'https://github.com/features/copilot',
-        features: ['AI code suggestions', 'Multi-language support', 'IDE integration', 'Context-aware'],
-        discount: 0
-      },
-      {
-        name: 'Canva Pro',
-        description: 'Professional design platform with premium templates, brand kit, and collaboration features.',
-        price: '$12.99/mo',
-        originalPrice: '$14.99/mo',
-        category: 'Creative Tools',
-        tags: ['Design', 'Templates', 'Branding'],
-        seller: 'Canva',
-        link: 'https://canva.com/pricing',
-        features: ['Premium templates', 'Brand kit', 'Background remover', 'Team collaboration'],
-        discount: 13
-      },
-      {
-        name: 'Linear',
-        description: 'Modern issue tracking and project management tool built for high-performance teams.',
-        price: '$8.00/mo',
-        category: 'Productivity',
-        tags: ['Project Management', 'Issue Tracking', 'Team'],
-        seller: 'Linear',
-        link: 'https://linear.app/pricing',
-        features: ['Issue tracking', 'Project roadmaps', 'Team collaboration', 'Git integration'],
-        discount: 0
-      },
-      {
-        name: 'Oura Ring Gen3',
-        description: 'A smart ring that tracks your sleep, activity, recovery, temperature, heart rate, stress, and more.',
-        price: '$299.00',
-        category: 'Health Tech',
-        tags: ['Wearable', 'Health', 'Sleep Tracking'],
-        seller: 'Oura',
-        link: 'https://ouraring.com/',
-        features: ['24/7 heart rate monitoring', 'Advanced sleep analysis', 'Readiness score', '7-day battery life'],
-        discount: 0
       }
     ];
 
@@ -211,7 +142,7 @@ export const ShopHub = ({ isGenerating = false }: ShopHubProps) => {
 
   useEffect(() => {
     loadProducts();
-    const interval = setInterval(loadProducts, 120000);
+    const interval = setInterval(loadProducts, 30000);
     return () => clearInterval(interval);
   }, [loadProducts]);
 
