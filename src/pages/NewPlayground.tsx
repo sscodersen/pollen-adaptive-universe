@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { ArrowLeft, Menu, Users, ShoppingBag, Play, Search, Bot, Globe, BarChart3 } from 'lucide-react';
 import { ActivityFeed } from '../components/ActivityFeed';
 import { SocialFeed } from '../components/SocialFeed';
@@ -9,13 +9,14 @@ import { CommunityHub } from '../components/CommunityHub';
 import { TaskAutomation } from '../components/TaskAutomation';
 import { ShopHub } from '../components/ShopHub';
 import { AnalyticsDashboard } from '../components/AnalyticsDashboard';
-import { webScrapingService } from '../services/webScrapingService';
+import { ErrorBoundary } from '../components/optimized/ErrorBoundary';
+import { LoadingSpinner } from '../components/optimized/LoadingSpinner';
 import { pollenAI } from '../services/pollenAI';
 
 const NewPlayground = () => {
   const [activeTab, setActiveTab] = useState('Social');
   const [activities, setActivities] = useState([]);
-  const [isGenerating, setIsGenerating] = useState(false);
+  const [isInitializing, setIsInitializing] = useState(true);
   const [aiStatus, setAiStatus] = useState('ready');
   const [systemStats, setSystemStats] = useState({
     totalContent: 5847,
@@ -24,7 +25,7 @@ const NewPlayground = () => {
     processingSpeed: 167
   });
 
-  const tabs = [
+  const tabs = useMemo(() => [
     { id: 'Social', name: 'Social Feed', icon: Users },
     { id: 'Entertainment', name: 'Entertainment', icon: Play },
     { id: 'Search', name: 'News Intelligence', icon: Search },
@@ -32,11 +33,73 @@ const NewPlayground = () => {
     { id: 'Automation', name: 'Task Automation', icon: Bot },
     { id: 'Community', name: 'Community Hub', icon: Globe },
     { id: 'Analytics', name: 'Analytics', icon: BarChart3 }
-  ];
+  ], []);
 
   useEffect(() => {
+    const initializePlatform = async () => {
+      setIsInitializing(true);
+      
+      const initialActivities = [
+        {
+          id: '1',
+          type: 'ai_insight',
+          user: {
+            name: 'Pollen Intelligence',
+            avatar: 'bg-gradient-to-r from-cyan-500 to-purple-500',
+            initial: 'P'
+          },
+          action: 'analyzed global content patterns and generated',
+          target: 'high-significance insights across all domains',
+          content: "Successfully processed 12,847 content sources and identified 347 high-impact developments using the 7-factor significance algorithm. Real-time analysis shows 97% accuracy in trend prediction and content relevance scoring.",
+          timestamp: '2m',
+          aiGenerated: true,
+          confidence: 0.97
+        },
+        {
+          id: '2',
+          type: 'system',
+          user: {
+            name: 'Content Engine',
+            avatar: 'bg-gradient-to-r from-green-500 to-blue-500',
+            initial: 'C'
+          },
+          action: 'optimized content generation algorithms with',
+          target: 'multi-domain significance scoring',
+          content: "Platform algorithms now generate personalized content across social, news, entertainment, and shopping domains with 95% relevance accuracy. New significance scoring ensures only high-impact content reaches users.",
+          timestamp: '15m'
+        }
+      ];
+      
+      setActivities(initialActivities);
+      
+      try {
+        // Simulate async initialization
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      } catch (error) {
+        console.error('Platform initialization error:', error);
+      } finally {
+        setIsInitializing(false);
+      }
+    };
+
     initializePlatform();
-    
+  }, []);
+
+  useEffect(() => {
+    const updateSystemStatus = () => {
+      const stats = pollenAI.getMemoryStats();
+      setAiStatus(stats.isLearning ? 'learning' : 'ready');
+    };
+
+    const updateSystemStats = () => {
+      setSystemStats(prev => ({
+        totalContent: prev.totalContent + Math.floor(Math.random() * 10) - 5,
+        highSignificance: prev.highSignificance + Math.floor(Math.random() * 4) - 2,
+        activeFeeds: Math.max(6, Math.min(12, prev.activeFeeds + Math.floor(Math.random() * 3) - 1)),
+        processingSpeed: Math.max(120, Math.min(200, prev.processingSpeed + Math.floor(Math.random() * 20) - 10))
+      }));
+    };
+
     const statusInterval = setInterval(updateSystemStatus, 3000);
     const statsInterval = setInterval(updateSystemStats, 8000);
 
@@ -46,102 +109,31 @@ const NewPlayground = () => {
     };
   }, []);
 
-  const updateSystemStatus = () => {
-    const stats = pollenAI.getMemoryStats();
-    setAiStatus(stats.isLearning ? 'learning' : 'ready');
-  };
-
-  const updateSystemStats = () => {
-    setSystemStats(prev => ({
-      totalContent: prev.totalContent + Math.floor(Math.random() * 10) - 5,
-      highSignificance: prev.highSignificance + Math.floor(Math.random() * 4) - 2,
-      activeFeeds: Math.max(6, Math.min(12, prev.activeFeeds + Math.floor(Math.random() * 3) - 1)),
-      processingSpeed: Math.max(120, Math.min(200, prev.processingSpeed + Math.floor(Math.random() * 20) - 10))
-    }));
-  };
-
-  const initializePlatform = async () => {
-    setIsGenerating(true);
-    
-    const initialActivities = [
-      {
-        id: '1',
-        type: 'ai_insight',
-        user: {
-          name: 'Pollen Intelligence',
-          avatar: 'bg-gradient-to-r from-cyan-500 to-purple-500',
-          initial: 'P'
-        },
-        action: 'analyzed global content patterns and generated',
-        target: 'high-significance insights across all domains',
-        content: "Successfully processed 12,847 content sources and identified 347 high-impact developments using the 7-factor significance algorithm. Real-time analysis shows 97% accuracy in trend prediction and content relevance scoring.",
-        timestamp: '2m',
-        aiGenerated: true,
-        confidence: 0.97
-      },
-      {
-        id: '2',
-        type: 'system',
-        user: {
-          name: 'Content Engine',
-          avatar: 'bg-gradient-to-r from-green-500 to-blue-500',
-          initial: 'C'
-        },
-        action: 'optimized content generation algorithms with',
-        target: 'multi-domain significance scoring',
-        content: "Platform algorithms now generate personalized content across social, news, entertainment, and shopping domains with 95% relevance accuracy. New significance scoring ensures only high-impact content reaches users.",
-        timestamp: '15m'
-      },
-      {
-        id: '3',
-        type: 'community',
-        user: {
-          name: 'Global Network',
-          avatar: 'bg-gradient-to-r from-purple-500 to-pink-500',
-          initial: 'G'
-        },
-        action: 'connected with distributed intelligence sources',
-        target: 'enhanced content curation and ranking',
-        content: "Successfully integrated with 15,000+ verified content sources worldwide. Real-time significance analysis enables breakthrough discovery acceleration and unbiased information synthesis.",
-        timestamp: '1h'
-      }
-    ];
-    
-    setActivities(initialActivities);
-
-    try {
-      await Promise.all([
-        webScrapingService.scrapeContent('news', 8),
-        webScrapingService.scrapeContent('shop', 10),
-        webScrapingService.scrapeContent('entertainment', 6)
-      ]);
-    } catch (error) {
-      console.error('Platform initialization error:', error);
-    } finally {
-      setIsGenerating(false);
-    }
-  };
-
   const renderTabContent = () => {
-    switch (activeTab) {
-      case 'Social':
-        return <SocialFeed />;
-      case 'Entertainment':
-        return <EntertainmentHub isGenerating={isGenerating} />;
-      case 'Search':
-        return <NewsEngine />;
-      case 'Shop':
-        return <ShopHub />;
-      case 'Automation':
-        return <TaskAutomation />;
-      case 'Community':
-        return <CommunityHub activities={activities} isGenerating={isGenerating} />;
-      case 'Analytics':
-        return <AnalyticsDashboard />;
-      default:
-        return <SocialFeed />;
-    }
+    const contentMap = {
+      Social: <SocialFeed />,
+      Entertainment: <EntertainmentHub />,
+      Search: <NewsEngine />,
+      Shop: <ShopHub />,
+      Automation: <TaskAutomation />,
+      Community: <CommunityHub activities={activities} />,
+      Analytics: <AnalyticsDashboard />
+    };
+
+    return contentMap[activeTab as keyof typeof contentMap] || <SocialFeed />;
   };
+
+  if (isInitializing) {
+    return (
+      <div className="min-h-screen bg-gray-950 flex items-center justify-center">
+        <div className="text-center">
+          <LoadingSpinner size="lg" className="mx-auto mb-4" />
+          <h2 className="text-xl font-semibold text-white mb-2">Initializing Pollen Intelligence</h2>
+          <p className="text-gray-400">Setting up AI systems and content engines...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-950 text-white">
@@ -227,7 +219,9 @@ const NewPlayground = () => {
 
       {/* Dynamic Content */}
       <div className="flex-1">
-        {renderTabContent()}
+        <ErrorBoundary>
+          {renderTabContent()}
+        </ErrorBoundary>
       </div>
     </div>
   );

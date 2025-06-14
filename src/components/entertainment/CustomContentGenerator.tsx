@@ -1,6 +1,7 @@
 
 import React, { useState, useRef } from 'react';
-import { Send, Mic, Sparkles, Zap } from 'lucide-react';
+import { Send, Mic, Sparkles, Zap, AlertCircle } from 'lucide-react';
+import { useContentGeneration } from '../../hooks/useContentGeneration';
 
 interface CustomContentGeneratorProps {
   userPrompt: string;
@@ -17,10 +18,12 @@ export const CustomContentGenerator = ({
 }: CustomContentGeneratorProps) => {
   const [isListening, setIsListening] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const { error, clearError } = useContentGeneration();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (userPrompt.trim() && !isGenerating) {
+      clearError();
       onGenerate();
     }
   };
@@ -39,8 +42,6 @@ export const CustomContentGenerator = ({
     }
 
     setIsListening(!isListening);
-    
-    // Note: In a real implementation, you would implement speech recognition here
     console.log('Voice input triggered');
   };
 
@@ -65,6 +66,19 @@ export const CustomContentGenerator = ({
           AI-Powered
         </div>
       </div>
+
+      {error && (
+        <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-lg flex items-center space-x-2">
+          <AlertCircle className="w-4 h-4 text-red-400" />
+          <p className="text-red-300 text-sm">{error}</p>
+          <button 
+            onClick={clearError}
+            className="ml-auto text-red-400 hover:text-red-300"
+          >
+            ×
+          </button>
+        </div>
+      )}
       
       <form onSubmit={handleSubmit} className="mb-4">
         <div className="flex space-x-3">
