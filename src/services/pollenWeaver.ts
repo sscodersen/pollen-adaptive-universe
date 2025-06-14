@@ -20,7 +20,14 @@ export interface ScrapedContent {
   };
 }
 
-class WebScrapingService {
+/**
+ * PollenWeaver Service
+ *
+ * Our proprietary web data ingestion engine, designed to work in synergy
+ * with the Pollen AI model. It intelligently scrapes, scores, and filters
+ * web content to feed the AI with high-quality, relevant information.
+ */
+class PollenWeaverService {
   private cache: Map<string, ScrapedContent[]> = new Map();
   private lastScrape: Map<string, number> = new Map();
   private scrapeInterval = 300000; // 5 minutes
@@ -57,7 +64,7 @@ class WebScrapingService {
 
       return highQualityContent;
     } catch (error) {
-      console.error(`Scraping failed for ${category}:`, error);
+      console.error(`PollenWeaver scraping failed for ${category}:`, error);
       return this.cache.get(cacheKey) || [];
     }
   }
@@ -322,4 +329,4 @@ class WebScrapingService {
   }
 }
 
-export const webScrapingService = new WebScrapingService();
+export const pollenWeaverService = new PollenWeaverService();

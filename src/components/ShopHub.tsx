@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { ShoppingBag, ExternalLink, Star, TrendingUp, Search, Tag, Heart, Share2, RefreshCw } from 'lucide-react';
 import { significanceAlgorithm } from '../services/significanceAlgorithm';
-import { webScrapingService, ScrapedContent } from '../services/webScrapingService';
+import { pollenWeaverService, ScrapedContent } from '../services/pollenWeaver';
 
 interface ShopHubProps {
   isGenerating?: boolean;
@@ -39,7 +39,7 @@ export const ShopHub = ({ isGenerating = false }: ShopHubProps) => {
 
   const loadProducts = useCallback(async () => {
     setLoading(true);
-    const scrapedProducts = await webScrapingService.scrapeContent('shop', 40);
+    const scrapedProducts = await pollenWeaverService.scrapeContent('shop', 40);
 
     const newProducts = scrapedProducts.map((scraped): Product => {
       const metadata = scraped.metadata as any;
