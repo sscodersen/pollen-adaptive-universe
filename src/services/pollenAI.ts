@@ -311,6 +311,31 @@ class PollenAIService {
     }
   }
 
+  async searchProducts(query: string): Promise<Product[]> {
+    if (!query) {
+      return this.getRankedProducts();
+    }
+    try {
+      const response = await fetch(`${this.baseUrl}/products/search`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ query }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Pollen AI searchProducts error:', error);
+      return []; // Return empty array on error
+    }
+  }
+
   async clearMemory(): Promise<void> {
     try {
       await fetch(`${this.baseUrl}/memory/clear`, {

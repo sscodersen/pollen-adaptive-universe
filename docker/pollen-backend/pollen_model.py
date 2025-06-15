@@ -337,6 +337,49 @@ class PollenLLMX(nn.Module):
 
         return json.dumps(products)
     
+    def semantic_search_products(self, query: str) -> List[Dict[str, Any]]:
+        """
+        Performs a simulated semantic search for products based on a query.
+        Returns all products, sorted by relevance.
+        """
+        if not query:
+            # If query is empty, return products sorted by significance
+            return json.loads(self._generate_shop_response("", [], 1.0))
+
+        query_words = set(query.lower().split())
+
+        scored_products = []
+        # We need the full list of products to search through
+        all_products_str = self._generate_shop_response("", [], 1.0)
+        all_products = json.loads(all_products_str) if all_products_str else []
+
+
+        for product in all_products:
+            score = 0
+            
+            # Score based on name
+            name_words = set(product.get('name', '').lower().split())
+            score += len(query_words.intersection(name_words)) * 5
+
+            # Score based on description
+            description_words = set(product.get('description', '').lower().split())
+            score += len(query_words.intersection(description_words)) * 2
+
+            # Score based on category
+            if product.get('category', '').lower() in query.lower():
+                score += 10
+            
+            # Score based on tags
+            tag_words = set([tag.lower() for tag in product.get('tags', [])])
+            score += len(query_words.intersection(tag_words)) * 3
+
+            scored_products.append({**product, 'relevance_score': score})
+
+        # Sort by relevance score, then by significance
+        scored_products.sort(key=lambda p: (p.get('relevance_score', 0), p.get('significance', 0)), reverse=True)
+        
+        return scored_products
+
     def save(self, path: str):
         """Save model state including Adaptive Intelligence"""
         
