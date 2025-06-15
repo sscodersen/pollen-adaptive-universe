@@ -1,5 +1,6 @@
 
 import React, { useState } from "react";
+import { Sparkles } from "lucide-react";
 
 interface AIGenerateResultCardProps {
   content: string;
@@ -14,22 +15,49 @@ export const AIGenerateResultCard: React.FC<AIGenerateResultCardProps> = ({
 }) => {
   const [open, setOpen] = useState(false);
 
-  return (
-    <div className="relative bg-slate-800/90 shadow-xl rounded-xl px-6 py-5 border border-slate-700 my-1 max-w-2xl mx-auto animate-fade-in">
-      <div className="flex flex-wrap gap-2 items-center mb-3">
-        <span className="inline-block bg-cyan-700/80 px-3 py-1 rounded-lg text-xs font-semibold text-cyan-100 shadow-sm ring-1 ring-cyan-500/20">
-          Confidence: {Math.round(confidence * 100)}%
-        </span>
-        <span className="inline-block bg-gradient-to-r from-fuchsia-600 to-cyan-600 px-2 py-1 rounded text-xs text-white font-semibold tracking-wide shadow">
-          AI Response
-        </span>
-      </div>
-      <div className="text-base text-cyan-200 font-medium whitespace-pre-line mb-2">
-        {content}
-      </div>
+  const confidencePercent = Math.round(confidence * 100);
+  let confidenceColor =
+    confidencePercent > 85
+      ? "bg-green-400"
+      : confidencePercent > 60
+      ? "bg-yellow-400"
+      : "bg-red-400";
 
+  return (
+    <div className="relative bg-slate-800/85 shadow-2xl rounded-2xl px-6 py-7 border border-slate-700 my-4 max-w-2xl mx-auto animate-fade-in glass backdrop-blur-lg">
+      <div className="flex items-center gap-3 mb-4">
+        <span className="inline-flex items-center gap-1.5 text-fuchsia-300 bg-fuchsia-900/50 px-3 py-1 rounded-lg text-xs font-semibold shadow ring-1 ring-fuchsia-700/20 border border-fuchsia-800/30">
+          <Sparkles className="w-4 h-4 mr-0.5" />
+          AI says:
+        </span>
+        <div className="flex-1 h-0.5 bg-gradient-to-r from-fuchsia-600 via-cyan-600 to-cyan-300 opacity-50 ml-2" />
+      </div>
+      <div className="text-lg text-cyan-100 font-semibold whitespace-pre-line mb-4">{content}</div>
+      <div className="mb-4 flex flex-col gap-2">
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-medium text-cyan-100 opacity-80">Confidence</span>
+          <div className="w-32 h-2 rounded bg-slate-700 relative overflow-hidden">
+            <div
+              className={`h-2 rounded ${confidenceColor} transition-all`}
+              style={{ width: `${confidencePercent}%`, minWidth: "10px" }}
+              aria-label={`Confidence bar: ${confidencePercent}%`}
+            />
+          </div>
+          <span
+            className={`text-xs font-semibold px-2 py-0.5 rounded-lg shadow ${
+              confidencePercent > 85
+                ? "bg-green-800/80 text-green-200"
+                : confidencePercent > 60
+                ? "bg-yellow-800/80 text-yellow-200"
+                : "bg-red-800/70 text-red-100"
+            }`}
+          >
+            {confidencePercent}%
+          </span>
+        </div>
+      </div>
       {reasoning && (
-        <div className="mt-2">
+        <div className="mt-3">
           <button
             onClick={() => setOpen((o) => !o)}
             className="text-cyan-400 underline text-xs hover:text-cyan-200 transition"
@@ -38,8 +66,8 @@ export const AIGenerateResultCard: React.FC<AIGenerateResultCardProps> = ({
             {open ? "Hide Reasoning" : "Show Reasoning"}
           </button>
           {open && (
-            <div className="mt-2 p-3 bg-slate-900/70 rounded-lg border border-cyan-900 text-cyan-100 text-sm">
-              <strong>Reasoning:</strong>
+            <div className="mt-3 p-3 bg-slate-900/80 rounded-lg border border-cyan-900 text-cyan-100 text-sm">
+              <strong className="block mb-1 text-cyan-300 font-semibold">Reasoning:</strong>
               <div>{reasoning}</div>
             </div>
           )}
