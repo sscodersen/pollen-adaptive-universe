@@ -1,42 +1,18 @@
 
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import NewPlayground from './pages/NewPlayground';
-import AdBuilder from './pages/AdBuilder';
-import Analytics from './pages/Analytics';
-import Workspace from './pages/Workspace';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import Search from './pages/Search';
-import Social from './pages/Social';
-import { ShopHub } from './components/ShopHub';
-import { Layout } from './components/Layout';
-
-const queryClient = new QueryClient();
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <Router>
-        <Layout>
-          <Routes>
-            <Route path="/" element={<NewPlayground />} />
-            <Route path="/playground" element={<NewPlayground />} />
-            <Route path="/ads" element={<AdBuilder />} />
-            <Route path="/analytics" element={<Analytics />} />
-            <Route path="/workspace" element={<Workspace />} />
-            <Route path="/shop" element={<ShopHub />} />
-            <Route path="/search" element={<Search />} />
-            <Route path="/social" element={<Social />} />
-            {/* Placeholder routes for other pages */}
-            <Route path="/visual" element={<NewPlayground />} />
-            <Route path="/text" element={<NewPlayground />} />
-            <Route path="/tasks" element={<NewPlayground />} />
-            <Route path="/entertainment" element={<NewPlayground />} />
-            <Route path="/code" element={<NewPlayground />} />
-          </Routes>
-        </Layout>
-      </Router>
-    </QueryClientProvider>
+    <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center font-sans">
+      <div className="text-center p-8 bg-slate-900/50 rounded-xl shadow-2xl shadow-purple-500/10 border border-slate-800">
+        <h1 className="text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500 mb-4 animate-pulse">
+          Pollen AI
+        </h1>
+        <p className="text-xl text-slate-300">
+          Ready to build the future of intelligence.
+        </p>
+      </div>
+    </div>
   );
 }
 
