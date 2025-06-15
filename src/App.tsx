@@ -1,18 +1,25 @@
 
-import React from 'react';
+import React from "react";
+import { SidebarProvider, SidebarTrigger, SidebarInset } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/AppSidebar";
+import { TopNav } from "@/components/TopNav";
+import { SocialFeed } from "@/components/SocialFeed";
 
 function App() {
   return (
-    <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center font-sans">
-      <div className="text-center p-8 bg-slate-900/50 rounded-xl shadow-2xl shadow-purple-500/10 border border-slate-800">
-        <h1 className="text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500 mb-4 animate-pulse">
-          Pollen AI
-        </h1>
-        <p className="text-xl text-slate-300">
-          Ready to build the future of intelligence.
-        </p>
+    <SidebarProvider>
+      <div className="min-h-screen w-full flex font-sans bg-slate-950">
+        <AppSidebar />
+        <SidebarInset>
+          <TopNav />
+          {/* Main platform content */}
+          <div className="flex-1 h-full min-h-screen flex flex-col bg-slate-950">
+            <SocialFeed />
+          </div>
+          <SidebarTrigger className="fixed top-4 left-4 z-30 md:hidden" />
+        </SidebarInset>
       </div>
-    </div>
+    </SidebarProvider>
   );
 }
 
