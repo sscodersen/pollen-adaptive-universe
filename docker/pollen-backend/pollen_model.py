@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import os
 import json
 import time
 import uuid
@@ -16,34 +17,69 @@ from .product_data import PRODUCT_CATALOG
 
 class PollenLLMX(nn.Module):
     """
-    Pollen LLMX with Adaptive Intelligence integration
+    Pollen LLMX with Adaptive Intelligence integration.
+    Optimized for low data center reliance, can be configured for edge/dev.
+    Use 'config_profile' (env or argument) to rapidly swap model size/presets:
+      - 'edge': lowest resource use (default for local/dev)
+      - 'standard': medium scale (default)
+      - 'heavy': maximum capacity
+
+    Args:
+      vocab_size: Integer, default 10000
+      embed_dim: Integer, embedding dimension (overrides config_profile)
+      hidden_dim: Integer, model hidden size (overrides config_profile)
+      num_layers: Integer, transformer layers (overrides config_profile)
+      config_profile: 'edge' | 'standard' | 'heavy' | None
+
+    Quantization/Distillation: Coming soon (see docstring at end).
     """
-    
-    def __init__(self, vocab_size: int = 10000, embed_dim: int = 256, hidden_dim: int = 512):
+
+    def __init__(
+        self,
+        vocab_size: int = 10000,
+        embed_dim: Optional[int] = None,
+        hidden_dim: Optional[int] = None,
+        num_layers: Optional[int] = None,
+        config_profile: Optional[str] = None,
+    ):
         super().__init__()
-        
+
+        profile = config_profile or os.getenv("POLLEN_MODEL_PROFILE", "edge")
+
+        # Presets for profiles
+        profile_configs = {
+            "edge":      dict(embed_dim=96,  hidden_dim=256, num_layers=2),
+            "standard":  dict(embed_dim=192, hidden_dim=384, num_layers=4),
+            "heavy":     dict(embed_dim=256, hidden_dim=512, num_layers=6),
+        }
+        cfg = profile_configs.get(profile, profile_configs["edge"])
+        embed_dim = embed_dim if embed_dim is not None else cfg["embed_dim"]
+        hidden_dim = hidden_dim if hidden_dim is not None else cfg["hidden_dim"]
+        num_layers = num_layers if num_layers is not None else cfg["num_layers"]
+
         self.vocab_size = vocab_size
         self.embed_dim = embed_dim
         self.hidden_dim = hidden_dim
-        self.version = "2.2.0-AI-Enhanced"
-        
+        self.num_layers = num_layers
+        self.version = "2.2.1-EdgeOptimized"
+
         # Core neural architecture
         self.embedding = nn.Embedding(vocab_size, embed_dim)
         self.encoder = nn.TransformerEncoder(
             nn.TransformerEncoderLayer(
                 d_model=embed_dim,
-                nhead=8,
+                nhead=4 if embed_dim <= 96 else (8 if embed_dim <= 192 else 12),
                 dim_feedforward=hidden_dim,
-                dropout=0.1,
+                dropout=0.05 if profile == "edge" else 0.1,
                 batch_first=True
             ),
-            num_layers=6
+            num_layers=num_layers
         )
-        
+
         # Adaptive Intelligence integration
         self.reasoner = AdaptiveIntelligence(embed_dim)
-        
-        # Mode adapters
+
+        # Mode adapters (add more for future content/media types)
         self.mode_adapters = nn.ModuleDict({
             'chat': nn.Linear(embed_dim, embed_dim),
             'code': nn.Linear(embed_dim, embed_dim),
@@ -52,42 +88,44 @@ class PollenLLMX(nn.Module):
             'social': nn.Linear(embed_dim, embed_dim),
             'news': nn.Linear(embed_dim, embed_dim),
             'entertainment': nn.Linear(embed_dim, embed_dim),
-            'shop': nn.Linear(embed_dim, embed_dim)
+            'shop': nn.Linear(embed_dim, embed_dim),
         })
-        
+
         # Output heads
         self.output_layer = nn.Linear(embed_dim, vocab_size)
         self.confidence_head = nn.Linear(embed_dim, 1)
-        
+
         # Learning state
         self.interaction_count = 0
         self.learning_rate = 0.001
         self.adaptation_memory = {}
-        
+
         # Tokenizer
         self.tokenizer = SimpleTokenizer(vocab_size)
-        
+
         # Continuous reasoning loop
         self.reasoning_active = True
+        self._reasoning_loop_started = False
         self._start_reasoning_loop()
-        
+
         self._init_weights()
-    
+
     def _start_reasoning_loop(self):
-        """Start the continuous reasoning loop"""
+        """Start the continuous reasoning loop if not running."""
+        if getattr(self, "_reasoning_loop_started", False):
+            return
+        self._reasoning_loop_started = True
         async def reasoning_loop():
             while self.reasoning_active:
                 try:
                     task, solution, reward = self.reasoner.continuous_self_improvement()
                     print(f"🧠 Adaptive Intelligence: {task['type']} task completed, reward: {reward:.3f}")
-                    await asyncio.sleep(30)  # Run every 30 seconds
+                    await asyncio.sleep(30 if self.embed_dim < 128 else 15)
                 except Exception as e:
                     print(f"Reasoning loop error: {e}")
-                    await asyncio.sleep(60)  # Wait longer on error
-        
-        # Start reasoning loop in background
+                    await asyncio.sleep(60)
         asyncio.create_task(reasoning_loop())
-    
+
     async def generate(
         self,
         prompt: str,
