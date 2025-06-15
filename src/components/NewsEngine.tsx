@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Search, ExternalLink, TrendingUp, Clock, Award, Filter, Globe, Zap, BookOpen, Eye } from 'lucide-react';
+import { Search, Clock, Award, Filter, Globe, Eye, BookOpen, TrendingUp } from 'lucide-react';
 import { pollenAI } from '../services/pollenAI';
 import { significanceAlgorithm } from '../services/significanceAlgorithm';
 import { rankItems } from '../services/generalRanker';
+import { SignificanceBadge } from "./entertainment/SignificanceBadge";
+import { TrendingBadge } from "./entertainment/TrendingBadge";
 
 interface NewsEngineProps {
   isGenerating?: boolean;
@@ -139,58 +141,56 @@ This breakthrough represents years of dedicated research and international coope
 
   if (selectedArticle) {
     return (
-      <div className="flex-1 bg-gray-950">
-        {/* Article Header */}
-        <div className="sticky top-0 z-10 bg-gray-900/95 backdrop-blur-sm border-b border-gray-800/50">
+      <div className="flex-1 bg-gradient-to-br from-slate-950 via-gray-950 to-blue-950 min-h-screen">
+        <div className="sticky top-0 z-10 bg-gray-900/95 backdrop-blur-xl border-b border-gray-800/50">
           <div className="p-6">
             <div className="flex items-center justify-between mb-4">
               <button
                 onClick={() => setSelectedArticle(null)}
-                className="flex items-center space-x-2 text-cyan-400 hover:text-cyan-300 transition-colors"
+                className="flex items-center space-x-2 text-cyan-400 hover:text-cyan-300 transition-colors font-medium"
               >
-                <span>← Back to News</span>
+                <span>← Back to News Intelligence</span>
               </button>
               <div className="flex items-center space-x-3">
-                <div className={`px-3 py-1 rounded-full text-xs font-medium ${
-                  selectedArticle.significance > 8 
-                    ? 'bg-red-500/20 text-red-300 border border-red-500/30'
-                    : 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30'
-                }`}>
-                  {selectedArticle.significance.toFixed(1)} Impact
-                </div>
+                <SignificanceBadge score={selectedArticle.significance} />
+                <TrendingBadge isTrending={selectedArticle.trending} />
                 <div className="flex items-center space-x-2 text-gray-400 text-sm">
                   <Eye className="w-4 h-4" />
-                  <span>{selectedArticle.views.toLocaleString()} views</span>
+                  <span>{selectedArticle.views.toLocaleString()}</span>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Article Content */}
-        <div className="p-6 max-w-4xl mx-auto">
-          <div className="mb-6">
-            <div className="flex items-center space-x-4 mb-4">
-              <span className="px-3 py-1 bg-purple-500/20 text-purple-300 rounded-full text-sm border border-purple-500/30">
+        <div className="p-6 max-w-5xl mx-auto">
+          <div className="mb-8">
+            <div className="flex items-center space-x-4 mb-6">
+              <span className="px-4 py-2 bg-purple-500/20 text-purple-300 rounded-full text-sm border border-purple-500/30 font-medium">
                 {selectedArticle.category}
               </span>
-              <span className="text-gray-400 text-sm">{selectedArticle.timestamp} ago</span>
-              <span className="text-gray-400 text-sm">{selectedArticle.readTime} min read</span>
+              <span className="text-gray-400 text-sm flex items-center space-x-1">
+                <Clock className="w-4 h-4" />
+                <span>{selectedArticle.timestamp} ago</span>
+              </span>
+              <span className="text-gray-400 text-sm flex items-center space-x-1">
+                <BookOpen className="w-4 h-4" />
+                <span>{selectedArticle.readTime} min read</span>
+              </span>
             </div>
-            <h1 className="text-4xl font-bold text-white mb-4">{selectedArticle.title}</h1>
-            <p className="text-xl text-gray-300 leading-relaxed">{selectedArticle.summary}</p>
+            <h1 className="text-4xl md:text-5xl font-bold text-white mb-6 leading-tight">{selectedArticle.title}</h1>
+            <p className="text-xl text-gray-300 leading-relaxed font-light">{selectedArticle.summary}</p>
           </div>
 
-          <div className="prose prose-invert max-w-none">
+          <div className="prose prose-invert prose-lg max-w-none">
             <div className="text-gray-200 leading-relaxed whitespace-pre-line">
               {selectedArticle.content}
             </div>
           </div>
 
-          {/* Tags */}
           <div className="flex flex-wrap gap-2 mt-8 pt-6 border-t border-gray-800/50">
             {selectedArticle.tags.map((tag, index) => (
-              <span key={index} className="px-3 py-1 bg-gray-700/50 text-gray-300 rounded-full text-sm border border-gray-600/50">
+              <span key={index} className="px-3 py-1 bg-gray-700/50 text-gray-300 rounded-full text-sm border border-gray-600/50 hover:bg-gray-600/50 transition-colors">
                 #{tag}
               </span>
             ))}
@@ -201,37 +201,37 @@ This breakthrough represents years of dedicated research and international coope
   }
 
   return (
-    <div className="flex-1 bg-gray-950">
-      {/* Header */}
-      <div className="sticky top-0 z-10 bg-gray-900/95 backdrop-blur-sm border-b border-gray-800/50">
+    <div className="flex-1 bg-gradient-to-br from-slate-950 via-gray-950 to-blue-950 min-h-screen">
+      <div className="sticky top-0 z-10 bg-gray-900/95 backdrop-blur-xl border-b border-gray-800/50">
         <div className="p-6">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-3xl font-bold text-white mb-2">News Intelligence</h1>
-              <p className="text-gray-400">AI-curated • Unbiased analysis • Real-time insights</p>
+              <h1 className="text-3xl md:text-4xl font-bold text-white mb-2 bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
+                News Intelligence
+              </h1>
+              <p className="text-gray-400">AI-curated insights • Real-time analysis • Unbiased perspectives</p>
             </div>
             <div className="flex items-center space-x-3">
-              <div className="px-4 py-2 bg-green-500/10 text-green-400 rounded-full text-sm font-medium border border-green-500/20 flex items-center space-x-2">
+              <div className="px-4 py-2 bg-green-500/10 text-green-400 rounded-full text-sm font-medium border border-green-500/20 flex items-center space-x-2 animate-pulse-glow">
                 <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
                 <span>Live Analysis</span>
               </div>
             </div>
           </div>
 
-          {/* Search and Filters */}
-          <div className="flex items-center justify-between space-x-4">
+          <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between space-y-4 lg:space-y-0 lg:space-x-4">
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search news and analysis..."
-                className="w-full bg-gray-800/50 border border-gray-700/50 rounded-lg pl-10 pr-4 py-3 text-white placeholder-gray-400 focus:border-cyan-500/50 focus:outline-none"
+                placeholder="Search news, analysis, and insights..."
+                className="w-full bg-gray-800/50 border border-gray-700/50 rounded-xl pl-12 pr-4 py-3 text-white placeholder-gray-400 focus:border-cyan-500/50 focus:outline-none focus:ring-2 focus:ring-cyan-500/20 transition-all"
               />
             </div>
 
-            <div className="flex space-x-2">
+            <div className="flex flex-wrap gap-2">
               {[
                 { id: 'all', name: 'All News', icon: Globe },
                 { id: 'trending', name: 'Trending', icon: TrendingUp },
@@ -240,14 +240,14 @@ This breakthrough represents years of dedicated research and international coope
                 <button
                   key={filterOption.id}
                   onClick={() => setFilter(filterOption.id)}
-                  className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all ${
+                  className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all font-medium ${
                     filter === filterOption.id
-                      ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30'
-                      : 'bg-gray-800/50 text-gray-400 hover:bg-gray-700/50 border border-gray-700/30'
+                      ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 shadow-lg'
+                      : 'bg-gray-800/50 text-gray-400 hover:bg-gray-700/50 border border-gray-700/30 hover:text-gray-300'
                   }`}
                 >
                   <filterOption.icon className="w-4 h-4" />
-                  <span className="text-sm font-medium">{filterOption.name}</span>
+                  <span className="text-sm">{filterOption.name}</span>
                 </button>
               ))}
             </div>
@@ -255,7 +255,7 @@ This breakthrough represents years of dedicated research and international coope
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="bg-gray-800/50 border border-gray-700/50 rounded-lg px-4 py-2 text-white text-sm focus:outline-none focus:border-cyan-500/50"
+              className="bg-gray-800/50 border border-gray-700/50 rounded-lg px-4 py-2 text-white text-sm focus:outline-none focus:border-cyan-500/50 focus:ring-2 focus:ring-cyan-500/20 transition-all min-w-[160px]"
             >
               <option value="significance">Sort by Significance</option>
               <option value="views">Sort by Views</option>
@@ -265,25 +265,21 @@ This breakthrough represents years of dedicated research and international coope
         </div>
       </div>
 
-      {/* News Grid */}
       <div className="p-6">
-        {/* ------ SMART PRODUCTS SECTION ------ */}
-        {/* <SmartProductSection /> */}
-        {/* ----------------------------------- */}
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[...Array(6)].map((_, i) => (
               <div key={i} className="bg-gray-900/50 rounded-xl p-6 border border-gray-800/50 animate-pulse">
-                <div className="w-full h-4 bg-gray-700 rounded mb-4"></div>
-                <div className="w-3/4 h-4 bg-gray-700 rounded mb-4"></div>
+                <div className="w-full h-4 bg-gray-700/50 rounded mb-4"></div>
+                <div className="w-3/4 h-4 bg-gray-700/50 rounded mb-4"></div>
                 <div className="space-y-2 mb-4">
-                  <div className="w-full h-3 bg-gray-700 rounded"></div>
-                  <div className="w-full h-3 bg-gray-700 rounded"></div>
-                  <div className="w-2/3 h-3 bg-gray-700 rounded"></div>
+                  <div className="w-full h-3 bg-gray-700/50 rounded"></div>
+                  <div className="w-full h-3 bg-gray-700/50 rounded"></div>
+                  <div className="w-2/3 h-3 bg-gray-700/50 rounded"></div>
                 </div>
                 <div className="flex space-x-2">
-                  <div className="w-16 h-6 bg-gray-700 rounded"></div>
-                  <div className="w-16 h-6 bg-gray-700 rounded"></div>
+                  <div className="w-16 h-6 bg-gray-700/50 rounded"></div>
+                  <div className="w-16 h-6 bg-gray-700/50 rounded"></div>
                 </div>
               </div>
             ))}
@@ -294,35 +290,27 @@ This breakthrough represents years of dedicated research and international coope
               <div
                 key={article.id}
                 onClick={() => setSelectedArticle(article)}
-                className="bg-gray-900/50 rounded-xl border border-gray-800/50 p-6 hover:bg-gray-900/70 transition-all cursor-pointer group"
+                className="bg-gradient-to-br from-gray-900/60 via-gray-900/50 to-blue-950/50 rounded-xl border border-gray-800/50 p-6 hover:bg-gray-900/80 hover:border-gray-700/50 transition-all cursor-pointer group shadow-lg relative animate-fade-in"
               >
-                {/* Article Header */}
-                <div className="flex items-center justify-between mb-4">
-                  <span className="px-3 py-1 bg-purple-500/20 text-purple-300 rounded-full text-xs border border-purple-500/30">
-                    {article.category}
-                  </span>
-                  <div className={`px-2 py-1 rounded text-xs font-medium ${
-                    article.significance > 8 
-                      ? 'bg-red-500/20 text-red-300'
-                      : article.significance > 7 
-                      ? 'bg-yellow-500/20 text-yellow-300'
-                      : 'bg-gray-500/20 text-gray-300'
-                  }`}>
-                    {article.significance.toFixed(1)}
-                  </div>
+                <div className="absolute top-4 right-4 flex gap-2 z-10">
+                  <TrendingBadge isTrending={article.trending} />
+                  <SignificanceBadge score={article.significance} />
                 </div>
 
-                {/* Title */}
-                <h3 className="text-lg font-semibold text-white mb-3 group-hover:text-cyan-300 transition-colors line-clamp-3">
+                <div className="flex items-center justify-between mb-4">
+                  <span className="px-3 py-1 bg-purple-500/20 text-purple-300 rounded-full text-xs border border-purple-500/30 font-medium">
+                    {article.category}
+                  </span>
+                </div>
+
+                <h3 className="text-lg font-semibold text-white mb-3 group-hover:text-cyan-300 transition-colors line-clamp-3 leading-tight">
                   {article.title}
                 </h3>
 
-                {/* Summary */}
-                <p className="text-gray-400 text-sm mb-4 line-clamp-3">
+                <p className="text-gray-400 text-sm mb-4 line-clamp-3 leading-relaxed">
                   {article.summary}
                 </p>
 
-                {/* Meta Info */}
                 <div className="flex items-center justify-between text-xs text-gray-500 mb-4">
                   <div className="flex items-center space-x-3">
                     <span className="flex items-center space-x-1">
@@ -340,10 +328,9 @@ This breakthrough represents years of dedicated research and international coope
                   </span>
                 </div>
 
-                {/* Tags */}
                 <div className="flex flex-wrap gap-2">
                   {article.tags.slice(0, 2).map((tag, index) => (
-                    <span key={index} className={`px-2 py-1 rounded text-xs ${
+                    <span key={index} className={`px-2 py-1 rounded text-xs font-medium ${
                       tag === 'Breaking' 
                         ? 'bg-red-500/20 text-red-300 border border-red-500/30'
                         : tag === 'Trending'
@@ -356,6 +343,14 @@ This breakthrough represents years of dedicated research and international coope
                 </div>
               </div>
             ))}
+          </div>
+        )}
+
+        {!loading && filteredArticles.length === 0 && (
+          <div className="text-center py-16 animate-fade-in">
+            <Search className="w-16 h-16 text-gray-600 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-gray-400 mb-2">No articles found</h3>
+            <p className="text-gray-500 text-sm">Try adjusting your search or filter criteria</p>
           </div>
         )}
       </div>
