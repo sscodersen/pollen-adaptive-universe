@@ -6,20 +6,44 @@ export function AIGenerate() {
   const [prompt, setPrompt] = useState("");
   const [result, setResult] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
     if (!prompt.trim()) return;
     setLoading(true);
     setResult(null);
 
-    // Fake AI call
-    setTimeout(() => {
+    try {
+      const response = await fetch("http://localhost:8000/generate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          // Add auth if needed
+        },
+        body: JSON.stringify({
+          prompt,
+          mode: "chat"
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.detail || "AI backend error.");
+      }
+
+      const data = await response.json();
       setResult(
-        `✨ AI says: "${prompt}"\n\n(This is a mock output. Connect your backend to see real results!)`
+        `✨ AI says: "${data.content}"\n\nConfidence: ${(data.confidence * 100).toFixed(1)}%\n${
+          data.reasoning ? `Reasoning: ${data.reasoning}` : ""
+        }`
       );
+    } catch (err: any) {
+      setError(err.message || "Something went wrong.");
+    } finally {
       setLoading(false);
-    }, 1500);
+    }
   };
 
   return (
@@ -45,6 +69,11 @@ export function AIGenerate() {
           {loading ? "Generating..." : "Generate"}
         </button>
       </form>
+      {error && (
+        <div className="mt-4 text-red-400 bg-red-900/30 border border-red-700 rounded px-4 py-2">
+          {error}
+        </div>
+      )}
       {result && (
         <div className="mt-6 bg-slate-800 p-4 rounded-lg border border-slate-700 text-cyan-200 whitespace-pre-line">
           {result}
