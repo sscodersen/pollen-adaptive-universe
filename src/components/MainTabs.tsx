@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import {
   Tabs,
@@ -6,22 +7,24 @@ import {
   TabsContent,
 } from "@/components/ui/tabs";
 import { SocialFeed } from "@/components/SocialFeed";
-import { Sparkles, Compass, Film, Gamepad2, Music, Settings, Home, TrendingUp, Award, Globe } from "lucide-react";
-import { AIGenerate } from "./AIGenerate";
+import { ExplorePage } from "@/components/ExplorePage";
+import { EntertainmentPage } from "@/components/EntertainmentPage";
+import { GamesPage } from "@/components/GamesPage";
+import { MusicPage } from "@/components/MusicPage";
+import { AdCreationPage } from "@/components/AdCreationPage";
+import { Compass, Film, Gamepad2, Music, Home, TrendingUp, Award, Globe, Megaphone } from "lucide-react";
 
-// Main navigation (from former sidebar)
+// Main navigation
 const navTabs = [
   { id: "feed", name: "Feed", icon: Home },
-  { id: "generate", name: "Generate", icon: Sparkles },
   { id: "explore", name: "Explore", icon: Compass },
   { id: "entertainment", name: "Entertainment", icon: Film },
   { id: "games", name: "Games", icon: Gamepad2 },
   { id: "music", name: "Music", icon: Music },
-  { id: "settings", name: "Settings", icon: Settings },
+  { id: "ads", name: "Create Ads", icon: Megaphone },
 ];
 
-// Only "Feed" is implemented with content so far.
-// For "Feed," show category sub-tabs (All Posts, Trending, High Impact) as secondary tab bar.
+// Feed category sub-tabs
 const feedCategories = [
   { id: "all", name: "All Posts", icon: Globe },
   { id: "trending", name: "Trending", icon: TrendingUp },
@@ -62,19 +65,26 @@ export function MainTabs() {
           </div>
         )}
       </div>
+      
       {/* TAB CONTENT AREAS */}
       <TabsContent value="feed" className="flex-1">
         <SocialFeed filter={feedCategory} />
       </TabsContent>
-      <TabsContent value="generate">
-        <AIGenerate />
+      <TabsContent value="explore" className="flex-1">
+        <ExplorePage />
       </TabsContent>
-      {/* Placeholder tabs for the rest */}
-      <TabsContent value="explore"><div className="p-10 text-lg text-slate-400">[Explore coming soon]</div></TabsContent>
-      <TabsContent value="entertainment"><div className="p-10 text-lg text-slate-400">[Entertainment coming soon]</div></TabsContent>
-      <TabsContent value="games"><div className="p-10 text-lg text-slate-400">[Games coming soon]</div></TabsContent>
-      <TabsContent value="music"><div className="p-10 text-lg text-slate-400">[Music coming soon]</div></TabsContent>
-      <TabsContent value="settings"><div className="p-10 text-lg text-slate-400">[Settings coming soon]</div></TabsContent>
+      <TabsContent value="entertainment" className="flex-1">
+        <EntertainmentPage />
+      </TabsContent>
+      <TabsContent value="games" className="flex-1">
+        <GamesPage />
+      </TabsContent>
+      <TabsContent value="music" className="flex-1">
+        <MusicPage />
+      </TabsContent>
+      <TabsContent value="ads" className="flex-1">
+        <AdCreationPage />
+      </TabsContent>
     </Tabs>
   );
 }

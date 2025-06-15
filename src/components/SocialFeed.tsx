@@ -1,11 +1,12 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
-import { Heart, MessageCircle, Share2, Bookmark, TrendingUp, Award, Zap, Users, Globe, Sparkles } from 'lucide-react';
-import { pollenAI } from '../services/pollenAI';
+import { Heart, MessageCircle, Share2, Bookmark, TrendingUp, Award, Zap, Users, Globe, Sparkles, Search } from 'lucide-react';
 import { significanceAlgorithm } from '../services/significanceAlgorithm';
+import { Input } from "@/components/ui/input";
 
 interface SocialFeedProps {
   isGenerating?: boolean;
-  filter?: string; // Pass filter from MainTabs, not local state
+  filter?: string;
 }
 
 interface Post {
@@ -28,71 +29,82 @@ interface Post {
   category: string;
   engagement: number;
   quality: number;
+  type: 'social' | 'news' | 'discussion';
 }
 
 export const SocialFeed = ({ isGenerating = false, filter = "all" }: SocialFeedProps) => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
-  const [sortBy, setSortBy] = useState('trending');
+  const [searchQuery, setSearchQuery] = useState('');
 
   const realUsers = [
     { name: 'Dr. Sarah Chen', username: 'sarahchen_ai', avatar: 'bg-gradient-to-r from-blue-500 to-purple-500', verified: true, badges: ['AI Expert', 'Researcher'] },
     { name: 'Marcus Rodriguez', username: 'marcus_dev', avatar: 'bg-gradient-to-r from-green-500 to-blue-500', verified: true, badges: ['Developer', 'Open Source'] },
-    { name: 'Elena Kowalski', username: 'elena_design', avatar: 'bg-gradient-to-r from-pink-500 to-red-500', verified: false, badges: ['Designer'] },
-    { name: 'Alex Chen', username: 'alex_crypto', avatar: 'bg-gradient-to-r from-yellow-500 to-orange-500', verified: false, badges: ['Blockchain'] },
-    { name: 'Maya Thompson', username: 'maya_startup', avatar: 'bg-gradient-to-r from-purple-500 to-pink-500', verified: true, badges: ['Entrepreneur'] },
-    { name: 'James Wilson', username: 'james_fitness', avatar: 'bg-gradient-to-r from-red-500 to-orange-500', verified: false, badges: ['Fitness Coach'] },
-    { name: 'Lisa Zhang', username: 'lisa_finance', avatar: 'bg-gradient-to-r from-emerald-500 to-cyan-500', verified: true, badges: ['Finance Expert'] },
-    { name: 'David Park', username: 'david_travel', avatar: 'bg-gradient-to-r from-indigo-500 to-purple-500', verified: false, badges: ['Travel Blogger'] }
+    { name: 'Elena Kowalski', username: 'elena_design', avatar: 'bg-gradient-to-r from-pink-500 to-red-500', verified: false, badges: ['Designer', 'UX'] },
+    { name: 'Alex Chen', username: 'alex_crypto', avatar: 'bg-gradient-to-r from-yellow-500 to-orange-500', verified: false, badges: ['Blockchain', 'DeFi'] },
+    { name: 'Maya Thompson', username: 'maya_startup', avatar: 'bg-gradient-to-r from-purple-500 to-pink-500', verified: true, badges: ['Entrepreneur', 'VC'] },
+    { name: 'Global News Network', username: 'gnn_official', avatar: 'bg-gradient-to-r from-red-600 to-red-400', verified: true, badges: ['News', 'Breaking'] },
+    { name: 'TechCrunch', username: 'techcrunch', avatar: 'bg-gradient-to-r from-emerald-500 to-cyan-500', verified: true, badges: ['Tech News', 'Verified'] },
+    { name: 'The Economist', username: 'theeconomist', avatar: 'bg-gradient-to-r from-indigo-500 to-purple-500', verified: true, badges: ['Economics', 'Analysis'] },
+    { name: 'Nature Journal', username: 'nature_journal', avatar: 'bg-gradient-to-r from-green-600 to-emerald-500', verified: true, badges: ['Science', 'Research'] },
+    { name: 'World Health Org', username: 'who_official', avatar: 'bg-gradient-to-r from-blue-600 to-cyan-500', verified: true, badges: ['Health', 'Global'] }
   ];
 
-  const postTemplates = [
-    // Tech & Innovation Posts
-    { topic: 'AI Research', content: 'Just witnessed a breakthrough in neural architecture search that reduces training time by 60% while improving accuracy. The implications for democratizing AI development are huge! 🚀', category: 'Technology' },
-    { topic: 'Climate Tech', content: 'Amazing news! New carbon capture technology just hit a major milestone - 1 million tons of CO2 removed from atmosphere while being economically viable. This could be a game changer! 🌱', category: 'Climate' },
-    { topic: 'Quantum Computing', content: 'Quantum error correction breakthrough! Stable qubits maintaining coherence for over 100 seconds. We\'re getting closer to practical quantum computers every day! ⚛️', category: 'Science' },
+  const broadPostTemplates = [
+    // Global News & Current Events
+    { topic: 'Climate Change', content: 'BREAKING: Antarctic ice shelf collapses faster than predicted. Scientists warn this could accelerate sea level rise by decades. The implications for coastal cities worldwide are staggering. 🌍❄️', category: 'News', type: 'news' as const },
+    { topic: 'Space Exploration', content: 'NASA\'s James Webb telescope discovers potentially habitable exoplanet just 22 light-years away. The planet shows signs of water vapor and oxygen in its atmosphere. This could be humanity\'s first real chance at finding extraterrestrial life! 🚀🌌', category: 'Science', type: 'news' as const },
+    { topic: 'Global Economy', content: 'Major economic shift: 15 countries announce plans to create new digital currency union, potentially challenging the dollar\'s dominance. Markets are volatile but many see this as inevitable evolution. 💰📊', category: 'Economics', type: 'news' as const },
     
-    // Lifestyle & Personal Posts
-    { topic: 'Productivity', content: 'Finally found the perfect morning routine! 6am workout, 30min meditation, then deep work blocks. Productivity up 40% this month. What works for you? ☀️', category: 'Lifestyle' },
-    { topic: 'Learning', content: 'Been learning Python for 3 months now. Just built my first machine learning model! The feeling when your code actually works is unmatched 😄', category: 'Education' },
-    { topic: 'Travel', content: 'Just got back from Iceland! The Northern Lights were incredible. Sometimes you need to disconnect from tech and reconnect with nature 🌌', category: 'Travel' },
+    // Technology & Innovation
+    { topic: 'AI Breakthrough', content: 'Incredible breakthrough in AI consciousness research! New neural architecture shows signs of genuine self-awareness and emotional responses. The ethical implications are mind-blowing. Are we on the verge of creating truly sentient beings? 🤖🧠', category: 'Technology', type: 'discussion' as const },
+    { topic: 'Quantum Computing', content: 'Quantum computer successfully simulates complex molecular interactions, potentially revolutionizing drug discovery. What used to take years of research could now be done in hours. The future of medicine is here! ⚛️💊', category: 'Science', type: 'social' as const },
+    { topic: 'Renewable Energy', content: 'Solar efficiency breakthrough: New perovskite cells achieve 47% efficiency in lab tests. If this scales, we could see solar power become cheaper than fossil fuels everywhere within 5 years. 🌞⚡', category: 'Environment', type: 'news' as const },
     
-    // Industry & Business Posts
-    { topic: 'Startup Life', content: 'Month 6 of building our startup. Learned more about customer discovery in the past week than in my entire MBA. Talk to your users, early and often! 💡', category: 'Business' },
-    { topic: 'Remote Work', content: 'Unpopular opinion: The best remote work setup isn\'t about the fanciest gear, it\'s about clear boundaries and communication. Less Slack, more focus time! 🏠', category: 'Work' },
-    { topic: 'Investment', content: 'Interesting trend: 73% of Gen Z is investing in sustainable ETFs. The next generation is literally putting their money where their values are 📈', category: 'Finance' },
+    // Social & Cultural
+    { topic: 'Digital Rights', content: 'The debate over digital privacy has reached a tipping point. With AI systems knowing more about us than we know about ourselves, how do we maintain human autonomy? This isn\'t just about data - it\'s about the future of free will. 🔐👁️', category: 'Society', type: 'discussion' as const },
+    { topic: 'Future of Work', content: 'Remote work isn\'t just a trend anymore - it\'s reshaping entire economies. Cities are depopulating while rural areas with good internet are booming. We\'re witnessing the largest migration pattern in human history, and it\'s digital. 🏠💻', category: 'Work', type: 'social' as const },
+    { topic: 'Education Revolution', content: 'Traditional universities are struggling while online learning platforms explode. Students are getting world-class education for 1/10th the cost. Are we witnessing the end of the college system as we know it? 🎓📚', category: 'Education', type: 'discussion' as const },
     
-    // Creative & Arts Posts
-    { topic: 'Design', content: 'Working on UI for accessibility has completely changed how I think about design. Good design isn\'t just beautiful, it\'s inclusive. Every pixel should have purpose ✨', category: 'Design' },
-    { topic: 'Music', content: 'Discovered this amazing artist who creates music entirely with AI tools, then performs it live with traditional instruments. The future of creativity is collaborative! 🎵', category: 'Arts' },
-    { topic: 'Photography', content: 'Spent the weekend doing street photography with just my phone. Sometimes constraints breed the most creativity. The best camera is the one you have with you 📸', category: 'Arts' },
+    // Health & Science
+    { topic: 'Longevity Research', content: 'Scientists successfully reverse aging in human cells using a combination of gene therapy and AI-designed compounds. Early trials show 20+ year cellular age reversal. We might be the first generation that doesn\'t have to age. 🧬⏰', category: 'Health', type: 'news' as const },
+    { topic: 'Mental Health', content: 'Depression rates among young adults have tripled since 2019. But here\'s what\'s interesting: communities with strong digital wellness programs show 60% better outcomes. Maybe the solution to tech-induced problems is better tech. 🧠💚', category: 'Health', type: 'social' as const },
+    { topic: 'Food Security', content: 'Lab-grown meat just achieved price parity with traditional meat in major markets. This isn\'t just about animal welfare anymore - it\'s about feeding 10 billion people without destroying the planet. 🥩🌱', category: 'Food Tech', type: 'news' as const },
     
-    // Social & Community Posts
-    { topic: 'Community', content: 'Organized my first local tech meetup! 50 people showed up to talk about AI ethics. There\'s so much hunger for meaningful conversations about technology\'s impact 🤝', category: 'Community' },
-    { topic: 'Volunteering', content: 'Teaching coding to kids at the local library. Their questions are so much better than any interview I\'ve ever had. \'Why do computers only understand 1s and 0s?\' 👨‍🏫', category: 'Education' },
-    { topic: 'Wellness', content: 'Week 2 of digital detox evenings. Reading actual books, having real conversations. My brain feels less scattered. Maybe we don\'t need to be always-on? 🧘‍♀️', category: 'Wellness' }
+    // Arts & Culture
+    { topic: 'Digital Art', content: 'AI-generated art just sold for $69 million at Christie\'s. But here\'s the twist - the AI was trained exclusively on works by living artists who get royalties from every sale. Finally, technology that empowers creators instead of replacing them! 🎨🤖', category: 'Arts', type: 'social' as const },
+    { topic: 'Virtual Reality', content: 'Spent 8 hours in a VR world today and honestly forgot it wasn\'t real. The haptic feedback, the visual fidelity, the social presence - we\'re not just building games anymore, we\'re building alternate realities. What does this mean for human experience? 🥽✨', category: 'VR/AR', type: 'social' as const },
+    
+    // Philosophy & Ethics
+    { topic: 'AI Ethics', content: 'If an AI saves a human life by making a decision no human programmed it to make, who gets the credit? And if it makes a mistake, who\'s responsible? We\'re entering an era where our creations have agency, and our legal systems aren\'t ready. ⚖️🤖', category: 'Philosophy', type: 'discussion' as const },
+    { topic: 'Human Enhancement', content: 'Brain-computer interfaces now allow paralyzed patients to control computers with thought alone. But the same technology could enhance healthy brains. At what point do we stop being human and start being something else? 🧠⚡', category: 'Biotech', type: 'discussion' as const },
+    
+    // Global Issues
+    { topic: 'Water Crisis', content: 'Atmospheric water generators now cost less than drilling wells in many regions. Desert communities are becoming self-sufficient in water for the first time in history. Technology solving what politics couldn\'t. 💧🏜️', category: 'Environment', type: 'news' as const },
+    { topic: 'Immigration', content: 'Digital nomad visas are reshaping global migration. Countries are competing for remote workers like they used to compete for factories. Talent is becoming truly global, and borders are becoming more fluid. 🌍✈️', category: 'Society', type: 'social' as const }
   ];
 
   const generatePost = useCallback(async () => {
     const user = realUsers[Math.floor(Math.random() * realUsers.length)];
-    const template = postTemplates[Math.floor(Math.random() * postTemplates.length)];
+    const template = broadPostTemplates[Math.floor(Math.random() * broadPostTemplates.length)];
     
-    const scored = significanceAlgorithm.scoreContent(template.content, 'social', 'Community Member');
+    const scored = significanceAlgorithm.scoreContent(template.content, 'social', user.name);
     
     const post: Post = {
       id: Date.now().toString() + Math.random(),
       user,
       content: template.content,
-      timestamp: `${Math.floor(Math.random() * 60) + 1}m`,
-      likes: Math.floor(Math.random() * 2000) + 50,
-      comments: Math.floor(Math.random() * 300) + 5,
-      shares: Math.floor(Math.random() * 500) + 10,
+      timestamp: `${Math.floor(Math.random() * 240) + 1}m`,
+      likes: Math.floor(Math.random() * 5000) + 100,
+      comments: Math.floor(Math.random() * 800) + 10,
+      shares: Math.floor(Math.random() * 1200) + 20,
       tags: [template.topic, template.category, scored.significanceScore > 8 ? 'High Impact' : 'Trending'],
       trending: scored.significanceScore > 7.5,
       significance: scored.significanceScore,
       category: template.category,
       engagement: Math.floor(Math.random() * 100) + 50,
-      quality: Math.floor(scored.significanceScore * 10)
+      quality: Math.floor(scored.significanceScore * 10),
+      type: template.type
     };
 
     return post;
@@ -101,7 +113,7 @@ export const SocialFeed = ({ isGenerating = false, filter = "all" }: SocialFeedP
   const loadPosts = useCallback(async () => {
     setLoading(true);
     const newPosts = await Promise.all(
-      Array.from({ length: 12 }, () => generatePost())
+      Array.from({ length: 20 }, () => generatePost())
     );
     setPosts(newPosts.sort((a, b) => b.significance - a.significance));
     setLoading(false);
@@ -109,32 +121,32 @@ export const SocialFeed = ({ isGenerating = false, filter = "all" }: SocialFeedP
 
   useEffect(() => {
     loadPosts();
-    const interval = setInterval(loadPosts, 30000);
+    const interval = setInterval(loadPosts, 45000);
     return () => clearInterval(interval);
   }, [loadPosts]);
 
   const filteredPosts = posts.filter(post => {
-    if (filter === 'trending') return post.trending;
-    if (filter === 'high-impact') return post.significance > 8;
-    return true;
-  });
-
-  const sortedPosts = [...filteredPosts].sort((a, b) => {
-    if (sortBy === 'trending') return b.significance - a.significance;
-    if (sortBy === 'engagement') return b.engagement - a.engagement;
-    if (sortBy === 'recent') return parseInt(a.timestamp) - parseInt(b.timestamp);
-    return b.significance - a.significance;
+    const matchesFilter = filter === 'all' || 
+      (filter === 'trending' && post.trending) || 
+      (filter === 'high-impact' && post.significance > 8);
+    
+    const matchesSearch = !searchQuery || 
+      post.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      post.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      post.category.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    return matchesFilter && matchesSearch;
   });
 
   return (
     <div className="flex-1 bg-gray-950">
-      {/* Header */}
+      {/* Header with Search */}
       <div className="sticky top-0 z-10 bg-gray-900/95 backdrop-blur-sm border-b border-gray-800/50">
         <div className="p-6">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-3xl font-bold text-white mb-2">Social Feed</h1>
-              <p className="text-gray-400">Real-time insights • Community-driven • AI-curated content</p>
+              <h1 className="text-3xl font-bold text-white mb-2">Global Feed</h1>
+              <p className="text-gray-400">Real-time insights • Global conversations • AI-curated content</p>
             </div>
             <div className="flex items-center space-x-3">
               <div className="px-4 py-2 bg-green-500/10 text-green-400 rounded-full text-sm font-medium border border-green-500/20 flex items-center space-x-2">
@@ -142,6 +154,18 @@ export const SocialFeed = ({ isGenerating = false, filter = "all" }: SocialFeedP
                 <span>Live</span>
               </div>
             </div>
+          </div>
+          
+          {/* Search Bar */}
+          <div className="relative max-w-md">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <Input
+              type="text"
+              placeholder="Search posts, topics, categories..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 bg-gray-800/50 border-gray-700 text-white placeholder-gray-400 focus:border-cyan-500"
+            />
           </div>
         </div>
       </div>
@@ -163,16 +187,11 @@ export const SocialFeed = ({ isGenerating = false, filter = "all" }: SocialFeedP
                   <div className="w-full h-4 bg-gray-700 rounded"></div>
                   <div className="w-3/4 h-4 bg-gray-700 rounded"></div>
                 </div>
-                <div className="flex space-x-4">
-                  <div className="w-16 h-6 bg-gray-700 rounded"></div>
-                  <div className="w-16 h-6 bg-gray-700 rounded"></div>
-                  <div className="w-16 h-6 bg-gray-700 rounded"></div>
-                </div>
               </div>
             ))}
           </div>
         ) : (
-          sortedPosts.map((post) => (
+          filteredPosts.map((post) => (
             <div key={post.id} className="bg-gray-900/50 rounded-xl border border-gray-800/50 p-6 hover:bg-gray-900/70 transition-colors">
               {/* User Info */}
               <div className="flex items-center justify-between mb-4">
@@ -186,6 +205,13 @@ export const SocialFeed = ({ isGenerating = false, filter = "all" }: SocialFeedP
                     <div className="flex items-center space-x-2">
                       <h3 className="font-semibold text-white">{post.user.name}</h3>
                       {post.user.verified && <Sparkles className="w-4 h-4 text-cyan-400" />}
+                      <span className={`px-2 py-0.5 text-xs rounded ${
+                        post.type === 'news' ? 'bg-red-500/20 text-red-300' :
+                        post.type === 'discussion' ? 'bg-purple-500/20 text-purple-300' :
+                        'bg-blue-500/20 text-blue-300'
+                      }`}>
+                        {post.type.toUpperCase()}
+                      </span>
                     </div>
                     <div className="flex items-center space-x-2">
                       <p className="text-gray-400 text-sm">@{post.user.username}</p>
