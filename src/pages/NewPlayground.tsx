@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Bot, Globe, TrendingUp, Zap, Users } from 'lucide-react';
 import { UnifiedHeader } from '../components/UnifiedHeader';
@@ -24,56 +23,56 @@ const NewPlayground = () => {
       name: 'Intelligence Hub', 
       icon: Bot, 
       description: 'AI insights & cross-domain intelligence', 
-      gradient: PLATFORM_CONFIG.ui.gradients.intelligence 
+      gradient: PLATFORM_CONFIG.ui.colors.gradients.intelligence 
     },
     { 
       id: 'Dashboard', 
       name: 'Intelligence Dashboard', 
       icon: TrendingUp, 
       description: 'Real-time AI metrics & system health', 
-      gradient: PLATFORM_CONFIG.ui.gradients.system 
+      gradient: PLATFORM_CONFIG.ui.colors.gradients.system 
     },
     { 
       id: 'Social', 
       name: 'Social Intelligence', 
       icon: Users, 
       description: 'AI-curated social insights', 
-      gradient: PLATFORM_CONFIG.ui.gradients.warning 
+      gradient: PLATFORM_CONFIG.ui.colors.gradients.warning 
     },
     { 
       id: 'Entertainment', 
       name: 'Content Studio', 
       icon: 'Play', 
       description: 'AI-generated entertainment', 
-      gradient: PLATFORM_CONFIG.ui.gradients.intelligence 
+      gradient: PLATFORM_CONFIG.ui.colors.gradients.intelligence 
     },
     { 
       id: 'Search', 
       name: 'News Intelligence', 
       icon: 'Search', 
       description: 'Real-time news analysis', 
-      gradient: PLATFORM_CONFIG.ui.gradients.system 
+      gradient: PLATFORM_CONFIG.ui.colors.gradients.system 
     },
     { 
       id: 'Shop', 
       name: 'Smart Commerce', 
       icon: 'ShoppingBag', 
       description: 'Intelligent shopping assistant', 
-      gradient: PLATFORM_CONFIG.ui.gradients.success 
+      gradient: PLATFORM_CONFIG.ui.colors.gradients.success 
     },
     { 
       id: 'Automation', 
       name: 'Task Automation', 
       icon: 'Target', 
       description: 'Automated workflow intelligence', 
-      gradient: PLATFORM_CONFIG.ui.gradients.analytics 
+      gradient: PLATFORM_CONFIG.ui.colors.gradients.analytics 
     },
     { 
       id: 'Analytics', 
       name: 'Deep Analytics', 
       icon: TrendingUp, 
       description: 'Advanced insights dashboard', 
-      gradient: PLATFORM_CONFIG.ui.gradients.system 
+      gradient: PLATFORM_CONFIG.ui.colors.gradients.system 
     }
   ];
 

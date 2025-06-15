@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
@@ -27,7 +26,7 @@ export const IntelligenceDashboardOptimized: React.FC = () => {
       value: metrics.significanceScore,
       unit: '/10',
       icon: Brain,
-      gradient: PLATFORM_CONFIG.ui.gradients.intelligence,
+      gradient: PLATFORM_CONFIG.ui.colors.gradients.intelligence,
       trend: '+0.3',
       description: 'AI learning and adaptation rate'
     },
@@ -36,7 +35,7 @@ export const IntelligenceDashboardOptimized: React.FC = () => {
       value: metrics.crossDomainConnections,
       unit: '',
       icon: Globe,
-      gradient: PLATFORM_CONFIG.ui.gradients.system,
+      gradient: PLATFORM_CONFIG.ui.colors.gradients.system,
       trend: '+12',
       description: 'Active intelligence connections'
     },
@@ -45,7 +44,7 @@ export const IntelligenceDashboardOptimized: React.FC = () => {
       value: metrics.systemHealth,
       unit: '%',
       icon: Cpu,
-      gradient: PLATFORM_CONFIG.ui.gradients.success,
+      gradient: PLATFORM_CONFIG.ui.colors.gradients.success,
       trend: '+2.1',
       description: 'Platform optimization rate'
     },
@@ -54,7 +53,7 @@ export const IntelligenceDashboardOptimized: React.FC = () => {
       value: metrics.learningRate,
       unit: '%',
       icon: Zap,
-      gradient: PLATFORM_CONFIG.ui.gradients.warning,
+      gradient: PLATFORM_CONFIG.ui.colors.gradients.warning,
       trend: '+1.8',
       description: 'AI knowledge acquisition speed'
     }

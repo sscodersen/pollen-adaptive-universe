@@ -33,13 +33,13 @@ export const OptimizedActivityFeed: React.FC = () => {
 
   const getTypeGradient = (type: string) => {
     const gradients = {
-      breakthrough: PLATFORM_CONFIG.ui.gradients.intelligence,
-      optimization: PLATFORM_CONFIG.ui.gradients.system,
-      prediction: PLATFORM_CONFIG.ui.gradients.analytics,
-      correlation: PLATFORM_CONFIG.ui.gradients.warning,
-      anomaly: PLATFORM_CONFIG.ui.gradients.primary
+      breakthrough: PLATFORM_CONFIG.ui.colors.gradients.intelligence,
+      optimization: PLATFORM_CONFIG.ui.colors.gradients.system,
+      prediction: PLATFORM_CONFIG.ui.colors.gradients.analytics,
+      correlation: PLATFORM_CONFIG.ui.colors.gradients.warning,
+      anomaly: PLATFORM_CONFIG.ui.colors.gradients.primary
     };
-    return gradients[type as keyof typeof gradients] || PLATFORM_CONFIG.ui.gradients.primary;
+    return gradients[type as keyof typeof gradients] || PLATFORM_CONFIG.ui.colors.gradients.primary;
   };
 
   const getPriorityColor = (significance: number) => {
