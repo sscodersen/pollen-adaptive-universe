@@ -3,7 +3,6 @@ import { Search, ExternalLink, TrendingUp, Clock, Award, Filter, Globe, Zap, Boo
 import { pollenAI } from '../services/pollenAI';
 import { significanceAlgorithm } from '../services/significanceAlgorithm';
 import { rankItems } from '../services/generalRanker';
-import { SmartProductSection } from './shop/SmartProductSection';
 
 interface NewsEngineProps {
   isGenerating?: boolean;
@@ -269,7 +268,7 @@ This breakthrough represents years of dedicated research and international coope
       {/* News Grid */}
       <div className="p-6">
         {/* ------ SMART PRODUCTS SECTION ------ */}
-        <SmartProductSection />
+        {/* <SmartProductSection /> */}
         {/* ----------------------------------- */}
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

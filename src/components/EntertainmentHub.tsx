@@ -6,7 +6,6 @@ import { ContentCard } from './entertainment/ContentCard';
 import { ContentViewer } from './entertainment/ContentViewer';
 import { CustomContentGenerator } from './entertainment/CustomContentGenerator';
 import { rankItems } from '../services/generalRanker';
-import { SmartProductSection } from './shop/SmartProductSection';
 
 interface EntertainmentHubProps {
   isGenerating?: boolean;
@@ -98,7 +97,7 @@ export const EntertainmentHub = ({ isGenerating = false }: EntertainmentHubProps
         significance: scored.significanceScore,
         trending: scored.significanceScore > 7.5 || template.tags.includes('trending') || template.tags.includes('viral'),
         views: Math.floor(Math.random() * 100000) + 5000,
-        likes: Math.floor(Math.random() * 10000) + 500,
+        likes: Math.floor(Math.random() * 10000) + 50,
         shares: Math.floor(Math.random() * 5000) + 100,
         comments: Math.floor(Math.random() * 2000) + 50,
         rating: Math.round((Math.random() * 2 + 3) * 10) / 10,
@@ -254,7 +253,7 @@ export const EntertainmentHub = ({ isGenerating = false }: EntertainmentHubProps
       {/* Content Grid */}
       <div className="p-6">
         {/* ------ SMART PRODUCTS SECTION ------ */}
-        <SmartProductSection />
+        {/* <SmartProductSection /> */}
         {/* ----------------------------------- */}
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
