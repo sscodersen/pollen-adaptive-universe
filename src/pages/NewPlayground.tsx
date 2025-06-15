@@ -1,9 +1,9 @@
 
 import React, { useState } from 'react';
-import { ArrowLeft, Menu, Users, ShoppingBag, Play, Search, Bot, Globe, BarChart3, Target, Briefcase, TrendingUp, Zap } from 'lucide-react';
+import { Bot, Globe, TrendingUp, Zap, Users } from 'lucide-react';
 import { UnifiedHeader } from '../components/UnifiedHeader';
-import { IntelligentActivityFeed } from '../components/IntelligentActivityFeed';
-import { IntelligenceDashboard } from '../components/IntelligenceDashboard';
+import { OptimizedActivityFeed } from '../components/OptimizedActivityFeed';
+import { IntelligenceDashboardOptimized } from '../components/IntelligenceDashboardOptimized';
 import { CrossDomainInsights } from '../components/CrossDomainInsights';
 import { SocialFeed } from '../components/SocialFeed';
 import { EntertainmentHub } from '../components/EntertainmentHub';
@@ -11,22 +11,70 @@ import { NewsEngine } from '../components/NewsEngine';
 import { TaskAutomation } from '../components/TaskAutomation';
 import { ShopHub } from '../components/ShopHub';
 import { AnalyticsDashboard } from '../components/AnalyticsDashboard';
-import { usePlatformState } from '../hooks/usePlatformState';
-import { platformTheme } from '../lib/platformTheme';
+import { useIntelligenceEngine } from '../hooks/useIntelligenceEngine';
+import { PLATFORM_CONFIG } from '../lib/platformConfig';
 
 const NewPlayground = () => {
   const [activeTab, setActiveTab] = useState('Intelligence');
-  const { metrics, aiStatus, isGenerating, updateGeneratingState } = usePlatformState();
+  const { metrics, realTimeData, isGenerating } = useIntelligenceEngine();
 
   const tabs = [
-    { id: 'Intelligence', name: 'Intelligence Hub', icon: Bot, description: 'AI insights & cross-domain intelligence', color: platformTheme.colors.primary.purple },
-    { id: 'Dashboard', name: 'Intelligence Dashboard', icon: BarChart3, description: 'Real-time AI metrics & system health', color: platformTheme.colors.primary.cyan },
-    { id: 'Social', name: 'Social Intelligence', icon: Users, description: 'AI-curated social insights', color: platformTheme.colors.primary.orange },
-    { id: 'Entertainment', name: 'Content Studio', icon: Play, description: 'AI-generated entertainment', color: platformTheme.colors.primary.purple },
-    { id: 'Search', name: 'News Intelligence', icon: Search, description: 'Real-time news analysis', color: platformTheme.colors.primary.cyan },
-    { id: 'Shop', name: 'Smart Commerce', icon: ShoppingBag, description: 'Intelligent shopping assistant', color: platformTheme.colors.primary.green },
-    { id: 'Automation', name: 'Task Automation', icon: Target, description: 'Automated workflow intelligence', color: platformTheme.colors.primary.violet },
-    { id: 'Analytics', name: 'Deep Analytics', icon: BarChart3, description: 'Advanced insights dashboard', color: platformTheme.colors.primary.cyan }
+    { 
+      id: 'Intelligence', 
+      name: 'Intelligence Hub', 
+      icon: Bot, 
+      description: 'AI insights & cross-domain intelligence', 
+      gradient: PLATFORM_CONFIG.ui.gradients.intelligence 
+    },
+    { 
+      id: 'Dashboard', 
+      name: 'Intelligence Dashboard', 
+      icon: TrendingUp, 
+      description: 'Real-time AI metrics & system health', 
+      gradient: PLATFORM_CONFIG.ui.gradients.system 
+    },
+    { 
+      id: 'Social', 
+      name: 'Social Intelligence', 
+      icon: Users, 
+      description: 'AI-curated social insights', 
+      gradient: PLATFORM_CONFIG.ui.gradients.warning 
+    },
+    { 
+      id: 'Entertainment', 
+      name: 'Content Studio', 
+      icon: 'Play', 
+      description: 'AI-generated entertainment', 
+      gradient: PLATFORM_CONFIG.ui.gradients.intelligence 
+    },
+    { 
+      id: 'Search', 
+      name: 'News Intelligence', 
+      icon: 'Search', 
+      description: 'Real-time news analysis', 
+      gradient: PLATFORM_CONFIG.ui.gradients.system 
+    },
+    { 
+      id: 'Shop', 
+      name: 'Smart Commerce', 
+      icon: 'ShoppingBag', 
+      description: 'Intelligent shopping assistant', 
+      gradient: PLATFORM_CONFIG.ui.gradients.success 
+    },
+    { 
+      id: 'Automation', 
+      name: 'Task Automation', 
+      icon: 'Target', 
+      description: 'Automated workflow intelligence', 
+      gradient: PLATFORM_CONFIG.ui.gradients.analytics 
+    },
+    { 
+      id: 'Analytics', 
+      name: 'Deep Analytics', 
+      icon: TrendingUp, 
+      description: 'Advanced insights dashboard', 
+      gradient: PLATFORM_CONFIG.ui.gradients.system 
+    }
   ];
 
   const renderTabContent = () => {
@@ -36,12 +84,12 @@ const NewPlayground = () => {
       case 'Intelligence':
         return (
           <div className="space-y-8">
-            <IntelligentActivityFeed />
+            <OptimizedActivityFeed />
             <CrossDomainInsights />
           </div>
         );
       case 'Dashboard':
-        return <IntelligenceDashboard />;
+        return <IntelligenceDashboardOptimized />;
       case 'Social':
         return <SocialFeed {...commonProps} />;
       case 'Entertainment':
@@ -57,7 +105,7 @@ const NewPlayground = () => {
       default:
         return (
           <div className="space-y-8">
-            <IntelligentActivityFeed />
+            <OptimizedActivityFeed />
             <CrossDomainInsights />
           </div>
         );
@@ -70,8 +118,8 @@ const NewPlayground = () => {
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-gray-950 to-blue-1000 text-white">
       {/* Unified Header */}
       <UnifiedHeader 
-        title="Pollen Intelligence Platform"
-        subtitle="Operating System for Digital Life • Multi-Domain AI • Real-Time Cross-Domain Intelligence"
+        title={PLATFORM_CONFIG.name}
+        subtitle={`${PLATFORM_CONFIG.tagline} • Multi-Domain AI • Real-Time Cross-Domain Intelligence`}
         activeFeatures={['ai', 'learning', 'optimized']}
       />
 
@@ -85,17 +133,11 @@ const NewPlayground = () => {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`group flex items-center space-x-3 px-6 py-4 rounded-xl transition-all duration-300 whitespace-nowrap font-medium min-w-fit relative ${
+                className={`group flex items-center space-x-3 px-6 py-4 rounded-xl transition-all duration-300 whitespace-nowrap font-medium min-w-fit relative hover:scale-105 ${
                   isActive
-                    ? `bg-gradient-to-r ${tab.color} bg-opacity-20 border border-opacity-50 text-white shadow-lg backdrop-blur-sm scale-105`
-                    : 'text-gray-400 hover:text-gray-300 hover:bg-gray-800/50 border border-transparent hover:scale-102'
+                    ? `bg-gradient-to-r ${tab.gradient} bg-opacity-20 border border-opacity-50 text-white shadow-lg backdrop-blur-sm scale-105`
+                    : 'text-gray-400 hover:text-gray-300 hover:bg-gray-800/50 border border-transparent'
                 }`}
-                style={isActive ? { 
-                  borderColor: tab.color.includes('purple') ? '#a855f7' : 
-                              tab.color.includes('cyan') ? '#06b6d4' : 
-                              tab.color.includes('orange') ? '#ea580c' : 
-                              tab.color.includes('green') ? '#059669' : '#8b5cf6'
-                } : {}}
               >
                 <tab.icon className={`w-5 h-5 transition-colors ${
                   isActive ? 'text-white' : 'group-hover:text-white'
@@ -112,7 +154,7 @@ const NewPlayground = () => {
           })}
         </div>
 
-        {/* Platform Intelligence Bar */}
+        {/* Real-time Intelligence Bar */}
         <div className="px-6 pb-4">
           <div className="flex items-center justify-between text-xs text-slate-400">
             <div className="flex items-center space-x-6">
@@ -126,19 +168,19 @@ const NewPlayground = () => {
               </div>
               <div className="flex items-center space-x-2">
                 <Users className="w-3 h-3 text-purple-400" />
-                <span>{metrics.globalUsers.toLocaleString()} global users</span>
+                <span>{realTimeData.globalUsers.toLocaleString()} global users</span>
               </div>
               <div className="flex items-center space-x-2">
                 <Zap className="w-3 h-3 text-orange-400 animate-pulse" />
-                <span>{metrics.aiOptimizations} AI optimizations</span>
+                <span>{realTimeData.aiOptimizations} AI optimizations</span>
               </div>
             </div>
             <div className="flex items-center space-x-4">
               <div className="px-3 py-1 bg-gradient-to-r from-cyan-500/10 to-purple-500/10 rounded-full text-cyan-300 border border-cyan-500/20 text-xs font-medium">
-                Intelligence Synergy: {metrics.intelligenceSynergy.toFixed(1)}%
+                Intelligence Accuracy: {metrics.accuracy.toFixed(1)}%
               </div>
               <div className="px-3 py-1 bg-gradient-to-r from-green-500/10 to-emerald-500/10 rounded-full text-green-300 border border-green-500/20 text-xs font-medium">
-                Operating System for Digital Life • Production Ready
+                {PLATFORM_CONFIG.tagline} • Production Ready
               </div>
             </div>
           </div>
@@ -148,11 +190,11 @@ const NewPlayground = () => {
       {/* Content Area */}
       <div className="relative">
         {activeTabInfo && (
-          <div className={`absolute top-0 left-0 right-0 bg-gradient-to-r ${activeTabInfo.color} opacity-10 h-px`}></div>
+          <div className={`absolute top-0 left-0 right-0 bg-gradient-to-r ${activeTabInfo.gradient} opacity-10 h-px`}></div>
         )}
         
         <div className="p-6 min-h-screen">
-          {isGenerating ? (
+          {isGenerating && activeTab === 'Intelligence' ? (
             <div className="flex items-center justify-center h-64">
               <div className="text-center">
                 <div className="w-16 h-16 bg-gradient-to-r from-cyan-500 to-purple-500 rounded-xl flex items-center justify-center mx-auto mb-4 animate-pulse">

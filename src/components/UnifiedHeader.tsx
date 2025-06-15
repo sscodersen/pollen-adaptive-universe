@@ -1,9 +1,9 @@
-
 import React, { useState, useEffect } from 'react';
 import { Search, Sparkles, Brain, TrendingUp, Zap, Globe, Activity } from 'lucide-react';
 import { enhancedGlobalSearch } from '../services/enhancedGlobalSearch';
 import { useNavigate } from 'react-router-dom';
-import { usePlatformState } from '../hooks/usePlatformState';
+import { useIntelligenceEngine } from '../hooks/useIntelligenceEngine';
+import { PLATFORM_CONFIG } from '../lib/platformConfig';
 
 interface SearchResult {
   id: string;
@@ -26,7 +26,7 @@ export const UnifiedHeader = ({ title, subtitle, activeFeatures = [] }: UnifiedH
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [showResults, setShowResults] = useState(false);
   const [insights, setInsights] = useState<any>(null);
-  const { metrics } = usePlatformState();
+  const { metrics, realTimeData } = useIntelligenceEngine();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -74,7 +74,7 @@ export const UnifiedHeader = ({ title, subtitle, activeFeatures = [] }: UnifiedH
       <div className="p-6">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-6">
-            <div className="w-12 h-12 bg-gradient-to-r from-cyan-500 to-purple-500 rounded-xl flex items-center justify-center shadow-lg relative">
+            <div className="w-12 h-12 bg-gradient-to-r from-cyan-500 to-purple-500 rounded-xl flex items-center justify-center shadow-lg relative hover:scale-110 transition-transform duration-300">
               <Sparkles className="w-7 h-7 text-white" />
               <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
             </div>
@@ -95,7 +95,7 @@ export const UnifiedHeader = ({ title, subtitle, activeFeatures = [] }: UnifiedH
                 value={searchQuery}
                 onChange={(e) => handleSearch(e.target.value)}
                 placeholder="Search across all domains with AI intelligence..."
-                className="w-full bg-slate-800/60 border border-slate-700/50 rounded-xl pl-12 pr-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50 transition-all"
+                className="w-full bg-slate-800/60 border border-slate-700/50 rounded-xl pl-12 pr-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50 transition-all hover:bg-slate-800/70"
               />
               {searchQuery && (
                 <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
@@ -106,15 +106,15 @@ export const UnifiedHeader = ({ title, subtitle, activeFeatures = [] }: UnifiedH
 
             {/* Enhanced Search Results */}
             {showResults && searchResults.length > 0 && (
-              <div className="absolute top-full left-0 right-0 mt-2 bg-slate-800/95 backdrop-blur-xl border border-slate-700/50 rounded-xl shadow-2xl max-h-96 overflow-y-auto z-50">
+              <div className="absolute top-full left-0 right-0 mt-2 bg-slate-800/95 backdrop-blur-xl border border-slate-700/50 rounded-xl shadow-2xl max-h-96 overflow-y-auto z-50 scrollbar-thin scrollbar-track-slate-800 scrollbar-thumb-cyan-500/30">
                 {searchResults.map((result) => (
                   <div
                     key={result.id}
                     onClick={() => handleResultClick(result)}
-                    className="p-4 hover:bg-slate-700/50 cursor-pointer border-b border-slate-700/30 last:border-b-0 transition-colors"
+                    className="p-4 hover:bg-slate-700/50 cursor-pointer border-b border-slate-700/30 last:border-b-0 transition-colors group"
                   >
                     <div className="flex items-center justify-between mb-2">
-                      <h3 className="text-white font-medium line-clamp-1">{result.title}</h3>
+                      <h3 className="text-white font-medium line-clamp-1 group-hover:text-cyan-300 transition-colors">{result.title}</h3>
                       <div className="flex items-center space-x-2">
                         <span className={`px-2 py-1 bg-gradient-to-r ${getTypeColor(result.type)} bg-opacity-20 text-white rounded text-xs border border-white/20`}>
                           {result.type}
@@ -142,19 +142,19 @@ export const UnifiedHeader = ({ title, subtitle, activeFeatures = [] }: UnifiedH
           {/* Status Indicators */}
           <div className="flex items-center space-x-3">
             {activeFeatures.includes('ai') && (
-              <div className="px-4 py-2 bg-green-500/10 text-green-400 rounded-full text-sm font-medium border border-green-500/20 flex items-center space-x-2">
+              <div className="px-4 py-2 bg-green-500/10 text-green-400 rounded-full text-sm font-medium border border-green-500/20 flex items-center space-x-2 hover:scale-105 transition-transform duration-300">
                 <Brain className="w-4 h-4 animate-pulse" />
                 <span>AI Active</span>
               </div>
             )}
             {activeFeatures.includes('learning') && (
-              <div className="px-4 py-2 bg-purple-500/10 text-purple-300 rounded-full text-sm font-medium border border-purple-500/20 flex items-center space-x-2">
+              <div className="px-4 py-2 bg-purple-500/10 text-purple-300 rounded-full text-sm font-medium border border-purple-500/20 flex items-center space-x-2 hover:scale-105 transition-transform duration-300">
                 <TrendingUp className="w-4 h-4" />
                 <span>Learning</span>
               </div>
             )}
             {activeFeatures.includes('optimized') && (
-              <div className="px-4 py-2 bg-cyan-500/10 text-cyan-300 rounded-full text-sm font-medium border border-cyan-500/20 flex items-center space-x-2">
+              <div className="px-4 py-2 bg-cyan-500/10 text-cyan-300 rounded-full text-sm font-medium border border-cyan-500/20 flex items-center space-x-2 hover:scale-105 transition-transform duration-300">
                 <Zap className="w-4 h-4" />
                 <span>Optimized</span>
               </div>
@@ -163,37 +163,35 @@ export const UnifiedHeader = ({ title, subtitle, activeFeatures = [] }: UnifiedH
         </div>
 
         {/* Real-time Intelligence Bar */}
-        {insights && (
-          <div className="flex items-center justify-between text-sm">
-            <div className="flex items-center space-x-6 text-slate-400">
-              <div className="flex items-center space-x-2">
-                <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></div>
-                <span>{insights.totalContent?.toLocaleString()} items processed</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                <span>{insights.highSignificance} high-significance</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
-                <span>{metrics.crossDomainConnections} cross-domain links</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Activity className="w-3 h-3 text-orange-400" />
-                <span>{insights.learningMetrics?.accuracy?.toFixed(1)}% accuracy</span>
-              </div>
+        <div className="flex items-center justify-between text-sm">
+          <div className="flex items-center space-x-6 text-slate-400">
+            <div className="flex items-center space-x-2">
+              <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></div>
+              <span>{realTimeData.dataProcessed.toFixed(1)}TB processed</span>
             </div>
-            
-            <div className="flex items-center space-x-4">
-              <div className="px-3 py-1 bg-gradient-to-r from-cyan-500/10 to-purple-500/10 text-cyan-300 rounded-full border border-cyan-500/20 text-xs font-medium">
-                Intelligence Synergy: {metrics.intelligenceSynergy.toFixed(1)}%
-              </div>
-              <div className="px-3 py-1 bg-gradient-to-r from-green-500/10 to-emerald-500/10 text-green-300 rounded-full border border-green-500/20 text-xs font-medium">
-                Operating System for Digital Life • Production Ready
-              </div>
+            <div className="flex items-center space-x-2">
+              <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+              <span>{realTimeData.aiOptimizations} optimizations</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
+              <span>{metrics.crossDomainConnections} cross-domain links</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Activity className="w-3 h-3 text-orange-400" />
+              <span>{metrics.accuracy.toFixed(1)}% accuracy</span>
             </div>
           </div>
-        )}
+          
+          <div className="flex items-center space-x-4">
+            <div className="px-3 py-1 bg-gradient-to-r from-cyan-500/10 to-purple-500/10 text-cyan-300 rounded-full border border-cyan-500/20 text-xs font-medium hover:scale-105 transition-transform duration-300">
+              Intelligence Score: {metrics.significanceScore.toFixed(1)}/10
+            </div>
+            <div className="px-3 py-1 bg-gradient-to-r from-green-500/10 to-emerald-500/10 text-green-300 rounded-full border border-green-500/20 text-xs font-medium hover:scale-105 transition-transform duration-300">
+              {PLATFORM_CONFIG.tagline} • Production Ready
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
