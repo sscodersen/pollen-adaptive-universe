@@ -13,14 +13,15 @@ export const useProducts = () => {
   const { data: allProducts = [], isLoading: isLoadingAll, refetch: refetchAll } = useQuery<Product[]>({
     queryKey: ['products', 'all'],
     queryFn: () => pollenAI.getRankedProducts(),
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 60 * 1000, // 1 minute
+    refetchInterval: 15000, // Refresh every 15 seconds for continuous generation
   });
 
   // Query for searched products, only enabled when searchQuery is not empty
   const { data: searchedProducts = [], isLoading: isLoadingSearch, refetch: refetchSearch } = useQuery<Product[]>({
     queryKey: ['products', 'search', searchQuery],
     queryFn: () => pollenAI.searchProducts(searchQuery),
-    staleTime: 5 * 60 * 1000,
+    stleTime: 5 * 60 * 1000,
     enabled: !!searchQuery,
   });
 
