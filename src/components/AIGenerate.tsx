@@ -1,12 +1,15 @@
+
 import React, { useState } from "react";
 import { Sparkles } from "lucide-react";
 import { AIGenerateResultCard } from "./AIGenerateResultCard";
+import { useToast } from "@/components/ui/use-toast";
 
 export function AIGenerate() {
   const [prompt, setPrompt] = useState("");
   const [result, setResult] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,7 +23,6 @@ export function AIGenerate() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          // Add auth if needed
         },
         body: JSON.stringify({
           prompt,
@@ -41,6 +43,10 @@ export function AIGenerate() {
       );
     } catch (err: any) {
       setError(err.message || "Something went wrong.");
+      toast({
+        title: "Generation Failed",
+        description: err.message || "Something went wrong."
+      });
     } finally {
       setLoading(false);
     }
@@ -69,11 +75,7 @@ export function AIGenerate() {
           {loading ? "Generating..." : "Generate"}
         </button>
       </form>
-      {error && (
-        <div className="mt-4 text-red-400 bg-red-900/30 border border-red-700 rounded px-4 py-2">
-          {error}
-        </div>
-      )}
+      {/* Removed inline error UI, switched to toast */}
       {result && (
         <div className="mt-6">
           <AIGenerateResultCard
@@ -106,3 +108,4 @@ export function AIGenerate() {
     </div>
   );
 }
+
