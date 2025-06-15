@@ -269,7 +269,14 @@ class PollenLLMX(nn.Module):
             f"💡 A breakthrough idea around '{prompt}' just clicked. What if we used this principle to build more empathetic and intuitive AI? The goal is not just artificial intelligence, but artificial wisdom. #AIForGood #Humanity",
             f"✨ Reflecting on '{prompt}' and the power of individual action. Small, consistent efforts compound into massive change. What's one small step you're taking for a better future? #ChangeMakers #PositiveImpact"
         ]
-        return f"🌟 {posts[torch.randint(0, len(posts), (1,)).item()]}"
+        
+        chosen_post = posts[torch.randint(0, len(posts), (1,)).item()]
+        
+        # 50% chance to add an image placeholder
+        if torch.rand(1).item() > 0.5:
+            chosen_post = f"{chosen_post} [IMAGE]"
+            
+        return f"🌟 {chosen_post}"
     
     def _generate_news_response(self, prompt, memory_patterns, confidence):
         return (f"📰 **Pollen Analysis: {prompt.title()}**\n\n"
