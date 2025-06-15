@@ -99,6 +99,10 @@ class PollenLLMX(nn.Module):
         self.interaction_count = 0
         self.learning_rate = 0.001
         self.adaptation_memory = {}
+        self.local_memory_path = os.getenv(
+            "POLLEN_LOCAL_MEMORY_PATH",
+            "./pollen_adaptation_memory.json"
+        )
 
         # Tokenizer
         self.tokenizer = SimpleTokenizer(vocab_size)
@@ -502,6 +506,50 @@ class PollenLLMX(nn.Module):
         # Existing implementation
         return f"Analytical insights on '{prompt}' considering {', '.join(memory_patterns) if memory_patterns else 'standard analytical techniques'} (Confidence: {confidence:.2f})"
 
+    def save_local_memory(self):
+        """Persist adaptation memory and interaction count locally (JSON file)."""
+        export_data = {
+            "adaptation_memory": self.adaptation_memory,
+            "interaction_count": self.interaction_count
+        }
+        try:
+            with open(self.local_memory_path, "w", encoding="utf-8") as f:
+                json.dump(export_data, f)
+            print(f"💾 Local adaptation memory saved to {self.local_memory_path}")
+        except Exception as e:
+            print(f"Failed to save adaptation memory: {e}")
+
+    def _load_local_memory(self):
+        """Load adaptation memory and interaction count from local file."""
+        try:
+            if os.path.exists(self.local_memory_path):
+                with open(self.local_memory_path, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                self.adaptation_memory = data.get("adaptation_memory", {})
+                self.interaction_count = data.get("interaction_count", 0)
+                print(f"📥 Adaptation memory loaded from {self.local_memory_path}")
+            else:
+                print(f"Local adaptation memory path {self.local_memory_path} does not exist. Starting fresh.")
+        except Exception as e:
+            print(f"Failed to load adaptation memory: {e}")
+
+    def _store_adaptation_data(self, user_session, prompt, response_content, mode):
+        """Store adaptation data per interaction and persist locally."""
+        # Basic per-session learning memory, can extend in future
+        uid = str(uuid.uuid4())
+        entry = {
+            "session": user_session,
+            "prompt": prompt,
+            "response": response_content,
+            "mode": mode,
+            "timestamp": datetime.utcnow().isoformat()
+        }
+        if user_session not in self.adaptation_memory:
+            self.adaptation_memory[user_session] = []
+        self.adaptation_memory[user_session].append(entry)
+
+        # Persist adaptation memory to disk
+        self.save_local_memory()
 
 class SimpleTokenizer:
     """Simple tokenizer for demonstration"""
