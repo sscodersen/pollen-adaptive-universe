@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Menu, Users, ShoppingBag, Play, Search, Bot, Globe, BarChart3 } from 'lucide-react';
+import { ArrowLeft, Menu, Users, ShoppingBag, Play, Search, Bot, Globe, BarChart3, Target, Briefcase } from 'lucide-react';
+import { UnifiedHeader } from '../components/UnifiedHeader';
 import { ActivityFeed } from '../components/ActivityFeed';
 import { SocialFeed } from '../components/SocialFeed';
 import { EntertainmentHub } from '../components/EntertainmentHub';
@@ -15,21 +16,17 @@ const NewPlayground = () => {
   const [activities, setActivities] = useState([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [aiStatus, setAiStatus] = useState('ready');
-  const [systemStats, setSystemStats] = useState({
-    totalContent: 0,
-    highSignificance: 0,
-    activeFeeds: 0,
-    processingSpeed: 0
-  });
 
   const tabs = [
-    { id: 'Social', name: 'Social Feed', icon: Users },
-    { id: 'Entertainment', name: 'Entertainment', icon: Play },
-    { id: 'Search', name: 'News Intelligence', icon: Search },
-    { id: 'Shop', name: 'Smart Shopping', icon: ShoppingBag },
-    { id: 'Automation', name: 'Task Automation', icon: Bot },
-    { id: 'Community', name: 'Community Hub', icon: Globe },
-    { id: 'Analytics', name: 'Analytics', icon: BarChart3 }
+    { id: 'Social', name: 'Social Intelligence', icon: Users, description: 'AI-curated social insights' },
+    { id: 'Entertainment', name: 'Content Studio', icon: Play, description: 'AI-generated entertainment' },
+    { id: 'Search', name: 'News Intelligence', icon: Search, description: 'Real-time news analysis' },
+    { id: 'Shop', name: 'Smart Commerce', icon: ShoppingBag, description: 'Intelligent shopping' },
+    { id: 'Automation', name: 'Task Automation', icon: Bot, description: 'Automated workflows' },
+    { id: 'Community', name: 'Global Network', icon: Globe, description: 'Connected intelligence' },
+    { id: 'Analytics', name: 'Platform Analytics', icon: BarChart3, description: 'Performance insights' },
+    { id: 'Ads', name: 'Ad Intelligence', icon: Target, description: 'Smart advertising' },
+    { id: 'Workspace', name: 'Digital Workspace', icon: Briefcase, description: 'Productivity hub' }
   ];
 
   useEffect(() => {
@@ -39,13 +36,8 @@ const NewPlayground = () => {
       updateSystemStatus();
     }, 5000);
 
-    const statsInterval = setInterval(() => {
-      updateSystemStats();
-    }, 10000);
-
     return () => {
       clearInterval(statusInterval);
-      clearInterval(statsInterval);
     };
   }, []);
 
@@ -54,35 +46,25 @@ const NewPlayground = () => {
     setAiStatus(stats.isLearning ? 'learning' : 'ready');
   };
 
-  const updateSystemStats = () => {
-    // Simulate real-time stats updates
-    setSystemStats({
-      totalContent: Math.floor(Math.random() * 1000) + 5000,
-      highSignificance: Math.floor(Math.random() * 200) + 800,
-      activeFeeds: Math.floor(Math.random() * 5) + 7,
-      processingSpeed: Math.floor(Math.random() * 50) + 150
-    });
-  };
-
   const initializePlatform = () => {
     setIsGenerating(true);
     
-    // Generate initial activities for community hub
+    // Enhanced initial activities with cross-domain intelligence
     const initialActivities = [
       {
         id: '1',
         type: 'ai_insight',
         user: {
-          name: 'Pollen Intelligence',
+          name: 'Pollen Intelligence Core',
           avatar: 'bg-gradient-to-r from-cyan-500 to-purple-500',
           initial: 'P'
         },
-        action: 'analyzed global content patterns and generated',
-        target: 'high-significance insights across all domains',
-        content: "Successfully processed 12,847 content sources and identified 347 high-impact developments using the 7-factor significance algorithm. Real-time analysis shows 97% accuracy in trend prediction and content relevance scoring.",
-        timestamp: '2m',
+        action: 'unified cross-domain analysis and generated',
+        target: 'next-generation intelligence insights',
+        content: "Successfully integrated 15,847 high-significance sources across all domains. Our 7-factor significance algorithm now processes real-time data from news, entertainment, commerce, and social platforms with 98.7% accuracy. Cross-domain pattern recognition has identified 23 emerging trends with predictive confidence above 95%.",
+        timestamp: '1m',
         aiGenerated: true,
-        confidence: 0.97
+        confidence: 0.987
       },
       {
         id: '2',
@@ -117,110 +99,84 @@ const NewPlayground = () => {
   };
 
   const renderTabContent = () => {
+    const commonProps = { isGenerating };
+    
     switch (activeTab) {
       case 'Social':
-        return <SocialFeed isGenerating={isGenerating} />;
+        return <SocialFeed {...commonProps} />;
       case 'Entertainment':
-        return <EntertainmentHub isGenerating={isGenerating} />;
+        return <EntertainmentHub {...commonProps} />;
       case 'Search':
-        return <NewsEngine isGenerating={isGenerating} />;
+        return <NewsEngine {...commonProps} />;
       case 'Shop':
         return <ShopHub />;
       case 'Automation':
-        return <TaskAutomation isGenerating={isGenerating} />;
+        return <TaskAutomation {...commonProps} />;
       case 'Community':
-        return <CommunityHub activities={activities} isGenerating={isGenerating} />;
+        return <CommunityHub activities={activities} {...commonProps} />;
       case 'Analytics':
         return <AnalyticsDashboard />;
+      case 'Ads':
+        return <div className="p-6 text-center">
+          <h2 className="text-2xl font-bold text-cyan-300 mb-4">Ad Intelligence Studio</h2>
+          <p className="text-slate-400">Navigate to <a href="/ads" className="text-cyan-400 hover:underline">/ads</a> for the full experience</p>
+        </div>;
+      case 'Workspace':
+        return <div className="p-6 text-center">
+          <h2 className="text-2xl font-bold text-purple-300 mb-4">Digital Workspace</h2>
+          <p className="text-slate-400">Navigate to <a href="/workspace" className="text-purple-400 hover:underline">/workspace</a> for the full experience</p>
+        </div>;
       default:
-        return <SocialFeed isGenerating={isGenerating} />;
+        return <SocialFeed {...commonProps} />;
     }
   };
 
+  const activeTabInfo = tabs.find(tab => tab.id === activeTab);
+
   return (
-    <div className="min-h-screen bg-gray-950 text-white">
-      {/* Enhanced Header */}
-      <div className="flex items-center justify-between p-6 border-b border-gray-800/60 bg-gray-900/80 backdrop-blur-sm">
-        <div className="flex items-center space-x-6">
-          <button className="p-2 hover:bg-gray-800/60 rounded-lg transition-colors">
-            <ArrowLeft className="w-5 h-5" />
-          </button>
-          <div className="flex items-center space-x-4">
-            <div className="w-10 h-10 bg-gradient-to-r from-cyan-500 to-purple-500 rounded-xl flex items-center justify-center shadow-lg">
-              <span className="text-white font-bold text-lg">P</span>
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold">Pollen Intelligence Platform</h1>
-              <p className="text-gray-400 text-sm">AI-Powered • Multi-Domain • Real-Time Analysis • Production Ready</p>
-            </div>
-          </div>
-          
-          {/* System Status */}
-          <div className="flex items-center space-x-4">
-            <div className={`flex items-center space-x-2 px-4 py-2 rounded-full text-sm border ${
-              aiStatus === 'learning' 
-                ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20' 
-                : 'bg-green-500/10 text-green-400 border-green-500/20'
-            }`}>
-              <div className={`w-2 h-2 rounded-full ${
-                aiStatus === 'learning' ? 'bg-yellow-400 animate-pulse' : 'bg-green-400'
-              }`}></div>
-              <span>AI {aiStatus === 'learning' ? 'Learning' : 'Active'}</span>
-            </div>
-            
-            {/* Live Stats */}
-            <div className="flex items-center space-x-4 text-xs text-gray-400">
-              <div className="flex items-center space-x-1">
-                <div className="w-1.5 h-1.5 bg-cyan-400 rounded-full"></div>
-                <span>{systemStats.totalContent.toLocaleString()} items</span>
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-gray-950 to-blue-1000 text-white">
+      {/* Unified Header */}
+      <UnifiedHeader 
+        title="Pollen Intelligence Platform"
+        subtitle="Operating System for Digital Life • Multi-Domain AI • Real-Time Intelligence"
+        activeFeatures={['ai', 'learning', 'optimized']}
+      />
+
+      {/* Enhanced Navigation Tabs */}
+      <div className="border-b border-gray-800/60 bg-gray-900/40 backdrop-blur-sm">
+        <div className="flex space-x-1 px-6 py-4 overflow-x-auto">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`group flex items-center space-x-3 px-6 py-4 rounded-xl transition-all duration-300 whitespace-nowrap font-medium min-w-fit ${
+                activeTab === tab.id
+                  ? 'bg-gradient-to-r from-cyan-500/20 to-purple-500/20 border border-cyan-500/30 text-cyan-300 shadow-lg backdrop-blur-sm'
+                  : 'text-gray-400 hover:text-gray-300 hover:bg-gray-800/50 border border-transparent'
+              }`}
+            >
+              <tab.icon className={`w-5 h-5 transition-colors ${
+                activeTab === tab.id ? 'text-cyan-400' : 'group-hover:text-white'
+              }`} />
+              <div className="text-left">
+                <div className="font-semibold">{tab.name}</div>
+                <div className="text-xs opacity-70">{tab.description}</div>
               </div>
-              <div className="flex items-center space-x-1">
-                <div className="w-1.5 h-1.5 bg-green-400 rounded-full"></div>
-                <span>{systemStats.highSignificance} high-impact</span>
-              </div>
-              <div className="flex items-center space-x-1">
-                <div className="w-1.5 h-1.5 bg-purple-400 rounded-full"></div>
-                <span>{systemStats.processingSpeed}/min</span>
-              </div>
-            </div>
-            
-            <div className="px-4 py-2 bg-cyan-500/10 text-cyan-400 rounded-full text-sm font-medium border border-cyan-500/20">
-              Production Ready
-            </div>
-            <div className="px-4 py-2 bg-green-500/10 text-green-400 rounded-full text-sm font-medium border border-green-500/20">
-              Optimized
-            </div>
-          </div>
+              {tab.id === activeTab && (
+                <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse ml-2"></div>
+              )}
+            </button>
+          ))}
         </div>
+      </div>
+
+      {/* Enhanced Content Area */}
+      <div className="relative">
+        {/* Active Tab Indicator */}
+        {activeTabInfo && (
+          <div className="absolute top-0 left-0 right-0 bg-gradient-to-r from-transparent via-cyan-500/5 to-transparent h-px"></div>
+        )}
         
-        <button className="p-3 hover:bg-gray-800/60 rounded-lg transition-colors">
-          <Menu className="w-6 h-6" />
-        </button>
-      </div>
-
-      {/* Enhanced Feature Tabs */}
-      <div className="flex space-x-1 px-6 py-4 border-b border-gray-800/60 overflow-x-auto bg-gray-900/40">
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`flex items-center space-x-3 px-6 py-3 rounded-xl transition-all duration-200 whitespace-nowrap font-medium ${
-              activeTab === tab.id
-                ? 'bg-gray-800/60 border border-gray-700/60 text-cyan-300 shadow-lg backdrop-blur-sm'
-                : 'text-gray-400 hover:text-gray-300 hover:bg-gray-800/40'
-            }`}
-          >
-            <tab.icon className="w-5 h-5" />
-            <span>{tab.name}</span>
-            {tab.id === activeTab && (
-              <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></div>
-            )}
-          </button>
-        ))}
-      </div>
-
-      {/* Dynamic Content */}
-      <div className="flex-1">
         {renderTabContent()}
       </div>
     </div>
