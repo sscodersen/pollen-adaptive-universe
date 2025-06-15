@@ -1,8 +1,9 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { Search, ExternalLink, TrendingUp, Clock, Award, Filter, Globe, Zap, BookOpen, Eye } from 'lucide-react';
 import { pollenAI } from '../services/pollenAI';
 import { significanceAlgorithm } from '../services/significanceAlgorithm';
+import { rankItems } from '../services/generalRanker';
+import { SmartProductSection } from './shop/SmartProductSection';
 
 interface NewsEngineProps {
   isGenerating?: boolean;
@@ -122,6 +123,7 @@ This breakthrough represents years of dedicated research and international coope
     return () => clearInterval(interval);
   }, [loadNews]);
 
+  // Use generalRanker for news sorting
   const filteredArticles = articles.filter(article => {
     if (searchQuery) {
       return article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -133,12 +135,8 @@ This breakthrough represents years of dedicated research and international coope
     return true;
   });
 
-  const sortedArticles = [...filteredArticles].sort((a, b) => {
-    if (sortBy === 'significance') return b.significance - a.significance;
-    if (sortBy === 'views') return b.views - a.views;
-    if (sortBy === 'recent') return parseInt(a.timestamp) - parseInt(b.timestamp);
-    return b.significance - a.significance;
-  });
+  // USE generalRanker for sorting here!
+  const sortedArticles = rankItems(filteredArticles, { type: "news", sortBy });
 
   if (selectedArticle) {
     return (
@@ -270,6 +268,9 @@ This breakthrough represents years of dedicated research and international coope
 
       {/* News Grid */}
       <div className="p-6">
+        {/* ------ SMART PRODUCTS SECTION ------ */}
+        <SmartProductSection />
+        {/* ----------------------------------- */}
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[...Array(6)].map((_, i) => (

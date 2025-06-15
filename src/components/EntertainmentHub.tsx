@@ -5,6 +5,8 @@ import { significanceAlgorithm } from '../services/significanceAlgorithm';
 import { ContentCard } from './entertainment/ContentCard';
 import { ContentViewer } from './entertainment/ContentViewer';
 import { CustomContentGenerator } from './entertainment/CustomContentGenerator';
+import { rankItems } from '../services/generalRanker';
+import { SmartProductSection } from './shop/SmartProductSection';
 
 interface EntertainmentHubProps {
   isGenerating?: boolean;
@@ -162,11 +164,13 @@ export const EntertainmentHub = ({ isGenerating = false }: EntertainmentHubProps
     }
   };
 
+  // USE generalRanker for content ranking
   const filteredContent = content.filter(item => {
     if (filter === 'trending') return item.trending;
     if (filter === 'all') return true;
     return item.type === filter;
   });
+  const sortedContent = rankItems(filteredContent, { type: "entertainment", sortBy: "significance" });
 
   if (selectedContent) {
     return (
@@ -249,6 +253,9 @@ export const EntertainmentHub = ({ isGenerating = false }: EntertainmentHubProps
 
       {/* Content Grid */}
       <div className="p-6">
+        {/* ------ SMART PRODUCTS SECTION ------ */}
+        <SmartProductSection />
+        {/* ----------------------------------- */}
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[...Array(6)].map((_, i) => (
@@ -261,7 +268,7 @@ export const EntertainmentHub = ({ isGenerating = false }: EntertainmentHubProps
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredContent.map((item) => (
+            {sortedContent.map((item) => (
               <ContentCard
                 key={item.id}
                 item={item}
