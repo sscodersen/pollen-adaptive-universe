@@ -8,11 +8,9 @@ import asyncio
 from typing import Dict, List, Optional, Any
 from datetime import datetime
 import numpy as np
-import random
-import math
 
 from adaptive_intelligence import AdaptiveIntelligence, SimpleTokenizer
-from .product_data import PRODUCT_CATALOG
+
 
 class PollenLLMX(nn.Module):
     """
@@ -301,85 +299,34 @@ class PollenLLMX(nn.Module):
         return "Error generating entertainment content." # Fallback
         
     def _generate_shop_response(self, prompt, memory_patterns, confidence):
-        products = []
-        for index, template in enumerate(PRODUCT_CATALOG):
-            metadata = template.get("metadata", {})
-            price_num = metadata.get("price", 0)
-            original_price_num = metadata.get("originalPrice")
-            discount_num = metadata.get("discount", 0)
-
-            # Use deterministic values for stability
-            significance_score = round(7.5 + (index % 10) * 0.2, 2)
-            rating = metadata.get("rating") or round(4.0 + (index % 10) / 10, 1)
-            reviews = 100 + index * 50
-
-            product = {
-                "id": f"{template['title'].replace(' ', '-')}-{index}",
-                "name": template['title'],
-                "description": template['description'],
-                "price": f"${price_num:.2f}",
-                "originalPrice": f"${original_price_num:.2f}" if original_price_num else None,
-                "rating": rating,
-                "reviews": reviews,
-                "category": metadata.get("productCategory", "General"),
-                "tags": template.get("tags", []),
-                "significance": significance_score,
-                "trending": significance_score > 8.5 or discount_num > 0,
-                "link": metadata.get("link", "#"),
-                "seller": template.get("author", "Mock Seller"),
-                "discount": discount_num,
-                "features": metadata.get("features", []),
-                "inStock": True,  # Ensure all products are in stock
+        products = [
+            {
+                "name": "Symbiotic Keyboard",
+                "description": "A keyboard made from biodegradable, mycelium-based materials that learns and adapts to your typing style to reduce strain and improve comfort.",
+                "highlight": "Combats e-waste and promotes ergonomic well-being."
+            },
+            {
+                "name": "Community Solar Weave",
+                "description": "An easy-to-install, flexible solar panel fabric designed for sharing energy within a neighborhood microgrid. Can be draped over existing structures.",
+                "highlight": "Fosters energy independence and community resilience through shared infrastructure."
+            },
+            {
+                "name": "Ocean Plastic Filament for 3D Printers",
+                "description": "High-quality 3D printer filament made from 100% certified recycled ocean plastics, enabling creators to build with a purpose.",
+                "highlight": "Each spool sold funds the removal of 5kg of plastic from our oceans."
+            },
+            {
+                "name": "Adaptive Learning Subscription",
+                "description": "A personalized digital education platform that uses AI to adapt its curriculum to your unique learning style, pace, and curiosity.",
+                "highlight": "Democratizes education and fosters lifelong, personalized growth."
             }
-            products.append(product)
-
-        products.sort(key=lambda p: p['significance'], reverse=True)
-
-        return json.dumps(products)
+        ]
+        product = products[torch.randint(0, len(products), (1,)).item()]
+        return (f"🛍️ **Product Concept: {product['name']}**\n\n"
+                f"**Description:** {product['description']}\n\n"
+                f"**Greater Good Highlight:** {product['highlight']}\n\n"
+                f"*This concept aligns with emerging patterns in sustainable and ethical consumerism, with a {confidence:.0%} confidence score for positive market reception.*")
     
-    def semantic_search_products(self, query: str) -> List[Dict[str, Any]]:
-        """
-        Performs a simulated semantic search for products based on a query.
-        Returns all products, sorted by relevance.
-        """
-        if not query:
-            # If query is empty, return products sorted by significance
-            return json.loads(self._generate_shop_response("", [], 1.0))
-
-        query_words = set(query.lower().split())
-
-        scored_products = []
-        # We need the full list of products to search through
-        all_products_str = self._generate_shop_response("", [], 1.0)
-        all_products = json.loads(all_products_str) if all_products_str else []
-
-
-        for product in all_products:
-            score = 0
-            
-            # Score based on name
-            name_words = set(product.get('name', '').lower().split())
-            score += len(query_words.intersection(name_words)) * 5
-
-            # Score based on description
-            description_words = set(product.get('description', '').lower().split())
-            score += len(query_words.intersection(description_words)) * 2
-
-            # Score based on category
-            if product.get('category', '').lower() in query.lower():
-                score += 10
-            
-            # Score based on tags
-            tag_words = set([tag.lower() for tag in product.get('tags', [])])
-            score += len(query_words.intersection(tag_words)) * 3
-
-            scored_products.append({**product, 'relevance_score': score})
-
-        # Sort by relevance score, then by significance
-        scored_products.sort(key=lambda p: (p.get('relevance_score', 0), p.get('significance', 0)), reverse=True)
-        
-        return scored_products
-
     def save(self, path: str):
         """Save model state including Adaptive Intelligence"""
         
@@ -456,44 +403,3 @@ class SimpleTokenizer:
                 words.append('<unk>')
         
         return ' '.join(words)
-
-    def _init_weights(self):
-        """Initialize weights using Xavier initialization"""
-        for name, param in self.named_parameters():
-            if 'weight' in name:
-                nn.init.xavier_uniform_(param)
-            elif 'bias' in name:
-                nn.init.zeros_(param)
-
-    def _extract_memory_patterns(self, memory_context: Optional[Dict[str, Any]]) -> List[str]:
-        """Extract relevant patterns from memory context"""
-        if not memory_context or 'patterns' not in memory_context:
-            return []
-
-        patterns = memory_context['patterns']
-        if not isinstance(patterns, list):
-            return []
-
-        # Filter and sort patterns by weight
-        valid_patterns = [p for p in patterns if isinstance(p, dict) and 'pattern' in p and 'weight' in p]
-        sorted_patterns = sorted(valid_patterns, key=lambda x: x.get('weight', 0), reverse=True)
-
-        # Extract top 3 patterns
-        top_patterns = [p['pattern'] for p in sorted_patterns[:3]]
-        return top_patterns
-
-    def _generate_chat_response(self, prompt, memory_patterns, confidence):
-        # Existing implementation
-        return f"Chat response to '{prompt}' with {', '.join(memory_patterns) if memory_patterns else 'no specific context'} (Confidence: {confidence:.2f})"
-
-    def _generate_code_response(self, prompt, memory_patterns, confidence):
-        # Existing implementation
-        return f"Code suggestion for '{prompt}' based on {', '.join(memory_patterns) if memory_patterns else 'general programming knowledge'} (Confidence: {confidence:.2f})"
-
-    def _generate_creative_response(self, prompt, memory_patterns, confidence):
-        # Existing implementation
-        return f"Creative text inspired by '{prompt}' and influenced by {', '.join(memory_patterns) if memory_patterns else 'general creativity principles'} (Confidence: {confidence:.2f})"
-
-    def _generate_analysis_response(self, prompt, memory_patterns, confidence):
-        # Existing implementation
-        return f"Analytical insights on '{prompt}' considering {', '.join(memory_patterns) if memory_patterns else 'standard analytical techniques'} (Confidence: {confidence:.2f})"

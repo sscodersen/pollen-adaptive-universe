@@ -1,3 +1,4 @@
+
 from fastapi import APIRouter, HTTPException, BackgroundTasks, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel
@@ -36,9 +37,6 @@ class GenerateResponse(BaseModel):
     confidence: float
     reasoning: Optional[str] = None
     metadata: Dict[str, Any]
-
-class ProductSearchRequest(BaseModel):
-    query: str
 
 # NOTE: The memory stats below are part of the old model architecture.
 # They are being temporarily commented out until new endpoints for the 
@@ -98,19 +96,6 @@ async def generate_content(
         
     except Exception as e:
         print(f"Generation error: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-@router.post("/products/search")
-async def search_products(request: ProductSearchRequest):
-    try:
-        if not pollen_ai:
-            raise HTTPException(status_code=503, detail="Pollen AI not loaded")
-
-        results = pollen_ai.semantic_search_products(request.query)
-        return results
-
-    except Exception as e:
-        print(f"Product search error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 # @router.get("/memory/stats", response_model=MemoryStats)
