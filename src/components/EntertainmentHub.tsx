@@ -1,11 +1,14 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
-import { Play, Headphones, BookOpen, Film, Music, Gamepad2, Sparkles, TrendingUp, Award, Send, Mic, Star, Trophy, Zap, Crown } from 'lucide-react';
+import { BookOpen, Film, Music, Headphones, Gamepad2, Sparkles, Crown } from 'lucide-react';
 import { pollenAI } from '../services/pollenAI';
 import { significanceAlgorithm } from '../services/significanceAlgorithm';
 import { ContentCard } from './entertainment/ContentCard';
 import { ContentViewer } from './entertainment/ContentViewer';
 import { CustomContentGenerator } from './entertainment/CustomContentGenerator';
 import { rankItems } from '../services/generalRanker';
+import { SignificanceBadge } from "./entertainment/SignificanceBadge";
+import { TrendingBadge } from "./entertainment/TrendingBadge";
 
 interface EntertainmentHubProps {
   isGenerating?: boolean;
@@ -36,6 +39,7 @@ export const EntertainmentHub = ({ isGenerating = false }: EntertainmentHubProps
   const [selectedContent, setSelectedContent] = useState<ContentItem | null>(null);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
+  const [sortBy, setSortBy] = useState("significance");
   const [userPrompt, setUserPrompt] = useState('');
   const [generatingCustom, setGeneratingCustom] = useState(false);
 
@@ -163,13 +167,14 @@ export const EntertainmentHub = ({ isGenerating = false }: EntertainmentHubProps
     }
   };
 
-  // USE generalRanker for content ranking
+  // Filter + sort logic
   const filteredContent = content.filter(item => {
     if (filter === 'trending') return item.trending;
     if (filter === 'all') return true;
     return item.type === filter;
   });
-  const sortedContent = rankItems(filteredContent, { type: "entertainment", sortBy: "significance" });
+  // Unified ranker logic
+  const sortedContent = rankItems(filteredContent, { type: "entertainment", sortBy });
 
   if (selectedContent) {
     return (
@@ -181,13 +186,13 @@ export const EntertainmentHub = ({ isGenerating = false }: EntertainmentHubProps
   }
 
   return (
-    <div className="flex-1 bg-gray-950">
+    <div className="flex-1 bg-gradient-to-br from-slate-950 via-gray-950 to-blue-1000 min-h-screen transition-all">
       {/* Header */}
       <div className="sticky top-0 z-10 bg-gray-900/95 backdrop-blur-sm border-b border-gray-800/50">
         <div className="p-6">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-3xl font-bold text-white mb-2">Entertainment Hub</h1>
+              <h1 className="text-3xl font-bold text-white mb-2 font-playfair drop-shadow">Entertainment Hub</h1>
               <p className="text-gray-400">AI-generated content • Interactive experiences • Personalized entertainment</p>
             </div>
             <div className="flex items-center space-x-3">
@@ -211,7 +216,7 @@ export const EntertainmentHub = ({ isGenerating = false }: EntertainmentHubProps
           />
 
           {/* Filter Tabs */}
-          <div className="flex items-center space-x-1 mt-6 overflow-x-auto">
+          <div className="flex items-center mt-6 overflow-x-auto gap-2">
             <button
               onClick={() => setFilter('all')}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${
@@ -246,19 +251,28 @@ export const EntertainmentHub = ({ isGenerating = false }: EntertainmentHubProps
                 <span>{name}</span>
               </button>
             ))}
+            {/* Sort Dropdown */}
+            <select
+              value={sortBy}
+              onChange={e => setSortBy(e.target.value)}
+              className="ml-auto bg-gray-800/50 border border-gray-700/50 rounded-lg px-4 py-2 text-white text-sm focus:outline-none focus:border-cyan-500/50 shadow"
+              style={{ minWidth: 140 }}
+            >
+              <option value="significance">Sort by Significance</option>
+              <option value="rating">Sort by Rating</option>
+              <option value="views">Sort by Views</option>
+              <option value="trending">Sort by Trending</option>
+            </select>
           </div>
         </div>
       </div>
 
       {/* Content Grid */}
       <div className="p-6">
-        {/* ------ SMART PRODUCTS SECTION ------ */}
-        {/* <SmartProductSection /> */}
-        {/* ----------------------------------- */}
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[...Array(6)].map((_, i) => (
-              <div key={i} className="bg-gray-900/50 rounded-xl p-6 animate-pulse">
+              <div key={i} className="bg-gray-900/50 rounded-xl p-6 animate-pulse shadow-lg">
                 <div className="h-4 bg-gray-700/50 rounded mb-4"></div>
                 <div className="h-3 bg-gray-800/50 rounded mb-2"></div>
                 <div className="h-3 bg-gray-800/50 rounded w-2/3"></div>
@@ -268,17 +282,45 @@ export const EntertainmentHub = ({ isGenerating = false }: EntertainmentHubProps
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {sortedContent.map((item) => (
-              <ContentCard
+              <div
                 key={item.id}
-                item={item}
-                onClick={setSelectedContent}
-              />
+                className="bg-gradient-to-br from-gray-900/60 via-gray-900/50 to-blue-950/50 rounded-xl border border-gray-800/50 p-6 hover:bg-gray-900/80 transition-all cursor-pointer group shadow-lg relative animate-fade-in"
+                onClick={() => setSelectedContent(item)}
+                role="button"
+                tabIndex={0}
+              >
+                {/* NEW BADGES Top-right */}
+                <div className="absolute top-4 right-4 flex gap-2 z-10">
+                  <TrendingBadge isTrending={item.trending} />
+                  <SignificanceBadge score={item.significance} />
+                </div>
+                {/* Info */}
+                <div className="flex items-center mb-2 gap-2">
+                  <span className="px-2 py-1 bg-purple-500/20 text-purple-300 rounded text-xs border border-purple-500/30">
+                    {item.category}
+                  </span>
+                  <span className="px-2 py-1 bg-gray-700/50 text-gray-300 rounded text-xs">{item.duration}</span>
+                  {item.difficulty && (
+                    <span className="px-2 py-1 bg-blue-900/20 text-blue-300 rounded text-xs border border-blue-800/30">
+                      {item.difficulty}
+                    </span>
+                  )}
+                </div>
+                <h3 className="text-lg font-bold text-white mb-2 group-hover:text-cyan-300 transition-colors truncate font-playfair">{item.title}</h3>
+                <p className="text-gray-400 text-sm mb-3 line-clamp-2">{item.description}</p>
+                {/* Meta */}
+                <div className="mt-4 flex justify-between text-xs text-gray-500">
+                  <span>👁 {item.views.toLocaleString()} views</span>
+                  <span>⭐ {item.rating.toFixed(1)} rating</span>
+                  <span>💬 {item.comments} comments</span>
+                </div>
+              </div>
             ))}
           </div>
         )}
 
         {!loading && filteredContent.length === 0 && (
-          <div className="text-center py-12">
+          <div className="text-center py-12 animate-fade-in">
             <Sparkles className="w-12 h-12 text-gray-600 mx-auto mb-4" />
             <p className="text-gray-400 text-lg">No content found for this filter</p>
             <p className="text-gray-500 text-sm mt-2">Try selecting a different category or generate custom content</p>
