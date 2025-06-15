@@ -12,7 +12,11 @@ import {
   Users, 
   Code,
   Activity,
-  TrendingUp
+  TrendingUp,
+  BarChart3,
+  Briefcase,
+  Target,
+  Zap
 } from 'lucide-react';
 
 const navigation = [
@@ -25,6 +29,9 @@ const navigation = [
   { name: 'Search & News', href: '/search', icon: Search, badge: null },
   { name: 'Social Layer', href: '/social', icon: Users, badge: null },
   { name: 'Code Studio', href: '/code', icon: Code, badge: null },
+  { name: 'Analytics', href: '/analytics', icon: BarChart3, badge: 'PRO' },
+  { name: 'Workspace', href: '/workspace', icon: Briefcase, badge: null },
+  { name: 'Ad Builder', href: '/ads', icon: Target, badge: 'NEW' },
 ];
 
 export const Sidebar = () => {
@@ -70,6 +77,8 @@ export const Sidebar = () => {
                   <span className={`px-2 py-0.5 rounded text-xs font-semibold ${
                     item.badge === 'AI' 
                       ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30'
+                      : item.badge === 'PRO'
+                      ? 'bg-orange-500/20 text-orange-300 border border-orange-500/30'
                       : 'bg-green-500/20 text-green-300 border border-green-500/30'
                   }`}>
                     {item.badge}
