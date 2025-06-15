@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import {
   Tabs,
@@ -8,6 +7,7 @@ import {
 } from "@/components/ui/tabs";
 import { SocialFeed } from "@/components/SocialFeed";
 import { Sparkles, Compass, Film, Gamepad2, Music, Settings, Home, TrendingUp, Award, Globe } from "lucide-react";
+import { AIGenerate } from "./AIGenerate";
 
 // Main navigation (from former sidebar)
 const navTabs = [
@@ -66,8 +66,10 @@ export function MainTabs() {
       <TabsContent value="feed" className="flex-1">
         <SocialFeed filter={feedCategory} />
       </TabsContent>
+      <TabsContent value="generate">
+        <AIGenerate />
+      </TabsContent>
       {/* Placeholder tabs for the rest */}
-      <TabsContent value="generate"><div className="p-10 text-lg text-slate-400">[Generate coming soon]</div></TabsContent>
       <TabsContent value="explore"><div className="p-10 text-lg text-slate-400">[Explore coming soon]</div></TabsContent>
       <TabsContent value="entertainment"><div className="p-10 text-lg text-slate-400">[Entertainment coming soon]</div></TabsContent>
       <TabsContent value="games"><div className="p-10 text-lg text-slate-400">[Games coming soon]</div></TabsContent>
