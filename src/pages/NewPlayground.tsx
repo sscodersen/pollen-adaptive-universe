@@ -1,5 +1,6 @@
+
 import React, { useState } from 'react';
-import { Bot, Globe, TrendingUp, Zap, Users } from 'lucide-react';
+import { Bot, Globe, TrendingUp, Zap, Users, Play, Search, ShoppingBag, Target } from 'lucide-react';
 import { UnifiedHeader } from '../components/UnifiedHeader';
 import { OptimizedActivityFeed } from '../components/OptimizedActivityFeed';
 import { IntelligenceDashboardOptimized } from '../components/IntelligenceDashboardOptimized';
@@ -42,28 +43,28 @@ const NewPlayground = () => {
     { 
       id: 'Entertainment', 
       name: 'Content Studio', 
-      icon: 'Play', 
+      icon: Play, 
       description: 'AI-generated entertainment', 
       gradient: PLATFORM_CONFIG.ui.colors.gradients.intelligence 
     },
     { 
       id: 'Search', 
       name: 'News Intelligence', 
-      icon: 'Search', 
+      icon: Search, 
       description: 'Real-time news analysis', 
       gradient: PLATFORM_CONFIG.ui.colors.gradients.system 
     },
     { 
       id: 'Shop', 
       name: 'Smart Commerce', 
-      icon: 'ShoppingBag', 
+      icon: ShoppingBag, 
       description: 'Intelligent shopping assistant', 
       gradient: PLATFORM_CONFIG.ui.colors.gradients.success 
     },
     { 
       id: 'Automation', 
       name: 'Task Automation', 
-      icon: 'Target', 
+      icon: Target, 
       description: 'Automated workflow intelligence', 
       gradient: PLATFORM_CONFIG.ui.colors.gradients.analytics 
     },
@@ -127,6 +128,7 @@ const NewPlayground = () => {
         <div className="flex space-x-2 px-6 py-4 overflow-x-auto scrollbar-thin">
           {tabs.map((tab) => {
             const isActive = activeTab === tab.id;
+            const IconComponent = tab.icon;
             
             return (
               <button
@@ -138,7 +140,7 @@ const NewPlayground = () => {
                     : 'text-gray-400 hover:text-gray-300 hover:bg-gray-800/50 border border-transparent'
                 }`}
               >
-                <tab.icon className={`w-5 h-5 transition-colors ${
+                <IconComponent className={`w-5 h-5 transition-colors ${
                   isActive ? 'text-white' : 'group-hover:text-white'
                 }`} />
                 <div className="text-left">

@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
@@ -14,6 +15,7 @@ import {
   Target
 } from 'lucide-react';
 import { useIntelligenceEngine } from '../hooks/useIntelligenceEngine';
+import { PlatformPerformanceMonitor } from './PlatformPerformanceMonitor';
 import { PLATFORM_CONFIG, getSystemStatus, formatMetric } from '../lib/platformConfig';
 
 export const IntelligenceDashboardOptimized: React.FC = () => {
@@ -129,6 +131,9 @@ export const IntelligenceDashboardOptimized: React.FC = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Performance Monitor */}
+      <PlatformPerformanceMonitor />
 
       {/* Core Intelligence Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
