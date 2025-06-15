@@ -1,8 +1,8 @@
-
 import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { pollenAI } from '../services/pollenAI';
 import { Product } from '../types';
+import { rankItems } from '../services/generalRanker';
 
 export const useProducts = () => {
   const [filter, setFilter] = useState('all');
@@ -44,21 +44,10 @@ export const useProducts = () => {
     });
   }, [products, filter]);
 
+  // Use the new generalRanker for all sorted products
   const sortedProducts = useMemo(() => {
-    // If there's a search query, we trust the backend's relevance sorting
-    // unless the user explicitly chooses another sort option.
-    if (searchQuery && sortBy === 'significance') {
-      return filteredProducts;
-    }
-    
-    return [...filteredProducts].sort((a, b) => {
-      if (sortBy === 'price') return parseFloat(a.price.replace(/[^0-9.]/g, '')) - parseFloat(b.price.replace(/[^0-9.]/g, ''));
-      if (sortBy === 'rating') return b.rating - a.rating;
-      if (sortBy === 'discount') return (b.discount || 0) - (a.discount || 0);
-      // default to significance
-      return b.significance - a.significance;
-    });
-  }, [filteredProducts, sortBy, searchQuery]);
+    return rankItems(filteredProducts, { type: "shop", sortBy: sortBy });
+  }, [filteredProducts, sortBy]);
 
   const categories = useMemo(() => {
     // Use allProducts to populate categories so they don't change with search
