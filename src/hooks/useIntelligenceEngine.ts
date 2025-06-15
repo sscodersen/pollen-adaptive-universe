@@ -21,7 +21,7 @@ interface IntelligenceData {
   };
   insights: Array<{
     id: string;
-    type: string;
+    type: 'breakthrough' | 'optimization' | 'prediction' | 'correlation' | 'anomaly';
     title: string;
     description: string;
     significance: number;
