@@ -1,9 +1,9 @@
-
-import React from 'react';
+import React, { useState } from 'react';
 import { useProducts } from '../hooks/useProducts';
 import { ShopHeader } from './shop/ShopHeader';
 import { FilterControls } from './shop/FilterControls';
 import { ProductGrid } from './shop/ProductGrid';
+import { CategorySources } from './shop/CategorySources';
 
 export const ShopHub = () => {
   const {
@@ -18,6 +18,17 @@ export const ShopHub = () => {
     sortBy,
     setSortBy,
   } = useProducts();
+
+  // New: Store selected category UI state for CategorySources binding
+  // We default to the filter, but you can choose to decouple if needed
+  const [categoryView, setCategoryView] = useState(filter === 'all' ? (categories[0] || 'all') : filter);
+
+  // Keep filter and categoryView in sync
+  React.useEffect(() => {
+    if (filter !== categoryView) {
+      setCategoryView(filter);
+    }
+  }, [filter]);
 
   return (
     <div className="flex-1 min-h-screen bg-gradient-to-br from-gray-950 to-gray-900 relative">
@@ -71,11 +82,24 @@ export const ShopHub = () => {
           />
         </div>
       </div>
-      {/* Product Grid */}
-      <div className="max-w-5xl mx-auto px-6 py-8 animate-fade-in">
-        <ProductGrid isLoading={isLoading} products={sortedProducts} />
+      {/* Central Layout: Category Sidebar + Main Grid */}
+      <div className="max-w-5xl mx-auto px-6 py-8 flex flex-col md:flex-row md:space-x-8 animate-fade-in">
+        {/* Category + Top Sources Sidebar (Only on Desktop and above main grid on mobile) */}
+        <div className="md:w-1/4 mb-8 md:mb-0">
+          <CategorySources
+            categories={categories}
+            activeCategory={categoryView}
+            setCategory={(cat) => {
+              setCategoryView(cat);
+              setFilter(cat);
+            }}
+          />
+        </div>
+        {/* Product Grid */}
+        <div className="flex-1">
+          <ProductGrid isLoading={isLoading} products={sortedProducts} />
+        </div>
       </div>
     </div>
   );
 };
-
