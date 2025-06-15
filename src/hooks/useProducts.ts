@@ -1,3 +1,4 @@
+
 import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { pollenAI } from '../services/pollenAI';
@@ -21,7 +22,7 @@ export const useProducts = () => {
   const { data: searchedProducts = [], isLoading: isLoadingSearch, refetch: refetchSearch } = useQuery<Product[]>({
     queryKey: ['products', 'search', searchQuery],
     queryFn: () => pollenAI.searchProducts(searchQuery),
-    stleTime: 5 * 60 * 1000,
+    staleTime: 5 * 60 * 1000,
     enabled: !!searchQuery,
   });
 
@@ -37,7 +38,7 @@ export const useProducts = () => {
 
   const filteredProducts = useMemo(() => {
     // Search is now handled by the backend, so we just handle local filters
-    return products.filter(product => {
+    return (products || []).filter(product => {
       if (filter === 'trending') return product.trending;
       if (filter === 'discounted') return !!(product.discount && product.discount > 0);
       if (filter === 'all') return true;
@@ -52,7 +53,7 @@ export const useProducts = () => {
 
   const categories = useMemo(() => {
     // Use allProducts to populate categories so they don't change with search
-    return [...new Set(allProducts.map(p => p.category))];
+    return [...new Set((allProducts || []).map(p => p.category))];
   }, [allProducts]);
 
   return {
