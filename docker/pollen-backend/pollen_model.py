@@ -1,4 +1,3 @@
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -242,7 +241,6 @@ class PollenLLMX(nn.Module):
         }
     
     def _generate_contextual_response(self, prompt, mode, context, memory_context, confidence):
-        # Keep existing implementation
         memory_patterns = self._extract_memory_patterns(memory_context)
         
         if mode == 'chat':
