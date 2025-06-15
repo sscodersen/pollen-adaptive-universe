@@ -14,6 +14,9 @@ type ShopItem = {
   discount?: number;
   rating?: number;
   price?: string;
+  quality?: number;
+  views?: number;
+  impact?: string;
 };
 
 type NewsItem = {
@@ -22,13 +25,16 @@ type NewsItem = {
   trending?: boolean;
   date?: string;
   rating?: number;
+  views?: number;
+  impact?: string;
 };
 
-type RankType = "shop" | "news" | "entertainment";
+type RankType = "shop" | "news" | "entertainment" | "social";
 
 interface RankOptions {
   type: RankType;
   sortBy?: string; // e.g., "significance", "rating", etc.
+  prioritizeQuality?: boolean;
 }
 
 export function rankItems<T extends object>(items: T[], options: RankOptions): T[] {
@@ -36,31 +42,76 @@ export function rankItems<T extends object>(items: T[], options: RankOptions): T
 
   switch (options.type) {
     case "shop": {
-      const sortBy = options.sortBy || "significance";
       return [...items].sort((a: any, b: any) => {
-        // Trending, then discount, then chosen sort field
+        // Multi-factor ranking for shop items
+        
+        // 1. Premium/High impact items first
+        if (a.impact === 'premium' && b.impact !== 'premium') return -1;
+        if (b.impact === 'premium' && a.impact !== 'premium') return 1;
+        
+        // 2. Trending items get priority
         if (a.trending !== b.trending) return b.trending - a.trending;
-        if ((b.discount ?? 0) !== (a.discount ?? 0)) return (b.discount ?? 0) - (a.discount ?? 0);
-        if (sortBy === "price" && a.price && b.price) {
-          return parseFloat(a.price.replace(/[^0-9.]/g, '')) - parseFloat(b.price.replace(/[^0-9.]/g, ''));
-        }
-        if (sortBy === "rating") return (b.rating ?? 0) - (a.rating ?? 0);
-        if (sortBy === "significance") return (b.significance ?? 0) - (a.significance ?? 0);
-        return 0;
+        
+        // 3. Significance score (weighted)
+        const aSignificance = (a.significance ?? 0) * 0.4;
+        const bSignificance = (b.significance ?? 0) * 0.4;
+        
+        // 4. Quality score (weighted)
+        const aQuality = (a.quality ?? 0) * 0.3;
+        const bQuality = (b.quality ?? 0) * 0.3;
+        
+        // 5. Rating (weighted)
+        const aRating = (a.rating ?? 0) * 0.2;
+        const bRating = (b.rating ?? 0) * 0.2;
+        
+        // 6. Views (weighted)
+        const aViews = (a.views ?? 0) / 1000 * 0.1; // Normalize views
+        const bViews = (b.views ?? 0) / 1000 * 0.1;
+        
+        const aScore = aSignificance + aQuality + aRating + aViews;
+        const bScore = bSignificance + bQuality + bRating + bViews;
+        
+        return bScore - aScore;
       });
     }
+    case "social": 
     case "news": {
-      // Rank news by significance, then trending, then recency
       return [...items].sort((a: any, b: any) => {
+        // 1. Critical/High impact first
+        if (a.impact === 'critical' && b.impact !== 'critical') return -1;
+        if (b.impact === 'critical' && a.impact !== 'critical') return 1;
+        
+        // 2. Trending priority
         if (a.trending !== b.trending) return b.trending - a.trending;
-        if ((b.significance ?? 0) !== (a.significance ?? 0)) return (b.significance ?? 0) - (a.significance ?? 0);
-        if (a.date && b.date) return new Date(b.date).getTime() - new Date(a.date).getTime();
-        return 0;
+        
+        // 3. Significance weighted heavily
+        const aSignificance = (a.significance ?? 0) * 0.5;
+        const bSignificance = (b.significance ?? 0) * 0.5;
+        
+        // 4. Views for engagement
+        const aViews = (a.views ?? 0) / 1000 * 0.3;
+        const bViews = (b.views ?? 0) / 1000 * 0.3;
+        
+        // 5. Quality
+        const aQuality = (a.quality ?? 0) * 0.2;
+        const bQuality = (b.quality ?? 0) * 0.2;
+        
+        const aScore = aSignificance + aViews + aQuality;
+        const bScore = bSignificance + bViews + bQuality;
+        
+        return bScore - aScore;
       });
     }
     case "entertainment": {
-      // Example: just sort by significance
-      return [...items].sort((a: any, b: any) => (b.significance ?? 0) - (a.significance ?? 0));
+      return [...items].sort((a: any, b: any) => {
+        // Entertainment focuses on engagement and quality
+        if (a.trending !== b.trending) return b.trending - a.trending;
+        
+        const aScore = (a.significance ?? 0) * 0.3 + (a.views ?? 0) / 1000 * 0.4 + (a.rating ?? 0) * 0.3;
+        const bScore = (b.significance ?? 0) * 0.3 + (b.views ?? 0) / 1000 * 0.4 + (b.rating ?? 0) * 0.3;
+        
+        return bScore - aScore;
+      });
     }
     default:
       return items;
