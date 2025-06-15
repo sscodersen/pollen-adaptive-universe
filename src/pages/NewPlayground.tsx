@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Menu, Users, ShoppingBag, Play, Search, Bot, Globe, BarChart3, Target, Briefcase } from 'lucide-react';
+import { ArrowLeft, Menu, Users, ShoppingBag, Play, Search, Bot, Globe, BarChart3, Target, Briefcase, TrendingUp, Zap } from 'lucide-react';
 import { UnifiedHeader } from '../components/UnifiedHeader';
 import { ActivityFeed } from '../components/ActivityFeed';
 import { SocialFeed } from '../components/SocialFeed';
