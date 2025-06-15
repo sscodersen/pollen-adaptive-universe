@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Sidebar } from './Sidebar';
-import { TopNav } from './TopNav';
+import { UnifiedHeader } from './UnifiedHeader';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -13,7 +13,11 @@ export const Layout = ({ children }: LayoutProps) => {
       <div className="flex h-screen">
         <Sidebar />
         <div className="flex-1 flex flex-col overflow-hidden">
-          <TopNav />
+          <UnifiedHeader 
+            title="Pollen"
+            subtitle="Intelligence Platform"
+            activeFeatures={['ai', 'learning', 'optimized']}
+          />
           <main className="flex-1 overflow-y-auto">
             {children}
           </main>
