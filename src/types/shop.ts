@@ -1,20 +1,24 @@
+
 export interface Product {
   id: string;
   name: string;
   description: string;
   price: string;
   originalPrice?: string;
+  discount?: number;
   rating: number;
   reviews: number;
   category: string;
+  brand: string;
   tags: string[];
-  significance: number;
-  trending: boolean;
   link: string;
-  seller: string;
-  discount?: number;
-  features: string[];
   inStock: boolean;
+  trending: boolean;
+  significance: number;
+  features: string[];
+  seller: string;
+  views: number;
+  rank: number;
+  quality: number;
+  impact: 'low' | 'medium' | 'high' | 'premium';
 }
-
-export type { Product } from './types/shop';

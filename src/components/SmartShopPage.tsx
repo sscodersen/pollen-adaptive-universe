@@ -1,127 +1,107 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
-import { ShoppingBag, Star, TrendingUp, Award, Search, ExternalLink, Zap, Eye, Target, Crown } from 'lucide-react';
 import { significanceAlgorithm } from '../services/significanceAlgorithm';
 import { rankItems } from '../services/generalRanker';
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { Product } from '../types/shop';
+import { ShopHeader } from './shop/ShopHeader';
+import { FilterControls } from './shop/FilterControls';
+import { ProductGrid } from './shop/ProductGrid';
 
-interface Product {
-  id: string;
-  name: string;
-  description: string;
-  price: string;
-  originalPrice?: string;
-  discount?: number;
-  rating: number;
-  reviews: number;
-  category: string;
-  brand: string;
-  tags: string[];
-  link: string;
-  inStock: boolean;
-  trending: boolean;
-  significance: number;
-  features: string[];
-  seller: string;
-  views: number;
-  rank: number;
-  quality: number;
-  impact: 'low' | 'medium' | 'high' | 'premium';
-}
+const productTemplates = [
+  {
+    name: 'AI-Powered Wireless Earbuds Pro',
+    description: 'Advanced noise cancellation with AI-driven sound optimization that adapts to your environment in real-time.',
+    category: 'Audio',
+    brand: 'TechFlow',
+    features: ['Active Noise Cancellation', 'AI Sound Optimization', '30-hour battery life'],
+    price: '$199',
+    originalPrice: '$299',
+    discount: 33,
+    tags: ['AI', 'Audio', 'Wireless', 'Premium']
+  },
+  {
+    name: 'Smart Home Security System 2024',
+    description: 'Complete home security with AI facial recognition, 24/7 monitoring, and smart alerts.',
+    category: 'Smart Home',
+    brand: 'SecureLife',
+    features: ['AI Facial Recognition', '4K Cameras', 'Mobile App Control'],
+    price: '$449',
+    originalPrice: '$599',
+    discount: 25,
+    tags: ['Security', 'Smart Home', 'AI', 'Surveillance']
+  },
+  {
+    name: 'Ergonomic Gaming Chair Pro',
+    description: 'Professional gaming chair with memory foam, RGB lighting, and ergonomic design for 12+ hour sessions.',
+    category: 'Gaming',
+    brand: 'GameThrone',
+    features: ['Memory Foam Cushioning', 'RGB Lighting', 'Adjustable Height'],
+    price: '$329',
+    discount: 0,
+    tags: ['Gaming', 'Ergonomic', 'RGB', 'Comfort']
+  },
+  {
+    name: 'Sustainable Water Bottle with UV-C',
+    description: 'Self-cleaning water bottle with UV-C sterilization technology and temperature control.',
+    category: 'Health',
+    brand: 'EcoClean',
+    features: ['UV-C Sterilization', 'Temperature Control', 'BPA-Free'],
+    price: '$89',
+    originalPrice: '$119',
+    discount: 25,
+    tags: ['Health', 'Sustainable', 'Technology', 'Eco-Friendly']
+  },
+  {
+    name: 'Professional Drone 4K Camera',
+    description: 'High-performance drone with 4K recording, obstacle avoidance, and 45-minute flight time.',
+    category: 'Photography',
+    brand: 'SkyVision',
+    features: ['4K Recording', 'Obstacle Avoidance', '45min Flight Time'],
+    price: '$899',
+    originalPrice: '$1199',
+    discount: 25,
+    tags: ['Drone', 'Photography', 'Professional', '4K']
+  },
+  {
+    name: 'Smart Fitness Mirror',
+    description: 'Interactive fitness mirror with AI personal trainer, real-time form correction, and workout tracking.',
+    category: 'Fitness',
+    brand: 'FitReflect',
+    features: ['AI Personal Trainer', 'Form Correction', 'Workout Tracking'],
+    price: '$1299',
+    originalPrice: '$1599',
+    discount: 19,
+    tags: ['Fitness', 'AI', 'Smart Mirror', 'Health']
+  },
+  {
+    name: 'Wireless Charging Desk Pad',
+    description: 'Premium leather desk pad with built-in wireless charging zones for multiple devices.',
+    category: 'Office',
+    brand: 'WorkSpace',
+    features: ['Wireless Charging', 'Premium Leather', 'Multiple Device Support'],
+    price: '$159',
+    discount: 0,
+    tags: ['Office', 'Wireless Charging', 'Premium', 'Productivity']
+  },
+  {
+    name: 'Smart Plant Care System',
+    description: 'Automated plant care with soil sensors, watering system, and mobile app monitoring.',
+    category: 'Home & Garden',
+    brand: 'GreenThumb',
+    features: ['Automated Watering', 'Soil Sensors', 'Mobile App'],
+    price: '$129',
+    originalPrice: '$179',
+    discount: 28,
+    tags: ['Smart Home', 'Plants', 'Automation', 'Gardening']
+  }
+];
 
 export const SmartShopPage = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-
-  const productTemplates = [
-    {
-      name: 'AI-Powered Wireless Earbuds Pro',
-      description: 'Advanced noise cancellation with AI-driven sound optimization that adapts to your environment in real-time.',
-      category: 'Audio',
-      brand: 'TechFlow',
-      features: ['Active Noise Cancellation', 'AI Sound Optimization', '30-hour battery life'],
-      price: '$199',
-      originalPrice: '$299',
-      discount: 33,
-      tags: ['AI', 'Audio', 'Wireless', 'Premium']
-    },
-    {
-      name: 'Smart Home Security System 2024',
-      description: 'Complete home security with AI facial recognition, 24/7 monitoring, and smart alerts.',
-      category: 'Smart Home',
-      brand: 'SecureLife',
-      features: ['AI Facial Recognition', '4K Cameras', 'Mobile App Control'],
-      price: '$449',
-      originalPrice: '$599',
-      discount: 25,
-      tags: ['Security', 'Smart Home', 'AI', 'Surveillance']
-    },
-    {
-      name: 'Ergonomic Gaming Chair Pro',
-      description: 'Professional gaming chair with memory foam, RGB lighting, and ergonomic design for 12+ hour sessions.',
-      category: 'Gaming',
-      brand: 'GameThrone',
-      features: ['Memory Foam Cushioning', 'RGB Lighting', 'Adjustable Height'],
-      price: '$329',
-      discount: 0,
-      tags: ['Gaming', 'Ergonomic', 'RGB', 'Comfort']
-    },
-    {
-      name: 'Sustainable Water Bottle with UV-C',
-      description: 'Self-cleaning water bottle with UV-C sterilization technology and temperature control.',
-      category: 'Health',
-      brand: 'EcoClean',
-      features: ['UV-C Sterilization', 'Temperature Control', 'BPA-Free'],
-      price: '$89',
-      originalPrice: '$119',
-      discount: 25,
-      tags: ['Health', 'Sustainable', 'Technology', 'Eco-Friendly']
-    },
-    {
-      name: 'Professional Drone 4K Camera',
-      description: 'High-performance drone with 4K recording, obstacle avoidance, and 45-minute flight time.',
-      category: 'Photography',
-      brand: 'SkyVision',
-      features: ['4K Recording', 'Obstacle Avoidance', '45min Flight Time'],
-      price: '$899',
-      originalPrice: '$1199',
-      discount: 25,
-      tags: ['Drone', 'Photography', 'Professional', '4K']
-    },
-    {
-      name: 'Smart Fitness Mirror',
-      description: 'Interactive fitness mirror with AI personal trainer, real-time form correction, and workout tracking.',
-      category: 'Fitness',
-      brand: 'FitReflect',
-      features: ['AI Personal Trainer', 'Form Correction', 'Workout Tracking'],
-      price: '$1299',
-      originalPrice: '$1599',
-      discount: 19,
-      tags: ['Fitness', 'AI', 'Smart Mirror', 'Health']
-    },
-    {
-      name: 'Wireless Charging Desk Pad',
-      description: 'Premium leather desk pad with built-in wireless charging zones for multiple devices.',
-      category: 'Office',
-      brand: 'WorkSpace',
-      features: ['Wireless Charging', 'Premium Leather', 'Multiple Device Support'],
-      price: '$159',
-      discount: 0,
-      tags: ['Office', 'Wireless Charging', 'Premium', 'Productivity']
-    },
-    {
-      name: 'Smart Plant Care System',
-      description: 'Automated plant care with soil sensors, watering system, and mobile app monitoring.',
-      category: 'Home & Garden',
-      brand: 'GreenThumb',
-      features: ['Automated Watering', 'Soil Sensors', 'Mobile App'],
-      price: '$129',
-      originalPrice: '$179',
-      discount: 28,
-      tags: ['Smart Home', 'Plants', 'Automation', 'Gardening']
-    }
-  ];
+  const [sortBy, setSortBy] = useState('significance');
+  const [filter, setFilter] = useState('all');
 
   const generateProduct = useCallback(async () => {
     const template = productTemplates[Math.floor(Math.random() * productTemplates.length)];
@@ -158,7 +138,7 @@ export const SmartShopPage = () => {
   const loadProducts = useCallback(async () => {
     setLoading(true);
     const newProducts = await Promise.all(
-      Array.from({ length: 12 }, () => generateProduct())
+      Array.from({ length: 16 }, () => generateProduct())
     );
     const rankedProducts = rankItems(newProducts, { type: 'shop' });
     setProducts(rankedProducts.map((product, index) => ({ ...product, rank: index + 1 })));
@@ -167,215 +147,54 @@ export const SmartShopPage = () => {
 
   useEffect(() => {
     loadProducts();
-    const interval = setInterval(loadProducts, 60000);
+    const interval = setInterval(loadProducts, 45000);
     return () => clearInterval(interval);
   }, [loadProducts]);
+
+  const categories = [...new Set(products.map(p => p.category))];
 
   const filteredProducts = products.filter(product => {
     const matchesSearch = !searchQuery || 
       product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       product.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
       product.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      product.brand.toLowerCase().includes(searchQuery.toLowerCase()) ||
       product.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
     
-    return matchesSearch;
+    const matchesFilter = filter === 'all' || 
+      filter === 'trending' && product.trending ||
+      filter === 'discounted' && (product.discount || 0) > 0 ||
+      product.category === filter;
+    
+    return matchesSearch && matchesFilter;
+  }).sort((a, b) => {
+    switch (sortBy) {
+      case 'price':
+        return parseFloat(a.price.replace('$', '')) - parseFloat(b.price.replace('$', ''));
+      case 'rating':
+        return b.rating - a.rating;
+      case 'discount':
+        return (b.discount || 0) - (a.discount || 0);
+      default:
+        return b.significance - a.significance;
+    }
   });
 
-  const getImpactColor = (impact: string) => {
-    switch (impact) {
-      case 'premium': return 'bg-gradient-to-r from-yellow-500 to-orange-500 text-white';
-      case 'high': return 'bg-red-500/20 text-red-300 border-red-500/30';
-      case 'medium': return 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30';
-      default: return 'bg-gray-500/20 text-gray-300 border-gray-500/30';
-    }
-  };
-
   return (
-    <div className="flex-1 bg-gray-950">
-      {/* Header with Search */}
-      <div className="sticky top-0 z-10 bg-gray-900/95 backdrop-blur-sm border-b border-gray-800/50">
-        <div className="p-6">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h1 className="text-3xl font-bold text-white mb-2 flex items-center gap-3">
-                <ShoppingBag className="w-8 h-8 text-cyan-400" />
-                Smart Shop
-              </h1>
-              <p className="text-gray-400">AI-ranked products • Quality ratings • Real-time deals</p>
-            </div>
-            <div className="flex items-center space-x-3">
-              <div className="px-4 py-2 bg-green-500/10 text-green-400 rounded-full text-sm font-medium border border-green-500/20 flex items-center space-x-2">
-                <Award className="w-4 h-4" />
-                <span>Quality Ranked</span>
-              </div>
-            </div>
-          </div>
-          
-          {/* Search Bar */}
-          <div className="relative max-w-md">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-            <Input
-              type="text"
-              placeholder="Search by product, brand, or category..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 bg-gray-800/50 border-gray-700 text-white placeholder-gray-400 focus:border-cyan-500"
-            />
-          </div>
-        </div>
-      </div>
+    <div className="flex-1 bg-gray-950 p-6">
+      <ShopHeader loading={loading} onRefresh={loadProducts} />
+      
+      <FilterControls
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        sortBy={sortBy}
+        setSortBy={setSortBy}
+        filter={filter}
+        setFilter={setFilter}
+        categories={categories}
+      />
 
-      {/* Products Grid */}
-      <div className="p-6">
-        {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {[...Array(12)].map((_, i) => (
-              <div key={i} className="bg-gray-900/50 rounded-xl p-6 border border-gray-800/50 animate-pulse">
-                <div className="w-full h-48 bg-gray-700 rounded-lg mb-4"></div>
-                <div className="w-3/4 h-4 bg-gray-700 rounded mb-2"></div>
-                <div className="w-full h-3 bg-gray-700 rounded mb-4"></div>
-                <div className="flex justify-between items-center mb-4">
-                  <div className="w-20 h-6 bg-gray-700 rounded"></div>
-                  <div className="w-16 h-4 bg-gray-700 rounded"></div>
-                </div>
-                <div className="w-full h-10 bg-gray-700 rounded"></div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredProducts.map((product) => (
-              <div key={product.id} className="bg-gray-900/50 rounded-xl border border-gray-800/50 p-6 hover:bg-gray-900/70 transition-all group relative">
-                {/* Ranking Badge */}
-                <div className="absolute top-3 right-3 z-10">
-                  <div className="px-2 py-1 bg-gray-800/90 text-gray-300 rounded-full text-xs font-bold border border-gray-700 flex items-center space-x-1">
-                    <Crown className="w-3 h-3" />
-                    <span>#{product.rank}</span>
-                  </div>
-                </div>
-
-                {/* Product Image Placeholder */}
-                <div className="w-full h-48 bg-gradient-to-br from-gray-800 to-gray-700 rounded-lg mb-4 flex items-center justify-center group-hover:from-cyan-500/20 group-hover:to-purple-500/20 transition-all relative">
-                  <ShoppingBag className="w-16 h-16 text-gray-500 group-hover:text-cyan-400 transition-colors" />
-                  {product.trending && (
-                    <div className="absolute top-3 left-3 px-2 py-1 bg-red-500/20 text-red-300 rounded text-xs font-medium border border-red-500/30 flex items-center gap-1 animate-pulse">
-                      <TrendingUp className="w-3 h-3" />
-                      Trending
-                    </div>
-                  )}
-                  {product.discount && product.discount > 0 && (
-                    <div className="absolute bottom-3 right-3 px-2 py-1 bg-green-500/20 text-green-300 rounded text-xs font-medium border border-green-500/30">
-                      -{product.discount}%
-                    </div>
-                  )}
-                </div>
-
-                {/* Product Info */}
-                <div className="flex flex-col h-full">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="px-2 py-1 bg-purple-500/20 text-purple-300 rounded text-xs border border-purple-500/30">
-                      {product.category}
-                    </span>
-                    <div className={`px-2 py-1 rounded text-xs font-bold ${
-                      product.impact === 'premium' ? getImpactColor(product.impact) :
-                      `border ${getImpactColor(product.impact)}`
-                    }`}>
-                      <Target className="w-3 h-3 inline mr-1" />
-                      {product.impact.toUpperCase()}
-                    </div>
-                  </div>
-
-                  <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-cyan-300 transition-colors line-clamp-2">
-                    {product.name}
-                  </h3>
-
-                  <p className="text-gray-400 text-sm mb-3 line-clamp-2 flex-grow">
-                    {product.description}
-                  </p>
-
-                  {/* Features */}
-                  <div className="mb-4">
-                    <div className="flex flex-wrap gap-1 mb-3">
-                      {product.features.slice(0, 2).map((feature, index) => (
-                        <span key={index} className="px-2 py-1 bg-gray-700/50 text-gray-300 rounded text-xs">
-                          {feature}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                  
-                  {/* Enhanced Metrics */}
-                  <div className="flex items-center justify-between mb-4 text-sm">
-                    <div className="flex items-center space-x-3">
-                      <div className="flex items-center space-x-1">
-                        <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                        <span className="text-white font-medium">{product.rating}</span>
-                      </div>
-                      <div className="flex items-center space-x-1 text-gray-400">
-                        <Eye className="w-4 h-4" />
-                        <span>{(product.views / 1000).toFixed(1)}k</span>
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <div className={`px-2 py-1 rounded text-xs font-medium ${
-                        product.significance > 8 
-                          ? 'bg-green-500/20 text-green-300 border border-green-500/30'
-                          : 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30'
-                      }`}>
-                        <Award className="w-3 h-3 inline mr-1" />
-                        {product.significance.toFixed(1)}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Price */}
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center space-x-2">
-                      <span className="text-xl font-bold text-white">{product.price}</span>
-                      {product.originalPrice && (
-                        <span className="text-sm text-gray-400 line-through">{product.originalPrice}</span>
-                      )}
-                    </div>
-                    <div className={`px-2 py-1 rounded text-xs ${
-                      product.inStock 
-                        ? 'bg-green-500/20 text-green-300'
-                        : 'bg-red-500/20 text-red-300'
-                    }`}>
-                      {product.inStock ? 'Available' : 'Out of Stock'}
-                    </div>
-                  </div>
-
-                  {/* Quality Score */}
-                  <div className="mb-4">
-                    <div className="flex items-center justify-between text-xs mb-1">
-                      <span className="text-gray-400">Quality Score</span>
-                      <span className="text-white font-medium">{product.quality}/100</span>
-                    </div>
-                    <div className="w-full bg-gray-700 rounded-full h-2">
-                      <div 
-                        className="bg-gradient-to-r from-cyan-500 to-purple-500 h-2 rounded-full transition-all" 
-                        style={{ width: `${product.quality}%` }}
-                      ></div>
-                    </div>
-                  </div>
-
-                  {/* Actions */}
-                  <div className="flex items-center space-x-2 mt-auto">
-                    <Button 
-                      className="flex-1 bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-600 hover:to-purple-600 text-white"
-                      size="sm"
-                    >
-                      <ShoppingBag className="w-4 h-4 mr-2" />
-                      Buy Now
-                      <ExternalLink className="w-4 h-4 ml-2" />
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+      <ProductGrid isLoading={loading} products={filteredProducts} />
     </div>
   );
 };
