@@ -1,6 +1,8 @@
 
 import React, { useState } from "react";
-import { Sparkles } from "lucide-react";
+import { Sparkles, Copy } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/components/ui/use-toast";
 
 interface AIGenerateResultCardProps {
   content: string;
@@ -14,6 +16,7 @@ export const AIGenerateResultCard: React.FC<AIGenerateResultCardProps> = ({
   reasoning,
 }) => {
   const [open, setOpen] = useState(false);
+  const { toast } = useToast();
 
   const confidencePercent = Math.round(confidence * 100);
   let confidenceColor =
@@ -23,6 +26,15 @@ export const AIGenerateResultCard: React.FC<AIGenerateResultCardProps> = ({
       ? "bg-yellow-400"
       : "bg-red-400";
 
+  const handleCopy = () => {
+    navigator.clipboard.writeText(content).then(() => {
+      toast({
+        title: "Copied to clipboard!",
+        description: "The AI result was copied successfully.",
+      });
+    });
+  };
+
   return (
     <div className="relative bg-slate-800/85 shadow-2xl rounded-2xl px-6 py-7 border border-slate-700 my-4 max-w-2xl mx-auto animate-fade-in glass backdrop-blur-lg">
       <div className="flex items-center gap-3 mb-4">
@@ -31,6 +43,15 @@ export const AIGenerateResultCard: React.FC<AIGenerateResultCardProps> = ({
           AI says:
         </span>
         <div className="flex-1 h-0.5 bg-gradient-to-r from-fuchsia-600 via-cyan-600 to-cyan-300 opacity-50 ml-2" />
+        <Button
+          variant="outline"
+          size="icon"
+          className="ml-2 px-2 py-1 rounded-lg hover-scale"
+          aria-label="Copy AI result"
+          onClick={handleCopy}
+        >
+          <Copy className="w-4 h-4" />
+        </Button>
       </div>
       <div className="text-lg text-cyan-100 font-semibold whitespace-pre-line mb-4">{content}</div>
       <div className="mb-4 flex flex-col gap-2">
