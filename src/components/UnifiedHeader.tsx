@@ -1,8 +1,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { Search, Sparkles, Brain, TrendingUp, Zap, Globe, Activity } from 'lucide-react';
-import { globalSearch } from '../services/globalSearch';
+import { enhancedGlobalSearch } from '../services/enhancedGlobalSearch';
 import { useNavigate } from 'react-router-dom';
+import { usePlatformState } from '../hooks/usePlatformState';
 
 interface SearchResult {
   id: string;
@@ -25,39 +26,22 @@ export const UnifiedHeader = ({ title, subtitle, activeFeatures = [] }: UnifiedH
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [showResults, setShowResults] = useState(false);
   const [insights, setInsights] = useState<any>(null);
-  const [systemStatus, setSystemStatus] = useState({
-    significanceAccuracy: 98.7,
-    crossDomainSynergy: 94.3,
-    activeConnections: 127,
-    learningRate: 97.2
-  });
+  const { metrics } = usePlatformState();
   const navigate = useNavigate();
 
   useEffect(() => {
     loadInsights();
-    
-    // Simulate real-time system updates
-    const interval = setInterval(() => {
-      setSystemStatus(prev => ({
-        significanceAccuracy: Math.min(99.9, prev.significanceAccuracy + (Math.random() * 0.2 - 0.1)),
-        crossDomainSynergy: Math.min(99.9, prev.crossDomainSynergy + (Math.random() * 0.3 - 0.15)),
-        activeConnections: prev.activeConnections + Math.floor(Math.random() * 5 - 2),
-        learningRate: Math.min(99.9, prev.learningRate + (Math.random() * 0.1))
-      }));
-    }, 8000);
-
-    return () => clearInterval(interval);
   }, []);
 
   const loadInsights = async () => {
-    const data = await globalSearch.getInsights();
+    const data = await enhancedGlobalSearch.getInsights();
     setInsights(data);
   };
 
   const handleSearch = async (query: string) => {
     setSearchQuery(query);
     if (query.length > 2) {
-      const results = await globalSearch.search(query);
+      const results = await enhancedGlobalSearch.search(query);
       setSearchResults(results);
       setShowResults(true);
     } else {
@@ -73,14 +57,14 @@ export const UnifiedHeader = ({ title, subtitle, activeFeatures = [] }: UnifiedH
 
   const getTypeColor = (type: string) => {
     const colors = {
+      intelligence: 'from-purple-500 to-pink-500',
       news: 'from-cyan-500 to-blue-500',
       entertainment: 'from-purple-500 to-pink-500',
-      product: 'from-green-500 to-emerald-500',
       social: 'from-orange-500 to-red-500',
       automation: 'from-violet-500 to-purple-500',
       analytics: 'from-blue-500 to-indigo-500',
       workspace: 'from-teal-500 to-cyan-500',
-      ads: 'from-rose-500 to-pink-500'
+      commerce: 'from-green-500 to-emerald-500'
     };
     return colors[type as keyof typeof colors] || 'from-gray-500 to-slate-500';
   };
@@ -155,7 +139,7 @@ export const UnifiedHeader = ({ title, subtitle, activeFeatures = [] }: UnifiedH
             )}
           </div>
 
-          {/* Enhanced Status Indicators */}
+          {/* Status Indicators */}
           <div className="flex items-center space-x-3">
             {activeFeatures.includes('ai') && (
               <div className="px-4 py-2 bg-green-500/10 text-green-400 rounded-full text-sm font-medium border border-green-500/20 flex items-center space-x-2">
@@ -178,7 +162,7 @@ export const UnifiedHeader = ({ title, subtitle, activeFeatures = [] }: UnifiedH
           </div>
         </div>
 
-        {/* Enhanced Real-time Intelligence Bar */}
+        {/* Real-time Intelligence Bar */}
         {insights && (
           <div className="flex items-center justify-between text-sm">
             <div className="flex items-center space-x-6 text-slate-400">
@@ -192,17 +176,17 @@ export const UnifiedHeader = ({ title, subtitle, activeFeatures = [] }: UnifiedH
               </div>
               <div className="flex items-center space-x-2">
                 <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
-                <span>{systemStatus.activeConnections} cross-domain links</span>
+                <span>{metrics.crossDomainConnections} cross-domain links</span>
               </div>
               <div className="flex items-center space-x-2">
                 <Activity className="w-3 h-3 text-orange-400" />
-                <span>{systemStatus.significanceAccuracy.toFixed(1)}% accuracy</span>
+                <span>{insights.learningMetrics?.accuracy?.toFixed(1)}% accuracy</span>
               </div>
             </div>
             
             <div className="flex items-center space-x-4">
               <div className="px-3 py-1 bg-gradient-to-r from-cyan-500/10 to-purple-500/10 text-cyan-300 rounded-full border border-cyan-500/20 text-xs font-medium">
-                Intelligence Synergy: {systemStatus.crossDomainSynergy.toFixed(1)}%
+                Intelligence Synergy: {metrics.intelligenceSynergy.toFixed(1)}%
               </div>
               <div className="px-3 py-1 bg-gradient-to-r from-green-500/10 to-emerald-500/10 text-green-300 rounded-full border border-green-500/20 text-xs font-medium">
                 Operating System for Digital Life • Production Ready
