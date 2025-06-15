@@ -5,6 +5,7 @@ import { significanceAlgorithm } from '../services/significanceAlgorithm';
 
 interface SocialFeedProps {
   isGenerating?: boolean;
+  filter?: string; // Pass filter from MainTabs, not local state
 }
 
 interface Post {
@@ -29,10 +30,9 @@ interface Post {
   quality: number;
 }
 
-export const SocialFeed = ({ isGenerating = false }: SocialFeedProps) => {
+export const SocialFeed = ({ isGenerating = false, filter = "all" }: SocialFeedProps) => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState('all');
   const [sortBy, setSortBy] = useState('trending');
 
   const realUsers = [
@@ -142,40 +142,6 @@ export const SocialFeed = ({ isGenerating = false }: SocialFeedProps) => {
                 <span>Live</span>
               </div>
             </div>
-          </div>
-
-          {/* Filters */}
-          <div className="flex items-center justify-between">
-            <div className="flex space-x-2">
-              {[
-                { id: 'all', name: 'All Posts', icon: Globe },
-                { id: 'trending', name: 'Trending', icon: TrendingUp },
-                { id: 'high-impact', name: 'High Impact', icon: Award }
-              ].map((filterOption) => (
-                <button
-                  key={filterOption.id}
-                  onClick={() => setFilter(filterOption.id)}
-                  className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all ${
-                    filter === filterOption.id
-                      ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30'
-                      : 'bg-gray-800/50 text-gray-400 hover:bg-gray-700/50 border border-gray-700/30'
-                  }`}
-                >
-                  <filterOption.icon className="w-4 h-4" />
-                  <span className="text-sm font-medium">{filterOption.name}</span>
-                </button>
-              ))}
-            </div>
-
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              className="bg-gray-800/50 border border-gray-700/50 rounded-lg px-4 py-2 text-white text-sm focus:outline-none focus:border-cyan-500/50"
-            >
-              <option value="trending">Sort by Significance</option>
-              <option value="engagement">Sort by Engagement</option>
-              <option value="recent">Sort by Recent</option>
-            </select>
           </div>
         </div>
       </div>
