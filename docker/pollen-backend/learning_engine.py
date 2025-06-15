@@ -1,4 +1,3 @@
-
 import asyncio
 import torch
 import torch.nn as nn
@@ -6,6 +5,7 @@ import numpy as np
 from typing import Dict, List, Any, Optional
 from datetime import datetime
 import json
+import os
 
 class LearningEngine:
     """
@@ -17,6 +17,7 @@ class LearningEngine:
     
     def __init__(self):
         self.learning_enabled = True
+        self.auto_learning_enabled = True  # new: allow toggling auto-learning
         self.adaptation_rate = 0.001
         self.feedback_buffer = []
         self.learning_stats = {
@@ -26,6 +27,9 @@ class LearningEngine:
             'last_adaptation': None
         }
         
+        # Local feedback buffer persistence
+        self.feedback_store_path = "./pollen_feedback_buffer.json"
+
         # Learning parameters
         self.min_confidence_threshold = 0.6
         self.adaptation_frequency = 10  # Adapt every N interactions
@@ -41,7 +45,7 @@ class LearningEngine:
     ):
         """Process interaction for learning opportunities"""
         
-        if not self.learning_enabled:
+        if not self.learning_enabled or not self.auto_learning_enabled:
             return
         
         try:
@@ -56,12 +60,14 @@ class LearningEngine:
                 'timestamp': datetime.utcnow().isoformat()
             }
             
-            # Add to feedback buffer
+            # Add feedback & persist
             self.feedback_buffer.append(interaction_data)
+            self.save_feedback_buffer()  # Persist on every add
             
             # Maintain buffer size
             if len(self.feedback_buffer) > self.max_feedback_buffer:
                 self.feedback_buffer = self.feedback_buffer[-self.max_feedback_buffer:]
+                self.save_feedback_buffer()
             
             # Check if adaptation is needed
             if len(self.feedback_buffer) % self.adaptation_frequency == 0:
@@ -229,7 +235,7 @@ class LearningEngine:
         
         # Add to feedback buffer with high priority
         self.feedback_buffer.insert(0, feedback_entry)
-        
+        self.save_feedback_buffer()
         print(f"📝 User feedback received: {feedback_type} from {user_session[:8]}")
     
     def toggle_learning(self, user_session: str) -> bool:
@@ -237,6 +243,12 @@ class LearningEngine:
         
         self.learning_enabled = not self.learning_enabled
         return self.learning_enabled
+    
+    def toggle_auto_learning(self) -> bool:
+        """Toggle auto-learning mode (local, not per user)"""
+        self.auto_learning_enabled = not self.auto_learning_enabled
+        print(f"Auto-learning {'enabled' if self.auto_learning_enabled else 'disabled'}.")
+        return self.auto_learning_enabled
     
     def get_learning_stats(self) -> Dict[str, Any]:
         """Get learning engine statistics"""
@@ -282,3 +294,25 @@ class LearningEngine:
                 'adaptation_frequency': self.adaptation_frequency
             }
         }
+    
+    def save_feedback_buffer(self):
+        """Save feedback buffer locally to disk."""
+        try:
+            with open(self.feedback_store_path, "w", encoding="utf-8") as f:
+                json.dump(self.feedback_buffer, f)
+            print(f"💾 Feedback buffer saved locally to {self.feedback_store_path}")
+        except Exception as e:
+            print(f"Failed to save feedback buffer: {e}")
+    
+    def load_feedback_buffer(self):
+        """Load feedback buffer from disk if exists."""
+        try:
+            if os.path.exists(self.feedback_store_path):
+                with open(self.feedback_store_path, "r", encoding="utf-8") as f:
+                    self.feedback_buffer = json.load(f)
+                print(f"📥 Feedback buffer loaded from {self.feedback_store_path}")
+            else:
+                self.feedback_buffer = []
+        except Exception as e:
+            print(f"Failed to load feedback buffer: {e}")
+            self.feedback_buffer = []
