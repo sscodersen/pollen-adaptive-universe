@@ -1,6 +1,6 @@
-
 import React, { useState } from "react";
 import { Sparkles } from "lucide-react";
+import { AIGenerateResultCard } from "./AIGenerateResultCard";
 
 export function AIGenerate() {
   const [prompt, setPrompt] = useState("");
@@ -75,8 +75,32 @@ export function AIGenerate() {
         </div>
       )}
       {result && (
-        <div className="mt-6 bg-slate-800 p-4 rounded-lg border border-slate-700 text-cyan-200 whitespace-pre-line">
-          {result}
+        <div className="mt-6">
+          <AIGenerateResultCard
+            content={
+              typeof result === "string"
+                ? result
+                    .replace(/^✨ AI says:\s*"(.*?)"\n\nConfidence:.*\n(?:Reasoning:.*)?$/, "$1")
+                    .replace(/^(.*?)\n\nConfidence:.*/s, "$1")
+                : ""
+            }
+            confidence={
+              (() => {
+                if (!result || typeof result !== "string") return 0.85;
+                const match = result.match(/Confidence: ([0-9.]+)%/);
+                if (match) return parseFloat(match[1]) / 100;
+                return 0.85;
+              })()
+            }
+            reasoning={
+              (() => {
+                if (!result || typeof result !== "string") return undefined;
+                const match = result.match(/Reasoning: (.*)/s);
+                if (match) return match[1];
+                return undefined;
+              })()
+            }
+          />
         </div>
       )}
     </div>
