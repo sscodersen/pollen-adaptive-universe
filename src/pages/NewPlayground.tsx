@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Menu, Users, ShoppingBag, Play, Search, Bot, Globe, BarChart3 } from 'lucide-react';
 import { ActivityFeed } from '../components/ActivityFeed';
@@ -9,7 +8,6 @@ import { CommunityHub } from '../components/CommunityHub';
 import { TaskAutomation } from '../components/TaskAutomation';
 import { ShopHub } from '../components/ShopHub';
 import { AnalyticsDashboard } from '../components/AnalyticsDashboard';
-import { webScrapingService } from '../services/webScrapingService';
 import { pollenAI } from '../services/pollenAI';
 
 const NewPlayground = () => {
@@ -66,7 +64,7 @@ const NewPlayground = () => {
     });
   };
 
-  const initializePlatform = async () => {
+  const initializePlatform = () => {
     setIsGenerating(true);
     
     // Generate initial activities for community hub
@@ -115,19 +113,7 @@ const NewPlayground = () => {
     ];
     
     setActivities(initialActivities);
-
-    // Initialize web scraping and content generation
-    try {
-      await Promise.all([
-        webScrapingService.scrapeContent('news', 8),
-        webScrapingService.scrapeContent('shop', 10),
-        webScrapingService.scrapeContent('entertainment', 6)
-      ]);
-    } catch (error) {
-      console.error('Platform initialization error:', error);
-    } finally {
-      setIsGenerating(false);
-    }
+    setIsGenerating(false);
   };
 
   const renderTabContent = () => {
@@ -139,7 +125,7 @@ const NewPlayground = () => {
       case 'Search':
         return <NewsEngine isGenerating={isGenerating} />;
       case 'Shop':
-        return <ShopHub isGenerating={isGenerating} />;
+        return <ShopHub />;
       case 'Automation':
         return <TaskAutomation isGenerating={isGenerating} />;
       case 'Community':
