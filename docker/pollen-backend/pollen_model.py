@@ -1,3 +1,4 @@
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -417,46 +418,6 @@ class PollenLLMX(nn.Module):
         print(f"📦 Pollen LLMX with Adaptive Intelligence loaded from {path}")
         return model
 
-
-class SimpleTokenizer:
-    """Simple tokenizer for demonstration"""
-    
-    def __init__(self, vocab_size: int):
-        self.vocab_size = vocab_size
-        self.word_to_id = {}
-        self.id_to_word = {}
-        self.next_id = 0
-    
-    def encode(self, text: str) -> List[int]:
-        words = text.lower().split()
-        ids = []
-        
-        for word in words:
-            if word not in self.word_to_id:
-                if self.next_id < self.vocab_size:
-                    self.word_to_id[word] = self.next_id
-                    self.id_to_word[self.next_id] = word
-                    self.next_id += 1
-                else:
-                    word = '<unk>'
-                    if word not in self.word_to_id:
-                        self.word_to_id[word] = 0
-                        self.id_to_word[0] = word
-            
-            ids.append(self.word_to_id[word])
-        
-        return ids
-    
-    def decode(self, ids: List[int]) -> str:
-        words = []
-        for id in ids:
-            if id in self.id_to_word:
-                words.append(self.id_to_word[id])
-            else:
-                words.append('<unk>')
-        
-        return ' '.join(words)
-
     def _init_weights(self):
         """Initialize weights using Xavier initialization"""
         for name, param in self.named_parameters():
@@ -497,3 +458,43 @@ class SimpleTokenizer:
     def _generate_analysis_response(self, prompt, memory_patterns, confidence):
         # Existing implementation
         return f"Analytical insights on '{prompt}' considering {', '.join(memory_patterns) if memory_patterns else 'standard analytical techniques'} (Confidence: {confidence:.2f})"
+
+
+class SimpleTokenizer:
+    """Simple tokenizer for demonstration"""
+    
+    def __init__(self, vocab_size: int):
+        self.vocab_size = vocab_size
+        self.word_to_id = {}
+        self.id_to_word = {}
+        self.next_id = 0
+    
+    def encode(self, text: str) -> List[int]:
+        words = text.lower().split()
+        ids = []
+        
+        for word in words:
+            if word not in self.word_to_id:
+                if self.next_id < self.vocab_size:
+                    self.word_to_id[word] = self.next_id
+                    self.id_to_word[self.next_id] = word
+                    self.next_id += 1
+                else:
+                    word = '<unk>'
+                    if word not in self.word_to_id:
+                        self.word_to_id[word] = 0
+                        self.id_to_word[0] = word
+            
+            ids.append(self.word_to_id[word])
+        
+        return ids
+    
+    def decode(self, ids: List[int]) -> str:
+        words = []
+        for id in ids:
+            if id in self.id_to_word:
+                words.append(self.id_to_word[id])
+            else:
+                words.append('<unk>')
+        
+        return ' '.join(words)
