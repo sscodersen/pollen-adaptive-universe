@@ -1,8 +1,10 @@
-
 import React, { useState } from 'react';
 import { Music, Play, Heart, Share2, Clock, Headphones, Mic, Radio } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { MusicGenerator } from './music/MusicGenerator';
+import { GeneratedTracks } from './music/GeneratedTracks';
+import { GeneratedTrack } from '../services/musicGenerator';
 
 const tracks = [
   {
@@ -67,6 +69,22 @@ const genres = [
 
 export function MusicPage() {
   const [currentlyPlaying, setCurrentlyPlaying] = useState<number | null>(null);
+  const [generatedTracks, setGeneratedTracks] = useState<GeneratedTrack[]>([]);
+  const [currentlyPlayingGenerated, setCurrentlyPlayingGenerated] = useState<string | null>(null);
+
+  const handleTrackGenerated = (track: GeneratedTrack) => {
+    setGeneratedTracks(prev => [track, ...prev]);
+  };
+
+  const handlePlayGenerated = (trackId: string) => {
+    setCurrentlyPlayingGenerated(currentlyPlayingGenerated === trackId ? null : trackId);
+    setCurrentlyPlaying(null); // Stop regular tracks
+  };
+
+  const handlePlayRegular = (trackId: number) => {
+    setCurrentlyPlaying(currentlyPlaying === trackId ? null : trackId);
+    setCurrentlyPlayingGenerated(null); // Stop generated tracks
+  };
 
   return (
     <div className="flex-1 bg-gray-950 min-h-screen">
@@ -82,6 +100,22 @@ export function MusicPage() {
       </div>
 
       <div className="max-w-6xl mx-auto p-6">
+        {/* AI Music Generator */}
+        <div className="mb-8">
+          <MusicGenerator onTrackGenerated={handleTrackGenerated} />
+        </div>
+
+        {/* Generated Tracks */}
+        {generatedTracks.length > 0 && (
+          <div className="mb-8">
+            <GeneratedTracks 
+              tracks={generatedTracks}
+              currentlyPlaying={currentlyPlayingGenerated}
+              onPlay={handlePlayGenerated}
+            />
+          </div>
+        )}
+
         {/* Music Genres */}
         <div className="mb-8">
           <h2 className="text-2xl font-bold text-white mb-4">Explore Genres</h2>
@@ -121,7 +155,7 @@ export function MusicPage() {
                       {/* Track Thumbnail */}
                       <div className={`${track.thumbnail} w-16 h-16 rounded-lg flex items-center justify-center relative`}>
                         <button
-                          onClick={() => setCurrentlyPlaying(currentlyPlaying === track.id ? null : track.id)}
+                          onClick={() => handlePlayRegular(track.id)}
                           className="hover:scale-110 transition-transform"
                         >
                           <Play className="w-6 h-6 text-white" />
@@ -206,29 +240,54 @@ export function MusicPage() {
           {/* Sidebar */}
           <div className="space-y-8">
             {/* Now Playing */}
-            {currentlyPlaying && (
+            {(currentlyPlaying || currentlyPlayingGenerated) && (
               <div>
                 <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
                   <Radio className="w-5 h-5 text-pink-400" />
                   Now Playing
                 </h2>
                 <div className="bg-gray-900/50 rounded-lg border border-gray-800/50 p-4">
-                  {tracks.filter(t => t.id === currentlyPlaying).map(track => (
-                    <div key={track.id}>
-                      <div className={`${track.thumbnail} w-full h-32 rounded-lg mb-4 flex items-center justify-center`}>
-                        <Play className="w-12 h-12 text-white" />
+                  {currentlyPlayingGenerated && (
+                    // Show generated track that's playing
+                    generatedTracks.filter(t => t.id === currentlyPlayingGenerated).map(track => (
+                      <div key={track.id}>
+                        <div className={`${track.thumbnail} w-full h-32 rounded-lg mb-4 flex items-center justify-center relative`}>
+                          <Play className="w-12 h-12 text-white" />
+                          <Badge className="absolute top-2 right-2 bg-pink-500 hover:bg-pink-500 text-xs">
+                            AI Generated
+                          </Badge>
+                        </div>
+                        <h3 className="font-semibold text-white mb-1">{track.title}</h3>
+                        <p className="text-gray-400 text-sm mb-2">{track.artist}</p>
+                        <div className="w-full bg-gray-700 rounded-full h-1 mb-2">
+                          <div className="bg-pink-500 h-1 rounded-full w-1/3"></div>
+                        </div>
+                        <div className="flex justify-between text-xs text-gray-400">
+                          <span>1:23</span>
+                          <span>{track.duration}</span>
+                        </div>
                       </div>
-                      <h3 className="font-semibold text-white mb-1">{track.title}</h3>
-                      <p className="text-gray-400 text-sm mb-2">{track.artist}</p>
-                      <div className="w-full bg-gray-700 rounded-full h-1 mb-2">
-                        <div className="bg-pink-500 h-1 rounded-full w-1/3"></div>
+                    ))
+                  )}
+                  {currentlyPlaying && !currentlyPlayingGenerated && (
+                    // Show regular track that's playing
+                    tracks.filter(t => t.id === currentlyPlaying).map(track => (
+                      <div>
+                        <div className={`${track.thumbnail} w-full h-32 rounded-lg mb-4 flex items-center justify-center`}>
+                          <Play className="w-12 h-12 text-white" />
+                        </div>
+                        <h3 className="font-semibold text-white mb-1">{track.title}</h3>
+                        <p className="text-gray-400 text-sm mb-2">{track.artist}</p>
+                        <div className="w-full bg-gray-700 rounded-full h-1 mb-2">
+                          <div className="bg-pink-500 h-1 rounded-full w-1/3"></div>
+                        </div>
+                        <div className="flex justify-between text-xs text-gray-400">
+                          <span>1:23</span>
+                          <span>{track.duration}</span>
+                        </div>
                       </div>
-                      <div className="flex justify-between text-xs text-gray-400">
-                        <span>1:23</span>
-                        <span>{track.duration}</span>
-                      </div>
-                    </div>
-                  ))}
+                    ))
+                  )}
                 </div>
               </div>
             )}
