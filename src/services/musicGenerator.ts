@@ -1,5 +1,5 @@
-
 import { pollenAI } from './pollenAI';
+import { pythonScriptIntegration } from './pythonScriptIntegration';
 
 export interface MusicGenerationRequest {
   prompt: string;
@@ -21,10 +21,8 @@ export interface GeneratedTrack {
 }
 
 class MusicGenerator {
-  private huggingFaceApiUrl = 'https://api-inference.huggingface.co/models/ACE-Step/ACE-Step';
-  
   async generateMusic(request: MusicGenerationRequest): Promise<GeneratedTrack> {
-    console.log('🎵 Starting music generation with Pollen AI filtering...');
+    console.log('🎵 Starting AI music generation pipeline...');
     
     // First, use Pollen AI to enhance and filter the music request
     const pollenResponse = await pollenAI.generate(
@@ -40,26 +38,58 @@ class MusicGenerator {
     // Generate a unique track ID
     const trackId = `generated-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     
-    // Create mock track data (in real implementation, this would call the HuggingFace API)
-    const mockTrack: GeneratedTrack = {
-      id: trackId,
-      title: this.generateTrackTitle(request.prompt, request.genre),
-      artist: 'AI Composer',
-      duration: request.duration ? `${Math.floor(request.duration / 60)}:${(request.duration % 60).toString().padStart(2, '0')}` : '3:24',
-      audioUrl: this.generateMockAudioUrl(trackId),
-      genre: request.genre || 'Electronic',
-      mood: request.mood || 'Upbeat',
-      thumbnail: this.generateThumbnail(request.genre || 'Electronic'),
-      isGenerating: true
-    };
+    // Try to call Python script for actual generation
+    const pythonResponse = await pythonScriptIntegration.generateMusic({
+      prompt: enhancedPrompt,
+      genre: request.genre,
+      mood: request.mood,
+      duration: request.duration
+    });
     
-    // Simulate generation time
-    setTimeout(() => {
-      mockTrack.isGenerating = false;
-      console.log('🎵 Music generation completed:', mockTrack.title);
-    }, 3000);
+    let mockTrack: GeneratedTrack;
+    
+    if (pythonResponse.success && pythonResponse.data) {
+      // Use Python script response
+      mockTrack = {
+        id: trackId,
+        title: pythonResponse.data.title || this.generateTrackTitle(request.prompt, request.genre),
+        artist: pythonResponse.data.artist || 'AI Composer',
+        duration: pythonResponse.data.duration || this.formatDuration(request.duration || 180),
+        audioUrl: pythonResponse.data.audioUrl || this.generateMockAudioUrl(trackId),
+        genre: request.genre || 'Electronic',
+        mood: request.mood || 'Upbeat',
+        thumbnail: this.generateThumbnail(request.genre || 'Electronic'),
+        isGenerating: false
+      };
+    } else {
+      // Fallback to simulation
+      console.log('📝 Python script not available, using simulation mode');
+      mockTrack = {
+        id: trackId,
+        title: this.generateTrackTitle(request.prompt, request.genre),
+        artist: 'AI Composer',
+        duration: this.formatDuration(request.duration || 180),
+        audioUrl: this.generateMockAudioUrl(trackId),
+        genre: request.genre || 'Electronic',
+        mood: request.mood || 'Upbeat',
+        thumbnail: this.generateThumbnail(request.genre || 'Electronic'),
+        isGenerating: true
+      };
+      
+      // Simulate generation time
+      setTimeout(() => {
+        mockTrack.isGenerating = false;
+        console.log('🎵 Music generation completed:', mockTrack.title);
+      }, 3000);
+    }
     
     return mockTrack;
+  }
+  
+  private formatDuration(seconds: number): string {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
   }
   
   private generateTrackTitle(prompt: string, genre?: string): string {

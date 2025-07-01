@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { musicGenerator, GeneratedTrack } from '../../services/musicGenerator';
+import { PythonScriptStatus } from '../automation/PythonScriptStatus';
 
 interface MusicGeneratorProps {
   onTrackGenerated: (track: GeneratedTrack) => void;
@@ -48,14 +49,17 @@ export const MusicGenerator: React.FC<MusicGeneratorProps> = ({ onTrackGenerated
 
   return (
     <div className="bg-gray-900/50 rounded-lg border border-gray-800/50 p-6">
-      <div className="flex items-center gap-3 mb-6">
-        <div className="p-2 bg-pink-500/20 rounded-lg">
-          <Wand2 className="w-5 h-5 text-pink-400" />
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-pink-500/20 rounded-lg">
+            <Wand2 className="w-5 h-5 text-pink-400" />
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold text-white">AI Music Generator</h3>
+            <p className="text-sm text-gray-400">Powered by Pollen AI + ACE-Step + Python Automation</p>
+          </div>
         </div>
-        <div>
-          <h3 className="text-lg font-semibold text-white">AI Music Generator</h3>
-          <p className="text-sm text-gray-400">Powered by Pollen AI + ACE-Step</p>
-        </div>
+        <PythonScriptStatus scriptType="music" />
       </div>
 
       {/* Genre Selection */}
