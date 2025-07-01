@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Product } from '../../types';
+import { Product } from '../../types/shop';
 import { ShoppingBag, ExternalLink, Star, TrendingUp, Heart, Share2 } from 'lucide-react';
 
 interface ProductCardProps {

@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Product } from '../../types';
+import { Product } from '../../types/shop';
 import { ProductCard } from './ProductCard';
 import { Frown } from 'lucide-react';
 
