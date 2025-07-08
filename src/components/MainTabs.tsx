@@ -13,13 +13,15 @@ import { GamesPage } from "@/components/GamesPage";
 import { MusicPage } from "@/components/MusicPage";
 import { AdCreationPage } from "@/components/AdCreationPage";
 import { SmartShopPage } from "@/components/SmartShopPage";
-import { Compass, Film, Gamepad2, Music, Home, TrendingUp, Award, Globe, Megaphone, ShoppingBag } from "lucide-react";
+import { AppStorePage } from "@/components/AppStorePage";
+import { Compass, Film, Gamepad2, Music, Home, TrendingUp, Award, Globe, Megaphone, ShoppingBag, Smartphone } from "lucide-react";
 
 // Main navigation
 const navTabs = [
   { id: "feed", name: "Feed", icon: Home },
   { id: "explore", name: "Explore", icon: Compass },
   { id: "shop", name: "Smart Shop", icon: ShoppingBag },
+  { id: "appstore", name: "App Store", icon: Smartphone },
   { id: "entertainment", name: "Entertainment", icon: Film },
   { id: "games", name: "Games", icon: Gamepad2 },
   { id: "music", name: "Music", icon: Music },
@@ -77,6 +79,9 @@ export function MainTabs() {
       </TabsContent>
       <TabsContent value="shop" className="flex-1">
         <SmartShopPage />
+      </TabsContent>
+      <TabsContent value="appstore" className="flex-1">
+        <AppStorePage />
       </TabsContent>
       <TabsContent value="entertainment" className="flex-1">
         <EntertainmentPage />
