@@ -100,8 +100,8 @@ function smartShoppingRest(products: Product[], recommended: Product[]) {
 export const ProductGrid: React.FC<ProductGridProps> = ({ isLoading, products }) => {
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {[...Array(9)].map((_, i) => (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        {[...Array(12)].map((_, i) => (
           <SkeletonCard key={i} />
         ))}
       </div>
@@ -127,7 +127,7 @@ export const ProductGrid: React.FC<ProductGridProps> = ({ isLoading, products })
       {/* Recommended Section */}
       <div>
         <h2 className="text-2xl font-bold text-cyan-200 mb-4 animate-fade-in">Recommended for you</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
           {recommended.map(product => (
             <ProductCard key={product.id} product={product} />
           ))}
@@ -139,7 +139,7 @@ export const ProductGrid: React.FC<ProductGridProps> = ({ isLoading, products })
           <h3 className="text-xl font-semibold text-gray-200 mb-3 animate-fade-in">
             Explore More Products
           </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
             {rest.map(product => (
               <ProductCard key={product.id} product={product} />
             ))}
