@@ -14,7 +14,9 @@ import { MusicPage } from "@/components/MusicPage";
 import { AdCreationPage } from "@/components/AdCreationPage";
 import { SmartShopPage } from "@/components/SmartShopPage";
 import { AppStorePage } from "@/components/AppStorePage";
-import { Compass, Film, Gamepad2, Music, Home, TrendingUp, Award, Globe, Megaphone, ShoppingBag, Smartphone } from "lucide-react";
+import { AIPlayground } from "@/components/AIPlayground";
+import { LearningCenter } from "@/components/LearningCenter";
+import { Compass, Film, Gamepad2, Music, Home, TrendingUp, Award, Globe, Megaphone, ShoppingBag, Smartphone, Brain, GraduationCap } from "lucide-react";
 
 // Main navigation
 const navTabs = [
@@ -25,6 +27,8 @@ const navTabs = [
   { id: "entertainment", name: "Entertainment", icon: Film },
   { id: "games", name: "Games", icon: Gamepad2 },
   { id: "music", name: "Music", icon: Music },
+  { id: "ai-playground", name: "AI Playground", icon: Brain },
+  { id: "learning", name: "Learning Center", icon: GraduationCap },
   { id: "ads", name: "Create Ads", icon: Megaphone },
 ];
 
@@ -91,6 +95,12 @@ export function MainTabs() {
       </TabsContent>
       <TabsContent value="music" className="flex-1">
         <MusicPage />
+      </TabsContent>
+      <TabsContent value="ai-playground" className="flex-1">
+        <AIPlayground />
+      </TabsContent>
+      <TabsContent value="learning" className="flex-1">
+        <LearningCenter />
       </TabsContent>
       <TabsContent value="ads" className="flex-1">
         <AdCreationPage />

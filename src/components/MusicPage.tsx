@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { MusicGenerator } from './music/MusicGenerator';
 import { GeneratedTracks } from './music/GeneratedTracks';
 import { GeneratedTrack } from '../services/musicGenerator';
+import { musicSSEService } from '../services/musicSSE';
 
 const tracks = [
   {

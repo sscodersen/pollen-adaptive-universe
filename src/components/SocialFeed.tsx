@@ -3,6 +3,8 @@ import { Eye, TrendingUp, Award, Zap, Users, Globe, Sparkles, Search, Star, Cloc
 import { unifiedContentEngine, SocialContent } from '../services/unifiedContentEngine';
 import { Input } from "@/components/ui/input";
 
+// IMPORTANT: src/components/SocialFeed.tsx is 263 lines long and should be refactored into smaller components
+
 interface SocialFeedProps {
   activities?: SocialContent[];
   isGenerating?: boolean;
