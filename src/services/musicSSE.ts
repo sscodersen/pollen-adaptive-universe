@@ -17,6 +17,7 @@ interface MusicGenerationResponse {
 class MusicSSEService {
   private baseUrl = 'https://ace-step-ace-step.hf.space';
   private eventSource: EventSource | null = null;
+  private pollenIntegration = true; // Ready for Pollen integration
 
   async generateMusic(request: MusicGenerationRequest): Promise<AsyncGenerator<MusicGenerationResponse>> {
     const controller = new AbortController();

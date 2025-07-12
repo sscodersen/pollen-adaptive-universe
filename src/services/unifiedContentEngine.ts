@@ -148,10 +148,8 @@ class ContentTemplateEngine {
       'social'
     );
     
-    // Extract actual content instead of showing dummy response
-    const content = pollenResponse.content.includes('This is a dummy response') 
-      ? this.generateFallbackSocialContent(topic)
-      : pollenResponse.content;
+    // Use Pollen AI response directly (no more dummy responses)
+    const content = pollenResponse.content;
     
     const scored = significanceAlgorithm.scoreContent(pollenResponse.content, 'social', user.name);
     const timestamp = `${Math.floor(Math.random() * 240) + 1}m`;
