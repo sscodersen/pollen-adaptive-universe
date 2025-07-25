@@ -45,8 +45,8 @@ export function MainTabs() {
 
   return (
     <Tabs value={currentTab} onValueChange={setCurrentTab} className="w-full flex flex-col">
-      <div className="sticky top-0 z-20 w-full bg-slate-950 border-b border-slate-800/60">
-        <TabsList className="w-full justify-start px-4 py-2 gap-2 bg-slate-950">
+      <div className="sticky top-0 z-20 w-full bg-surface-primary border-b border-border">
+        <TabsList className="w-full justify-start px-4 py-2 gap-2 bg-surface-primary">
           {navTabs.map((tab) => (
             <TabsTrigger key={tab.id} value={tab.id} className="flex items-center gap-2 rounded-lg px-4 py-2 text-base">
               <tab.icon className="w-5 h-5" />
@@ -55,15 +55,15 @@ export function MainTabs() {
           ))}
         </TabsList>
         {currentTab === "feed" && (
-          <div className="flex px-4 py-3 gap-2 border-b border-slate-800/50 bg-slate-950">
+          <div className="flex px-4 py-3 gap-2 border-b border-border/50 bg-surface-primary">
             {feedCategories.map((fc) => (
               <button
                 key={fc.id}
                 onClick={() => setFeedCategory(fc.id)}
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
                   feedCategory === fc.id
-                    ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/30"
-                    : "bg-slate-800/50 text-slate-400 hover:bg-slate-700/50 border border-slate-700/30"
+                    ? "bg-primary/20 text-primary border border-primary/30"
+                    : "bg-surface-secondary text-muted-foreground hover:bg-surface-tertiary border border-border"
                 }`}
               >
                 <fc.icon className="w-4 h-4" />
