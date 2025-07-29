@@ -248,6 +248,19 @@ class StorageService {
     this.setItem('firstVisitDate', Date.now());
   }
 
+  // Generic data methods for new services
+  async setData(key: string, value: any): Promise<void> {
+    this.setItem(key, value);
+  }
+
+  async getData<T>(key: string, defaultValue?: T): Promise<T | null> {
+    return this.getItem<T>(key, defaultValue);
+  }
+
+  async removeData(key: string): Promise<void> {
+    this.removeItem(key);
+  }
+
   // Clear all data
   async clearAllData(): Promise<void> {
     localStorage.clear();
