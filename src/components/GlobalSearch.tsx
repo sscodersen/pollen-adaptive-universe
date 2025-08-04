@@ -68,7 +68,7 @@ export const GlobalSearch: React.FC<SearchProps> = ({
       setShowResults(true);
       
       // Track search
-      dispatch({ type: 'ADD_TO_SEARCH_HISTORY', payload: searchQuery });
+      dispatch({ type: 'ADD_SEARCH', payload: searchQuery });
     } catch (error) {
       console.error('Search failed:', error);
       setResults([]);
@@ -145,7 +145,7 @@ export const GlobalSearch: React.FC<SearchProps> = ({
   };
 
   const handleResultSelect = (result: SearchResult) => {
-    dispatch({ type: 'ADD_TO_RECENTLY_VIEWED', payload: result.id });
+    dispatch({ type: 'ADD_ACTIVITY', payload: { type: 'search_result_clicked', resultId: result.id, title: result.title } });
     onResultSelect?.(result);
     setShowResults(false);
     setQuery('');
