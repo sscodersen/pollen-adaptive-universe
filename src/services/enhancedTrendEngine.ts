@@ -198,16 +198,21 @@ class EnhancedTrendEngine {
         }
       }
 
-      // Process GitHub trending
+      // Process GitHub trending - Extract meaningful topics from repo names and descriptions
       for (const repo of githubTrending) {
         if (repo.title && repo.title.length > 5) {
-          const text = `${repo.title} ${repo.description || ''}`;
-          const sentiment = await this.analyzeSentiment(text);
-          const keywords = this.extractKeywords(text);
+          // Create meaningful topic from repo name and description
+          const repoName = repo.title.split('/').pop()?.replace(/[-_]/g, ' ') || repo.title;
+          const meaningfulTopic = repo.description 
+            ? `${this.humanizeRepoName(repoName)}: ${repo.description.split('.')[0]}`
+            : this.createTopicFromRepoName(repoName);
+          
+          const sentiment = await this.analyzeSentiment(meaningfulTopic);
+          const keywords = this.extractKeywords(meaningfulTopic);
           
           trends.push({
             id: `github-${repo.id || Date.now()}`,
-            topic: repo.title,
+            topic: meaningfulTopic,
             score: this.calculateTrendScore(sentiment, keywords, 'github'),
             sentiment: sentiment.compound || 0,
             source: 'GitHub',
@@ -317,29 +322,47 @@ class EnhancedTrendEngine {
 
     for (const trend of topTrends) {
       try {
-        // Generate different types of content
-        const contentTypes = ['social', 'news'] as const;
+        // Generate fallback content if AI fails
+        let content = await this.generateFallbackContent(trend);
         
-        for (const type of contentTypes) {
+        // Try AI generation first
+        try {
           const result = await pollenAdaptiveService.curateSocialPost(trend.topic);
-          
-          if (result.content) {
-            const post: GeneratedPost = {
-              id: `generated-${type}-${Date.now()}-${Math.random()}`,
-              content: result.content,
-              topic: trend.topic,
-              platform: 'multi-platform',
-              engagement_score: trend.score,
-              hashtags: trend.keywords.map(k => `#${k}`),
-              timestamp: Date.now(),
-              type: type as 'social' | 'news'
-            };
-            
-            newPosts.push(post);
+          if (result.content && result.content.length > 20) {
+            content = result.content;
           }
+        } catch (aiError) {
+          console.log('AI generation failed, using fallback content');
         }
+
+        const post: GeneratedPost = {
+          id: `generated-social-${Date.now()}-${Math.random()}`,
+          content,
+          topic: trend.topic,
+          platform: 'multi-platform',
+          engagement_score: trend.score,
+          hashtags: trend.keywords.map(k => `#${k.replace(/[^a-zA-Z0-9]/g, '')}`),
+          timestamp: Date.now(),
+          type: 'social'
+        };
+        
+        newPosts.push(post);
       } catch (error) {
         console.error('Error generating content for trend:', trend.topic, error);
+        
+        // Generate basic fallback post
+        const fallbackPost: GeneratedPost = {
+          id: `fallback-${Date.now()}-${Math.random()}`,
+          content: this.createBasicFallbackContent(trend),
+          topic: trend.topic,
+          platform: 'multi-platform',
+          engagement_score: trend.score,
+          hashtags: trend.keywords.map(k => `#${k.replace(/[^a-zA-Z0-9]/g, '')}`),
+          timestamp: Date.now(),
+          type: 'social'
+        };
+        
+        newPosts.push(fallbackPost);
       }
     }
 
@@ -488,6 +511,43 @@ class EnhancedTrendEngine {
       trend.topic.toLowerCase().includes(lowerQuery) ||
       trend.keywords.some(k => k.toLowerCase().includes(lowerQuery))
     );
+  }
+
+  private humanizeRepoName(repoName: string): string {
+    return repoName
+      .replace(/[-_]/g, ' ')
+      .replace(/([a-z])([A-Z])/g, '$1 $2')
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(' ');
+  }
+
+  private createTopicFromRepoName(repoName: string): string {
+    const humanized = this.humanizeRepoName(repoName);
+    const techTerms = ['api', 'sdk', 'framework', 'library', 'tool', 'cli', 'app', 'service'];
+    const hastech = techTerms.some(term => humanized.toLowerCase().includes(term));
+    
+    if (hastech) {
+      return `New ${humanized} gaining popularity in tech community`;
+    }
+    return `${humanized} - trending development project`;
+  }
+
+  private async generateFallbackContent(trend: TrendData): Promise<string> {
+    const templates = [
+      `🔥 ${trend.topic} is gaining serious momentum! What do you think about this trend? #trending`,
+      `💡 Interesting developments in ${trend.category}: ${trend.topic}. The implications could be huge!`,
+      `🚀 ${trend.topic} is exploding right now. Here's why this matters for the future of ${trend.category.toLowerCase()}.`,
+      `⚡ Breaking: ${trend.topic} is trending hard. This could change everything we know about ${trend.category.toLowerCase()}.`,
+      `🎯 ${trend.topic} caught my attention today. The potential applications are fascinating!`,
+      `📈 ${trend.topic} is seeing massive growth. Time to pay attention to this trend!`
+    ];
+
+    return templates[Math.floor(Math.random() * templates.length)];
+  }
+
+  private createBasicFallbackContent(trend: TrendData): string {
+    return `🔥 ${trend.topic} is trending! This ${trend.category.toLowerCase()} topic has a significance score of ${trend.score.toFixed(1)}. What are your thoughts? #trending #${trend.category.toLowerCase().replace(/[^a-zA-Z0-9]/g, '')}`;
   }
 
   public async generateContentForTopic(topic: string, type: 'social' | 'ad' | 'news' = 'social'): Promise<GeneratedPost | null> {
