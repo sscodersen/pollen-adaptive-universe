@@ -1,10 +1,12 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Film, Play, Star, Clock, Eye, Headphones, Camera, Gamepad2 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { entertainmentAutomation } from '../services/entertainmentAutomation';
+import { unifiedContentEngine } from '../services/unifiedContentEngine';
 
-const entertainmentContent = [
+const staticContent = [
   {
     id: 1,
     title: 'The Quantum Paradox',
@@ -65,6 +67,48 @@ const categories = [
 
 export function EntertainmentPage() {
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [entertainmentContent, setEntertainmentContent] = useState(staticContent);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    const generateContent = async () => {
+      setIsLoading(true);
+      try {
+        // Generate trending entertainment content
+        const trendingContent = await unifiedContentEngine.generateContent('entertainment', 8, {
+          diversity: 0.8,
+          freshness: 0.9,
+          qualityThreshold: 7
+        });
+
+        const formattedContent = trendingContent.map((item: any, index: number) => ({
+          id: index + 1,
+          title: item.title,
+          type: item.contentType === 'movie' ? 'Movie' : 
+                item.contentType === 'series' ? 'Series' :
+                item.contentType === 'documentary' ? 'Documentary' : 'Music Video',
+          genre: item.genre,
+          duration: item.duration,
+          rating: item.rating,
+          views: `${(Math.random() * 5 + 0.5).toFixed(1)}M`,
+          thumbnail: item.thumbnail,
+          description: item.description,
+          trending: item.trending
+        }));
+
+        setEntertainmentContent([...formattedContent, ...staticContent]);
+      } catch (error) {
+        console.error('Failed to generate entertainment content:', error);
+        setEntertainmentContent(staticContent);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    generateContent();
+    const interval = setInterval(generateContent, 5 * 60 * 1000); // Refresh every 5 minutes
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <div className="flex-1 bg-gray-950 min-h-screen">

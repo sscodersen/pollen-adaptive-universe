@@ -2,6 +2,7 @@ import { pollenAI } from './pollenAI';
 import { significanceAlgorithm } from './significanceAlgorithm';
 import { rankItems } from './generalRanker';
 import { storageService } from './storageService';
+import { MockContentEngine } from './mockContentEngine';
 
 // Universal content types
 export type ContentType = 'social' | 'shop' | 'entertainment' | 'games' | 'music' | 'news' | 'explore';
@@ -491,7 +492,19 @@ class UnifiedContentEngine {
         }
       } catch (error) {
         console.error(`Error generating ${type} content:`, error);
+        // Fallback to mock content if AI generation fails
+        const mockContent = MockContentEngine.generateMockContent(type, 1);
+        if (mockContent.length > 0) {
+          content.push(mockContent[0]);
+        }
       }
+    }
+    
+    // If no content was generated, use mock content as fallback
+    if (content.length === 0) {
+      console.warn(`No content generated for ${type}, falling back to mock content`);
+      const mockContent = MockContentEngine.generateMockContent(type, count);
+      content.push(...mockContent);
     }
     
     // Apply ranking and optimization

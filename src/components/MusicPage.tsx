@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Music, Play, Heart, Share2, Clock, Headphones, Mic, Radio } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -6,8 +6,9 @@ import { MusicGenerator } from './music/MusicGenerator';
 import { GeneratedTracks } from './music/GeneratedTracks';
 import { GeneratedTrack } from '../services/musicGenerator';
 import { musicSSEService } from '../services/musicSSE';
+import { unifiedContentEngine } from '../services/unifiedContentEngine';
 
-const tracks = [
+const staticTracks = [
   {
     id: 1,
     title: 'Digital Echoes',
@@ -72,6 +73,45 @@ export function MusicPage() {
   const [currentlyPlaying, setCurrentlyPlaying] = useState<number | null>(null);
   const [generatedTracks, setGeneratedTracks] = useState<GeneratedTrack[]>([]);
   const [currentlyPlayingGenerated, setCurrentlyPlayingGenerated] = useState<string | null>(null);
+  const [tracks, setTracks] = useState(staticTracks);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    const generateTrendingMusic = async () => {
+      setIsLoading(true);
+      try {
+        // Generate trending music content
+        const trendingMusic = await unifiedContentEngine.generateContent('music', 6, {
+          diversity: 0.8,
+          freshness: 0.9,
+          qualityThreshold: 7
+        });
+
+        const formattedTracks = trendingMusic.map((item: any, index: number) => ({
+          id: index + 100,
+          title: item.title,
+          artist: item.artist,
+          album: item.album,
+          duration: item.duration,
+          plays: `${(Math.random() * 5 + 0.5).toFixed(1)}M`,
+          genre: item.genre,
+          thumbnail: item.thumbnail,
+          trending: item.trending
+        }));
+
+        setTracks([...formattedTracks, ...staticTracks]);
+      } catch (error) {
+        console.error('Failed to generate trending music:', error);
+        setTracks(staticTracks);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    generateTrendingMusic();
+    const interval = setInterval(generateTrendingMusic, 3 * 60 * 1000); // Refresh every 3 minutes
+    return () => clearInterval(interval);
+  }, []);
 
   const handleTrackGenerated = (track: GeneratedTrack) => {
     setGeneratedTracks(prev => [track, ...prev]);

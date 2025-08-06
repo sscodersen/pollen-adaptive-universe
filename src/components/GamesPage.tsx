@@ -1,10 +1,12 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Gamepad2, Star, Users, Download, Trophy, Zap, Target, Sword } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { gamesAutomation } from '../services/gamesAutomation';
+import { unifiedContentEngine } from '../services/unifiedContentEngine';
 
-const games = [
+const staticGames = [
   {
     id: 1,
     title: 'Quantum Realms',
@@ -66,6 +68,45 @@ const tournaments = [
 
 export function GamesPage() {
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [games, setGames] = useState(staticGames);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    const generateGames = async () => {
+      setIsLoading(true);
+      try {
+        // Generate trending games content
+        const trendingGames = await unifiedContentEngine.generateContent('games', 6, {
+          diversity: 0.8,
+          freshness: 0.9,
+          qualityThreshold: 7
+        });
+
+        const formattedGames = trendingGames.map((item: any, index: number) => ({
+          id: index + 100,
+          title: item.title,
+          genre: item.genre,
+          rating: item.rating,
+          players: `${(Math.random() * 5 + 0.5).toFixed(1)}M`,
+          thumbnail: item.thumbnail,
+          description: item.description,
+          price: Math.random() > 0.4 ? `$${(Math.random() * 50 + 10).toFixed(2)}` : 'Free',
+          featured: item.featured
+        }));
+
+        setGames([...formattedGames, ...staticGames]);
+      } catch (error) {
+        console.error('Failed to generate games:', error);
+        setGames(staticGames);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    generateGames();
+    const interval = setInterval(generateGames, 4 * 60 * 1000); // Refresh every 4 minutes
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <div className="flex-1 bg-gray-950 min-h-screen">

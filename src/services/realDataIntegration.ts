@@ -140,8 +140,10 @@ class RealDataIntegrationService {
     if (cached) return cached;
 
     try {
-      const response = await fetch(`https://www.reddit.com/r/${subreddit}.json?limit=${limit}`);
-      const data = await response.json();
+      // Use CORS proxy for Reddit API
+      const response = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(`https://www.reddit.com/r/${subreddit}.json?limit=${limit}`)}`);
+      const proxyData = await response.json();
+      const data = JSON.parse(proxyData.contents);
       
       const content: ExternalContent[] = data.data.children
         .filter((post: any) => post.data.title && !post.data.is_self)
