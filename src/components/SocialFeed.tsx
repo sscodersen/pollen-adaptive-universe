@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Eye, TrendingUp, Award, Zap, Users, Globe, Sparkles, Search, Star, Clock, Target } from 'lucide-react';
 import { unifiedContentEngine, SocialContent } from '../services/unifiedContentEngine';
+import { enhancedTrendEngine, GeneratedPost } from '../services/enhancedTrendEngine';
 import { Input } from "@/components/ui/input";
 
 // IMPORTANT: src/components/SocialFeed.tsx is 263 lines long and should be refactored into smaller components
@@ -15,6 +16,7 @@ interface SocialFeedProps {
 
 export const SocialFeed = ({ activities, isGenerating = false, filter = "all" }: SocialFeedProps) => {
   const [posts, setPosts] = useState<SocialContent[]>(activities || []);
+  const [trendPosts, setTrendPosts] = useState<GeneratedPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -40,8 +42,13 @@ export const SocialFeed = ({ activities, isGenerating = false, filter = "all" }:
         trendingBoost: 1.5
       };
       
-      const newPosts = await unifiedContentEngine.generateContent('social', 20, strategy);
+      const [newPosts, trendGeneratedPosts] = await Promise.all([
+        unifiedContentEngine.generateContent('social', 15, strategy),
+        Promise.resolve(enhancedTrendEngine.getGeneratedPosts().slice(0, 10))
+      ]);
+      
       setPosts(newPosts as SocialContent[]);
+      setTrendPosts(trendGeneratedPosts);
     } catch (error) {
       console.error('Failed to load posts:', error);
     }
@@ -50,11 +57,59 @@ export const SocialFeed = ({ activities, isGenerating = false, filter = "all" }:
 
   useEffect(() => {
     loadPosts();
+    
+    // Subscribe to trend engine updates
+    const unsubscribe = enhancedTrendEngine.subscribe((data) => {
+      if (data.type === 'posts_generated' || data.type === 'manual_content_generated') {
+        setTrendPosts(enhancedTrendEngine.getGeneratedPosts().slice(0, 10));
+      }
+    });
+    
     const interval = setInterval(loadPosts, 45000);
-    return () => clearInterval(interval);
+    
+    return () => {
+      clearInterval(interval);
+      unsubscribe();
+    };
   }, [loadPosts]);
 
-  const filteredPosts = posts.filter(post => {
+  // Convert trend posts to social content format for display
+  const convertTrendPostsToSocialContent = (trendPosts: GeneratedPost[]): SocialContent[] => {
+    return trendPosts.map(post => ({
+      id: post.id,
+      type: 'social' as const,
+      title: `Trending: ${post.topic}`,
+      description: post.content,
+      content: post.content,
+      category: 'trending',
+      user: {
+        name: 'TrendBot',
+        username: 'trendbot',
+        avatar: 'bg-gradient-to-r from-purple-500 to-pink-500',
+        verified: true,
+        rank: 98,
+        badges: ['AI Generated', 'Trending']
+      },
+      timestamp: new Date(post.timestamp).toLocaleString(),
+      views: Math.floor(Math.random() * 5000) + 1000,
+      engagement: Math.floor(Math.random() * 1000) + 500,
+      significance: post.engagement_score / 10,
+      quality: Math.floor(post.engagement_score),
+      trending: true,
+      impact: post.engagement_score > 80 ? 'high' : post.engagement_score > 60 ? 'medium' : 'low',
+      contentType: post.type === 'social' ? 'social' : post.type === 'news' ? 'news' : 'discussion',
+      tags: post.hashtags.map(h => h.replace('#', '')),
+      readTime: '2 min'
+    }));
+  };
+
+  // Combine regular posts with trend-generated posts
+  const allPosts = [
+    ...convertTrendPostsToSocialContent(trendPosts),
+    ...posts
+  ];
+
+  const filteredPosts = allPosts.filter(post => {
     const matchesFilter = filter === 'all' || 
       (filter === 'trending' && post.trending) || 
       (filter === 'high-impact' && post.significance > 8);
@@ -85,7 +140,7 @@ export const SocialFeed = ({ activities, isGenerating = false, filter = "all" }:
   };
 
   return (
-    <div className="flex-1 bg-gray-950">
+    <div className="flex-1 bg-gray-950 overflow-auto">
       {/* Header with Search */}
       <div className="sticky top-0 z-10 bg-gray-900/95 backdrop-blur-sm border-b border-gray-800/50">
         <div className="p-6">
