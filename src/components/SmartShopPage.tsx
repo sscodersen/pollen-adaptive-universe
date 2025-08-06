@@ -98,7 +98,7 @@ export const SmartShopPage = () => {
   });
 
   return (
-    <div className="flex-1 bg-gray-950 p-6">
+    <div className="flex-1 bg-gray-950 min-h-0 flex flex-col p-6">
       <ShopHeader loading={loading} onRefresh={loadProducts} />
       
       <FilterControls

@@ -140,7 +140,7 @@ export const SocialFeed = ({ activities, isGenerating = false, filter = "all" }:
   };
 
   return (
-    <div className="flex-1 bg-gray-950 overflow-auto">
+    <div className="flex-1 bg-gray-950 min-h-0 flex flex-col">
       {/* Header with Search */}
       <div className="sticky top-0 z-10 bg-gray-900/95 backdrop-blur-sm border-b border-gray-800/50">
         <div className="p-6">
@@ -175,7 +175,7 @@ export const SocialFeed = ({ activities, isGenerating = false, filter = "all" }:
       </div>
 
       {/* Posts */}
-      <div className="p-6 space-y-6">
+      <div className="flex-1 overflow-auto p-6 space-y-6">
         {loading ? (
           <div className="space-y-6">
             {[...Array(8)].map((_, i) => (

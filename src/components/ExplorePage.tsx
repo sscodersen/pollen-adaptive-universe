@@ -1,50 +1,11 @@
 
-import React, { useState } from 'react';
-import { Search, TrendingUp, Compass, Filter, Globe, Zap, Users, Calendar } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Search, TrendingUp, Compass, Filter, Globe, Zap, Users, Calendar, RefreshCw } from 'lucide-react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { enhancedTrendEngine, TrendData } from '../services/enhancedTrendEngine';
+import { realDataIntegration } from '../services/realDataIntegration';
 
-const trendingTopics = [
-  { name: 'Climate Technology', posts: 12450, growth: '+23%' },
-  { name: 'AI Consciousness', posts: 8920, growth: '+45%' },
-  { name: 'Space Colonization', posts: 6780, growth: '+18%' },
-  { name: 'Digital Currency', posts: 15600, growth: '+12%' },
-  { name: 'Quantum Computing', posts: 4320, growth: '+67%' },
-  { name: 'Gene Therapy', posts: 3890, growth: '+34%' },
-  { name: 'Virtual Reality', posts: 9850, growth: '+29%' },
-  { name: 'Sustainable Energy', posts: 11200, growth: '+15%' }
-];
-
-const newsResults = [
-  {
-    title: 'Breakthrough in Fusion Energy Achieved',
-    source: 'Science Daily',
-    time: '2h ago',
-    category: 'Science',
-    snippet: 'Scientists at MIT achieve sustained fusion reaction with net energy gain for the first time in history...'
-  },
-  {
-    title: 'New AI Model Shows Human-Level Reasoning',
-    source: 'Tech Review',
-    time: '4h ago',
-    category: 'Technology',
-    snippet: 'Latest language model demonstrates unprecedented reasoning capabilities in complex problem solving...'
-  },
-  {
-    title: 'Global Climate Summit Reaches Historic Agreement',
-    source: 'Reuters',
-    time: '6h ago',
-    category: 'Environment',
-    snippet: '195 nations commit to aggressive carbon reduction targets with binding enforcement mechanisms...'
-  },
-  {
-    title: 'Breakthrough Drug Reverses Alzheimer\'s Symptoms',
-    source: 'Medical Journal',
-    time: '8h ago',
-    category: 'Health',
-    snippet: 'Phase III trials show 89% improvement in cognitive function for early-stage patients...'
-  }
-];
 
 const discoveryCategories = [
   { name: 'Science & Research', icon: Zap, count: 2340, color: 'bg-blue-500/20 text-blue-300' },
@@ -58,9 +19,67 @@ const discoveryCategories = [
 export function ExplorePage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState('all');
+  const [trends, setTrends] = useState<TrendData[]>([]);
+  const [newsResults, setNewsResults] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const loadTrendingContent = useCallback(async () => {
+    setLoading(true);
+    try {
+      // Get trending data from enhanced trend engine
+      const trendingData = enhancedTrendEngine.getTrends().slice(0, 8);
+      setTrends(trendingData);
+
+      // Get news data
+      const [hackerNews, redditTech] = await Promise.all([
+        realDataIntegration.fetchHackerNews(4),
+        realDataIntegration.fetchRedditContent('technology', 2)
+      ]);
+
+      const newsData = [
+        ...hackerNews.map(story => ({
+          title: story.title,
+          source: 'Hacker News',
+          time: '2h ago',
+          category: 'Technology',
+          snippet: story.title.length > 100 ? story.title.substring(0, 100) + '...' : story.title
+        })),
+        ...redditTech.map(post => ({
+          title: post.title,
+          source: 'Reddit',
+          time: '1h ago',
+          category: 'Discussion',
+          snippet: post.title.length > 100 ? post.title.substring(0, 100) + '...' : post.title
+        }))
+      ];
+
+      setNewsResults(newsData.slice(0, 6));
+    } catch (error) {
+      console.error('Failed to load trending content:', error);
+    }
+    setLoading(false);
+  }, []);
+
+  useEffect(() => {
+    loadTrendingContent();
+    
+    // Subscribe to trend engine updates
+    const unsubscribe = enhancedTrendEngine.subscribe((data) => {
+      if (data.type === 'trends_updated') {
+        setTrends(enhancedTrendEngine.getTrends().slice(0, 8));
+      }
+    });
+
+    const interval = setInterval(loadTrendingContent, 60000);
+    
+    return () => {
+      clearInterval(interval);
+      unsubscribe();
+    };
+  }, [loadTrendingContent]);
 
   return (
-    <div className="flex-1 bg-gray-950 min-h-screen">
+    <div className="flex-1 bg-gray-950 min-h-0 flex flex-col">
       {/* Header */}
       <div className="bg-gray-900/95 backdrop-blur-sm border-b border-gray-800/50 p-6">
         <div className="max-w-6xl mx-auto">
@@ -71,6 +90,21 @@ export function ExplorePage() {
                 Explore
               </h1>
               <p className="text-gray-400">Discover trending topics, breaking news, and global conversations</p>
+            </div>
+            <div className="flex items-center space-x-3">
+              <Button 
+                onClick={loadTrendingContent} 
+                size="sm" 
+                className="bg-cyan-500 hover:bg-cyan-600"
+                disabled={loading}
+              >
+                <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+                Refresh
+              </Button>
+              <div className="px-3 py-1 bg-green-500/10 text-green-400 rounded-full text-sm font-medium border border-green-500/20 flex items-center space-x-2">
+                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                <span>Live Updates</span>
+              </div>
             </div>
           </div>
           
@@ -106,7 +140,8 @@ export function ExplorePage() {
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto p-6 grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="flex-1 overflow-auto">
+        <div className="max-w-6xl mx-auto p-6 grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Main Content */}
         <div className="lg:col-span-2 space-y-8">
           {/* Breaking News */}
@@ -116,7 +151,17 @@ export function ExplorePage() {
               Breaking News
             </h2>
             <div className="space-y-4">
-              {newsResults.map((news, index) => (
+              {loading ? (
+                [...Array(4)].map((_, i) => (
+                  <div key={i} className="bg-gray-900/50 rounded-lg border border-gray-800/50 p-6 animate-pulse">
+                    <div className="w-20 h-4 bg-gray-700 rounded mb-3"></div>
+                    <div className="w-3/4 h-6 bg-gray-700 rounded mb-2"></div>
+                    <div className="w-full h-4 bg-gray-700 rounded mb-3"></div>
+                    <div className="w-1/3 h-4 bg-gray-700 rounded"></div>
+                  </div>
+                ))
+              ) : (
+                newsResults.map((news, index) => (
                 <div key={index} className="bg-gray-900/50 rounded-lg border border-gray-800/50 p-6 hover:bg-gray-900/70 transition-colors">
                   <div className="flex items-start justify-between mb-3">
                     <span className={`px-3 py-1 rounded-full text-xs font-medium ${
@@ -138,7 +183,8 @@ export function ExplorePage() {
                     </Button>
                   </div>
                 </div>
-              ))}
+                ))
+              )}
             </div>
           </div>
 
@@ -178,15 +224,27 @@ export function ExplorePage() {
             </h2>
             <div className="bg-gray-900/50 rounded-lg border border-gray-800/50 p-4">
               <div className="space-y-4">
-                {trendingTopics.map((topic, index) => (
-                  <div key={index} className="flex items-center justify-between hover:bg-gray-800/50 rounded-lg p-3 transition-colors cursor-pointer">
-                    <div>
-                      <h4 className="font-medium text-white">{topic.name}</h4>
-                      <p className="text-sm text-gray-400">{topic.posts.toLocaleString()} posts</p>
+                {loading ? (
+                  [...Array(6)].map((_, i) => (
+                    <div key={i} className="flex items-center justify-between p-3 animate-pulse">
+                      <div className="flex-1">
+                        <div className="w-32 h-4 bg-gray-700 rounded mb-2"></div>
+                        <div className="w-20 h-3 bg-gray-700 rounded"></div>
+                      </div>
+                      <div className="w-12 h-4 bg-gray-700 rounded"></div>
                     </div>
-                    <span className="text-green-400 text-sm font-medium">{topic.growth}</span>
-                  </div>
-                ))}
+                  ))
+                ) : (
+                  trends.map((trend, index) => (
+                    <div key={index} className="flex items-center justify-between hover:bg-gray-800/50 rounded-lg p-3 transition-colors cursor-pointer">
+                      <div>
+                        <h4 className="font-medium text-white">{trend.topic.length > 30 ? trend.topic.substring(0, 30) + '...' : trend.topic}</h4>
+                        <p className="text-sm text-gray-400">{trend.reach.toLocaleString()} reach • {trend.category}</p>
+                      </div>
+                      <span className="text-green-400 text-sm font-medium">+{trend.momentum.toFixed(0)}%</span>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
           </div>
@@ -213,6 +271,7 @@ export function ExplorePage() {
               </div>
             </div>
           </div>
+        </div>
         </div>
       </div>
     </div>
