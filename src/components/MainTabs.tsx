@@ -16,8 +16,9 @@ import { SmartShopPage } from "@/components/SmartShopPage";
 import { AppStorePage } from "@/components/AppStorePage";
 import { AIPlayground } from "@/components/AIPlayground";
 import { LearningCenter } from "@/components/LearningCenter";
-import { Compass, Film, Gamepad2, Music, Home, TrendingUp, Award, Globe, Megaphone, ShoppingBag, Smartphone, Brain, GraduationCap, Zap } from "lucide-react";
+import { Compass, Film, Gamepad2, Music, Home, TrendingUp, Award, Globe, Megaphone, ShoppingBag, Smartphone, Brain, GraduationCap, Zap, BarChart3 } from "lucide-react";
 import { PollenDashboard } from "@/components/PollenDashboard";
+import TrendDashboard from "@/components/TrendDashboard";
 
 // Main navigation
 const navTabs = [
@@ -30,6 +31,7 @@ const navTabs = [
   { id: "music", name: "Music", icon: Music },
   { id: "ai-playground", name: "AI Playground", icon: Brain },
   { id: "pollen", name: "Pollen AI", icon: Zap },
+  { id: "trends", name: "Trend Intelligence", icon: BarChart3 },
   { id: "learning", name: "Learning Center", icon: GraduationCap },
   { id: "ads", name: "Create Ads", icon: Megaphone },
 ];
@@ -103,6 +105,9 @@ export function MainTabs() {
       </TabsContent>
       <TabsContent value="pollen" className="flex-1">
         <PollenDashboard />
+      </TabsContent>
+      <TabsContent value="trends" className="flex-1">
+        <TrendDashboard />
       </TabsContent>
       <TabsContent value="learning" className="flex-1">
         <LearningCenter />
