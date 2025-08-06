@@ -4,6 +4,7 @@ import { PollenResponse, PollenConfig } from './pollenTypes';
 export class PollenCore {
   private config: PollenConfig;
   private isConnected: boolean = false;
+  private pollenApiUrl: string;
 
   constructor(config: PollenConfig = {}) {
     this.config = {
@@ -11,6 +12,7 @@ export class PollenCore {
       enableSSE: config.enableSSE || true,
       ...config
     };
+    this.pollenApiUrl = config.pollenApiUrl || 'http://127.0.0.1:5000';
   }
 
   // Ready for your Pollen model integration
@@ -217,5 +219,121 @@ export class PollenCore {
 
   updateConfig(config: Partial<PollenConfig>) {
     this.config = { ...this.config, ...config };
+  }
+
+  // Enhanced Pollen API Methods
+  async proposeTask(inputText: string): Promise<any> {
+    try {
+      const response = await fetch(`${this.pollenApiUrl}/propose-task`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ input_text: inputText })
+      });
+      return await response.json();
+    } catch (error) {
+      console.error('Propose task failed:', error);
+      return { error: 'Task proposal failed' };
+    }
+  }
+
+  async solveTask(inputText: string): Promise<any> {
+    try {
+      const response = await fetch(`${this.pollenApiUrl}/solve-task`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ input_text: inputText })
+      });
+      return await response.json();
+    } catch (error) {
+      console.error('Solve task failed:', error);
+      return { error: 'Task solving failed' };
+    }
+  }
+
+  async createAdvertisement(inputText: string): Promise<any> {
+    try {
+      const response = await fetch(`${this.pollenApiUrl}/create-ad`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ input_text: inputText })
+      });
+      return await response.json();
+    } catch (error) {
+      console.error('Create ad failed:', error);
+      return { error: 'Advertisement creation failed' };
+    }
+  }
+
+  async generateMusic(inputText: string): Promise<any> {
+    try {
+      const response = await fetch(`${this.pollenApiUrl}/generate-music`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ input_text: inputText })
+      });
+      return await response.json();
+    } catch (error) {
+      console.error('Generate music failed:', error);
+      return { error: 'Music generation failed' };
+    }
+  }
+
+  async generateImage(inputText: string): Promise<any> {
+    try {
+      const response = await fetch(`${this.pollenApiUrl}/generate-image`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ input_text: inputText })
+      });
+      return await response.json();
+    } catch (error) {
+      console.error('Generate image failed:', error);
+      return { error: 'Image generation failed' };
+    }
+  }
+
+  async automateTask(inputText: string, schedule?: string): Promise<any> {
+    try {
+      const payload: any = { input_text: inputText };
+      if (schedule) payload.schedule = schedule;
+      
+      const response = await fetch(`${this.pollenApiUrl}/automate-task`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      return await response.json();
+    } catch (error) {
+      console.error('Automate task failed:', error);
+      return { error: 'Task automation failed' };
+    }
+  }
+
+  async curateSocialPost(inputText: string): Promise<any> {
+    try {
+      const response = await fetch(`${this.pollenApiUrl}/curate-social-post`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ input_text: inputText })
+      });
+      return await response.json();
+    } catch (error) {
+      console.error('Curate social post failed:', error);
+      return { error: 'Social post curation failed' };
+    }
+  }
+
+  async analyzeTrends(inputText: string): Promise<any> {
+    try {
+      const response = await fetch(`${this.pollenApiUrl}/analyze-trends`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ input_text: inputText })
+      });
+      return await response.json();
+    } catch (error) {
+      console.error('Analyze trends failed:', error);
+      return { error: 'Trend analysis failed' };
+    }
   }
 }

@@ -8,6 +8,7 @@ import {
   Gamepad2,
   Music,
   Settings,
+  Zap,
 } from "lucide-react";
 import {
   Sidebar,
@@ -24,6 +25,7 @@ const items = [
   { title: "Feed", url: "/", icon: Home },
   { title: "Generate", url: "#", icon: Sparkles },
   { title: "Explore", url: "#", icon: Compass },
+  { title: "Pollen AI", url: "/pollen", icon: Zap },
   { title: "Entertainment", url: "#", icon: Film },
   { title: "Games", url: "#", icon: Gamepad2 },
   { title: "Music", url: "#", icon: Music },
