@@ -1,11 +1,12 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Search, TrendingUp, Compass, Filter, Globe, Zap, Users, Calendar, RefreshCw } from 'lucide-react';
+import { Search, TrendingUp, Compass, Filter, Globe, Zap, Users, Calendar, RefreshCw, Radio } from 'lucide-react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { enhancedTrendEngine, TrendData } from '../services/enhancedTrendEngine';
 import { realDataIntegration } from '../services/realDataIntegration';
-
+import { userPreferences } from '../services/userPreferences';
+import { crawlService } from '../services/crawlService';
 
 const discoveryCategories = [
   { name: 'Science & Research', icon: Zap, count: 2340, color: 'bg-blue-500/20 text-blue-300' },
@@ -22,7 +23,8 @@ export function ExplorePage() {
   const [trends, setTrends] = useState<TrendData[]>([]);
   const [newsResults, setNewsResults] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-
+  const [liveChunks, setLiveChunks] = useState<string[]>([]);
+  const [isStreaming, setIsStreaming] = useState(false);
   const loadTrendingContent = useCallback(async () => {
     setLoading(true);
     try {
@@ -62,6 +64,34 @@ export function ExplorePage() {
 
   useEffect(() => {
     loadTrendingContent();
+
+    // Set up optional live web stream via crawler if enabled in preferences
+    let stopStream: (() => void) | null = null;
+    (async () => {
+      try {
+        const prefs = await userPreferences.get();
+        if (prefs.enableCrawler && prefs.crawlerEndpoint) {
+          crawlService.setEndpoint(prefs.crawlerEndpoint);
+          setIsStreaming(true);
+          // Default live source can be customized later via UI
+          const defaultUrl = 'https://news.ycombinator.com';
+          stopStream = crawlService.stream(defaultUrl, {
+            throttleMs: 350,
+            onChunk: (text) => {
+              setLiveChunks((prev) => {
+                const next = [...prev, text];
+                // keep last 40 chunks
+                return next.slice(-40);
+              });
+            },
+            onError: () => setIsStreaming(false),
+            onDone: () => setIsStreaming(false),
+          });
+        }
+      } catch (err) {
+        console.warn('Live stream unavailable:', err);
+      }
+    })();
     
     // Subscribe to trend engine updates
     const unsubscribe = enhancedTrendEngine.subscribe((data) => {
@@ -71,10 +101,11 @@ export function ExplorePage() {
     });
 
     const interval = setInterval(loadTrendingContent, 60000);
-    
+
     return () => {
       clearInterval(interval);
       unsubscribe();
+      if (stopStream) stopStream();
     };
   }, [loadTrendingContent]);
 
@@ -269,6 +300,27 @@ export function ExplorePage() {
                 <span className="text-gray-300">Global Reach</span>
                 <span className="text-white font-semibold">195 Countries</span>
               </div>
+            </div>
+          </div>
+
+          {/* Live Web Stream (Crawler) */}
+          <div>
+            <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+              <Radio className="w-5 h-5 text-cyan-400" />
+              Live Web Stream
+            </h2>
+            <div className="bg-gray-900/50 rounded-lg border border-gray-800/50 p-4 h-64 overflow-auto">
+              {!isStreaming && liveChunks.length === 0 ? (
+                <p className="text-gray-400 text-sm">Enable the crawler in settings to see real-time web snippets.</p>
+              ) : (
+                <div className="space-y-2">
+                  {liveChunks.map((c, i) => (
+                    <div key={i} className="text-gray-300 text-sm leading-relaxed whitespace-pre-wrap">
+                      {c}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>
