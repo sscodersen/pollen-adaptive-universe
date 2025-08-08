@@ -7,7 +7,7 @@ import { GeneratedTracks } from './music/GeneratedTracks';
 import { GeneratedTrack } from '../services/musicGenerator';
 import { musicSSEService } from '../services/musicSSE';
 import { contentOrchestrator } from '../services/contentOrchestrator';
-import { ACEEmbed } from './music/ACEEmbed';
+
 
 const staticTracks = [
   {
@@ -76,6 +76,10 @@ export function MusicPage() {
   const [currentlyPlayingGenerated, setCurrentlyPlayingGenerated] = useState<string | null>(null);
   const [tracks, setTracks] = useState(staticTracks);
   const [isLoading, setIsLoading] = useState(false);
+  const [streamPrompt, setStreamPrompt] = useState('');
+  const [isStreaming, setIsStreaming] = useState(false);
+  const [streamProgress, setStreamProgress] = useState(0);
+  const [streamStatus, setStreamStatus] = useState<'idle'|'generating'|'completed'|'error'>('idle');
 
   useEffect(() => {
     const generateTrendingMusic = async () => {
@@ -163,9 +167,72 @@ export function MusicPage() {
           </div>
         )}
 
-        {/* ACE-Step Live Embed */}
+        {/* Streamed Music Generator (ACE-Step style, no API keys) */}
         <div className="mb-8">
-          <ACEEmbed defaultPrompt="upbeat electronic dance" />
+          <div className="bg-gray-900/50 rounded-lg border border-gray-800/50 p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-white">Streamed Music Generator</h3>
+              {isStreaming && (
+                <span className="text-xs text-pink-400">Generating… {streamProgress}%</span>
+              )}
+            </div>
+            <div className="flex gap-3">
+              <input
+                className="flex-1 bg-gray-800/50 border border-gray-700/50 rounded px-3 py-2 text-sm text-gray-200"
+                placeholder="Describe the track (e.g., upbeat electronic dance)"
+                value={streamPrompt}
+                onChange={(e) => setStreamPrompt(e.target.value)}
+                disabled={isStreaming}
+              />
+              <Button
+                className="bg-pink-600 hover:bg-pink-700 disabled:bg-gray-700"
+                disabled={!streamPrompt.trim() || isStreaming}
+                onClick={async () => {
+                  setIsStreaming(true);
+                  setStreamProgress(0);
+                  setStreamStatus('generating');
+                  try {
+                    const gen = await musicSSEService.generateMusic({ prompt: streamPrompt, style: 'electronic', duration: 120 });
+                    for await (const ev of gen) {
+                      if (typeof ev.progress === 'number') setStreamProgress(ev.progress);
+                      if (ev.status === 'completed') {
+                        const track: GeneratedTrack = {
+                          id: ev.id,
+                          title: ev.title,
+                          artist: ev.artist,
+                          duration: '3:24',
+                          audioUrl: ev.audioUrl || '',
+                          genre: 'Electronic',
+                          mood: 'Upbeat',
+                          thumbnail: 'bg-gradient-to-br from-purple-600 to-pink-500',
+                          isGenerating: false,
+                        };
+                        setGeneratedTracks(prev => [track, ...prev]);
+                        setStreamStatus('completed');
+                      }
+                      if (ev.status === 'error') {
+                        setStreamStatus('error');
+                      }
+                    }
+                  } catch (e) {
+                    setStreamStatus('error');
+                  } finally {
+                    setIsStreaming(false);
+                    setStreamPrompt('');
+                  }
+                }}
+              >
+                {isStreaming ? 'Generating…' : 'Generate'}
+              </Button>
+            </div>
+            {isStreaming && (
+              <div className="mt-4">
+                <div className="w-full bg-gray-700 rounded-full h-1">
+                  <div className="bg-pink-500 h-1 rounded-full" style={{ width: `${streamProgress}%` }}></div>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Music Genres */}

@@ -50,6 +50,8 @@ export const SocialFeed = ({ activities, isGenerating = false, filter = "all" }:
         strategy
       });
       const trendGeneratedPosts = enhancedTrendEngine.getGeneratedPosts().slice(0, 10);
+      setPosts(newPosts as SocialContent[]);
+      setTrendPosts(trendGeneratedPosts);
     } catch (error) {
       console.error('Failed to load posts:', error);
     }
@@ -58,7 +60,10 @@ export const SocialFeed = ({ activities, isGenerating = false, filter = "all" }:
 
   useEffect(() => {
     loadPosts();
-    
+
+    // Prime trend posts immediately
+    setTrendPosts(enhancedTrendEngine.getGeneratedPosts().slice(0, 10));
+
     // Subscribe to trend engine updates
     const unsubscribe = enhancedTrendEngine.subscribe((data) => {
       if (data.type === 'posts_generated' || data.type === 'manual_content_generated') {

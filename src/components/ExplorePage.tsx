@@ -4,7 +4,7 @@ import { Search, TrendingUp, Compass, Filter, Globe, Zap, Users, Calendar, Refre
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { enhancedTrendEngine, TrendData } from '../services/enhancedTrendEngine';
-import { realDataIntegration } from '../services/realDataIntegration';
+import { trendAggregator } from '../services/trendAggregator';
 
 
 const discoveryCategories = [
@@ -30,30 +30,18 @@ export function ExplorePage() {
       const trendingData = enhancedTrendEngine.getTrends().slice(0, 8);
       setTrends(trendingData);
 
-      // Get news data
-      const [hackerNews, redditTech] = await Promise.all([
-        realDataIntegration.fetchHackerNews(4),
-        realDataIntegration.fetchRedditContent('technology', 2)
-      ]);
+      // Aggregated headlines from multi-source trend aggregator
+      const headlines = await trendAggregator.fetchHeadlines();
 
-      const newsData = [
-        ...hackerNews.map(story => ({
-          title: story.title,
-          source: 'Hacker News',
-          time: '2h ago',
-          category: 'Technology',
-          snippet: story.title.length > 100 ? story.title.substring(0, 100) + '...' : story.title
-        })),
-        ...redditTech.map(post => ({
-          title: post.title,
-          source: 'Reddit',
-          time: '1h ago',
-          category: 'Discussion',
-          snippet: post.title.length > 100 ? post.title.substring(0, 100) + '...' : post.title
-        }))
-      ];
+      const newsData = headlines.slice(0, 6).map(h => ({
+        title: h.title,
+        source: h.source,
+        time: 'Now',
+        category: h.category,
+        snippet: h.snippet
+      }));
 
-      setNewsResults(newsData.slice(0, 6));
+      setNewsResults(newsData);
     } catch (error) {
       console.error('Failed to load trending content:', error);
     }
@@ -148,7 +136,7 @@ export function ExplorePage() {
           <div>
             <h2 className="text-2xl font-bold text-white mb-4 flex items-center gap-2">
               <Calendar className="w-6 h-6 text-red-400" />
-              Breaking News
+              Breaking News (Across Sources)
             </h2>
             <div className="space-y-4">
               {loading ? (
@@ -179,7 +167,7 @@ export function ExplorePage() {
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-400">{news.source}</span>
                     <Button size="sm" variant="outline" className="border-gray-700 text-gray-300 hover:bg-gray-800">
-                      Read More
+                      Read Source
                     </Button>
                   </div>
                 </div>

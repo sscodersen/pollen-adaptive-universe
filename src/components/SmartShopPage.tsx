@@ -29,8 +29,8 @@ export const SmartShopPage = () => {
         personalization: 0.4,
         qualityThreshold: 6.5,
         trendingBoost: 1.4
-      };
-      
+      } as const;
+
       const { content: shopContent } = await contentOrchestrator.generateContent({ type: 'shop', count: 16, strategy });
       const convertedProducts: Product[] = shopContent.map((item) => {
         const shopItem = item as ShopContent;
