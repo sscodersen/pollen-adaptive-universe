@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { enhancedTrendEngine, TrendData } from '../services/enhancedTrendEngine';
 import { trendAggregator } from '../services/trendAggregator';
+import { cleanText, truncateText } from '@/lib/textUtils';
 
 
 const discoveryCategories = [
@@ -34,11 +35,11 @@ export function ExplorePage() {
       const headlines = await trendAggregator.fetchHeadlines();
 
       const newsData = headlines.slice(0, 6).map(h => ({
-        title: h.title,
+        title: truncateText(cleanText(h.title), 100),
         source: h.source,
         time: 'Now',
         category: h.category,
-        snippet: h.snippet
+        snippet: truncateText(cleanText(h.snippet || ''), 160)
       }));
 
       setNewsResults(newsData);
@@ -67,9 +68,9 @@ export function ExplorePage() {
   }, [loadTrendingContent]);
 
   return (
-    <div className="flex-1 bg-gray-950 min-h-0 flex flex-col">
+    <div className="flex-1 bg-background min-h-0 flex flex-col">
       {/* Header */}
-      <div className="bg-gray-900/95 backdrop-blur-sm border-b border-gray-800/50 p-6">
+      <div className="bg-card backdrop-blur-sm border-b border-border p-6">
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center justify-between mb-6">
             <div>
@@ -162,8 +163,8 @@ export function ExplorePage() {
                     </span>
                     <span className="text-gray-400 text-sm">{news.time}</span>
                   </div>
-                  <h3 className="text-xl font-semibold text-white mb-2">{news.title}</h3>
-                  <p className="text-gray-300 mb-3">{news.snippet}</p>
+                  <h3 className="text-xl font-semibold text-white mb-2 line-clamp-2">{news.title}</h3>
+                  <p className="text-gray-300 mb-3 line-clamp-3">{news.snippet}</p>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-400">{news.source}</span>
                     <Button size="sm" variant="outline" className="border-gray-700 text-gray-300 hover:bg-gray-800">

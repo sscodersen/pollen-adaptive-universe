@@ -138,9 +138,9 @@ export function MusicPage() {
   };
 
   return (
-    <div className="flex-1 bg-gray-950 min-h-screen">
+    <div className="flex-1 bg-background min-h-screen">
       {/* Header */}
-      <div className="bg-gray-900/95 backdrop-blur-sm border-b border-gray-800/50 p-6">
+      <div className="bg-card backdrop-blur-sm border-b border-border p-6">
         <div className="max-w-6xl mx-auto">
           <h1 className="text-3xl font-bold text-white mb-2 flex items-center gap-3">
             <Music className="w-8 h-8 text-pink-400" />

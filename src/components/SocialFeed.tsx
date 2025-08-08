@@ -5,6 +5,8 @@ import { SocialContent } from '../services/unifiedContentEngine';
 import { enhancedTrendEngine, GeneratedPost } from '../services/enhancedTrendEngine';
 import { Input } from "@/components/ui/input";
 
+import { cleanText, truncateText, normalizeTags } from '@/lib/textUtils';
+
 // IMPORTANT: src/components/SocialFeed.tsx is 263 lines long and should be refactored into smaller components
 
 interface SocialFeedProps {
@@ -85,8 +87,8 @@ export const SocialFeed = ({ activities, isGenerating = false, filter = "all" }:
       id: post.id,
       type: 'social' as const,
       title: `Trending: ${post.topic}`,
-      description: post.content,
-      content: post.content,
+      description: cleanText(post.content),
+      content: cleanText(post.content),
       category: 'trending',
       user: {
         name: 'TrendBot',
@@ -146,9 +148,9 @@ export const SocialFeed = ({ activities, isGenerating = false, filter = "all" }:
   };
 
   return (
-    <div className="flex-1 bg-gray-950 min-h-0 flex flex-col">
+    <div className="flex-1 bg-background min-h-0 flex flex-col">
       {/* Header with Search */}
-      <div className="sticky top-0 z-10 bg-gray-900/95 backdrop-blur-sm border-b border-gray-800/50">
+      <div className="sticky top-0 z-10 bg-card backdrop-blur-sm border-b border-border">
         <div className="p-6">
           <div className="flex items-center justify-between mb-6">
             <div>
@@ -263,12 +265,12 @@ export const SocialFeed = ({ activities, isGenerating = false, filter = "all" }:
 
               {/* Content */}
               <div className="mb-4">
-                <p className="text-gray-200 leading-relaxed">{post.description}</p>
+                <p className="text-gray-200 leading-relaxed line-clamp-3">{truncateText(cleanText(post.description), 280)}</p>
               </div>
 
               {/* Enhanced Tags */}
               <div className="flex flex-wrap gap-2 mb-4">
-                {post.tags.map((tag, index) => (
+                {normalizeTags(post.tags).map((tag, index) => (
                   <span key={index} className={`px-3 py-1 rounded-full text-xs font-medium border ${
                     tag === 'High Impact' 
                       ? 'bg-red-500/20 text-red-300 border-red-500/30'
