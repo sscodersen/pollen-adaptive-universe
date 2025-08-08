@@ -117,9 +117,69 @@ class MusicSSEService {
   }
 
   private generateAudioUrl(id: string): string {
-    // In a real implementation, this would be the actual audio file URL
-    // For now, we'll generate a placeholder URL
-    return `https://example.com/generated-music/${id}.mp3`;
+    // Generate a short 2s tone as a data URL so it can actually play
+    const freqs = [329, 392, 440, 493, 523];
+    const f = freqs[Math.abs(this.hashString(id)) % freqs.length];
+    return this.generateToneWav(f, 2.0);
+  }
+
+  private hashString(s: string): number {
+    let h = 0;
+    for (let i = 0; i < s.length; i++) {
+      h = ((h << 5) - h) + s.charCodeAt(i);
+      h |= 0;
+    }
+    return h;
+  }
+
+  private generateToneWav(frequency: number, durationSec: number): string {
+    const sampleRate = 22050;
+    const numSamples = Math.floor(durationSec * sampleRate);
+    const headerSize = 44;
+    const buffer = new ArrayBuffer(headerSize + numSamples * 2);
+    const view = new DataView(buffer);
+
+    // RIFF header
+    this.writeString(view, 0, 'RIFF');
+    view.setUint32(4, 36 + numSamples * 2, true);
+    this.writeString(view, 8, 'WAVE');
+
+    // fmt chunk
+    this.writeString(view, 12, 'fmt ');
+    view.setUint32(16, 16, true); // PCM
+    view.setUint16(20, 1, true);  // Audio format (1 = PCM)
+    view.setUint16(22, 1, true);  // Channels
+    view.setUint32(24, sampleRate, true);
+    view.setUint32(28, sampleRate * 2, true); // Byte rate
+    view.setUint16(32, 2, true); // Block align
+    view.setUint16(34, 16, true); // Bits per sample
+
+    // data chunk
+    this.writeString(view, 36, 'data');
+    view.setUint32(40, numSamples * 2, true);
+
+    // Samples
+    const amplitude = 0.3 * 0x7fff;
+    for (let i = 0; i < numSamples; i++) {
+      const t = i / sampleRate;
+      const sample = Math.sin(2 * Math.PI * frequency * t);
+      view.setInt16(44 + i * 2, Math.max(-1, Math.min(1, sample)) * amplitude, true);
+    }
+
+    // Convert to base64
+    const bytes = new Uint8Array(buffer);
+    let binary = '';
+    for (let i = 0; i < bytes.length; i++) {
+      binary += String.fromCharCode(bytes[i]);
+    }
+    const base64 = typeof btoa === 'function' ? btoa(binary) : Buffer.from(binary, 'binary').toString('base64');
+    return `data:audio/wav;base64,${base64}`;
+  }
+
+  private writeString(view: DataView, offset: number, str: string) {
+    for (let i = 0; i < str.length; i++) {
+      view.setUint8(offset + i, str.charCodeAt(i));
+    }
   }
 
   cancelGeneration(): void {

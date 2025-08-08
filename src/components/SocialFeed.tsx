@@ -81,14 +81,33 @@ export const SocialFeed = ({ activities, isGenerating = false, filter = "all" }:
     };
   }, [loadPosts]);
 
+  // Generate more original, less templated copy for trend posts
+  const hashString = (s: string) => {
+    let h = 0; for (let i = 0; i < s.length; i++) { h = ((h << 5) - h) + s.charCodeAt(i); h |= 0; }
+    return Math.abs(h);
+  };
+
+  const makeOriginalSummary = (p: GeneratedPost): string => {
+    const impact = p.engagement_score > 80 ? 'high' : p.engagement_score > 60 ? 'medium' : 'rising';
+    const cleaned = cleanText((p.content || '').replace(/^Quick take:?/i, '').trim());
+    const clip = truncateText(cleaned, 140);
+    const tags = p.hashtags.slice(0, 2).join(' ');
+    const options = [
+      `${p.topic} is surging. Signals: ${tags} • Impact ${impact}. ${clip}`.trim(),
+      `Spotlight: ${p.topic}. Why now: ${clip || 'momentum across communities.'}`.trim(),
+      `Surging topic — ${p.topic}. Key signals: ${tags}.`.trim(),
+    ];
+    return options[hashString(p.id) % options.length];
+  };
+
   // Convert trend posts to social content format for display
   const convertTrendPostsToSocialContent = (trendPosts: GeneratedPost[]): SocialContent[] => {
     return trendPosts.map(post => ({
       id: post.id,
       type: 'social' as const,
-      title: `Trending: ${post.topic}`,
-      description: cleanText(post.content),
-      content: cleanText(post.content),
+      title: post.topic,
+      description: makeOriginalSummary(post),
+      content: makeOriginalSummary(post),
       category: 'trending',
       user: {
         name: 'TrendBot',

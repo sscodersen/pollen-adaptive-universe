@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Music, Play, Heart, Share2, Clock, Headphones, Mic, Radio } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { MusicGenerator } from './music/MusicGenerator';
+
 import { GeneratedTracks } from './music/GeneratedTracks';
 import { GeneratedTrack } from '../services/musicGenerator';
 import { musicSSEService } from '../services/musicSSE';
@@ -123,9 +123,6 @@ export function MusicPage() {
     return () => clearInterval(interval);
   }, []);
 
-  const handleTrackGenerated = (track: GeneratedTrack) => {
-    setGeneratedTracks(prev => [track, ...prev]);
-  };
 
   const handlePlayGenerated = (trackId: string) => {
     setCurrentlyPlayingGenerated(currentlyPlayingGenerated === trackId ? null : trackId);
@@ -151,10 +148,6 @@ export function MusicPage() {
       </div>
 
       <div className="max-w-6xl mx-auto p-6">
-        {/* AI Music Generator */}
-        <div className="mb-8">
-          <MusicGenerator onTrackGenerated={handleTrackGenerated} />
-        </div>
 
         {/* Generated Tracks */}
         {generatedTracks.length > 0 && (
@@ -208,6 +201,7 @@ export function MusicPage() {
                           isGenerating: false,
                         };
                         setGeneratedTracks(prev => [track, ...prev]);
+                        setCurrentlyPlayingGenerated(ev.id);
                         setStreamStatus('completed');
                       }
                       if (ev.status === 'error') {

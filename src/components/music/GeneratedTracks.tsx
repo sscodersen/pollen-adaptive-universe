@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Play, Pause, Download, Heart, Share2, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -16,6 +16,22 @@ export const GeneratedTracks: React.FC<GeneratedTracksProps> = ({
   currentlyPlaying, 
   onPlay 
 }) => {
+  const audioRef = useRef<HTMLAudioElement>(null);
+
+  useEffect(() => {
+    if (!audioRef.current) return;
+    if (!currentlyPlaying) {
+      audioRef.current.pause();
+      return;
+    }
+    const track = tracks.find(t => t.id === currentlyPlaying);
+    if (track?.audioUrl) {
+      audioRef.current.src = track.audioUrl;
+      audioRef.current.currentTime = 0;
+      audioRef.current.onended = () => onPlay(currentlyPlaying);
+      audioRef.current.play().catch(() => {});
+    }
+  }, [currentlyPlaying, tracks, onPlay]);
   if (tracks.length === 0) {
     return (
       <div className="text-center py-8 text-gray-500">
@@ -25,11 +41,13 @@ export const GeneratedTracks: React.FC<GeneratedTracksProps> = ({
   }
 
   return (
-    <div className="space-y-4">
-      <h3 className="text-xl font-bold text-white flex items-center gap-2">
-        <span className="text-pink-400">✨</span>
-        Your Generated Tracks
-      </h3>
+    <>
+      <audio ref={audioRef} style={{ display: 'none' }} />
+      <div className="space-y-4">
+        <h3 className="text-xl font-bold text-white flex items-center gap-2">
+          <span className="text-pink-400">✨</span>
+          Your Generated Tracks
+        </h3>
       
       {tracks.map((track) => (
         <div 
@@ -117,5 +135,6 @@ export const GeneratedTracks: React.FC<GeneratedTracksProps> = ({
         </div>
       ))}
     </div>
+    </>
   );
 };

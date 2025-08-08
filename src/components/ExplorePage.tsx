@@ -32,9 +32,14 @@ export function ExplorePage() {
       setTrends(trendingData);
 
       // Aggregated headlines from multi-source trend aggregator
-      const headlines = await trendAggregator.fetchHeadlines();
+      let headlines: any[] = [];
+      try {
+        headlines = await trendAggregator.fetchHeadlines();
+      } catch (e) {
+        headlines = [];
+      }
 
-      const newsData = headlines.slice(0, 6).map(h => ({
+      const items = (headlines || []).slice(0, 6).map(h => ({
         title: truncateText(cleanText(h.title), 100),
         source: h.source,
         time: 'Now',
@@ -42,7 +47,18 @@ export function ExplorePage() {
         snippet: truncateText(cleanText(h.snippet || ''), 160)
       }));
 
-      setNewsResults(newsData);
+      if (items.length === 0) {
+        const fallback = trendingData.slice(0, 6).map(t => ({
+          title: truncateText(cleanText(t.topic), 100),
+          source: 'Trending Now',
+          time: 'Now',
+          category: t.category,
+          snippet: truncateText(cleanText(`Developing: ${t.topic}`), 160)
+        }));
+        setNewsResults(fallback);
+      } else {
+        setNewsResults(items);
+      }
     } catch (error) {
       console.error('Failed to load trending content:', error);
     }
@@ -137,7 +153,7 @@ export function ExplorePage() {
           <div>
             <h2 className="text-2xl font-bold text-white mb-4 flex items-center gap-2">
               <Calendar className="w-6 h-6 text-red-400" />
-              Breaking News (Across Sources)
+              Breaking News
             </h2>
             <div className="space-y-4">
               {loading ? (
