@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AIReasonerEmbed } from './AIReasonerEmbed';
 
 const aiTools = [
   {
@@ -229,6 +230,9 @@ export function AIPlayground() {
                   </CardContent>
                 </Card>
               ))}
+            </div>
+            <div className="mt-8">
+              <AIReasonerEmbed />
             </div>
           </TabsContent>
 

@@ -7,6 +7,7 @@ import { GeneratedTracks } from './music/GeneratedTracks';
 import { GeneratedTrack } from '../services/musicGenerator';
 import { musicSSEService } from '../services/musicSSE';
 import { contentOrchestrator } from '../services/contentOrchestrator';
+import { ACEEmbed } from './music/ACEEmbed';
 
 const staticTracks = [
   {
@@ -161,6 +162,11 @@ export function MusicPage() {
             />
           </div>
         )}
+
+        {/* ACE-Step Live Embed */}
+        <div className="mb-8">
+          <ACEEmbed defaultPrompt="upbeat electronic dance" />
+        </div>
 
         {/* Music Genres */}
         <div className="mb-8">

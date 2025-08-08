@@ -1,4 +1,4 @@
-import { TrendData } from './enhancedTrendEngine';
+import type { TrendData } from './enhancedTrendEngine';
 
 // Simple multi-source trend fetcher with no API keys. Uses CORS-friendly proxies.
 // Sources: Hacker News RSS, Techmeme RSS, Google News RSS (technology), GitHub Trending (HTML), ExplodingTopics (HTML)

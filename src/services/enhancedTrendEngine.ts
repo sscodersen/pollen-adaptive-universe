@@ -229,7 +229,16 @@ class EnhancedTrendEngine {
         }
       }
 
-      return trends.sort((a, b) => b.score - a.score).slice(0, 50);
+      // Merge aggregated trends and deduplicate by topic
+      const merged = [...trends, ...aggregated];
+      const byTopic = new Map<string, TrendData>();
+      for (const t of merged) {
+        const key = t.topic.toLowerCase();
+        if (!byTopic.has(key) || byTopic.get(key)!.score < t.score) {
+          byTopic.set(key, t);
+        }
+      }
+      return Array.from(byTopic.values()).sort((a, b) => b.score - a.score).slice(0, 100);
     } catch (error) {
       console.error('Error fetching trends:', error);
       return [];

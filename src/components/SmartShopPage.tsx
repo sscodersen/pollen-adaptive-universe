@@ -59,7 +59,8 @@ export const SmartShopPage = () => {
         };
       });
       
-      setProducts(convertedProducts);
+      const ranked = reRankProducts(convertedProducts, enhancedTrendEngine.getTrends());
+      setProducts(ranked);
     } catch (error) {
       console.error('Failed to load products:', error);
     }
