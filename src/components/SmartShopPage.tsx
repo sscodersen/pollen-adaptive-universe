@@ -6,6 +6,8 @@ import { Product } from '../types/shop';
 import { ShopHeader } from './shop/ShopHeader';
 import { FilterControls } from './shop/FilterControls';
 import { ProductGrid } from './shop/ProductGrid';
+import { enhancedTrendEngine } from '../services/enhancedTrendEngine';
+import { reRankProducts } from '../services/shopReRanker';
 
 // Removed hardcoded templates - now using AI-generated products
 

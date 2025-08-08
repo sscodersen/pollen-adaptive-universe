@@ -3,6 +3,7 @@ import { clientAI } from './clientAI';
 import { personalizationEngine } from './personalizationEngine';
 import { pollenAdaptiveService } from './pollenAdaptiveService';
 import { storageService } from './storageService';
+import { trendAggregator } from './trendAggregator';
 
 export interface TrendData {
   id: string;
@@ -143,12 +144,14 @@ class EnhancedTrendEngine {
         hackerNews,
         redditTech,
         githubTrending,
-        devArticles
+        devArticles,
+        aggregated
       ] = await Promise.all([
         realDataIntegration.fetchHackerNews(30),
         realDataIntegration.fetchRedditContent('technology', 25),
         realDataIntegration.fetchGitHubTrending('daily'),
-        realDataIntegration.fetchDevToArticles(undefined, 20)
+        realDataIntegration.fetchDevToArticles(undefined, 20),
+        trendAggregator.fetchTrends()
       ]);
 
       const trends: TrendData[] = [];
