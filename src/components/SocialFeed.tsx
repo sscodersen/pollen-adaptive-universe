@@ -49,8 +49,7 @@ export const SocialFeed = ({ activities, isGenerating = false, filter = "all" }:
         count: 15,
         strategy
       });
-      setPosts(newPosts as SocialContent[]);
-      setTrendPosts(enhancedTrendEngine.getGeneratedPosts().slice(0, 10));
+      const trendGeneratedPosts = enhancedTrendEngine.getGeneratedPosts().slice(0, 10);
     } catch (error) {
       console.error('Failed to load posts:', error);
     }

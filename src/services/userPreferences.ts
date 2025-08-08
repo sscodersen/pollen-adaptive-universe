@@ -4,8 +4,6 @@ export interface UserPreferences {
   enablePollen: boolean;
   pollenEndpoint?: string;
   enableSSE?: boolean;
-  enableCrawler?: boolean;
-  crawlerEndpoint?: string;
 }
 
 const PREFERENCES_KEY = 'user_preferences';
@@ -14,8 +12,6 @@ const defaultPreferences: UserPreferences = {
   enablePollen: false,
   pollenEndpoint: undefined,
   enableSSE: true,
-  enableCrawler: false,
-  crawlerEndpoint: undefined,
 };
 
 export const userPreferences = {
