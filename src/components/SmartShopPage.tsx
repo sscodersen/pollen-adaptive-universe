@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { unifiedContentEngine, ShopContent } from '../services/unifiedContentEngine';
+import { contentOrchestrator } from '../services/contentOrchestrator';
+import { ShopContent } from '../services/unifiedContentEngine';
 import { Product } from '../types/shop';
 import { ShopHeader } from './shop/ShopHeader';
 import { FilterControls } from './shop/FilterControls';
@@ -23,11 +24,12 @@ export const SmartShopPage = () => {
       const strategy = {
         diversity: 0.8,
         freshness: 0.7,
+        personalization: 0.4,
         qualityThreshold: 6.5,
         trendingBoost: 1.4
       };
       
-      const shopContent = await unifiedContentEngine.generateContent('shop', 16, strategy);
+      const { content: shopContent } = await contentOrchestrator.generateContent({ type: 'shop', count: 16, strategy });
       const convertedProducts: Product[] = shopContent.map((item) => {
         const shopItem = item as ShopContent;
         return {

@@ -3,8 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Gamepad2, Star, Users, Download, Trophy, Zap, Target, Sword } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { gamesAutomation } from '../services/gamesAutomation';
-import { unifiedContentEngine } from '../services/unifiedContentEngine';
+import { contentOrchestrator } from '../services/contentOrchestrator';
 
 const staticGames = [
   {
@@ -75,11 +74,16 @@ export function GamesPage() {
     const generateGames = async () => {
       setIsLoading(true);
       try {
-        // Generate trending games content
-        const trendingGames = await unifiedContentEngine.generateContent('games', 6, {
-          diversity: 0.8,
-          freshness: 0.9,
-          qualityThreshold: 7
+        const { content: trendingGames } = await contentOrchestrator.generateContent({
+          type: 'games',
+          count: 6,
+          strategy: {
+            diversity: 0.8,
+            freshness: 0.9,
+            qualityThreshold: 7,
+            personalization: 0.6,
+            trendingBoost: 1.4
+          }
         });
 
         const formattedGames = trendingGames.map((item: any, index: number) => ({

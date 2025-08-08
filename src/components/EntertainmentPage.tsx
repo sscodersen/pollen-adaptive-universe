@@ -3,8 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Film, Play, Star, Clock, Eye, Headphones, Camera, Gamepad2 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { entertainmentAutomation } from '../services/entertainmentAutomation';
-import { unifiedContentEngine } from '../services/unifiedContentEngine';
+import { contentOrchestrator } from '../services/contentOrchestrator';
 
 const staticContent = [
   {
@@ -74,11 +73,16 @@ export function EntertainmentPage() {
     const generateContent = async () => {
       setIsLoading(true);
       try {
-        // Generate trending entertainment content
-        const trendingContent = await unifiedContentEngine.generateContent('entertainment', 8, {
-          diversity: 0.8,
-          freshness: 0.9,
-          qualityThreshold: 7
+        const { content: trendingContent } = await contentOrchestrator.generateContent({
+          type: 'entertainment',
+          count: 8,
+          strategy: {
+            diversity: 0.8,
+            freshness: 0.9,
+            qualityThreshold: 7,
+            personalization: 0.5,
+            trendingBoost: 1.3
+          }
         });
 
         const formattedContent = trendingContent.map((item: any, index: number) => ({

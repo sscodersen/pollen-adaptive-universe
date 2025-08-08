@@ -6,7 +6,7 @@ import { MusicGenerator } from './music/MusicGenerator';
 import { GeneratedTracks } from './music/GeneratedTracks';
 import { GeneratedTrack } from '../services/musicGenerator';
 import { musicSSEService } from '../services/musicSSE';
-import { unifiedContentEngine } from '../services/unifiedContentEngine';
+import { contentOrchestrator } from '../services/contentOrchestrator';
 
 const staticTracks = [
   {
@@ -80,11 +80,16 @@ export function MusicPage() {
     const generateTrendingMusic = async () => {
       setIsLoading(true);
       try {
-        // Generate trending music content
-        const trendingMusic = await unifiedContentEngine.generateContent('music', 6, {
-          diversity: 0.8,
-          freshness: 0.9,
-          qualityThreshold: 7
+        const { content: trendingMusic } = await contentOrchestrator.generateContent({
+          type: 'music',
+          count: 6,
+          strategy: {
+            diversity: 0.8,
+            freshness: 0.9,
+            qualityThreshold: 7,
+            personalization: 0.8,
+            trendingBoost: 1.2
+          }
         });
 
         const formattedTracks = trendingMusic.map((item: any, index: number) => ({

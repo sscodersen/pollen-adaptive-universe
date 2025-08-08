@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Eye, TrendingUp, Award, Zap, Users, Globe, Sparkles, Search, Star, Clock, Target } from 'lucide-react';
-import { unifiedContentEngine, SocialContent } from '../services/unifiedContentEngine';
+import { contentOrchestrator } from '../services/contentOrchestrator';
+import { SocialContent } from '../services/unifiedContentEngine';
 import { enhancedTrendEngine, GeneratedPost } from '../services/enhancedTrendEngine';
 import { Input } from "@/components/ui/input";
 
@@ -38,17 +39,17 @@ export const SocialFeed = ({ activities, isGenerating = false, filter = "all" }:
       const strategy = {
         diversity: 0.9,
         freshness: 0.8,
+        personalization: 0.6,
         qualityThreshold: 6.0,
         trendingBoost: 1.5
       };
       
-      const [newPosts, trendGeneratedPosts] = await Promise.all([
-        unifiedContentEngine.generateContent('social', 15, strategy),
-        Promise.resolve(enhancedTrendEngine.getGeneratedPosts().slice(0, 10))
-      ]);
-      
-      setPosts(newPosts as SocialContent[]);
-      setTrendPosts(trendGeneratedPosts);
+      const { content: newPosts } = await contentOrchestrator.generateContent({
+        type: 'social',
+        count: 15,
+        strategy
+      });
+      const trendGeneratedPosts = enhancedTrendEngine.getGeneratedPosts().slice(0, 10);
     } catch (error) {
       console.error('Failed to load posts:', error);
     }
