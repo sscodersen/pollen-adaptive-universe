@@ -6,6 +6,7 @@ import { enhancedTrendEngine, GeneratedPost } from '../services/enhancedTrendEng
 import { Input } from "@/components/ui/input";
 
 import { cleanText, truncateText, normalizeTags } from '@/lib/textUtils';
+import { isBlacklistedText } from '@/lib/blacklist';
 
 // IMPORTANT: src/components/SocialFeed.tsx is 263 lines long and should be refactored into smaller components
 
@@ -89,13 +90,15 @@ export const SocialFeed = ({ activities, isGenerating = false, filter = "all" }:
 
   const makeOriginalSummary = (p: GeneratedPost): string => {
     const impact = p.engagement_score > 80 ? 'high' : p.engagement_score > 60 ? 'medium' : 'rising';
-    const cleaned = cleanText((p.content || '').replace(/^Quick take:?/i, '').trim());
+    // Remove leading sources in parentheses
+    const stripped = (p.content || '').replace(/^\([^)]*\)\s*/,'');
+    const cleaned = cleanText(stripped).replace(/\s*(is\s+trending|is\s+surging)[.!…]*$/i, '');
     const clip = truncateText(cleaned, 140);
     const tags = p.hashtags.slice(0, 2).join(' ');
     const options = [
-      `${p.topic} is surging. Signals: ${tags} • Impact ${impact}. ${clip}`.trim(),
-      `Spotlight: ${p.topic}. Why now: ${clip || 'momentum across communities.'}`.trim(),
-      `Surging topic — ${p.topic}. Key signals: ${tags}.`.trim(),
+      `${p.topic}: ${clip}`.trim(),
+      `Signal check • ${p.topic}. ${tags}`.trim(),
+      `${p.topic} — ${clip}`.trim(),
     ];
     return options[hashString(p.id) % options.length];
   };
@@ -136,7 +139,10 @@ export const SocialFeed = ({ activities, isGenerating = false, filter = "all" }:
     ...posts
   ];
 
-  const filteredPosts = allPosts.filter(post => {
+  const nonBlacklistedPosts = allPosts.filter(p => !isBlacklistedText(p.title) && !isBlacklistedText(p.description) && !p.tags.some(t => isBlacklistedText(t)));
+
+
+  const filteredPosts = nonBlacklistedPosts.filter(post => {
     const matchesFilter = filter === 'all' || 
       (filter === 'trending' && post.trending) || 
       (filter === 'high-impact' && post.significance > 8);

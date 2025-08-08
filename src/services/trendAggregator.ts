@@ -210,7 +210,10 @@ export const trendAggregator = {
         }
       }
 
-      return Array.from(map.values()).sort((a, b) => b.score - a.score).slice(0, 80);
+      const deduped = Array.from(map.values()).sort((a, b) => b.score - a.score).slice(0, 80);
+      // Blacklist filter
+      const { isBlacklistedText } = await import('../lib/blacklist');
+      return deduped.filter(t => !isBlacklistedText(t.topic));
     } catch (e) {
       console.warn('trendAggregator.fetchTrends failed:', e);
       return [];

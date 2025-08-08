@@ -483,11 +483,22 @@ class EnhancedTrendEngine {
   }
 
   public getTrends(): TrendData[] {
-    return this.trends;
+    // Apply blacklist on read
+    try {
+      const { isBlacklistedText } = require('../lib/blacklist');
+      return this.trends.filter(t => !isBlacklistedText(t.topic));
+    } catch {
+      return this.trends;
+    }
   }
 
   public getGeneratedPosts(): GeneratedPost[] {
-    return this.generatedPosts;
+    try {
+      const { isBlacklistedText } = require('../lib/blacklist');
+      return this.generatedPosts.filter(p => !isBlacklistedText(p.topic) && !isBlacklistedText(p.content));
+    } catch {
+      return this.generatedPosts;
+    }
   }
 
   public getRecommendations(): ProductRecommendation[] {

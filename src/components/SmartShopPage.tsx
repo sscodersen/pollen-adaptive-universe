@@ -59,7 +59,15 @@ export const SmartShopPage = () => {
         };
       });
       
-      const ranked = reRankProducts(convertedProducts, enhancedTrendEngine.getTrends());
+      // Blacklist: drop unwanted products
+      const { filterBlacklisted, isBlacklistedText } = await import('../lib/blacklist');
+      const safeProducts = convertedProducts.filter(p => 
+        !isBlacklistedText(p.name) && 
+        !isBlacklistedText(p.description) && 
+        !p.tags.some(t => isBlacklistedText(t))
+      );
+      
+      const ranked = reRankProducts(safeProducts, enhancedTrendEngine.getTrends());
       setProducts(ranked);
     } catch (error) {
       console.error('Failed to load products:', error);
