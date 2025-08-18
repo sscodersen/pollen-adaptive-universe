@@ -16,7 +16,8 @@ import { SmartShopPage } from "@/components/SmartShopPage";
 import { AppStorePage } from "@/components/AppStorePage";
 import { AIPlayground } from "@/components/AIPlayground";
 import { LearningCenter } from "@/components/LearningCenter";
-import { Compass, Film, Gamepad2, Music, Home, TrendingUp, Award, Globe, Megaphone, ShoppingBag, Smartphone, Brain, GraduationCap, Zap, BarChart3 } from "lucide-react";
+import IndustryDashboard from "@/components/pages/IndustryDashboard";
+import { Compass, Film, Gamepad2, Music, Home, TrendingUp, Award, Globe, Megaphone, ShoppingBag, Smartphone, Brain, GraduationCap, Zap, BarChart3, Building } from "lucide-react";
 
 // Primary navigation (top)
 const primaryTabs = [
@@ -29,6 +30,7 @@ const primaryTabs = [
 // Secondary navigation (stacked below)
 const secondaryTabs = [
   { id: "appstore", name: "App Store", icon: Smartphone },
+  { id: "industries", name: "Industries", icon: Building },
   { id: "games", name: "Games", icon: Gamepad2 },
   { id: "music", name: "Music", icon: Music },
   { id: "ai-playground", name: "AI Playground", icon: Brain },
@@ -106,6 +108,9 @@ export function MainTabs() {
           </TabsContent>
           <TabsContent value="appstore" className="flex-1 h-full data-[state=active]:flex data-[state=active]:flex-col">
             <AppStorePage />
+          </TabsContent>
+          <TabsContent value="industries" className="flex-1 h-full data-[state=active]:flex data-[state=active]:flex-col">
+            <IndustryDashboard />
           </TabsContent>
           <TabsContent value="entertainment" className="flex-1 h-full data-[state=active]:flex data-[state=active]:flex-col">
             <EntertainmentPage />
