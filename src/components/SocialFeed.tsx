@@ -240,29 +240,31 @@ export const SocialFeed = ({ activities, isGenerating = false, filter = "all" }:
               {/* User Info with Enhanced Ranking */}
               <div className="flex items-center justify-between mb-4 mr-16">
                 <div className="flex items-center space-x-4">
-                  <div className={`w-12 h-12 ${post.user.avatar} rounded-full flex items-center justify-center relative`}>
+                  <div className={`w-12 h-12 ${post.user?.avatar || 'bg-gray-600'} rounded-full flex items-center justify-center relative`}>
                     <span className="text-white font-bold text-lg">
-                      {post.user.name.charAt(0)}
+                      {post.user?.name?.charAt(0) || '?'}
                     </span>
                     {/* User Rank Indicator */}
-                    <div className={`absolute -bottom-1 -right-1 w-6 h-6 ${getRankBadge(post.user.rank)} rounded-full flex items-center justify-center text-xs font-bold`}>
-                      {post.user.rank}
-                    </div>
+                    {post.user?.rank && (
+                      <div className={`absolute -bottom-1 -right-1 w-6 h-6 ${getRankBadge(post.user.rank)} rounded-full flex items-center justify-center text-xs font-bold`}>
+                        {post.user.rank}
+                      </div>
+                    )}
                   </div>
                   <div>
                     <div className="flex items-center space-x-2">
-                      <h3 className="font-semibold text-white">{post.user.name}</h3>
-                      {post.user.verified && <Sparkles className="w-4 h-4 text-cyan-400" />}
+                      <h3 className="font-semibold text-white">{post.user?.name || 'Anonymous'}</h3>
+                      {post.user?.verified && <Sparkles className="w-4 h-4 text-cyan-400" />}
                   <span className={`px-2 py-0.5 text-xs rounded font-medium ${
                     post.contentType === 'news' ? 'bg-red-500/20 text-red-300 border border-red-500/30' :
                     post.contentType === 'discussion' ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30' :
                     'bg-blue-500/20 text-blue-300 border border-blue-500/30'
                   }`}>
-                    {post.contentType.toUpperCase()}
+                    {post.contentType?.toUpperCase() || 'CONTENT'}
                   </span>
                     </div>
                     <div className="flex items-center space-x-2 text-sm">
-                      <p className="text-gray-400">@{post.user.username}</p>
+                      <p className="text-gray-400">@{post.user?.username || 'anonymous'}</p>
                       <span className="text-gray-600">•</span>
                       <span className="text-gray-400">{post.timestamp}</span>
                       <span className="text-gray-600">•</span>

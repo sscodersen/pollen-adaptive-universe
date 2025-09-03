@@ -3,12 +3,18 @@ import App from './App.tsx'
 import './index.css'
 import { initializePollenFromPreferences } from './services/pollenIntegration';
 import { contentOrchestrator } from './services/contentOrchestrator';
+import { platformOptimizer } from './services/platformOptimizer';
 
 // Global error handling for unhandled promise rejections
 window.addEventListener('unhandledrejection', (event) => {
   console.warn('Unhandled promise rejection (prevented error boundary):', event.reason);
   event.preventDefault(); // Prevent the error from propagating to error boundary
 });
+
+// Initialize platform optimization
+platformOptimizer.autoOptimize().then(() => {
+  console.log('🚀 Platform optimizer initialized');
+}).catch(console.warn);
 
 // Initialize optional Pollen AI integration from saved preferences (non-blocking)
 initializePollenFromPreferences().catch(error => {
@@ -19,6 +25,7 @@ initializePollenFromPreferences().catch(error => {
 setTimeout(() => {
   try {
     contentOrchestrator.startContinuousGeneration(['social','shop','entertainment','games','music','news'], 60000);
+    console.log('🔄 Content orchestrator started');
   } catch (error) {
     console.warn('Content orchestrator failed to start (non-critical):', error);
   }

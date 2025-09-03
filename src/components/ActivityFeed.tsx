@@ -75,12 +75,12 @@ export const ActivityFeed = ({ activities, isGenerating }: ActivityFeedProps) =>
           {/* Activity Header */}
           <div className="flex items-start justify-between mb-4">
             <div className="flex items-center space-x-3">
-              <div className={`w-10 h-10 ${activity.user.avatar} rounded-full flex items-center justify-center text-white font-medium`}>
-                {activity.user.initial}
+              <div className={`w-10 h-10 ${activity.user?.avatar || 'bg-gray-600'} rounded-full flex items-center justify-center text-white font-medium`}>
+                {activity.user?.initial || '?'}
               </div>
               <div>
                 <div className="flex items-center space-x-2">
-                  <span className="font-medium text-white">{activity.user.name}</span>
+                  <span className="font-medium text-white">{activity.user?.name || 'Anonymous'}</span>
                   <span className="text-gray-400">{activity.action}</span>
                   <span className="text-blue-400 font-medium">{activity.target}</span>
                 </div>
@@ -132,12 +132,12 @@ export const ActivityFeed = ({ activities, isGenerating }: ActivityFeedProps) =>
             <div className="mb-4 space-y-3">
               {activity.replies.map((reply, index) => (
                 <div key={index} className="flex items-start space-x-3 ml-4 p-3 bg-gray-700/50 rounded-lg">
-                  <div className={`w-8 h-8 ${reply.user.avatar} rounded-full flex items-center justify-center text-white text-sm font-medium`}>
-                    {reply.user.initial}
+                  <div className={`w-8 h-8 ${reply.user?.avatar || 'bg-gray-600'} rounded-full flex items-center justify-center text-white text-sm font-medium`}>
+                    {reply.user?.initial || '?'}
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center space-x-2 mb-1">
-                      <span className="font-medium text-white text-sm">{reply.user.name}</span>
+                      <span className="font-medium text-white text-sm">{reply.user?.name || 'Anonymous'}</span>
                       <span className="text-xs text-gray-500">{reply.timestamp}</span>
                     </div>
                     <p className="text-gray-200 text-sm">{reply.content}</p>
