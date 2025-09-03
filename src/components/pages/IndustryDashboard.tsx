@@ -15,6 +15,7 @@ import { healthcareService } from '@/services/healthcareService';
 import { financeService } from '@/services/financeService';
 import { travelService } from '@/services/travelService';
 import { pollenAdaptiveService } from '@/services/pollenAdaptiveService';
+import { PollenStatus } from '@/components/PollenStatus';
 
 interface IndustrySection {
   id: string;
@@ -349,7 +350,10 @@ const IndustryDashboard: React.FC = () => {
         </TabsContent>
 
         <TabsContent value="settings" className="mt-8">
-          {renderApiKeySettings()}
+          <div className="grid gap-8">
+            <PollenStatus />
+            {renderApiKeySettings()}
+          </div>
         </TabsContent>
       </Tabs>
     </div>

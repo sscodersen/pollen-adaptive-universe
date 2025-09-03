@@ -341,7 +341,8 @@ def solution():
   }
 
   private extractTags(prompt: string): string[] {
-    const keywords = prompt.toLowerCase().match(/\b\w+\b/g) || [];
+    const keywords = prompt.toLowerCase().match(/\b\w+\b/g);
+    if (!keywords) return [];
     return keywords.filter(word => word.length > 3).slice(0, 5);
   }
 
