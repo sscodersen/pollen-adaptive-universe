@@ -142,11 +142,29 @@ class RealDataIntegrationService {
     try {
       // Use CORS proxy for Reddit API
       const response = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(`https://www.reddit.com/r/${subreddit}.json?limit=${limit}`)}`);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
       const proxyData = await response.json();
+      
+      // Check if we got HTML instead of JSON (indicates API is down)
+      if (typeof proxyData.contents === 'string' && proxyData.contents.trim().startsWith('<')) {
+        console.warn(`Reddit API returned HTML instead of JSON for ${subreddit} - API may be down`);
+        return [];
+      }
+      
       const data = JSON.parse(proxyData.contents);
       
+      // Ensure we have the expected data structure
+      if (!data?.data?.children || !Array.isArray(data.data.children)) {
+        console.warn(`Unexpected Reddit API response structure for ${subreddit}`);
+        return [];
+      }
+      
       const content: ExternalContent[] = data.data.children
-        .filter((post: any) => post.data.title && !post.data.is_self)
+        .filter((post: any) => post?.data?.title && !post.data.is_self)
         .map((post: any) => ({
           id: `reddit_${post.data.id}`,
           title: post.data.title,
@@ -168,6 +186,7 @@ class RealDataIntegrationService {
       return content;
     } catch (error) {
       console.error(`Failed to fetch Reddit ${subreddit}:`, error);
+      // Always return empty array to prevent errors from propagating
       return [];
     }
   }
