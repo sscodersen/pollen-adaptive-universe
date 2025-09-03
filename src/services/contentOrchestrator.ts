@@ -1,6 +1,7 @@
 import { pollenAI } from './pollenAI';
 import { universalSSE } from './universalSSE';
 import { unifiedContentEngine, ContentType, UnifiedContent, GenerationStrategy } from './unifiedContentEngine';
+import { enhancedContentEngine } from './enhancedContentEngine';
 import { musicSSEService } from './musicSSE';
 import { storageService } from './storageService';
 
@@ -28,7 +29,7 @@ class ContentOrchestrator {
   private cacheExpiry = 5 * 60 * 1000; // 5 minutes
   private activeStreams = new Map<string, AbortController>();
 
-  // Universal content generation that works across all sections
+  // Enhanced content generation with quality controls
   async generateContent<T extends UnifiedContent>(
     request: ContentRequest
   ): Promise<ContentResponse<T>> {
@@ -40,20 +41,36 @@ class ContentOrchestrator {
       return cached;
     }
 
-    // Generate new content
-    const strategy = request.strategy || this.getDefaultStrategy(request.type);
-    const content = await unifiedContentEngine.generateContent(
+    // Use enhanced content engine for better quality
+    const query = request.query || 'trending content';
+    const enhancedContent = await enhancedContentEngine.generateQualityContent(
       request.type,
-      request.count || 10,
-      strategy
-    ) as T[];
+      query,
+      request.count || 10
+    );
+
+    // Convert enhanced content to unified format
+    const content = enhancedContent
+      .filter(item => item.approved)
+      .map(item => item.content) as T[];
+
+    // Fallback to regular generation if not enough quality content
+    if (content.length < (request.count || 10) / 2) {
+      const strategy = request.strategy || this.getDefaultStrategy(request.type);
+      const fallbackContent = await unifiedContentEngine.generateContent(
+        request.type,
+        (request.count || 10) - content.length,
+        strategy
+      ) as T[];
+      content.push(...fallbackContent);
+    }
 
     const response: ContentResponse<T> = {
-      content,
+      content: content.slice(0, request.count || 10),
       metadata: {
         totalGenerated: content.length,
-        avgQuality: this.calculateAverageQuality(content),
-        strategy,
+        avgQuality: this.calculateEnhancedQuality(enhancedContent),
+        strategy: request.strategy || this.getDefaultStrategy(request.type),
         timestamp: new Date().toISOString(),
         cacheHit: false
       }
@@ -273,6 +290,19 @@ class ContentOrchestrator {
   private calculateAverageQuality(content: UnifiedContent[]): number {
     const total = content.reduce((sum, item) => sum + item.quality, 0);
     return Number((total / content.length).toFixed(1));
+  }
+
+  private calculateEnhancedQuality(enhancedContent: any[]): number {
+    if (enhancedContent.length === 0) return 8.0;
+    
+    const total = enhancedContent.reduce((sum, item) => {
+      const metrics = item.qualityMetrics;
+      const qualityScore = (metrics.truthfulness + metrics.factualAccuracy + 
+                           (10 - metrics.bias) + metrics.originality + metrics.relevance) / 5;
+      return sum + qualityScore;
+    }, 0);
+    
+    return Number((total / enhancedContent.length).toFixed(1));
   }
 
   stopStream(streamId: string): void {

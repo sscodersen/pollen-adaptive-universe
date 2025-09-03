@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { 
   Bot, Brain, Code, GraduationCap, Heart, DollarSign, 
   Plane, Home, Sprout, Palette, Music, ShoppingCart,
-  Settings, TrendingUp, Zap, Globe
+  Settings, TrendingUp, Zap, Globe, Database, Activity
 } from 'lucide-react';
 import { APIKeyManager } from '@/services/industryServices';
 import { smartHomeService, agricultureService, developmentService, educationService } from '@/services/industryServices';
@@ -16,6 +16,8 @@ import { financeService } from '@/services/financeService';
 import { travelService } from '@/services/travelService';
 import { pollenAdaptiveService } from '@/services/pollenAdaptiveService';
 import { PollenStatus } from '@/components/PollenStatus';
+import { ContentManagementDashboard } from '@/components/ContentManagementDashboard';
+import { PlatformOptimizer } from '@/components/PlatformOptimizer';
 
 interface IndustrySection {
   id: string;
@@ -333,10 +335,18 @@ const IndustryDashboard: React.FC = () => {
       </div>
 
       <Tabs defaultValue="industries" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="industries" className="flex items-center gap-2">
             <Globe className="h-4 w-4" />
             Industries
+          </TabsTrigger>
+          <TabsTrigger value="content-mgmt" className="flex items-center gap-2">
+            <Database className="h-4 w-4" />
+            Content
+          </TabsTrigger>
+          <TabsTrigger value="optimizer" className="flex items-center gap-2">
+            <Activity className="h-4 w-4" />
+            Optimizer
           </TabsTrigger>
           <TabsTrigger value="settings" className="flex items-center gap-2">
             <Settings className="h-4 w-4" />
@@ -347,6 +357,14 @@ const IndustryDashboard: React.FC = () => {
         <TabsContent value="industries" className="mt-8">
           {renderIndustryGrid()}
           {renderContentGenerator()}
+        </TabsContent>
+
+        <TabsContent value="content-mgmt" className="mt-8">
+          <ContentManagementDashboard />
+        </TabsContent>
+
+        <TabsContent value="optimizer" className="mt-8">
+          <PlatformOptimizer />
         </TabsContent>
 
         <TabsContent value="settings" className="mt-8">
