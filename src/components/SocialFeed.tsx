@@ -139,7 +139,7 @@ export const SocialFeed = ({ activities, isGenerating = false, filter = "all" }:
     ...posts
   ];
 
-  const nonBlacklistedPosts = allPosts.filter(p => !isBlacklistedText(p.title) && !isBlacklistedText(p.description) && !p.tags.some(t => isBlacklistedText(t)));
+  const nonBlacklistedPosts = allPosts.filter(p => !isBlacklistedText(p.title) && !isBlacklistedText(p.description) && !p.tags?.some(t => isBlacklistedText(t)));
 
 
   const filteredPosts = nonBlacklistedPosts.filter(post => {
@@ -149,7 +149,7 @@ export const SocialFeed = ({ activities, isGenerating = false, filter = "all" }:
     
     const matchesSearch = !searchQuery || 
       post.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      post.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      post.tags?.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase())) ||
       post.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
       post.user.name.toLowerCase().includes(searchQuery.toLowerCase());
     

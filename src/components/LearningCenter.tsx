@@ -130,7 +130,7 @@ export function LearningCenter() {
     const matchesSearch = !searchQuery || 
       item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
+      item.tags?.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
     
     const matchesCategory = selectedCategory === 'all' || item.category === selectedCategory;
     const matchesDifficulty = selectedDifficulty === 'all' || item.difficulty === selectedDifficulty;

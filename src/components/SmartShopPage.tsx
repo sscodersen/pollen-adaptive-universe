@@ -64,7 +64,7 @@ export const SmartShopPage = () => {
       const safeProducts = convertedProducts.filter(p => 
         !isBlacklistedText(p.name) && 
         !isBlacklistedText(p.description) && 
-        !p.tags.some(t => isBlacklistedText(t))
+        !p.tags?.some(t => isBlacklistedText(t))
       );
       
       const ranked = reRankProducts(safeProducts, enhancedTrendEngine.getTrends());
@@ -89,7 +89,7 @@ export const SmartShopPage = () => {
       product.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
       product.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
       product.brand.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      product.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
+      product.tags?.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
     
     const matchesFilter = filter === 'all' || 
       filter === 'trending' && product.trending ||

@@ -167,7 +167,7 @@ export const AppStorePage = () => {
       app.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
       app.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
       app.developer.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      app.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
+      app.tags?.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
     
     const matchesFilter = filter === 'all' || 
       filter === 'trending' && app.trending ||
