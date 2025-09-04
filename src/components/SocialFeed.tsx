@@ -139,19 +139,23 @@ export const SocialFeed = ({ activities, isGenerating = false, filter = "all" }:
     ...posts
   ];
 
-  const nonBlacklistedPosts = allPosts.filter(p => !isBlacklistedText(p.title) && !isBlacklistedText(p.description) && !p.tags?.some(t => isBlacklistedText(t)));
+  const nonBlacklistedPosts = allPosts.filter(p => 
+    !isBlacklistedText(p.title || '') && 
+    !isBlacklistedText(p.description || '') && 
+    !p.tags?.some(t => isBlacklistedText(t))
+  );
 
 
   const filteredPosts = nonBlacklistedPosts.filter(post => {
     const matchesFilter = filter === 'all' || 
       (filter === 'trending' && post.trending) || 
-      (filter === 'high-impact' && post.significance > 8);
+      (filter === 'high-impact' && (post.significance || 0) > 8);
     
     const matchesSearch = !searchQuery || 
-      post.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (post.description || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
       post.tags?.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase())) ||
-      post.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      post.user.name.toLowerCase().includes(searchQuery.toLowerCase());
+      (post.category || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (post.user?.name || '').toLowerCase().includes(searchQuery.toLowerCase());
     
     return matchesFilter && matchesSearch;
   });
@@ -279,14 +283,14 @@ export const SocialFeed = ({ activities, isGenerating = false, filter = "all" }:
 
               {/* Enhanced Badges */}
               <div className="flex flex-wrap gap-2 mb-4">
-                {post.user.badges.map((badge, index) => (
+                {post.user?.badges?.map((badge, index) => (
                   <span key={index} className="px-2 py-1 bg-purple-500/20 text-purple-300 rounded text-xs border border-purple-500/30 font-medium">
                     {badge}
                   </span>
                 ))}
-                <div className={`px-2 py-1 rounded text-xs font-bold border ${getImpactColor(post.impact)}`}>
+                <div className={`px-2 py-1 rounded text-xs font-bold border ${getImpactColor(post.impact || 'low')}`}>
                   <Target className="w-3 h-3 inline mr-1" />
-                  {post.impact.toUpperCase()} IMPACT
+                  {(post.impact || 'low').toUpperCase()} IMPACT
                 </div>
               </div>
 
@@ -297,7 +301,7 @@ export const SocialFeed = ({ activities, isGenerating = false, filter = "all" }:
 
               {/* Enhanced Tags */}
               <div className="flex flex-wrap gap-2 mb-4">
-                {normalizeTags(post.tags).map((tag, index) => (
+                {normalizeTags(post.tags || []).map((tag, index) => (
                   <span key={index} className={`px-3 py-1 rounded-full text-xs font-medium border ${
                     tag === 'High Impact' 
                       ? 'bg-red-500/20 text-red-300 border-red-500/30'
@@ -315,27 +319,27 @@ export const SocialFeed = ({ activities, isGenerating = false, filter = "all" }:
                 <div className="flex items-center space-x-6">
                   <div className="flex items-center space-x-2 text-gray-400 hover:text-cyan-400 transition-colors">
                     <Eye className="w-5 h-5" />
-                    <span className="text-sm font-medium">{post.views.toLocaleString()}</span>
+                    <span className="text-sm font-medium">{(post.views || 0).toLocaleString()}</span>
                     <span className="text-xs text-gray-500">views</span>
                   </div>
                   <div className="flex items-center space-x-2">
                     <div className={`px-3 py-1 rounded-full text-xs font-bold flex items-center space-x-1 ${
-                      post.significance > 9 
+                      (post.significance || 0) > 9 
                         ? 'bg-red-500/20 text-red-300 border border-red-500/30'
-                        : post.significance > 8 
+                        : (post.significance || 0) > 8 
                         ? 'bg-orange-500/20 text-orange-300 border border-orange-500/30'
-                        : post.significance > 7 
+                        : (post.significance || 0) > 7 
                         ? 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30'
                         : 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30'
                     }`}>
                       <Award className="w-3 h-3" />
-                      <span>{post.significance.toFixed(1)} Significance</span>
+                      <span>{(post.significance || 0).toFixed(1)} Significance</span>
                     </div>
                   </div>
                 </div>
                 <div className="flex items-center space-x-2">
                   <div className="px-2 py-1 bg-gray-700/50 text-gray-300 rounded text-xs">
-                    Quality: {post.quality}/100
+                    Quality: {post.quality || 0}/100
                   </div>
                   {post.trending && (
                     <div className="flex items-center space-x-1 px-2 py-1 bg-red-500/20 text-red-300 rounded text-xs border border-red-500/30 animate-pulse">
