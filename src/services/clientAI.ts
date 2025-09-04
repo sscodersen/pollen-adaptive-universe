@@ -23,7 +23,7 @@ class ClientAIService {
     return ClientAIService.instance;
   }
 
-  // Initialize AI models on demand
+  // Initialize AI models on demand with optimized device detection
   async initializePipeline(task: string, model?: string): Promise<any> {
     if (this.pipelines.has(task)) {
       return this.pipelines.get(task)!;
@@ -31,11 +31,17 @@ class ClientAIService {
 
     if (this.isLoading.has(task)) {
       // Wait for existing initialization
-      return new Promise((resolve) => {
+      return new Promise((resolve, reject) => {
+        const maxWait = 60000; // Max 60 seconds
+        const startTime = Date.now();
+        
         const checkInterval = setInterval(() => {
           if (this.pipelines.has(task)) {
             clearInterval(checkInterval);
             resolve(this.pipelines.get(task)!);
+          } else if (Date.now() - startTime > maxWait) {
+            clearInterval(checkInterval);
+            reject(new Error(`Timeout waiting for ${task} pipeline initialization`));
           }
         }, 100);
       });
@@ -73,17 +79,84 @@ class ClientAIService {
       }
 
       console.log(`Loading AI model for ${task}:`, modelName);
+      
+      // Detect optimal device with fallback strategy
+      const device = await this.getOptimalDevice();
+      console.log(`Using device for ${task}:`, device);
+
       const pipe = await pipeline(pipelineTask as any, modelName, {
-        device: 'webgpu', // Use WebGPU if available
+        device,
+        dtype: device === 'webgpu' ? 'fp16' : 'fp32', // Use fp16 for WebGPU optimization
+        revision: 'main',
       });
 
       this.pipelines.set(task, pipe);
       return pipe;
     } catch (error) {
       console.error(`Failed to load AI model for ${task}:`, error);
+      
+      // Try fallback with CPU if WebGPU failed
+      if (error instanceof Error && error.message.includes('webgpu')) {
+        console.log(`Retrying ${task} with CPU fallback...`);
+        try {
+          let pipelineTask: string;
+          let modelName: string;
+
+          switch (task) {
+            case 'sentiment':
+              pipelineTask = 'sentiment-analysis';
+              modelName = model || 'Xenova/distilbert-base-uncased-finetuned-sst-2-english';
+              break;
+            case 'summarization':
+              pipelineTask = 'summarization';
+              modelName = model || 'Xenova/distilbart-cnn-12-6';
+              break;
+            case 'classification':
+              pipelineTask = 'zero-shot-classification';
+              modelName = model || 'Xenova/distilbert-base-uncased-mnli';
+              break;
+            case 'embedding':
+              pipelineTask = 'feature-extraction';
+              modelName = model || 'Xenova/all-MiniLM-L6-v2';
+              break;
+            case 'generation':
+              pipelineTask = 'text-generation';
+              modelName = model || 'Xenova/distilgpt2';
+              break;
+            default:
+              throw new Error(`Unknown task: ${task}`);
+          }
+
+          const pipe = await pipeline(pipelineTask as any, modelName, {
+            device: 'cpu',
+            dtype: 'fp32',
+          });
+
+          this.pipelines.set(task, pipe);
+          return pipe;
+        } catch (fallbackError) {
+          console.error(`CPU fallback also failed for ${task}:`, fallbackError);
+          throw fallbackError;
+        }
+      }
       throw error;
     } finally {
       this.isLoading.delete(task);
+    }
+  }
+
+  // Get optimal device for AI processing
+  private async getOptimalDevice(): Promise<'webgpu' | 'wasm'> {
+    try {
+      const webgpuSupported = await this.checkWebGPUSupport();
+      if (webgpuSupported) {
+        console.log('WebGPU supported - AI models will run faster');
+        return 'webgpu';
+      }
+      return 'wasm';
+    } catch (error) {
+      console.warn('Device detection failed, falling back to WASM:', error);
+      return 'wasm';
     }
   }
 

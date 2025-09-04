@@ -4,31 +4,77 @@ import './index.css'
 import { initializePollenFromPreferences } from './services/pollenIntegration';
 import { contentOrchestrator } from './services/contentOrchestrator';
 import { platformOptimizer } from './services/platformOptimizer';
+import { performanceMonitor } from './services/performanceMonitor';
+import { systemHealthChecker } from './services/systemHealthCheck';
 
-// Global error handling for unhandled promise rejections
+// Comprehensive global error handling
 window.addEventListener('unhandledrejection', (event) => {
   console.warn('Unhandled promise rejection (prevented error boundary):', event.reason);
+  performanceMonitor.markError();
   event.preventDefault(); // Prevent the error from propagating to error boundary
 });
 
-// Initialize platform optimization
-platformOptimizer.autoOptimize().then(() => {
-  console.log('🚀 Platform optimizer initialized');
-}).catch(console.warn);
-
-// Initialize optional Pollen AI integration from saved preferences (non-blocking)
-initializePollenFromPreferences().catch(error => {
-  console.warn('Pollen AI initialization failed (non-critical):', error);
+window.addEventListener('error', (event) => {
+  console.warn('Global error caught:', event.error);
+  performanceMonitor.markError();
+  event.preventDefault();
 });
 
-// Pre-warm caches and keep content fresh across key sections (with error protection)
-setTimeout(() => {
+// Initialize comprehensive platform optimization
+const initializePlatform = async () => {
   try {
-    contentOrchestrator.startContinuousGeneration(['social','shop','entertainment','games','music','news'], 60000);
-    console.log('🔄 Content orchestrator started');
+    // Start performance monitoring
+    performanceMonitor.startMonitoring();
+    
+    // Start system health checks
+    systemHealthChecker.startHealthChecks();
+    
+    // Subscribe to performance alerts
+    performanceMonitor.subscribeToAlerts((alert) => {
+      if (alert.severity === 'critical' || alert.severity === 'high') {
+        console.warn(`🚨 Performance Alert [${alert.severity.toUpperCase()}]:`, alert.message);
+      }
+    });
+
+    // Subscribe to health check results and auto-recovery
+    systemHealthChecker.subscribe((health) => {
+      if (health.overall === 'unhealthy') {
+        console.warn('⚠️ System health degraded:', health.recommendations);
+        // Attempt auto-recovery for critical issues
+        systemHealthChecker.attemptAutoRecovery();
+      }
+    });
+
+    // Initialize platform optimizer
+    await platformOptimizer.autoOptimize();
+    console.log('🚀 Platform optimizer initialized');
+    
+    // Initialize optional Pollen AI integration from saved preferences (non-blocking)
+    initializePollenFromPreferences().catch(error => {
+      console.warn('Pollen AI initialization failed (non-critical):', error);
+    });
+    
   } catch (error) {
-    console.warn('Content orchestrator failed to start (non-critical):', error);
+    console.warn('Failed to initialize platform services:', error);
   }
-}, 1000); // Delay to allow app to initialize first
+};
+
+// Pre-warm caches and keep content fresh across key sections (with error protection)
+const startContentOrchestration = () => {
+  setTimeout(() => {
+    try {
+      contentOrchestrator.startContinuousGeneration([
+        'social','shop','entertainment','games','music','news'
+      ], 300000); // Every 5 minutes
+      console.log('🔄 Content orchestrator started');
+    } catch (error) {
+      console.warn('Content orchestrator failed to start (non-critical):', error);
+    }
+  }, 10000); // Delay to allow full app initialization
+};
+
+// Initialize all platform services
+initializePlatform();
+startContentOrchestration();
 
 createRoot(document.getElementById("root")!).render(<App />);

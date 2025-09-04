@@ -119,20 +119,43 @@ class EnhancedTrendEngine {
   }
 
   private async updateTrends(): Promise<void> {
+    if (this.isRunning) return;
+    
     this.isRunning = true;
     try {
-      const newTrends = await this.fetchLatestTrends();
-      this.processTrends(newTrends);
-      await this.generateContentFromTrends();
-      await this.createRecommendations();
-      await this.checkForAlerts();
-      await this.persistData();
-      this.notifyListeners({ type: 'trends_updated', data: this.trends });
+      // Add timeout to prevent hanging
+      const updatePromise = this.performTrendUpdate();
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Trend update timeout')), 30000)
+      );
+      
+      await Promise.race([updatePromise, timeoutPromise]);
     } catch (error) {
       console.error('Error updating trends:', error);
+      // Don't let errors bubble up and crash the app
     } finally {
       this.isRunning = false;
     }
+  }
+
+  private async performTrendUpdate(): Promise<void> {
+    const newTrends = await this.fetchLatestTrends();
+    if (newTrends.length === 0) {
+      console.warn('No new trends fetched, using cached data');
+      return;
+    }
+    
+    this.processTrends(newTrends);
+    
+    // Run these operations in parallel for better performance
+    await Promise.allSettled([
+      this.generateContentFromTrends(),
+      this.createRecommendations(),
+      this.checkForAlerts(),
+      this.persistData()
+    ]);
+    
+    this.notifyListeners({ type: 'trends_updated', data: this.trends });
   }
 
   private async fetchLatestTrends(): Promise<TrendData[]> {
@@ -140,26 +163,32 @@ class EnhancedTrendEngine {
       const profile = personalizationEngine.getPersonalizationInsights();
       const categories = Object.keys(profile.topInterests);
 
+      // Use Promise.allSettled to prevent one failure from breaking everything
+      const results = await Promise.allSettled([
+        realDataIntegration.fetchHackerNews(30),
+        realDataIntegration.fetchRedditContent('technology', 25), 
+        realDataIntegration.fetchGitHubTrending('daily'),
+        realDataIntegration.fetchDevToArticles(undefined, 20),
+        trendAggregator.fetchTrends()
+      ]);
+
+      // Extract successful results
       const [
         hackerNews,
         redditTech,
         githubTrending,
         devArticles,
         aggregated
-      ] = await Promise.all([
-        realDataIntegration.fetchHackerNews(30),
-        realDataIntegration.fetchRedditContent('technology', 25),
-        realDataIntegration.fetchGitHubTrending('daily'),
-        realDataIntegration.fetchDevToArticles(undefined, 20),
-        trendAggregator.fetchTrends()
-      ]);
+      ] = results.map(result => 
+        result.status === 'fulfilled' ? result.value : []
+      );
 
       const trends: TrendData[] = [];
       const timestamp = Date.now();
 
       // Process Hacker News
       for (const story of hackerNews) {
-        if (story.title && story.title.length > 10) {
+        if ('title' in story && story.title && story.title.length > 10) {
           const sentiment = await this.analyzeSentiment(story.title);
           const keywords = this.extractKeywords(story.title);
           
@@ -181,7 +210,7 @@ class EnhancedTrendEngine {
 
       // Process Reddit
       for (const post of redditTech) {
-        if (post.title && post.title.length > 10) {
+        if ('title' in post && post.title && post.title.length > 10) {
           const sentiment = await this.analyzeSentiment(post.title);
           const keywords = this.extractKeywords(post.title);
           
@@ -203,10 +232,10 @@ class EnhancedTrendEngine {
 
       // Process GitHub trending - Extract meaningful topics from repo names and descriptions
       for (const repo of githubTrending) {
-        if (repo.title && repo.title.length > 5) {
+        if ('title' in repo && repo.title && repo.title.length > 5) {
           // Create meaningful topic from repo name and description
           const repoName = repo.title.split('/').pop()?.replace(/[-_]/g, ' ') || repo.title;
-          const meaningfulTopic = repo.description 
+          const meaningfulTopic = ('description' in repo && repo.description) 
             ? `${this.humanizeRepoName(repoName)}: ${repo.description.split('.')[0]}`
             : this.createTopicFromRepoName(repoName);
           
@@ -233,9 +262,23 @@ class EnhancedTrendEngine {
       const merged = [...trends, ...aggregated];
       const byTopic = new Map<string, TrendData>();
       for (const t of merged) {
-        const key = t.topic.toLowerCase();
-        if (!byTopic.has(key) || byTopic.get(key)!.score < t.score) {
-          byTopic.set(key, t);
+        const key = ('topic' in t ? t.topic : t.title).toLowerCase();
+        const normalizedTrend: TrendData = 'topic' in t ? t : {
+          id: t.id,
+          topic: t.title,
+          score: Math.random() * 50 + 25, // Default score for external content
+          sentiment: 0,
+          source: t.source,
+          timestamp,
+          category: t.category,
+          keywords: this.extractKeywords(t.title),
+          momentum: Math.random() * 100,
+          reach: Math.floor(Math.random() * 5000),
+          engagement: Math.floor(Math.random() * 500)
+        };
+        
+        if (!byTopic.has(key) || byTopic.get(key)!.score < normalizedTrend.score) {
+          byTopic.set(key, normalizedTrend);
         }
       }
       return Array.from(byTopic.values()).sort((a, b) => b.score - a.score).slice(0, 100);

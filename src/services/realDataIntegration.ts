@@ -133,15 +133,45 @@ class RealDataIntegrationService {
     }
   }
 
-  // Fetch content from Reddit
+  // Circuit breaker state for Reddit API
+  private redditCircuitBreaker = {
+    failures: 0,
+    lastFailure: 0,
+    threshold: 3,
+    resetTimeout: 300000, // 5 minutes
+    isOpen: false
+  };
+
+  // Fetch content from Reddit with circuit breaker
   async fetchRedditContent(subreddit: string = 'programming', limit: number = 25): Promise<ExternalContent[]> {
     const cacheKey = `reddit_${subreddit}_${limit}`;
     const cached = this.getFromCache(cacheKey);
     if (cached) return cached;
 
+    // Check circuit breaker
+    if (this.redditCircuitBreaker.isOpen) {
+      const timeSinceLastFailure = Date.now() - this.redditCircuitBreaker.lastFailure;
+      if (timeSinceLastFailure < this.redditCircuitBreaker.resetTimeout) {
+        console.warn(`Reddit API circuit breaker is open for ${subreddit}`);
+        return [];
+      } else {
+        // Reset circuit breaker
+        this.redditCircuitBreaker.isOpen = false;
+        this.redditCircuitBreaker.failures = 0;
+      }
+    }
+
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+
       // Use CORS proxy for Reddit API
-      const response = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(`https://www.reddit.com/r/${subreddit}.json?limit=${limit}`)}`);
+      const response = await fetch(
+        `https://api.allorigins.win/get?url=${encodeURIComponent(`https://www.reddit.com/r/${subreddit}.json?limit=${limit}`)}`,
+        { signal: controller.signal }
+      );
+      
+      clearTimeout(timeoutId);
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -151,16 +181,24 @@ class RealDataIntegrationService {
       
       // Check if we got HTML instead of JSON (indicates API is down)
       if (typeof proxyData.contents === 'string' && proxyData.contents.trim().startsWith('<')) {
-        console.warn(`Reddit API returned HTML instead of JSON for ${subreddit} - API may be down`);
-        return [];
+        throw new Error('Reddit API returned HTML - service may be down');
       }
       
-      const data = JSON.parse(proxyData.contents);
+      // Additional validation for empty or malformed responses
+      if (!proxyData.contents || proxyData.contents.trim() === '') {
+        throw new Error('Empty response from Reddit API');
+      }
+
+      let data;
+      try {
+        data = JSON.parse(proxyData.contents);
+      } catch (parseError) {
+        throw new Error('Failed to parse Reddit API response as JSON');
+      }
       
       // Ensure we have the expected data structure
       if (!data?.data?.children || !Array.isArray(data.data.children)) {
-        console.warn(`Unexpected Reddit API response structure for ${subreddit}`);
-        return [];
+        throw new Error('Unexpected Reddit API response structure');
       }
       
       const content: ExternalContent[] = data.data.children
@@ -182,11 +220,23 @@ class RealDataIntegrationService {
           },
         }));
 
+      // Success - reset circuit breaker
+      this.redditCircuitBreaker.failures = 0;
       this.setCache(cacheKey, content, 600000); // 10 minutes
       return content;
     } catch (error) {
-      console.error(`Failed to fetch Reddit ${subreddit}:`, error);
-      // Always return empty array to prevent errors from propagating
+      // Update circuit breaker
+      this.redditCircuitBreaker.failures++;
+      this.redditCircuitBreaker.lastFailure = Date.now();
+      
+      if (this.redditCircuitBreaker.failures >= this.redditCircuitBreaker.threshold) {
+        this.redditCircuitBreaker.isOpen = true;
+        console.warn(`Reddit API circuit breaker opened after ${this.redditCircuitBreaker.failures} failures`);
+      }
+      
+      console.warn(`Reddit API error for ${subreddit} (failure #${this.redditCircuitBreaker.failures}):`, error instanceof Error ? error.message : error);
+      
+      // Return empty array to prevent errors from propagating
       return [];
     }
   }
