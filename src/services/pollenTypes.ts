@@ -14,9 +14,11 @@ export interface PollenResponse {
 }
 
 export interface PollenConfig {
+  endpoint?: string;
   apiUrl?: string;
   pollenApiUrl?: string;
   apiKey?: string;
+  timeout?: number;
   modelVersion?: string;
   enableSSE?: boolean;
 }

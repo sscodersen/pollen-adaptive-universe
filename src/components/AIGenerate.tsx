@@ -19,23 +19,10 @@ export function AIGenerate() {
     setResult(null);
 
     try {
-      const response = await fetch("http://localhost:8000/generate", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          prompt,
-          mode: "chat"
-        }),
-      });
+      // Use the production-ready pollenAI service
+      const { pollenAI } = await import('../services/pollenAI');
+      const data = await pollenAI.generate(prompt, 'chat');
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.detail || "AI backend error.");
-      }
-
-      const data = await response.json();
       setResult(
         `✨ AI says: "${data.content}"\n\nConfidence: ${(data.confidence * 100).toFixed(1)}%\n${
           data.reasoning ? `Reasoning: ${data.reasoning}` : ""
