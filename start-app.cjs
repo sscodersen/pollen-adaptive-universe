@@ -51,6 +51,21 @@ function waitForPort(port, timeout = 30000) {
 async function startApp() {
   console.log('Starting Pollen Adaptive Universe...');
   
+  // Start the backend server first
+  console.log('Starting Pollen AI backend server on port 3001...');
+  const backendProcess = spawn('node', ['local-backend.cjs'], {
+    stdio: ['pipe', 'pipe', 'pipe'],
+    env: { ...process.env }
+  });
+
+  backendProcess.stdout.on('data', (data) => {
+    console.log(`[Backend]: ${data}`);
+  });
+
+  backendProcess.stderr.on('data', (data) => {
+    console.error(`[Backend Error]: ${data}`);
+  });
+  
   // Start the Vite dev server
   console.log('Starting Vite dev server on port 8080...');
   const viteProcess = spawn('npm', ['run', 'dev'], {
@@ -66,8 +81,12 @@ async function startApp() {
     console.error(`[Vite Error]: ${data}`);
   });
 
-  // Wait for Vite to be ready
+  // Wait for both servers to be ready
   try {
+    console.log('Waiting for backend server to start...');
+    await waitForPort(3001, 30000);
+    console.log('Backend server is ready!');
+    
     console.log('Waiting for Vite server to start...');
     await waitForPort(8080, 60000);
     console.log('Vite server is ready!');
@@ -85,12 +104,14 @@ async function startApp() {
   process.on('SIGINT', () => {
     console.log('Shutting down...');
     viteProcess.kill();
+    backendProcess.kill();
     process.exit(0);
   });
 
   process.on('SIGTERM', () => {
     console.log('Shutting down...');
     viteProcess.kill();
+    backendProcess.kill();
     process.exit(0);
   });
 }

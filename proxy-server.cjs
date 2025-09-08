@@ -16,16 +16,24 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  // Proxy to Vite dev server on port 8080
+  // Route API calls to the backend server, everything else to Vite
+  const target = req.url.startsWith('/api/') ? 
+    'http://localhost:3001' : 
+    'http://localhost:8080';
+
+  console.log(`Proxying ${req.method} ${req.url} to ${target}`);
+
   proxy.web(req, res, {
-    target: 'http://localhost:8080',
+    target: target,
     changeOrigin: true,
     timeout: 30000,
     proxyTimeout: 30000
   }, (error) => {
-    console.error('Proxy error:', error);
-    res.writeHead(500);
-    res.end('Proxy error');
+    console.error(`Proxy error for ${req.url}:`, error.message);
+    if (!res.headersSent) {
+      res.writeHead(500);
+      res.end('Proxy error');
+    }
   });
 });
 
