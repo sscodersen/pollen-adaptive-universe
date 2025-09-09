@@ -9,15 +9,12 @@ import {
 import { SocialFeed } from "@/components/SocialFeed";
 import { ExplorePage } from "@/components/ExplorePage";
 import { EntertainmentPage } from "@/components/EntertainmentPage";
-import { GamesPage } from "@/components/GamesPage";
-import { MusicPage } from "@/components/MusicPage";
-import { AdCreationPage } from "@/components/AdCreationPage";
 import { SmartShopPage } from "@/components/SmartShopPage";
 import { AppStorePage } from "@/components/AppStorePage";
 import { UnifiedAIPlayground } from "@/components/UnifiedAIPlayground";
 import { TaskAutomationPage } from "@/components/TaskAutomationPage";
 import { LearningCenter } from "@/components/LearningCenter";
-import { Compass, Film, Gamepad2, Music, Home, TrendingUp, Award, Globe, Megaphone, ShoppingBag, Smartphone, Brain, GraduationCap, Zap, BarChart3, Building } from "lucide-react";
+import { Compass, Film, Home, TrendingUp, Award, Globe, ShoppingBag, Smartphone, Brain, GraduationCap, Zap } from "lucide-react";
 
 // Primary navigation (top)
 const primaryTabs = [
