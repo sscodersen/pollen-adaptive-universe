@@ -8,6 +8,7 @@ import { FilterControls } from './shop/FilterControls';
 import { ProductGrid } from './shop/ProductGrid';
 import { enhancedTrendEngine } from '../services/enhancedTrendEngine';
 import { reRankProducts } from '../services/shopReRanker';
+import { ExternalLink, Store, TrendingUp } from 'lucide-react';
 
 // Removed hardcoded templates - now using AI-generated products
 
@@ -111,20 +112,69 @@ export const SmartShopPage = () => {
   });
 
   return (
-    <div className="flex-1 bg-gray-950 min-h-0 flex flex-col p-6">
-      <ShopHeader loading={loading} onRefresh={loadProducts} />
-      
-      <FilterControls
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        sortBy={sortBy}
-        setSortBy={setSortBy}
-        filter={filter}
-        setFilter={setFilter}
-        categories={categories}
-      />
+    <div className="flex-1 bg-gray-950 min-h-0 flex flex-col">
+      {/* App Store Style Header */}
+      <div className="bg-gradient-to-r from-indigo-600/20 to-purple-600/20 border-b border-gray-800/50 p-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <div className="p-3 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-2xl border border-blue-500/30">
+                <Store className="w-8 h-8 text-blue-400" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold text-white mb-2">Smart Marketplace</h1>
+                <p className="text-gray-400">Discover curated products from external sources</p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-2 text-sm text-cyan-400 bg-cyan-500/10 px-3 py-2 rounded-lg border border-cyan-500/30">
+              <ExternalLink className="w-4 h-4" />
+              <span>External Links</span>
+            </div>
+          </div>
+          
+          {/* Featured Stats */}
+          <div className="grid grid-cols-3 gap-6 mt-6">
+            <div className="bg-gray-900/50 rounded-xl p-4 border border-gray-800/50">
+              <div className="flex items-center space-x-2 text-green-400 mb-2">
+                <TrendingUp className="w-5 h-5" />
+                <span className="font-semibold">Trending</span>
+              </div>
+              <p className="text-2xl font-bold text-white">{filteredProducts.filter(p => p.trending).length}</p>
+              <p className="text-gray-400 text-sm">Hot products</p>
+            </div>
+            <div className="bg-gray-900/50 rounded-xl p-4 border border-gray-800/50">
+              <div className="flex items-center space-x-2 text-purple-400 mb-2">
+                <Store className="w-5 h-5" />
+                <span className="font-semibold">Categories</span>
+              </div>
+              <p className="text-2xl font-bold text-white">{categories.length}</p>
+              <p className="text-gray-400 text-sm">Available now</p>
+            </div>
+            <div className="bg-gray-900/50 rounded-xl p-4 border border-gray-800/50">
+              <div className="flex items-center space-x-2 text-orange-400 mb-2">
+                <ExternalLink className="w-5 h-5" />
+                <span className="font-semibold">External</span>
+              </div>
+              <p className="text-2xl font-bold text-white">100%</p>
+              <p className="text-gray-400 text-sm">Real sources</p>
+            </div>
+          </div>
+        </div>
+      </div>
 
-      <ProductGrid isLoading={loading} products={filteredProducts} />
+      <div className="flex-1 p-6">
+        <FilterControls
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          sortBy={sortBy}
+          setSortBy={setSortBy}
+          filter={filter}
+          setFilter={setFilter}
+          categories={categories}
+        />
+
+        <ProductGrid isLoading={loading} products={filteredProducts} />
+      </div>
     </div>
   );
 };

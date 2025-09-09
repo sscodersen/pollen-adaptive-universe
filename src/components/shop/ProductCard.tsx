@@ -77,10 +77,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
               href={product.link}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex-1 bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-600 hover:to-purple-600 px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center justify-center space-x-1 text-white"
+              className="flex-1 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center justify-center space-x-1 text-white shadow-lg"
             >
-              <ShoppingBag className="w-3 h-3" />
-              <span>Visit</span>
+              <ExternalLink className="w-3 h-3" />
+              <span>Visit Store</span>
             </a>
             <button className="p-1.5 bg-gray-800/50 hover:bg-gray-700/50 rounded-lg transition-colors">
               <Heart className="w-3 h-3 text-gray-400 hover:text-red-400 transition-colors" />

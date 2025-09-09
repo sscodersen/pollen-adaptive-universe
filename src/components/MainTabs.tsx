@@ -14,9 +14,9 @@ import { MusicPage } from "@/components/MusicPage";
 import { AdCreationPage } from "@/components/AdCreationPage";
 import { SmartShopPage } from "@/components/SmartShopPage";
 import { AppStorePage } from "@/components/AppStorePage";
-import { AIPlayground } from "@/components/AIPlayground";
+import { UnifiedAIPlayground } from "@/components/UnifiedAIPlayground";
+import { TaskAutomationPage } from "@/components/TaskAutomationPage";
 import { LearningCenter } from "@/components/LearningCenter";
-import IndustryDashboard from "@/components/pages/IndustryDashboard";
 import { Compass, Film, Gamepad2, Music, Home, TrendingUp, Award, Globe, Megaphone, ShoppingBag, Smartphone, Brain, GraduationCap, Zap, BarChart3, Building } from "lucide-react";
 
 // Primary navigation (top)
@@ -29,13 +29,10 @@ const primaryTabs = [
 
 // Secondary navigation (stacked below)
 const secondaryTabs = [
-  { id: "appstore", name: "App Store", icon: Smartphone },
-  { id: "industries", name: "Industries", icon: Building },
-  { id: "games", name: "Games", icon: Gamepad2 },
-  { id: "music", name: "Music", icon: Music },
   { id: "ai-playground", name: "AI Playground", icon: Brain },
+  { id: "appstore", name: "App Store", icon: Smartphone },
   { id: "learning", name: "Learning Center", icon: GraduationCap },
-  { id: "ads", name: "Create Ads", icon: Megaphone },
+  { id: "task-automation", name: "Task Automation", icon: Zap },
 ];
 
 // Feed category sub-tabs
@@ -109,26 +106,17 @@ export function MainTabs() {
           <TabsContent value="appstore" className="flex-1 h-full data-[state=active]:flex data-[state=active]:flex-col">
             <AppStorePage />
           </TabsContent>
-          <TabsContent value="industries" className="flex-1 h-full data-[state=active]:flex data-[state=active]:flex-col">
-            <IndustryDashboard />
+          <TabsContent value="ai-playground" className="flex-1 h-full data-[state=active]:flex data-[state=active]:flex-col">
+            <UnifiedAIPlayground />
+          </TabsContent>
+          <TabsContent value="task-automation" className="flex-1 h-full data-[state=active]:flex data-[state=active]:flex-col">
+            <TaskAutomationPage />
           </TabsContent>
           <TabsContent value="entertainment" className="flex-1 h-full data-[state=active]:flex data-[state=active]:flex-col">
             <EntertainmentPage />
           </TabsContent>
-          <TabsContent value="games" className="flex-1 h-full data-[state=active]:flex data-[state=active]:flex-col">
-            <GamesPage />
-          </TabsContent>
-          <TabsContent value="music" className="flex-1 h-full data-[state=active]:flex data-[state=active]:flex-col">
-            <MusicPage />
-          </TabsContent>
-          <TabsContent value="ai-playground" className="flex-1 h-full data-[state=active]:flex data-[state=active]:flex-col">
-            <AIPlayground />
-          </TabsContent>
           <TabsContent value="learning" className="flex-1 h-full data-[state=active]:flex data-[state=active]:flex-col">
             <LearningCenter />
-          </TabsContent>
-          <TabsContent value="ads" className="flex-1 h-full data-[state=active]:flex data-[state=active]:flex-col">
-            <AdCreationPage />
           </TabsContent>
         </div>
       </Tabs>
