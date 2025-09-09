@@ -44,3 +44,6 @@ externalPort = 80
 [[ports]]
 localPort = 8081
 externalPort = 8081
+
+[agent]
+integrations = ["javascript_websocket:1.0.0"]
