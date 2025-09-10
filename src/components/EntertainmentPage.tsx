@@ -1,11 +1,8 @@
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Film, Play, Star, Clock, Eye, Headphones, Camera, Gamepad2 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
-import { ContentRequestBar } from "@/components/ContentRequestBar";
-import { AdSpace } from "@/components/AdSpace";
 import { contentOrchestrator } from '../services/contentOrchestrator';
 
 const staticContent = [
@@ -70,27 +67,7 @@ const categories = [
 export function EntertainmentPage() {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [entertainmentContent, setEntertainmentContent] = useState(staticContent);
-  const [userGeneratedContent, setUserGeneratedContent] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [isInitialLoad, setIsInitialLoad] = useState(true);
-
-  const handleContentRequest = (contentData: any) => {
-    const newContent = {
-      id: Date.now(),
-      title: contentData.content.title || 'Generated Content',
-      type: contentData.content.type || 'Movie',
-      genre: contentData.content.genre || 'Entertainment',
-      duration: contentData.content.duration || '2h 0m',
-      rating: contentData.confidence,
-      views: `${(Math.random() * 2 + 0.5).toFixed(1)}M`,
-      thumbnail: 'bg-gradient-to-br from-cyan-500 to-purple-500',
-      description: contentData.content.description || 'User-generated entertainment content',
-      trending: true,
-      userGenerated: true
-    };
-    
-    setUserGeneratedContent(prev => [newContent, ...prev]);
-  };
 
   useEffect(() => {
     const generateContent = async () => {
@@ -129,7 +106,6 @@ export function EntertainmentPage() {
         setEntertainmentContent(staticContent);
       } finally {
         setIsLoading(false);
-        setIsInitialLoad(false);
       }
     };
 
@@ -138,115 +114,37 @@ export function EntertainmentPage() {
     return () => clearInterval(interval);
   }, []);
 
-  // Combine all content and apply filtering
-  const allContent = useMemo(() => {
-    return [...userGeneratedContent, ...entertainmentContent];
-  }, [userGeneratedContent, entertainmentContent]);
-
-  const filteredContent = useMemo(() => {
-    if (selectedCategory === 'all') {
-      return allContent;
-    }
-
-    const categoryTypeMap: { [key: string]: string[] } = {
-      'movies': ['Movie'],
-      'series': ['Series'],
-      'music': ['Music Video'],
-      'documentaries': ['Documentary'],
-      'gaming': ['Game', 'Gaming']
-    };
-
-    const allowedTypes = categoryTypeMap[selectedCategory] || [selectedCategory];
-    return allContent.filter(content => 
-      allowedTypes.some(type => 
-        content.type.toLowerCase().includes(type.toLowerCase())
-      )
-    );
-  }, [allContent, selectedCategory]);
-
-  // Create skeleton loading component
-  const ContentSkeleton = () => (
-    <div className="glass-card overflow-hidden">
-      <Skeleton className="h-48 w-full bg-white/10" />
-      <div className="p-4 space-y-3">
-        <div className="flex gap-2">
-          <Skeleton className="h-4 w-16 bg-white/10" />
-          <Skeleton className="h-4 w-20 bg-white/10" />
-        </div>
-        <Skeleton className="h-5 w-3/4 bg-white/10" />
-        <Skeleton className="h-8 w-full bg-white/10" />
-        <div className="flex justify-between">
-          <Skeleton className="h-4 w-16 bg-white/10" />
-          <Skeleton className="h-4 w-16 bg-white/10" />
-        </div>
-        <div className="flex justify-between items-center">
-          <Skeleton className="h-4 w-12 bg-white/10" />
-          <Skeleton className="h-8 w-20 bg-white/10" />
-        </div>
-      </div>
-    </div>
-  );
-
   return (
-    <div className="flex-1 liquid-gradient-animated min-h-screen">
-      {/* Header with liquid glass design */}
-      <div className="glass-nav p-6">
+    <div className="flex-1 bg-gray-950 min-h-screen">
+      {/* Header */}
+      <div className="bg-gray-900/95 backdrop-blur-sm border-b border-gray-800/50 p-6">
         <div className="max-w-6xl mx-auto">
           <h1 className="text-3xl font-bold text-white mb-2 flex items-center gap-3">
-            <Film className="w-8 h-8 text-cyan-400" />
+            <Film className="w-8 h-8 text-purple-400" />
             Entertainment
           </h1>
-          <p className="text-white/60">Discover movies, series, music, and more curated content</p>
+          <p className="text-gray-400">Discover movies, series, music, and more curated content</p>
         </div>
-      </div>
-
-      {/* Content Request Bar */}
-      <div className="max-w-6xl mx-auto px-6 py-4">
-        <ContentRequestBar 
-          mode="entertainment" 
-          onContentGenerated={handleContentRequest}
-          placeholder="Generate entertainment content like movies, series, music videos..."
-        />
       </div>
 
       <div className="max-w-6xl mx-auto p-6">
-        {/* Categories with liquid glass design */}
+        {/* Categories */}
         <div className="mb-8">
-          <h2 className="text-2xl font-bold text-white mb-6">Browse Categories</h2>
-          <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
-            <button
-              onClick={() => setSelectedCategory('all')}
-              className={`glass-card p-6 hover:scale-105 transition-all duration-300 group ${
-                selectedCategory === 'all' ? 'ring-2 ring-cyan-400 bg-cyan-500/10' : ''
-              }`}
-              data-testid="category-all"
-            >
-              <div className="flex flex-col items-center gap-3">
-                <div className="p-3 liquid-gradient-accent rounded-xl group-hover:scale-110 transition-transform">
-                  <Star className="w-6 h-6 text-white" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-white">All</h3>
-                  <p className="text-sm text-white/60">{allContent.length} items</p>
-                </div>
-              </div>
-            </button>
+          <h2 className="text-2xl font-bold text-white mb-4">Browse Categories</h2>
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
             {categories.map((category, index) => (
               <button
                 key={index}
                 onClick={() => setSelectedCategory(category.name.toLowerCase())}
-                className={`glass-card p-6 hover:scale-105 transition-all duration-300 group ${
-                  selectedCategory === category.name.toLowerCase() ? 'ring-2 ring-cyan-400 bg-cyan-500/10' : ''
-                }`}
-                data-testid={`category-${category.name.toLowerCase()}`}
+                className="bg-gray-900/50 border border-gray-800/50 rounded-lg p-4 hover:bg-gray-900/70 transition-colors group"
               >
                 <div className="flex flex-col items-center gap-3">
-                  <div className="p-3 liquid-gradient-accent rounded-xl group-hover:scale-110 transition-transform">
-                    <category.icon className="w-6 h-6 text-white" />
+                  <div className="p-3 bg-purple-500/20 rounded-lg group-hover:bg-purple-500/30 transition-colors">
+                    <category.icon className="w-6 h-6 text-purple-300" />
                   </div>
                   <div>
                     <h3 className="font-semibold text-white">{category.name}</h3>
-                    <p className="text-sm text-white/60">{category.count} items</p>
+                    <p className="text-sm text-gray-400">{category.count} items</p>
                   </div>
                 </div>
               </button>
@@ -254,91 +152,46 @@ export function EntertainmentPage() {
           </div>
         </div>
 
-        {/* Inline Ad Space */}
-        <AdSpace size="native" position="inline" category="lifestyle" className="mb-8" />
-
         {/* Featured Content */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-white">
-              {selectedCategory === 'all' ? 'Trending Now' : `${selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1)} Content`}
-              {isLoading && !isInitialLoad && (
-                <span className="ml-2 text-sm text-white/60">(Refreshing...)</span>
-              )}
-            </h2>
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-white/60">{filteredContent.length} items</span>
-              <Button className="glass-button text-white border-white/10 hover:scale-105">
-                View All
-              </Button>
-            </div>
+            <h2 className="text-2xl font-bold text-white">Trending Now</h2>
+            <Button variant="outline" className="border-gray-700 text-gray-300 hover:bg-gray-800">
+              View All
+            </Button>
           </div>
           
-          {isInitialLoad ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {Array(8).fill(0).map((_, index) => (
-                <ContentSkeleton key={index} />
-              ))}
-            </div>
-          ) : filteredContent.length === 0 ? (
-            <div className="glass-card p-12 text-center">
-              <div className="w-16 h-16 mx-auto mb-4 bg-white/10 rounded-full flex items-center justify-center">
-                <Film className="w-8 h-8 text-white/60" />
-              </div>
-              <h3 className="text-xl font-semibold text-white mb-2">No content found</h3>
-              <p className="text-white/60 mb-4">
-                No {selectedCategory === 'all' ? 'content' : selectedCategory} available at the moment.
-              </p>
-              <Button 
-                onClick={() => setSelectedCategory('all')}
-                className="glass-button text-white border-white/10 hover:scale-105"
-              >
-                View All Content
-              </Button>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {filteredContent.map((content) => (
-              <div 
-                key={content.id} 
-                className="glass-card overflow-hidden hover:scale-105 transition-all duration-300 group cursor-pointer liquid-border"
-                data-testid={`entertainment-content-${content.id}`}
-              >
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {entertainmentContent.map((content) => (
+              <div key={content.id} className="bg-gray-900/50 rounded-lg border border-gray-800/50 overflow-hidden hover:border-purple-500/50 transition-all group">
                 {/* Thumbnail */}
-                <div className={`${content.thumbnail} h-48 relative flex items-center justify-center group-hover:scale-110 transition-transform overflow-hidden`}>
-                  <Play className="w-12 h-12 text-white/80 group-hover:text-white group-hover:scale-125 transition-all" />
+                <div className={`${content.thumbnail} h-48 relative flex items-center justify-center group-hover:scale-105 transition-transform`}>
+                  <Play className="w-12 h-12 text-white/80 group-hover:text-white transition-colors" />
                   {content.trending && (
-                    <Badge className="absolute top-3 left-3 liquid-gradient-warm hover:liquid-gradient-warm border-none">
+                    <Badge className="absolute top-3 left-3 bg-red-500 hover:bg-red-500">
                       Trending
                     </Badge>
                   )}
-                  {/* Hover overlay */}
-                  <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity" />
                 </div>
                 
                 {/* Content Info */}
                 <div className="p-4">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="text-xs font-medium text-white liquid-gradient-secondary px-2 py-1 rounded-lg">
+                    <span className="text-xs font-medium text-purple-300 bg-purple-500/20 px-2 py-1 rounded">
                       {content.type}
                     </span>
-                    <span className="text-xs text-white/60">{content.genre}</span>
-                    {content.userGenerated && (
-                      <Badge className="text-xs liquid-gradient-warm border-none">
-                        Generated
-                      </Badge>
-                    )}
+                    <span className="text-xs text-gray-400">{content.genre}</span>
                   </div>
                   
-                  <h3 className="font-semibold text-white mb-2 group-hover:text-cyan-300 transition-colors">
+                  <h3 className="font-semibold text-white mb-2 group-hover:text-purple-300 transition-colors">
                     {content.title}
                   </h3>
                   
-                  <p className="text-sm text-white/60 mb-3 line-clamp-2">
+                  <p className="text-sm text-gray-400 mb-3 line-clamp-2">
                     {content.description}
                   </p>
                   
-                  <div className="flex items-center justify-between text-sm text-white/50 mb-3">
+                  <div className="flex items-center justify-between text-sm text-gray-400 mb-3">
                     <div className="flex items-center gap-1">
                       <Clock className="w-4 h-4" />
                       {content.duration}
@@ -354,15 +207,14 @@ export function EntertainmentPage() {
                       <Star className="w-4 h-4 text-yellow-400 fill-current" />
                       <span className="text-sm font-medium text-white">{content.rating}</span>
                     </div>
-                    <Button size="sm" className="glass-button hover:scale-105">
+                    <Button size="sm" className="bg-purple-600 hover:bg-purple-700">
                       Watch Now
                     </Button>
                   </div>
                 </div>
               </div>
-              ))}
-            </div>
-          )}
+            ))}
+          </div>
         </div>
 
         {/* Recommended Playlists */}

@@ -14,7 +14,6 @@ import { AppStorePage } from "@/components/AppStorePage";
 import { UnifiedAIPlayground } from "@/components/UnifiedAIPlayground";
 import { TaskAutomationPage } from "@/components/TaskAutomationPage";
 import { LearningCenter } from "@/components/LearningCenter";
-import { AdSpace } from "@/components/AdSpace";
 import { Compass, Film, Home, TrendingUp, Award, Globe, ShoppingBag, Smartphone, Brain, GraduationCap, Zap } from "lucide-react";
 
 // Primary navigation (top)
@@ -45,26 +44,13 @@ export function MainTabs() {
   const [feedCategory, setFeedCategory] = useState("all");
 
   return (
-    <div className="flex flex-col h-screen liquid-gradient-animated">
-      {/* Top banner ad space */}
-      <AdSpace size="banner" position="top" category="tech" className="mx-4 mt-4" />
-      
+    <div className="flex flex-col h-screen">
       <Tabs value={currentTab} onValueChange={setCurrentTab} className="flex flex-col h-full">
-        <div className="sticky top-0 z-20 w-full glass-nav shrink-0">
+        <div className="sticky top-0 z-20 w-full bg-surface-primary border-b border-border shrink-0">
           {/* Primary Tabs */}
-          <TabsList className="w-full justify-start px-4 py-3 gap-3 glass h-auto border-none">
+          <TabsList className="w-full justify-start px-4 py-2 gap-2 bg-surface-primary h-auto">
             {primaryTabs.map((tab) => (
-              <TabsTrigger 
-                key={tab.id} 
-                value={tab.id} 
-                className="
-                  flex items-center gap-2 rounded-xl px-4 py-2.5 text-base whitespace-nowrap 
-                  glass-button text-white border-white/10 
-                  data-[state=active]:liquid-gradient-accent data-[state=active]:text-white
-                  hover:scale-105 transition-all duration-300
-                "
-                data-testid={`tab-${tab.id}`}
-              >
+              <TabsTrigger key={tab.id} value={tab.id} className="flex items-center gap-2 rounded-lg px-4 py-2 text-base whitespace-nowrap">
                 <tab.icon className="w-5 h-5" />
                 {tab.name}
               </TabsTrigger>
@@ -72,42 +58,27 @@ export function MainTabs() {
           </TabsList>
           
           {/* Secondary Tabs */}
-          <div className="px-4 py-2 border-t border-white/10">
-            <TabsList className="w-full justify-start gap-2 glass h-auto border-none">
+          <div className="px-4 py-2 border-t border-border/30">
+            <TabsList className="w-full justify-start gap-2 bg-surface-secondary/50 h-auto">
               {secondaryTabs.map((tab) => (
-                <TabsTrigger 
-                  key={tab.id} 
-                  value={tab.id} 
-                  className="
-                    flex items-center gap-2 rounded-lg px-3 py-2 text-sm whitespace-nowrap 
-                    glass-button text-white/80 border-white/10
-                    data-[state=active]:liquid-gradient-secondary data-[state=active]:text-white
-                    hover:scale-105 transition-all duration-300
-                  "
-                  data-testid={`tab-${tab.id}`}
-                >
+                <TabsTrigger key={tab.id} value={tab.id} className="flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm whitespace-nowrap">
                   <tab.icon className="w-4 h-4" />
                   {tab.name}
                 </TabsTrigger>
               ))}
             </TabsList>
           </div>
-          
-          {/* Feed categories with liquid glass design */}
           {currentTab === "feed" && (
-            <div className="flex px-4 py-3 gap-2 border-t border-white/10 glass">
+            <div className="flex px-4 py-3 gap-2 border-b border-border/50 bg-surface-primary">
               {feedCategories.map((fc) => (
                 <button
                   key={fc.id}
                   onClick={() => setFeedCategory(fc.id)}
-                  className={`
-                    flex items-center gap-2 px-4 py-2 rounded-lg transition-all whitespace-nowrap
-                    ${feedCategory === fc.id
-                      ? "liquid-gradient-warm text-white"
-                      : "glass-button text-white/70 hover:text-white"
-                    }
-                  `}
-                  data-testid={`feed-category-${fc.id}`}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all whitespace-nowrap ${
+                    feedCategory === fc.id
+                      ? "bg-primary/20 text-primary border border-primary/30"
+                      : "bg-surface-secondary text-muted-foreground hover:bg-surface-tertiary border border-border"
+                  }`}
                 >
                   <fc.icon className="w-4 h-4" />
                   <span className="text-sm font-medium">{fc.name}</span>
@@ -117,56 +88,34 @@ export function MainTabs() {
           )}
         </div>
         
-        <div className="flex-1 min-h-0 relative">
-          {/* Sidebar ad space */}
-          <AdSpace size="sidebar" position="right" category="business" className="absolute top-4 right-4 z-10 hidden xl:block" />
-          
+        <div className="flex-1 min-h-0">{/* Content container with proper flex */}
+      
           {/* TAB CONTENT AREAS */}
           <TabsContent value="feed" className="flex-1 h-full data-[state=active]:flex data-[state=active]:flex-col">
             <SocialFeed filter={feedCategory} />
           </TabsContent>
-          
           <TabsContent value="explore" className="flex-1 h-full data-[state=active]:flex data-[state=active]:flex-col">
             <ExplorePage />
           </TabsContent>
-          
           <TabsContent value="shop" className="flex-1 h-full data-[state=active]:flex data-[state=active]:flex-col">
             <SmartShopPage />
           </TabsContent>
-          
           <TabsContent value="appstore" className="flex-1 h-full data-[state=active]:flex data-[state=active]:flex-col">
             <AppStorePage />
           </TabsContent>
-          
           <TabsContent value="ai-playground" className="flex-1 h-full data-[state=active]:flex data-[state=active]:flex-col">
             <UnifiedAIPlayground />
           </TabsContent>
-          
           <TabsContent value="task-automation" className="flex-1 h-full data-[state=active]:flex data-[state=active]:flex-col">
-            {/* Blank page for user's future embedding */}
-            <div className="flex-1 flex items-center justify-center">
-              <div className="text-center glass-card p-8 max-w-md">
-                <Zap className="w-16 h-16 text-white/60 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-white mb-2">Task Automation</h3>
-                <p className="text-white/60 mb-6">This space is reserved for your custom automation tools.</p>
-                <div className="glass-button px-6 py-3 rounded-lg text-white cursor-default">
-                  Ready for Integration
-                </div>
-              </div>
-            </div>
+            <TaskAutomationPage />
           </TabsContent>
-          
           <TabsContent value="entertainment" className="flex-1 h-full data-[state=active]:flex data-[state=active]:flex-col">
             <EntertainmentPage />
           </TabsContent>
-          
           <TabsContent value="learning" className="flex-1 h-full data-[state=active]:flex data-[state=active]:flex-col">
             <LearningCenter />
           </TabsContent>
         </div>
-        
-        {/* Bottom banner ad space */}
-        <AdSpace size="premium" position="bottom" category="ai" className="mx-4 mb-4" />
       </Tabs>
     </div>
   );
