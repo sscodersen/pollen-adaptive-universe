@@ -4,6 +4,7 @@ import { contentOrchestrator } from '../services/contentOrchestrator';
 import { SocialContent } from '../services/unifiedContentEngine';
 import { enhancedTrendEngine, GeneratedPost } from '../services/enhancedTrendEngine';
 import { Input } from "@/components/ui/input";
+import { PremiumBannerAd, NativeFeedAd, InlineAd } from '@/components/ads/AdComponents';
 
 import { cleanText, truncateText, normalizeTags } from '@/lib/textUtils';
 import { isBlacklistedText } from '@/lib/blacklist';
@@ -213,6 +214,8 @@ export const SocialFeed = ({ activities, isGenerating = false, filter = "all" }:
 
       {/* Posts */}
       <div className="flex-1 overflow-auto p-6 space-y-6">
+        {/* Premium Banner Ad */}
+        <PremiumBannerAd placement="social-feed-top" />
         {loading ? (
           <div className="space-y-6">
             {[...Array(8)].map((_, i) => (
@@ -233,7 +236,18 @@ export const SocialFeed = ({ activities, isGenerating = false, filter = "all" }:
           </div>
         ) : (
           filteredPosts.map((post, index) => (
-            <div key={post.id} className="bg-gray-900/50 rounded-xl border border-gray-800/50 p-6 hover:bg-gray-900/70 transition-all group relative overflow-hidden">
+            <React.Fragment key={post.id}>
+              {/* Native Ad every 3 posts */}
+              {index > 0 && index % 3 === 0 && (
+                <NativeFeedAd index={Math.floor(index / 3)} />
+              )}
+              
+              {/* Inline Ad every 7 posts */}
+              {index > 0 && index % 7 === 0 && (
+                <InlineAd compact={index % 14 === 0} />
+              )}
+              
+              <div className="bg-gray-900/50 rounded-xl border border-gray-800/50 p-6 hover:bg-gray-900/70 transition-all group relative overflow-hidden">
               {/* Ranking Badge */}
               <div className="absolute top-4 right-4 flex items-center space-x-2">
                 <div className="px-3 py-1 bg-gray-800/80 text-gray-300 rounded-full text-xs font-bold border border-gray-700">
@@ -350,6 +364,7 @@ export const SocialFeed = ({ activities, isGenerating = false, filter = "all" }:
                 </div>
               </div>
             </div>
+            </React.Fragment>
           ))
         )}
       </div>
