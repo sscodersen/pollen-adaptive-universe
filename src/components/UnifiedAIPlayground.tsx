@@ -241,7 +241,7 @@ export function UnifiedAIPlayground() {
   };
 
   return (
-    <div className="flex-1 min-h-0 flex flex-col">
+    <div className="flex-1 bg-gray-950 min-h-0 flex flex-col">
       {/* Content Request Bar */}
       <ContentRequestBar 
         mode="ai-playground"
@@ -249,21 +249,21 @@ export function UnifiedAIPlayground() {
         placeholder="Request specific AI content generation..."
       />
       
-      {/* Header with liquid glass design */}
-      <div className="glass-nav p-6 border-b border-white/10">
+      {/* Header */}
+      <div className="bg-gradient-to-r from-purple-600/20 to-pink-600/20 border-b border-gray-800/50 p-6">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <div className="glass-card p-4 rounded-2xl">
-                <Brain className="w-8 h-8 text-white" />
+              <div className="p-3 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-2xl border border-purple-500/30">
+                <Brain className="w-8 h-8 text-purple-400" />
               </div>
               <div>
                 <h1 className="text-3xl font-bold text-white mb-2">AI Playground</h1>
-                <p className="text-white/70">Unified creative workspace powered by Pollen AI</p>
+                <p className="text-gray-400">Unified creative workspace powered by Pollen AI</p>
               </div>
             </div>
-            <div className="glass-button px-4 py-2 rounded-lg text-white border border-white/20">
-              <Zap className="w-4 h-4 inline mr-2" />
+            <div className="flex items-center space-x-2 text-sm text-purple-400 bg-purple-500/10 px-3 py-2 rounded-lg border border-purple-500/30">
+              <Zap className="w-4 h-4" />
               <span>Powered by Pollen LLMX</span>
             </div>
           </div>
@@ -275,17 +275,13 @@ export function UnifiedAIPlayground() {
 
       <div className="flex-1 max-w-7xl mx-auto p-6 w-full">
         <Tabs value={activeCategory} onValueChange={setActiveCategory} className="w-full">
-          {/* Category Navigation with liquid glass design */}
-          <TabsList className="grid w-full grid-cols-6 mb-8 glass border-white/10">
+          {/* Category Navigation */}
+          <TabsList className="grid w-full grid-cols-6 mb-8 bg-gray-900/50 border border-gray-800/50">
             {aiCategories.map((category) => (
               <TabsTrigger
                 key={category.id}
                 value={category.id}
-                className="
-                  flex flex-col items-center space-y-2 p-4 text-white/70
-                  data-[state=active]:liquid-gradient-accent data-[state=active]:text-white
-                  hover:bg-white/5 transition-all duration-300
-                "
+                className="flex flex-col items-center space-y-2 p-4 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500/20 data-[state=active]:to-pink-500/20"
                 data-testid={`ai-category-${category.id}`}
               >
                 <category.icon className="w-5 h-5" />
@@ -296,22 +292,22 @@ export function UnifiedAIPlayground() {
 
           {aiCategories.map((category) => (
             <TabsContent key={category.id} value={category.id} className="space-y-6">
-              {/* Category Header with liquid glass design */}
-              <div className="glass-card rounded-xl p-6 border border-white/10">
+              {/* Category Header */}
+              <div className={`bg-gradient-to-r ${category.color} bg-opacity-10 rounded-xl p-6 border border-gray-800/50`}>
                 <div className="flex items-center space-x-4 mb-4">
-                  <div className={`glass-button p-3 rounded-lg gradient-${category.color.split('-')[1]}`}>
+                  <div className={`p-3 bg-gradient-to-br ${category.color} bg-opacity-20 rounded-lg`}>
                     <category.icon className="w-8 h-8 text-white" />
                   </div>
                   <div>
                     <h2 className="text-2xl font-bold text-white">{category.name}</h2>
-                    <p className="text-white/70">{category.description}</p>
+                    <p className="text-gray-300">{category.description}</p>
                   </div>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {category.tools.map((tool, index) => (
                     <span
                       key={index}
-                      className="px-3 py-1 glass-button text-white/80 rounded-lg text-sm border border-white/20"
+                      className="px-3 py-1 bg-gray-900/50 text-gray-300 rounded-lg text-sm border border-gray-700/50"
                     >
                       {tool}
                     </span>
@@ -319,8 +315,8 @@ export function UnifiedAIPlayground() {
                 </div>
               </div>
 
-              {/* Generation Interface with liquid glass design */}
-              <div className="glass-card rounded-xl border border-white/10 p-6 space-y-6">
+              {/* Generation Interface */}
+              <div className="bg-gray-900/50 rounded-xl border border-gray-800/50 p-6 space-y-6">
                 <div className="space-y-4">
                   <label className="text-lg font-semibold text-white">What would you like to create?</label>
                   <div className="space-y-3">
@@ -328,20 +324,20 @@ export function UnifiedAIPlayground() {
                       value={prompt}
                       onChange={(e) => setPrompt(e.target.value)}
                       placeholder={`Describe your ${category.name.toLowerCase()} idea...`}
-                      className="w-full h-12 glass-input text-white placeholder-white/50 focus:border-white/30 text-lg"
+                      className="w-full h-12 bg-gray-800/50 border-gray-700 text-white placeholder-gray-400 focus:border-purple-500 text-lg"
                       onKeyDown={(e) => e.key === 'Enter' && !isGenerating && handleGenerate()}
                       data-testid="ai-prompt-input"
                     />
                     
                     {/* Sample Prompts */}
                     <div className="space-y-2">
-                      <p className="text-sm text-white/60">Try these examples:</p>
+                      <p className="text-sm text-gray-400">Try these examples:</p>
                       <div className="flex flex-wrap gap-2">
                         {generatePrompts[category.id as keyof typeof generatePrompts]?.map((samplePrompt, index) => (
                           <button
                             key={index}
                             onClick={() => useSamplePrompt(samplePrompt)}
-                            className="px-3 py-1 glass-button text-white/70 hover:text-white rounded-lg text-sm border border-white/20 transition-colors"
+                            className="px-3 py-1 bg-gray-800/50 hover:bg-gray-700/50 text-gray-300 rounded-lg text-sm border border-gray-700/30 transition-colors"
                             data-testid={`sample-prompt-${index}`}
                           >
                             {samplePrompt}
@@ -354,7 +350,7 @@ export function UnifiedAIPlayground() {
                   <Button
                     onClick={handleGenerate}
                     disabled={isGenerating || !prompt.trim()}
-                    className="w-full h-12 liquid-gradient-accent hover:scale-105 transition-all duration-300 text-white font-semibold text-lg border-none"
+                    className="w-full h-12 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold text-lg"
                     data-testid="generate-ai-button"
                   >
                     {isGenerating ? (
@@ -372,7 +368,7 @@ export function UnifiedAIPlayground() {
                 </div>
               </div>
 
-              {/* Generated Content Display with liquid glass design */}
+              {/* Generated Content Display */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* User Generated Content */}
                 {generatedContent.length > 0 && (
@@ -383,33 +379,33 @@ export function UnifiedAIPlayground() {
                     </h3>
                     <div className="space-y-4">
                       {generatedContent.map((item, index) => (
-                        <div key={item.id} className="glass-card rounded-xl border border-white/10 p-6" data-testid={`generated-content-${index}`}>
+                        <div key={item.id} className="bg-gray-900/50 rounded-xl border border-gray-800/50 p-6" data-testid={`generated-content-${index}`}>
                           <div className="flex items-center justify-between mb-4">
                             <div className="flex items-center space-x-2">
-                              <div className="glass-button p-2 rounded-lg">
+                              <div className={`p-2 bg-gradient-to-br ${category.color} bg-opacity-20 rounded-lg`}>
                                 <category.icon className="w-4 h-4 text-white" />
                               </div>
-                              <span className="text-sm font-medium text-white/80">
+                              <span className="text-sm font-medium text-gray-300">
                                 Result {index + 1}
                               </span>
-                              <span className="text-xs text-white/60">
+                              <span className="text-xs text-gray-400">
                                 <Clock className="w-3 h-3 inline mr-1" />
                                 {new Date(item.timestamp).toLocaleTimeString()}
                               </span>
                             </div>
                             <div className="flex space-x-2">
-                              <Button size="sm" className="glass-button border-white/20 hover:bg-white/10" data-testid="share-button">
+                              <Button size="sm" variant="outline" className="border-gray-700" data-testid="share-button">
                                 <Share className="w-4 h-4 mr-2" />
                                 Share
                               </Button>
-                              <Button size="sm" className="glass-button border-white/20 hover:bg-white/10" data-testid="export-button">
+                              <Button size="sm" variant="outline" className="border-gray-700" data-testid="export-button">
                                 <Download className="w-4 h-4 mr-2" />
                                 Export
                               </Button>
                             </div>
                           </div>
-                          <div className="glass-card rounded-lg p-4 border border-white/10">
-                            <pre className="whitespace-pre-wrap text-white/90 text-sm">
+                          <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-700/50">
+                            <pre className="whitespace-pre-wrap text-gray-300 text-sm">
                               {typeof item.content === 'string' 
                                 ? item.content 
                                 : JSON.stringify(item.content, null, 2)
@@ -430,27 +426,27 @@ export function UnifiedAIPlayground() {
                   </h3>
                   <div className="space-y-4 max-h-96 overflow-y-auto">
                     {continuousContent.map((item, index) => (
-                      <div key={item.id} className="glass-card rounded-xl border border-white/10 p-4" data-testid={`continuous-content-${index}`}>
+                      <div key={item.id} className="bg-gray-900/50 rounded-xl border border-gray-800/50 p-4" data-testid={`continuous-content-${index}`}>
                         <div className="flex items-center justify-between mb-3">
                           <div className="flex items-center space-x-2">
-                            <div className="glass-button p-1.5 rounded-lg">
+                            <div className={`p-1.5 bg-gradient-to-br ${category.color} bg-opacity-20 rounded-lg`}>
                               <category.icon className="w-3 h-3 text-white" />
                             </div>
-                            <span className="text-xs font-medium text-white/60">
+                            <span className="text-xs font-medium text-gray-400">
                               Auto-generated
                             </span>
-                            <span className="text-xs text-white/50">
+                            <span className="text-xs text-gray-500">
                               <Clock className="w-3 h-3 inline mr-1" />
                               {new Date(item.timestamp).toLocaleTimeString()}
                             </span>
                           </div>
-                          <Button size="sm" className="glass-button border-white/20 hover:bg-white/10 text-xs px-2 py-1">
+                          <Button size="sm" variant="outline" className="border-gray-700 text-xs px-2 py-1">
                             <Eye className="w-3 h-3 mr-1" />
                             View
                           </Button>
                         </div>
-                        <div className="glass-card rounded-lg p-3 border border-white/10">
-                          <p className="text-white/80 text-sm line-clamp-3">
+                        <div className="bg-gray-800/50 rounded-lg p-3 border border-gray-700/50">
+                          <p className="text-gray-300 text-sm line-clamp-3">
                             {typeof item.content === 'string' 
                               ? item.content.substring(0, 150) + (item.content.length > 150 ? '...' : '')
                               : JSON.stringify(item.content).substring(0, 150) + '...'
@@ -460,9 +456,9 @@ export function UnifiedAIPlayground() {
                       </div>
                     ))}
                     {continuousContent.length === 0 && (
-                      <div className="glass-card rounded-xl border border-white/10 p-6 text-center">
-                        <Loader2 className="w-6 h-6 animate-spin text-white/60 mx-auto mb-2" />
-                        <p className="text-white/60">Generating fresh content...</p>
+                      <div className="bg-gray-900/50 rounded-xl border border-gray-800/50 p-6 text-center">
+                        <Loader2 className="w-6 h-6 animate-spin text-gray-400 mx-auto mb-2" />
+                        <p className="text-gray-400">Generating fresh content...</p>
                       </div>
                     )}
                   </div>
