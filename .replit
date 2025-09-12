@@ -73,10 +73,6 @@ externalPort = 8081
 localPort = 33593
 externalPort = 3000
 
-[[ports]]
-localPort = 43075
-externalPort = 3002
-
 [agent]
 integrations = ["javascript_websocket:1.0.0", "javascript_openai:1.0.0"]
 expertMode = true

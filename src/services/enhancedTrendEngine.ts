@@ -160,31 +160,19 @@ class EnhancedTrendEngine {
 
   private async fetchLatestTrends(): Promise<TrendData[]> {
     try {
-      const profile = personalizationEngine.getPersonalizationInsights();
-      const categories = Object.keys(profile.topInterests);
+      // Use real Pollen AI instead of unreliable external APIs
+      const { pollenTrendEngine } = await import('./pollenTrendEngine');
+      const pollenTrends = await pollenTrendEngine.generateTrends();
+      
+      console.log(`✅ Generated ${pollenTrends.length} trends using real Pollen AI`);
+      return this.deduplicateAndScore(pollenTrends);
+    } catch (error) {
+      console.error('Error fetching Pollen AI trends:', error);
+      return [];
+    }
+  }
 
-      // Use Promise.allSettled to prevent one failure from breaking everything
-      const results = await Promise.allSettled([
-        realDataIntegration.fetchHackerNews(30),
-        realDataIntegration.fetchRedditContent('technology', 25), 
-        realDataIntegration.fetchGitHubTrending('daily'),
-        realDataIntegration.fetchDevToArticles(undefined, 20),
-        trendAggregator.fetchTrends()
-      ]);
-
-      // Extract successful results
-      const [
-        hackerNews,
-        redditTech,
-        githubTrending,
-        devArticles,
-        aggregated
-      ] = results.map(result => 
-        result.status === 'fulfilled' ? result.value : []
-      );
-
-      const trends: TrendData[] = [];
-      const timestamp = Date.now();
+  // External API methods removed - now using 100% reliable Pollen AI
 
       // Process Hacker News
       for (const story of hackerNews) {
