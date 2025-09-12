@@ -4,8 +4,8 @@ modules = ["nodejs-20", "python-3.12", "web"]
 channel = "stable-25_05"
 
 [deployment]
-deploymentTarget = "autoscale"
-run = ["npm", "run", "start"]
+deploymentTarget = "vm"
+run = ["node", "start.cjs"]
 build = ["npm", "run", "build"]
 
 [workflows]
@@ -26,8 +26,11 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "npm run dev"
+args = "node start.cjs"
 waitForPort = 5000
+
+[workflows.workflow.metadata]
+outputType = "webview"
 
 [[ports]]
 localPort = 3001
@@ -35,11 +38,11 @@ externalPort = 3001
 
 [[ports]]
 localPort = 5000
-externalPort = 5000
+externalPort = 80
 
 [[ports]]
 localPort = 8080
-externalPort = 80
+externalPort = 8080
 
 [[ports]]
 localPort = 8081
@@ -48,6 +51,10 @@ externalPort = 8081
 [[ports]]
 localPort = 33593
 externalPort = 3000
+
+[[ports]]
+localPort = 34965
+externalPort = 3002
 
 [agent]
 integrations = ["javascript_websocket:1.0.0"]

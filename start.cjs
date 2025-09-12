@@ -50,12 +50,15 @@ const viteProcess = spawn('npm', ['run', 'dev'], {
   env: { ...process.env }
 });
 
-// Start proxy on port 5000
-server.listen(5000, '0.0.0.0', () => {
+// Use PORT environment variable for deployment compatibility
+const PORT = process.env.PORT || 5000;
+
+// Start proxy on the specified port
+server.listen(PORT, '0.0.0.0', () => {
   console.log('🚀 Pollen Adaptive Universe is starting up...');
   console.log('   Frontend: http://localhost:8080 (Vite dev server)');
   console.log('   Backend: http://localhost:3001 (Local API server)');
-  console.log('   Proxy: http://localhost:5000 (Main application URL)');
+  console.log(`   Proxy: http://localhost:${PORT} (Main application URL)`);
   console.log('   ✨ Application ready!');
 });
 
@@ -72,6 +75,15 @@ process.on('SIGTERM', () => {
   backendProcess.kill();
   viteProcess.kill();
   process.exit(0);
+});
+
+// Handle WebSocket upgrades for Vite HMR
+server.on('upgrade', (req, socket, head) => {
+  const target = req.url.startsWith('/api/') ? 
+    'http://localhost:3001' : 
+    'http://localhost:8080';
+  
+  proxy.ws(req, socket, head, { target });
 });
 
 // Handle proxy errors
