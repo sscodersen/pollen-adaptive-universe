@@ -1,7 +1,8 @@
-modules = ["nodejs-20", "python-3.12", "web"]
+modules = ["nodejs-20", "web", "python-3.11"]
 
 [nix]
 channel = "stable-25_05"
+packages = ["glibcLocales", "libxcrypt"]
 
 [deployment]
 deploymentTarget = "vm"
@@ -52,10 +53,6 @@ externalPort = 8081
 localPort = 33593
 externalPort = 3000
 
-[[ports]]
-localPort = 37985
-externalPort = 3002
-
 [agent]
-integrations = ["javascript_websocket:1.0.0"]
+integrations = ["javascript_websocket:1.0.0", "javascript_openai:1.0.0"]
 expertMode = true
