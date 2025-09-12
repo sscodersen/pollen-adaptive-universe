@@ -28,7 +28,7 @@ class PollenAI {
         body: JSON.stringify({
           prompt,
           mode,
-          type: mode === 'chat' ? 'general' : mode,
+          type: 'general', // Fixed: Always use proper content type
           context
         }),
       });

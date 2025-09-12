@@ -86,9 +86,20 @@ app.post('/api/ai/generate', async (req, res) => {
       prompt
     };
 
-    // Save to appropriate list based on type
-    const listKey = type === 'feed_post' ? 'feed' : `${type}_content`;
+    // Normalize type to prevent invalid storage keys
+    const normalizedType = ['general', 'music', 'product', 'feed_post'].includes(type) ? type : 'general';
+    const listKey = normalizedType === 'feed_post' ? 'feed' : `${normalizedType}_content`;
+    
+    // Ensure the array exists before using unshift
+    if (!storage[listKey]) {
+      storage[listKey] = [];
+    }
     storage[listKey].unshift(contentToStore);
+    
+    // Also add to main feed for visibility
+    if (normalizedType !== 'feed_post') {
+      storage.feed.unshift({...contentToStore, id: `feed_${contentToStore.id}`});
+    }
     
     // Trim the list to keep it manageable
     if (storage[listKey].length > 100) {
@@ -111,6 +122,11 @@ app.get('/api/content/feed', (req, res) => {
     const { type = 'feed', limit = 20 } = req.query;
     
     const listKey = type === 'feed' ? 'feed' : `${type}_content`;
+    
+    // Ensure the array exists before accessing it
+    if (!storage[listKey]) {
+      storage[listKey] = [];
+    }
     const data = storage[listKey].slice(0, parseInt(limit));
 
     res.json({ success: true, data });
