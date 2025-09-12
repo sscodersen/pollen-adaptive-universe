@@ -17,66 +17,47 @@ const storage = {
   product_content: []
 };
 
-// Pollen AI Mock Service
+// Real Pollen AI Service
 class PollenAI {
   constructor() {
     this.baseURL = process.env.POLLEN_AI_ENDPOINT || 'http://localhost:8000';
-    this.apiKey = process.env.POLLEN_AI_API_KEY;
+    console.log(`✨ Connecting to real Pollen AI at ${this.baseURL}`);
   }
 
   async generate(type, prompt, mode = 'chat') {
     try {
-      // Try to connect to actual Pollen AI service if available
+      // Connect to real Pollen AI service
       const response = await axios.post(`${this.baseURL}/generate`, {
-        type,
         prompt,
-        mode
+        mode,
+        type
       }, {
         headers: {
-          'Authorization': `Bearer ${this.apiKey}`,
           'Content-Type': 'application/json'
         },
-        timeout: 5000
+        timeout: 10000
       });
-      return response.data;
+      
+      if (response.data && response.data.content) {
+        console.log(`✅ Real AI response generated for ${type} mode: ${mode}`);
+        return {
+          content: response.data.content,
+          confidence: response.data.confidence || 0.8,
+          reasoning: response.data.reasoning || 'AI-generated content',
+          type: type,
+          mode: mode,
+          timestamp: new Date().toISOString()
+        };
+      } else {
+        throw new Error('Invalid response from Pollen AI');
+      }
     } catch (error) {
-      console.log(`Using mock response for type: ${type} - ${error.message}`);
-      return this.getMockResponse(type, prompt);
+      console.error(`❌ Failed to connect to Pollen AI for ${type}: ${error.message}`);
+      throw new Error(`Pollen AI service unavailable: ${error.message}`);
     }
   }
 
-  getMockResponse(type, prompt) {
-    const responses = {
-      feed_post: {
-        content: `AI Breakthrough: ${prompt}. Revolutionary advances in machine learning are transforming how we approach complex problems.`,
-        confidence: 0.85 + Math.random() * 0.1,
-        reasoning: "Generated based on current AI research trends",
-        title: `AI Innovation: ${prompt.substring(0, 50)}...`,
-        industry: "technology",
-        impact_level: "High",
-      },
-      general: {
-        content: `Here's a thoughtful response to: "${prompt}". This demonstrates advanced AI reasoning and contextual understanding.`,
-        confidence: 0.82 + Math.random() * 0.15,
-        reasoning: "Contextual response based on query analysis",
-      },
-      music: {
-        content: `🎵 Generated music track: "${prompt}" - An innovative composition blending electronic and acoustic elements.`,
-        confidence: 0.88 + Math.random() * 0.1,
-        title: `Musical Creation: ${prompt}`,
-        genre: ["Electronic", "Ambient", "Jazz", "Classical"][Math.floor(Math.random() * 4)],
-        mood: ["Energetic", "Relaxing", "Uplifting", "Contemplative"][Math.floor(Math.random() * 4)]
-      },
-      product: {
-        content: `Innovative product concept: ${prompt}. A cutting-edge solution designed for modern needs.`,
-        confidence: 0.90 + Math.random() * 0.08,
-        name: `Smart ${prompt.split(' ')[0]} Device`,
-        price: Math.floor(Math.random() * 500) + 99.99,
-        category: "Smart Technology"
-      }
-    };
-    return responses[type] || responses.general;
-  }
+  // Mock responses removed - now using real Pollen AI only
 }
 
 const pollenAI = new PollenAI();
