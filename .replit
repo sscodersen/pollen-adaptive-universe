@@ -19,14 +19,10 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Start application"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Pollen AI Backend"
+args = "Pollen AI Platform"
 
 [[workflows.workflow]]
-name = "Start application"
+name = "Pollen AI Platform"
 author = "agent"
 
 [[workflows.workflow.tasks]]
@@ -37,18 +33,6 @@ waitForPort = 5000
 [workflows.workflow.metadata]
 outputType = "webview"
 
-[[workflows.workflow]]
-name = "Pollen AI Backend"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "python pollen_ai_backend.py"
-waitForPort = 8000
-
-[workflows.workflow.metadata]
-outputType = "console"
-
 [[ports]]
 localPort = 3001
 externalPort = 3001
@@ -56,10 +40,6 @@ externalPort = 3001
 [[ports]]
 localPort = 5000
 externalPort = 80
-
-[[ports]]
-localPort = 8000
-externalPort = 8000
 
 [[ports]]
 localPort = 8080
