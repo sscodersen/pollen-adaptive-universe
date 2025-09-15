@@ -78,7 +78,8 @@ export const SmartShopPage = () => {
 
   useEffect(() => {
     loadProducts();
-    const interval = setInterval(loadProducts, 45000);
+    // Refresh products every 30 seconds for continuous trending content
+    const interval = setInterval(loadProducts, 30000);
     return () => clearInterval(interval);
   }, [loadProducts]);
 
