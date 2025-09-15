@@ -9,8 +9,13 @@ export function TaskAutomationPage() {
   const [isEmbedded, setIsEmbedded] = useState(false);
 
   const handleEmbed = () => {
-    if (embedUrl.trim()) {
+    const url = embedUrl.trim();
+    
+    // Security: Only allow valid URLs, no raw HTML embedding
+    if (url && (url.startsWith('http://') || url.startsWith('https://'))) {
       setIsEmbedded(true);
+    } else {
+      alert('Please enter a valid URL starting with http:// or https://');
     }
   };
 
@@ -75,11 +80,11 @@ export function TaskAutomationPage() {
                     <Input
                       value={embedUrl}
                       onChange={(e) => setEmbedUrl(e.target.value)}
-                      placeholder="https://your-automation-tool.com or <iframe src='...'></iframe>"
+                      placeholder="https://your-automation-tool.com"
                       className="w-full bg-gray-800/50 border-gray-700 text-white placeholder-gray-400 focus:border-purple-500 text-lg h-12"
                     />
                     <p className="text-sm text-gray-400 mt-2">
-                      Enter a URL to embed in an iframe, or paste HTML embed code directly
+                      Enter a valid URL (https://) to embed your automation tool securely
                     </p>
                   </div>
 
@@ -157,21 +162,13 @@ export function TaskAutomationPage() {
               </div>
               
               <div className="bg-gray-900/50 rounded-xl border border-gray-800/50 p-4">
-                {embedUrl.trim().startsWith('<') ? (
-                  /* HTML embed code */
-                  <div 
-                    className="w-full min-h-[600px] bg-white rounded-lg"
-                    dangerouslySetInnerHTML={{ __html: embedUrl }}
-                  />
-                ) : (
-                  /* URL embed */
-                  <iframe
-                    src={embedUrl}
-                    className="w-full h-[600px] rounded-lg border-0"
-                    title="Embedded Automation Tool"
-                    sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
-                  />
-                )}
+                <iframe
+                  src={embedUrl}
+                  className="w-full h-[600px] rounded-lg border-0"
+                  title="Embedded Automation Tool"
+                  sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-top-navigation-by-user-activation"
+                  referrerPolicy="strict-origin-when-cross-origin"
+                />
               </div>
               
               <div className="text-center">
