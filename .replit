@@ -21,6 +21,10 @@ author = "agent"
 task = "workflow.run"
 args = "Pollen AI Platform"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Backend API Server"
+
 [[workflows.workflow]]
 name = "Pollen AI Platform"
 author = "agent"
@@ -33,13 +37,21 @@ waitForPort = 5000
 [workflows.workflow.metadata]
 outputType = "webview"
 
+[[workflows.workflow]]
+name = "Backend API Server"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "node local-backend.cjs"
+waitForPort = 3001
+
+[workflows.workflow.metadata]
+outputType = "console"
+
 [[ports]]
 localPort = 3001
 externalPort = 3001
-
-[[ports]]
-localPort = 5000
-externalPort = 80
 
 [[ports]]
 localPort = 8081
@@ -48,6 +60,10 @@ externalPort = 8081
 [[ports]]
 localPort = 33593
 externalPort = 3000
+
+[[ports]]
+localPort = 40069
+externalPort = 3002
 
 [[ports]]
 localPort = 46527
