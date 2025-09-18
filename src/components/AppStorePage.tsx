@@ -234,7 +234,15 @@ export const AppStorePage = () => {
 
   useEffect(() => {
     loadApps();
-    const interval = setInterval(loadApps, 60000);
+    // Reduced frequency and added error handling to prevent infinite loops
+    const interval = setInterval(() => {
+      // Only refresh if not currently loading and no recent errors
+      if (!loading) {
+        loadApps().catch((error) => {
+          console.warn('Scheduled app refresh failed:', error.message);
+        });
+      }
+    }, 5 * 60 * 1000); // Increased to 5 minutes to reduce API load
     return () => clearInterval(interval);
   }, [loadApps]);
 
