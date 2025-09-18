@@ -19,15 +19,15 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Pollen AI Frontend"
+args = "Pollen AI Platform"
 
 [[workflows.workflow]]
-name = "Pollen AI Frontend"
+name = "Pollen AI Platform"
 author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "npm run dev"
+args = "node start.cjs"
 waitForPort = 5000
 
 [workflows.workflow.metadata]
@@ -42,12 +42,16 @@ localPort = 5000
 externalPort = 80
 
 [[ports]]
-localPort = 33485
-externalPort = 3002
+localPort = 8080
+externalPort = 8080
 
 [[ports]]
 localPort = 33593
 externalPort = 3000
+
+[[ports]]
+localPort = 41395
+externalPort = 4200
 
 [[ports]]
 localPort = 46527
