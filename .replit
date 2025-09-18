@@ -5,9 +5,9 @@ channel = "stable-25_05"
 packages = ["glibcLocales", "libxcrypt"]
 
 [deployment]
-deploymentTarget = "autoscale"
+deploymentTarget = "vm"
 run = ["node", "start.cjs"]
-build = ["npm", "run", "build"]
+build = ["npm", "install"]
 
 [workflows]
 runButton = "Project"
