@@ -8,28 +8,22 @@ import {
 } from "@/components/ui/tabs";
 import { SocialFeed } from "@/components/SocialFeed";
 import { ExplorePage } from "@/components/ExplorePage";
-import { EntertainmentPage } from "@/components/EntertainmentPage";
 import { SmartShopPage } from "@/components/SmartShopPage";
 import { AppStorePage } from "@/components/AppStorePage";
 import { UnifiedAIPlayground } from "@/components/UnifiedAIPlayground";
-import { TaskAutomationPage } from "@/components/TaskAutomationPage";
-import { LearningCenter } from "@/components/LearningCenter";
-import { Compass, Film, Home, TrendingUp, Award, Globe, ShoppingBag, Smartphone, Brain, GraduationCap, Zap } from "lucide-react";
+import { Compass, Home, TrendingUp, Award, Globe, ShoppingBag, Smartphone, Brain } from "lucide-react";
 
 // Primary navigation (top)
 const primaryTabs = [
   { id: "feed", name: "Feed", icon: Home },
   { id: "explore", name: "Explore", icon: Compass },
   { id: "shop", name: "Smart Shop", icon: ShoppingBag },
-  { id: "entertainment", name: "Entertainment", icon: Film },
 ];
 
 // Secondary navigation (stacked below)
 const secondaryTabs = [
   { id: "ai-playground", name: "AI Playground", icon: Brain },
   { id: "appstore", name: "App Store", icon: Smartphone },
-  { id: "learning", name: "Learning Center", icon: GraduationCap },
-  { id: "task-automation", name: "Task Automation", icon: Zap },
 ];
 
 // Feed category sub-tabs
@@ -105,15 +99,6 @@ export function MainTabs() {
           </TabsContent>
           <TabsContent value="ai-playground" className="flex-1 h-full data-[state=active]:flex data-[state=active]:flex-col">
             <UnifiedAIPlayground />
-          </TabsContent>
-          <TabsContent value="task-automation" className="flex-1 h-full data-[state=active]:flex data-[state=active]:flex-col">
-            <TaskAutomationPage />
-          </TabsContent>
-          <TabsContent value="entertainment" className="flex-1 h-full data-[state=active]:flex data-[state=active]:flex-col">
-            <EntertainmentPage />
-          </TabsContent>
-          <TabsContent value="learning" className="flex-1 h-full data-[state=active]:flex data-[state=active]:flex-col">
-            <LearningCenter />
           </TabsContent>
         </div>
       </Tabs>
