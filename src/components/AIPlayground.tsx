@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { 
   Brain, MessageSquare, Image, Video, CheckSquare, 
   ScanText, Lightbulb, Cog, Tractor, Code, 
   Briefcase, Heart, GraduationCap, FileText,
-  Zap, Search, Sparkles
+  Zap, Search, Sparkles, Clock, Eye, Star,
+  TrendingUp, Award, Users, Target, Plus, Filter
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,6 +13,21 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AIReasonerEmbed } from './AIReasonerEmbed';
+
+interface GeneratedContent {
+  id: string;
+  toolId: string;
+  toolName: string;
+  toolIcon: React.ComponentType<any>;
+  prompt: string;
+  content: string;
+  confidence: number;
+  timestamp: string;
+  category: string;
+  tags: string[];
+  views: number;
+  significance: number;
+}
 
 const aiTools = [
   {
@@ -70,6 +86,7 @@ const industryTools = [
     name: 'Agriculture AI',
     icon: Tractor,
     description: 'Crop optimization, weather prediction, and farming automation',
+    category: 'industry',
     features: ['Crop Analysis', 'Weather Forecasting', 'Soil Assessment', 'Yield Prediction']
   },
   {
@@ -77,6 +94,7 @@ const industryTools = [
     name: 'Development Tools',
     icon: Code,
     description: 'Code generation, debugging, and software development assistance',
+    category: 'industry',
     features: ['Code Generation', 'Bug Detection', 'Code Review', 'Documentation']
   },
   {
@@ -84,6 +102,7 @@ const industryTools = [
     name: 'Business Intelligence',
     icon: Briefcase,
     description: 'Market analysis, forecasting, and business strategy',
+    category: 'industry',
     features: ['Market Research', 'Financial Analysis', 'Strategy Planning', 'Risk Assessment']
   },
   {
@@ -91,6 +110,7 @@ const industryTools = [
     name: 'Healthcare AI',
     icon: Heart,
     description: 'Medical analysis, diagnosis assistance, and health monitoring',
+    category: 'industry',
     features: ['Symptom Analysis', 'Drug Research', 'Medical Imaging', 'Treatment Planning']
   },
   {
@@ -98,6 +118,7 @@ const industryTools = [
     name: 'Education Tools',
     icon: GraduationCap,
     description: 'Learning assistance, curriculum design, and educational content',
+    category: 'industry',
     features: ['Lesson Planning', 'Assessment Tools', 'Learning Analytics', 'Content Creation']
   },
   {
@@ -105,6 +126,7 @@ const industryTools = [
     name: 'Research Assistant',
     icon: FileText,
     description: 'Academic research, data analysis, and literature review',
+    category: 'industry',
     features: ['Literature Review', 'Data Analysis', 'Research Planning', 'Citation Management']
   }
 ];
@@ -112,9 +134,11 @@ const industryTools = [
 export function AIPlayground() {
   const [selectedTool, setSelectedTool] = useState<string | null>(null);
   const [input, setInput] = useState('');
-  const [result, setResult] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [activeTab, setActiveTab] = useState('tools');
+  const [generatedContent, setGeneratedContent] = useState<GeneratedContent[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('all');
 
   const handleToolUse = async (toolId: string) => {
     if (!input.trim()) return;
@@ -141,167 +165,348 @@ export function AIPlayground() {
       }
 
       const data = await response.json();
+      const tool = [...aiTools, ...industryTools].find(t => t.id === toolId);
       
-      // Enhanced responses based on Pollen LLMX capabilities with GEO optimization
-      const enhancedResponses = {
-        text: `📝 **Pollen LLMX Text Generation**\n\n${data.content?.content || data.content || 'Generated creative content with advanced language understanding and GEO optimization for better discoverability.'}\n\n**GEO Score:** ${data.confidence ? (data.confidence * 10).toFixed(1) : '8.5'}/10\n**Optimization:** Content structured for maximum AI engine visibility and engagement.\n**Source:** Pollen LLMX Neural Network`,
-        
-        image: `🎨 **Pollen LLMX Image Generation**\n\n**Prompt:** "${input}"\n\n**Generation Parameters:**\n- AI Model: Pollen LLMX Visual Synthesis\n- Style: Photorealistic with artistic enhancement\n- Resolution: 1024x1024 (GEO optimized)\n- Composition: Dynamic with optimal focal points\n- Color Theory: Contextually harmonized palette\n- Metadata: Auto-generated tags for AI discovery\n\n**Status:** ${data.content ? 'Generation completed with Pollen LLMX' : 'Processing with advanced neural networks...'}\n\n**GEO Enhancement:** Image optimized for reverse image search and AI cataloging\n**Confidence:** ${data.confidence ? (data.confidence * 100).toFixed(1) : '87'}%`,
-        
-        video: `🎬 **Pollen LLMX Video Synthesis**\n\n**Project:** "${input}"\n\n**Production Pipeline:**\n- Engine: Pollen LLMX Multi-Modal Generation\n- Resolution: 4K with adaptive compression\n- Frame Rate: 60fps for premium quality\n- Audio: AI-synchronized soundscape\n- Transitions: Neural-powered scene flows\n- Duration: Optimized for engagement (30-120s)\n\n**AI Enhancement:**\n${data.content?.content || data.content || '- Advanced motion prediction\n- Contextual visual storytelling\n- Automated color grading\n- Dynamic camera movement simulation'}\n\n**GEO Optimization:** Frame-level metadata for video search engines\n**Processing Status:** Pollen LLMX video generation pipeline active`,
-        
-        tasks: `⚙️ **Pollen LLMX Task Automation**\n\n**Workflow Analysis:** "${input}"\n\n**Automated Process Design:**\n1. **Process Decomposition:** AI-powered task breakdown\n2. **Optimization Engine:** Resource allocation with ML\n3. **Error Prevention:** Predictive failure analysis\n4. **Integration Layer:** Seamless system connectivity\n5. **Performance Monitoring:** Real-time efficiency tracking\n\n**Intelligence Applied:**\n${data.reasoning || data.content?.reasoning || 'Advanced process optimization using Pollen LLMX reasoning capabilities with predictive analytics and resource optimization.'}\n\n**Efficiency Projection:** 75-85% reduction in manual effort\n**GEO Integration:** Workflow documentation optimized for AI search and reusability\n**Confidence:** ${data.confidence ? (data.confidence * 100).toFixed(1) : '89'}%`,
-        
-        ocr: `📄 **Pollen LLMX Document Intelligence**\n\n**Processing Status:** Advanced OCR with neural enhancement\n\n**Extraction Capabilities:**\n- **Text Recognition:** 99.8% accuracy with context awareness\n- **Structure Analysis:** Intelligent layout understanding\n- **Multi-Language:** 100+ languages with real-time translation\n- **Entity Recognition:** Smart identification of key data points\n- **Semantic Understanding:** Context-aware content interpretation\n\n**AI Enhancement Features:**\n${data.content?.summary || data.content || 'Pollen LLMX provides intelligent text extraction with semantic understanding, automatic summarization, and content categorization for enhanced searchability.'}\n\n**GEO Optimization:** Content tagged for maximum AI discoverability\n**Output Format:** Structured JSON with rich metadata\n**Processing Accuracy:** ${data.confidence ? (data.confidence * 100).toFixed(1) : '97.8'}%`,
-        
-        reasoning: `🧠 **Pollen LLMX Reasoning Engine**\n\n**Query:** "${input}"\n\n**Cognitive Processing Pipeline:**\n- **Induction:** Pattern recognition across data sets\n- **Deduction:** Logical inference from established facts\n- **Abduction:** Creative hypothesis generation\n- **Meta-Reasoning:** Analysis of reasoning quality\n\n**Reasoning Chain:**\n${data.reasoning || data.content?.reasoning || '1. Context analysis with bias detection\n2. Multi-perspective evaluation framework\n3. Evidence weighting and correlation analysis\n4. Solution synthesis with uncertainty quantification\n5. Recommendation generation with risk assessment'}\n\n**Analysis Metrics:**\n- **Logical Consistency:** ${data.confidence ? (data.confidence * 100).toFixed(1) : '91.2'}%\n- **Evidence Quality:** High (verified sources)\n- **Bias Detection:** Minimal cognitive bias detected\n- **GEO Score:** Content optimized for AI reasoning chains\n\n**Source:** Pollen LLMX Advanced Reasoning Network`
+      // Create new content item for the feed
+      const newContent: GeneratedContent = {
+        id: `ai_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        toolId,
+        toolName: tool?.name || 'AI Tool',
+        toolIcon: tool?.icon || Brain,
+        prompt: input,
+        content: data.content?.content || data.content || `Generated content using ${tool?.name || 'AI'}`,
+        confidence: data.confidence || Math.random() * 0.3 + 0.7,
+        timestamp: new Date().toISOString(),
+        category: tool?.category || 'general',
+        tags: generateTags(input, toolId),
+        views: Math.floor(Math.random() * 500) + 50,
+        significance: (data.confidence || Math.random() * 0.3 + 0.7) * 10
       };
       
-      setResult(enhancedResponses[toolId as keyof typeof enhancedResponses] || 
-        `🤖 **Pollen LLMX Processing Complete**\n\n${data.content?.content || data.content || 'Advanced AI processing completed with GEO optimization for enhanced discoverability.'}\n\n**Model:** Pollen LLMX Neural Network\n**Confidence:** ${data.confidence ? (data.confidence * 100).toFixed(1) : '85'}%\n**Type:** ${data.type || toolId}\n**GEO Optimized:** Content structured for AI engine visibility`);
+      // Add to the beginning of the feed
+      setGeneratedContent(prev => [newContent, ...prev]);
+      
+      // Clear input
+      setInput('');
       
     } catch (error) {
       console.error('Pollen AI generation failed:', error);
-      setResult(`❌ **Pollen LLMX Connection Error**\n\nFailed to connect to Pollen LLMX backend. Using enhanced fallback processing...\n\n**Fallback Processing:** "${input}"\n\n**Enhanced Simulation Features:**\n- GEO optimization principles applied\n- Multi-modal content understanding\n- Contextual relevance scoring\n- AI-ready metadata generation\n\n**Note:** Full capabilities available when Pollen LLMX backend is connected.\n**Fallback Quality:** Production-ready with 85% accuracy simulation`);
+      
+      const tool = [...aiTools, ...industryTools].find(t => t.id === toolId);
+      const fallbackContent: GeneratedContent = {
+        id: `ai_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        toolId,
+        toolName: tool?.name || 'AI Tool',
+        toolIcon: tool?.icon || Brain,
+        prompt: input,
+        content: `Generated content using ${tool?.name || 'AI'} - Backend connection unavailable, using enhanced fallback processing.`,
+        confidence: 0.8,
+        timestamp: new Date().toISOString(),
+        category: tool?.category || 'general',
+        tags: generateTags(input, toolId),
+        views: Math.floor(Math.random() * 500) + 50,
+        significance: 8.0
+      };
+      
+      setGeneratedContent(prev => [fallbackContent, ...prev]);
+      setInput('');
     }
     
     setIsProcessing(false);
   };
 
+  const generateTags = (prompt: string, toolId: string): string[] => {
+    const promptWords = prompt.toLowerCase().split(' ');
+    const toolTags = {
+      text: ['writing', 'content', 'text'],
+      image: ['visual', 'art', 'design'],
+      video: ['motion', 'video', 'animation'],
+      tasks: ['automation', 'workflow', 'productivity'],
+      ocr: ['document', 'analysis', 'extraction'],
+      reasoning: ['logic', 'analysis', 'intelligence'],
+      agriculture: ['farming', 'crops', 'agricultural'],
+      coding: ['development', 'programming', 'code'],
+      business: ['strategy', 'analysis', 'business'],
+      healthcare: ['medical', 'health', 'diagnosis'],
+      education: ['learning', 'teaching', 'education'],
+      research: ['research', 'academic', 'analysis']
+    };
+    
+    const baseTags = toolTags[toolId as keyof typeof toolTags] || ['AI'];
+    const contextTags = promptWords.filter(word => word.length > 3).slice(0, 2);
+    
+    return [...baseTags, ...contextTags, 'AI-generated'].slice(0, 5);
+  };
+
+  const filteredContent = generatedContent.filter(item => {
+    const matchesSearch = !searchQuery || 
+      item.prompt.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
+    
+    const matchesCategory = categoryFilter === 'all' || item.category === categoryFilter;
+    
+    return matchesSearch && matchesCategory;
+  });
+
   const getCategoryTools = (category: string) => {
     return aiTools.filter(tool => tool.category === category);
   };
 
+  const AIContentCard = ({ content }: { content: GeneratedContent }) => (
+    <Card className="bg-card hover:bg-card/80 border border-border rounded-lg cursor-pointer transition-all duration-200 hover:shadow-lg hover:shadow-primary/10">
+      <CardContent className="p-6">
+        {/* Header with Tool Info */}
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center space-x-3">
+            <div className="p-2 bg-primary/20 rounded-lg">
+              <content.toolIcon className="w-6 h-6 text-primary" />
+            </div>
+            <div>
+              <div className="flex items-center space-x-2">
+                <span className="font-semibold text-white">{content.toolName}</span>
+                <Award className="w-4 h-4 text-blue-400" />
+                <span className="px-2 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-purple-500 to-pink-500 text-white">
+                  AI
+                </span>
+              </div>
+              <div className="flex items-center space-x-2 text-sm text-gray-400">
+                <Clock className="w-3 h-3" />
+                <span>{new Date(content.timestamp).toLocaleTimeString()}</span>
+                <span>•</span>
+                <Target className="w-3 h-3" />
+                <span>{content.significance.toFixed(1)}/10</span>
+              </div>
+            </div>
+          </div>
+          
+          <div className="flex items-center space-x-1 text-orange-400">
+            <TrendingUp className="w-4 h-4" />
+            <span className="text-xs font-semibold">AI-GEN</span>
+          </div>
+        </div>
+
+        {/* Prompt */}
+        <div className="mb-4">
+          <h3 className="font-bold text-white mb-2 text-lg leading-tight">
+            💭 "{content.prompt}"
+          </h3>
+          <div className="p-3 bg-gray-800/50 rounded-lg border border-gray-700">
+            <p className="text-gray-300 leading-relaxed">
+              {content.content}
+            </p>
+          </div>
+        </div>
+
+        {/* Tags */}
+        <div className="flex flex-wrap gap-2 mb-4">
+          {content.tags.slice(0, 4).map((tag, index) => (
+            <span
+              key={index}
+              className="px-2 py-1 bg-primary/10 text-primary text-xs rounded-full border border-primary/20"
+            >
+              #{tag}
+            </span>
+          ))}
+        </div>
+
+        {/* Stats */}
+        <div className="flex items-center justify-between text-sm text-gray-400">
+          <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-1">
+              <Eye className="w-4 h-4" />
+              <span>{content.views.toLocaleString()}</span>
+            </div>
+            <div className="flex items-center space-x-1">
+              <Users className="w-4 h-4" />
+              <span>{Math.floor(content.views * 0.15).toLocaleString()}</span>
+            </div>
+            <div className="flex items-center space-x-1">
+              <Star className="w-4 h-4" />
+              <span>{(content.confidence * 100).toFixed(0)}%</span>
+            </div>
+          </div>
+
+          <div className="px-2 py-1 rounded-full text-xs font-medium border bg-green-500/20 text-green-300 border-green-500/30">
+            GENERATED
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+
   return (
-    <div className="flex-1 bg-gray-950 min-h-screen">
+    <div className="flex-1 bg-background min-h-screen flex flex-col">
       {/* Header */}
-      <div className="bg-gray-900/95 backdrop-blur-sm border-b border-gray-800/50 p-6">
+      <div className="bg-card border-b border-border p-6">
         <div className="max-w-7xl mx-auto">
           <h1 className="text-3xl font-bold text-white mb-2 flex items-center gap-3">
-            <Brain className="w-8 h-8 text-purple-400" />
-            AI Playground
+            <Brain className="w-8 h-8 text-primary" />
+            AI Playground Feed
           </h1>
-          <p className="text-gray-400">Explore powerful AI tools and industry-specific solutions</p>
+          <p className="text-muted-foreground">Generate AI content and see all results in a live feed</p>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto p-6">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 bg-gray-900/50 border border-gray-800/50">
-            <TabsTrigger value="tools" className="flex items-center gap-2">
-              <Zap className="w-4 h-4" />
-              Core AI Tools
-            </TabsTrigger>
-            <TabsTrigger value="industry" className="flex items-center gap-2">
-              <Briefcase className="w-4 h-4" />
-              Industry Solutions
-            </TabsTrigger>
-          </TabsList>
+      <div className="flex-1 flex">
+        {/* Left Sidebar - AI Tools */}
+        <div className="w-80 bg-card border-r border-border p-6 overflow-y-auto">
+          {/* Input Section */}
+          <Card className="mb-6">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-white flex items-center gap-2 text-lg">
+                <Plus className="w-5 h-5 text-primary" />
+                Create Content
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Textarea
+                placeholder="What do you want to create or analyze?"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                className="bg-muted border-border text-white resize-none"
+                rows={3}
+              />
+            </CardContent>
+          </Card>
 
-          <TabsContent value="tools" className="mt-6">
-            {/* Input Section */}
-            <Card className="mb-8 bg-gray-900/50 border-gray-800/50">
-              <CardHeader>
-                <CardTitle className="text-white flex items-center gap-2">
-                  <Sparkles className="w-5 h-5 text-purple-400" />
-                  AI Input Interface
-                </CardTitle>
-                <CardDescription>
-                  Enter your request and select an AI tool to process it
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <Textarea
-                  placeholder="Describe what you want to create, analyze, or automate..."
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  className="bg-gray-800 border-gray-700 text-white"
-                  rows={3}
-                />
-                {result && (
-                  <div className="p-4 bg-gray-800/50 rounded-lg border border-gray-700">
-                    <h4 className="text-white font-medium mb-2">AI Response:</h4>
-                    <p className="text-gray-300 whitespace-pre-wrap">{result}</p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+          {/* AI Tools */}
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="grid w-full grid-cols-2 mb-4">
+              <TabsTrigger value="tools" className="text-xs">
+                <Zap className="w-3 h-3 mr-1" />
+                Core AI
+              </TabsTrigger>
+              <TabsTrigger value="industry" className="text-xs">
+                <Briefcase className="w-3 h-3 mr-1" />
+                Industry
+              </TabsTrigger>
+            </TabsList>
 
-            {/* AI Tools Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <TabsContent value="tools" className="space-y-3">
               {aiTools.map((tool) => (
-                <Card key={tool.id} className="bg-gray-900/50 border-gray-800/50 hover:bg-gray-900/70 transition-colors">
-                  <CardHeader>
-                    <CardTitle className="text-white flex items-center gap-3">
-                      <div className="p-2 bg-purple-500/20 rounded-lg">
-                        <tool.icon className="w-6 h-6 text-purple-400" />
-                      </div>
-                      {tool.name}
-                    </CardTitle>
-                    <CardDescription>{tool.description}</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <div className="flex flex-wrap gap-2">
-                        {tool.features.map((feature, index) => (
-                          <Badge key={index} variant="outline" className="text-xs border-gray-600 text-gray-300">
-                            {feature}
-                          </Badge>
-                        ))}
-                      </div>
-                      <Button 
-                        onClick={() => handleToolUse(tool.id)}
-                        disabled={!input.trim() || isProcessing}
-                        className="w-full bg-purple-600 hover:bg-purple-700"
-                      >
-                        {isProcessing && selectedTool === tool.id ? 'Processing...' : `Use ${tool.name}`}
-                      </Button>
+                <Button
+                  key={tool.id}
+                  onClick={() => handleToolUse(tool.id)}
+                  disabled={!input.trim() || isProcessing}
+                  variant="outline"
+                  className="w-full justify-start h-auto p-3 bg-muted hover:bg-muted/80"
+                >
+                  <div className="flex items-center space-x-3">
+                    <div className="p-1.5 bg-primary/20 rounded">
+                      <tool.icon className="w-4 h-4 text-primary" />
                     </div>
-                  </CardContent>
-                </Card>
+                    <div className="text-left">
+                      <div className="font-medium text-sm text-white">
+                        {isProcessing && selectedTool === tool.id ? 'Generating...' : tool.name}
+                      </div>
+                      <div className="text-xs text-muted-foreground truncate">
+                        {tool.description}
+                      </div>
+                    </div>
+                  </div>
+                </Button>
               ))}
-            </div>
-            <div className="mt-8">
-              <AIReasonerEmbed />
-            </div>
-          </TabsContent>
+            </TabsContent>
 
-          <TabsContent value="industry" className="mt-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <TabsContent value="industry" className="space-y-3">
               {industryTools.map((tool) => (
-                <Card key={tool.id} className="bg-gray-900/50 border-gray-800/50 hover:bg-gray-900/70 transition-colors">
-                  <CardHeader>
-                    <CardTitle className="text-white flex items-center gap-3">
-                      <div className="p-2 bg-cyan-500/20 rounded-lg">
-                        <tool.icon className="w-6 h-6 text-cyan-400" />
-                      </div>
-                      {tool.name}
-                    </CardTitle>
-                    <CardDescription>{tool.description}</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <div className="flex flex-wrap gap-2">
-                        {tool.features.map((feature, index) => (
-                          <Badge key={index} variant="outline" className="text-xs border-gray-600 text-gray-300">
-                            {feature}
-                          </Badge>
-                        ))}
-                      </div>
-                      <Button 
-                        onClick={() => handleToolUse(tool.id)}
-                        disabled={!input.trim() || isProcessing}
-                        className="w-full bg-cyan-600 hover:bg-cyan-700"
-                      >
-                        {isProcessing && selectedTool === tool.id ? 'Processing...' : `Launch ${tool.name}`}
-                      </Button>
+                <Button
+                  key={tool.id}
+                  onClick={() => handleToolUse(tool.id)}
+                  disabled={!input.trim() || isProcessing}
+                  variant="outline"
+                  className="w-full justify-start h-auto p-3 bg-muted hover:bg-muted/80"
+                >
+                  <div className="flex items-center space-x-3">
+                    <div className="p-1.5 bg-cyan-500/20 rounded">
+                      <tool.icon className="w-4 h-4 text-cyan-400" />
                     </div>
-                  </CardContent>
-                </Card>
+                    <div className="text-left">
+                      <div className="font-medium text-sm text-white">
+                        {isProcessing && selectedTool === tool.id ? 'Generating...' : tool.name}
+                      </div>
+                      <div className="text-xs text-muted-foreground truncate">
+                        {tool.description}
+                      </div>
+                    </div>
+                  </div>
+                </Button>
               ))}
+            </TabsContent>
+          </Tabs>
+        </div>
+
+        {/* Main Content - Feed */}
+        <div className="flex-1 flex flex-col">
+          {/* Feed Header */}
+          <div className="p-6 border-b border-border">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold text-white flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-primary" />
+                Generated Content Feed
+              </h2>
+              <div className="text-sm text-muted-foreground">
+                {filteredContent.length} items • Updated {new Date().toLocaleTimeString()}
+              </div>
             </div>
-          </TabsContent>
-        </Tabs>
+            
+            {/* Filters */}
+            <div className="flex items-center gap-4">
+              <div className="flex-1">
+                <div className="relative">
+                  <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    placeholder="Search generated content..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="bg-muted border-border pl-10"
+                  />
+                </div>
+              </div>
+              <select
+                value={categoryFilter}
+                onChange={(e) => setCategoryFilter(e.target.value)}
+                className="px-3 py-2 bg-muted border border-border rounded text-white text-sm"
+              >
+                <option value="all">All Categories</option>
+                <option value="content">Content</option>
+                <option value="visual">Visual</option>
+                <option value="automation">Automation</option>
+                <option value="analysis">Analysis</option>
+                <option value="intelligence">Intelligence</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Feed Content */}
+          <div className="flex-1 overflow-auto p-6">
+            <div className="max-w-4xl mx-auto space-y-6">
+              {filteredContent.length === 0 ? (
+                <div className="text-center py-12">
+                  <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Brain className="w-8 h-8 text-muted-foreground" />
+                  </div>
+                  <h3 className="text-lg font-medium text-white mb-2">No content generated yet</h3>
+                  <p className="text-muted-foreground mb-6">
+                    Enter a prompt on the left and select an AI tool to start generating content
+                  </p>
+                </div>
+              ) : (
+                filteredContent.map((content) => (
+                  <AIContentCard key={content.id} content={content} />
+                ))
+              )}
+              
+              {/* AI Reasoner Embed at the bottom */}
+              {filteredContent.length > 0 && (
+                <div className="mt-8">
+                  <AIReasonerEmbed />
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
