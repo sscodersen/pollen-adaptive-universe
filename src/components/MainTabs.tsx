@@ -11,7 +11,8 @@ import { ExplorePage } from "@/components/ExplorePage";
 import { SmartShopPage } from "@/components/SmartShopPage";
 import { AppStorePage } from "@/components/AppStorePage";
 import { UnifiedAIPlayground } from "@/components/UnifiedAIPlayground";
-import { Compass, Home, TrendingUp, Award, Globe, ShoppingBag, Smartphone, Brain } from "lucide-react";
+import { GamingPage } from "@/components/GamingPage";
+import { Compass, Home, TrendingUp, Award, Globe, ShoppingBag, Smartphone, Brain, Gamepad2 } from "lucide-react";
 
 // Primary navigation (top)
 const primaryTabs = [
@@ -24,6 +25,7 @@ const primaryTabs = [
 const secondaryTabs = [
   { id: "ai-playground", name: "AI Playground", icon: Brain },
   { id: "appstore", name: "App Store", icon: Smartphone },
+  { id: "gaming", name: "My Games", icon: Gamepad2 },
 ];
 
 // Feed category sub-tabs
@@ -99,6 +101,9 @@ export function MainTabs() {
           </TabsContent>
           <TabsContent value="ai-playground" className="flex-1 h-full data-[state=active]:flex data-[state=active]:flex-col">
             <UnifiedAIPlayground />
+          </TabsContent>
+          <TabsContent value="gaming" className="flex-1 h-full data-[state=active]:flex data-[state=active]:flex-col">
+            <GamingPage />
           </TabsContent>
         </div>
       </Tabs>
