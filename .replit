@@ -27,7 +27,7 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "npm run dev"
+args = "node start.cjs"
 waitForPort = 5000
 
 [workflows.workflow.metadata]
@@ -42,8 +42,8 @@ localPort = 5000
 externalPort = 80
 
 [[ports]]
-localPort = 33563
-externalPort = 80
+localPort = 8080
+externalPort = 8080
 
 [[ports]]
 localPort = 33593
@@ -52,6 +52,10 @@ externalPort = 3000
 [[ports]]
 localPort = 46527
 externalPort = 3003
+
+[[ports]]
+localPort = 46843
+externalPort = 3002
 
 [agent]
 integrations = ["javascript_websocket:1.0.0", "javascript_openai:1.0.0", "javascript_database:1.0.0"]
