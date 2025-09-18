@@ -6,7 +6,7 @@ packages = ["glibcLocales", "libxcrypt"]
 
 [deployment]
 deploymentTarget = "autoscale"
-run = ["node", "start.cjs"]
+run = ["npm", "run", "preview"]
 build = ["npm", "run", "build"]
 
 [workflows]
