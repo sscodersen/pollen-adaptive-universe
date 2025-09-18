@@ -46,8 +46,14 @@ class PollenAI {
         reasoning: data.reasoning || undefined
       };
     } catch (error) {
-      console.error('Pollen AI generation failed:', error);
-      throw error;
+      console.warn('Pollen AI generation failed:', error);
+      // Return fallback response instead of throwing
+      return {
+        content: 'AI service temporarily unavailable. Using fallback generation.',
+        confidence: 0.5,
+        learning: false,
+        reasoning: 'Fallback due to network error'
+      };
     }
   }
 
