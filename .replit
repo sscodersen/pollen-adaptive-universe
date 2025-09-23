@@ -5,9 +5,9 @@ channel = "stable-25_05"
 packages = ["glibcLocales", "libxcrypt"]
 
 [deployment]
-deploymentTarget = "vm"
-run = ["node", "start.cjs"]
-build = ["npm", "install"]
+deploymentTarget = "autoscale"
+run = ["npm", "run", "preview"]
+build = ["npm", "run", "build"]
 
 [workflows]
 runButton = "Project"
@@ -19,14 +19,14 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Frontend Development Server"
+args = "Pollen AI Frontend"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Backend API Server"
+args = "Backend API"
 
 [[workflows.workflow]]
-name = "Frontend Development Server"
+name = "Pollen AI Frontend"
 author = "agent"
 
 [[workflows.workflow.tasks]]
@@ -38,7 +38,7 @@ waitForPort = 5000
 outputType = "webview"
 
 [[workflows.workflow]]
-name = "Backend API Server"
+name = "Backend API"
 author = "agent"
 
 [[workflows.workflow.tasks]]
@@ -52,14 +52,6 @@ outputType = "console"
 [[ports]]
 localPort = 3001
 externalPort = 3001
-
-[[ports]]
-localPort = 5000
-externalPort = 5000
-
-[[ports]]
-localPort = 33593
-externalPort = 3000
 
 [[ports]]
 localPort = 38689
