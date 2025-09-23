@@ -179,6 +179,7 @@ export const AppStorePage = () => {
         rank: 0,
         featured: scoredItem.significance > 8.5
       };
+      });
 
       // Also generate some template-based apps for variety
       const templateApps: App[] = Array.from({ length: 4 }, (_, index) => {
