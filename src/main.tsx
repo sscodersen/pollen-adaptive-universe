@@ -63,14 +63,15 @@ const initializePlatform = async () => {
 const startContentOrchestration = () => {
   setTimeout(() => {
     try {
-      contentOrchestrator.startContinuousGeneration([
-        'social','shop','entertainment','games','music','news'
-      ], 300000); // Every 5 minutes
-      console.log('🔄 Content orchestrator started');
+      // DISABLED: Continuous generation was causing infinite loops and resource consumption
+      // contentOrchestrator.startContinuousGeneration([
+      //   'social','shop','entertainment','games','music','news'
+      // ], 300000); // Every 5 minutes
+      console.log('🔄 Content orchestrator initialized (continuous generation disabled)');
     } catch (error) {
       console.warn('Content orchestrator failed to start (non-critical):', error);
     }
-  }, 10000); // Delay to allow full app initialization
+  }, 2000); // Shorter delay for faster startup
 };
 
 // Initialize all platform services

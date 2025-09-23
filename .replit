@@ -19,27 +19,15 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Backend API"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
 args = "Python AI Backend"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Frontend"
-
-[[workflows.workflow]]
-name = "Backend API"
-author = "agent"
+args = "Backend API"
 
 [[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "node local-backend.cjs"
-waitForPort = 3001
-
-[workflows.workflow.metadata]
-outputType = "console"
+task = "workflow.run"
+args = "Frontend"
 
 [[workflows.workflow]]
 name = "Python AI Backend"
@@ -49,6 +37,18 @@ author = "agent"
 task = "shell.exec"
 args = "python3 -m uvicorn pollen_ai_backend:app --host 0.0.0.0 --port 8000"
 waitForPort = 8000
+
+[workflows.workflow.metadata]
+outputType = "console"
+
+[[workflows.workflow]]
+name = "Backend API"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "node local-backend.cjs"
+waitForPort = 3001
 
 [workflows.workflow.metadata]
 outputType = "console"
@@ -68,14 +68,6 @@ outputType = "webview"
 [[ports]]
 localPort = 3001
 externalPort = 3001
-
-[[ports]]
-localPort = 8000
-externalPort = 8000
-
-[[ports]]
-localPort = 38689
-externalPort = 4200
 
 [[ports]]
 localPort = 39343
