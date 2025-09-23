@@ -26,6 +26,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { contentOrchestrator } from '../services/contentOrchestrator';
+import { pollenAI } from '../services/pollenAI';
 
 // TypeScript interfaces for prompt cards
 interface PromptCard {
@@ -316,28 +317,66 @@ export function UnifiedAIPlayground() {
 
     setIsGenerating(true);
     try {
+      // Use Pollen AI directly for better quality and reasoning
+      const pollenResponse = await pollenAI.generate(prompt, activeCategory);
+      
+      // Also get enhanced content through orchestrator for diversity
       const { content } = await contentOrchestrator.generateContent({
         type: activeCategory as any,
-        count: 3,
+        count: 2,
         query: prompt,
         strategy: {
-          diversity: 0.9,
-          freshness: 0.8,
-          personalization: 0.7,
-          qualityThreshold: 7.5,
-          trendingBoost: 1.2
-        }
+          diversity: 0.95,
+          freshness: 1.0,
+          personalization: 0.8,
+          qualityThreshold: 8.0,
+          trendingBoost: 1.5
+        },
+        realtime: true
       });
 
-      const newContent = content.map((item: any, index: number) => ({
-        id: `${Date.now()}-${index}`,
+      // Create social-style content entries
+      const pollenContent = {
+        id: `pollen-${Date.now()}`,
+        category: activeCategory,
+        prompt,
+        content: {
+          title: `Pollen AI: ${activeCategory.charAt(0).toUpperCase() + activeCategory.slice(1)}`,
+          description: pollenResponse.content,
+          reasoning: pollenResponse.reasoning,
+          confidence: pollenResponse.confidence,
+          source: 'pollen-ai'
+        },
+        timestamp: new Date().toISOString(),
+        type: 'pollen-ai',
+        likes: Math.floor(Math.random() * 50) + 10,
+        shares: Math.floor(Math.random() * 20) + 5,
+        user: {
+          name: 'Pollen AI',
+          username: 'pollen_ai',
+          avatar: 'bg-gradient-to-r from-cyan-500 to-blue-500',
+          verified: true
+        }
+      };
+
+      const enhancedContent = content.map((item: any, index: number) => ({
+        id: `enhanced-${Date.now()}-${index}`,
         category: activeCategory,
         prompt,
         content: item,
         timestamp: new Date().toISOString(),
-        type: activeCategory
+        type: 'enhanced',
+        likes: Math.floor(Math.random() * 30) + 5,
+        shares: Math.floor(Math.random() * 10) + 2,
+        user: {
+          name: 'AI Assistant',
+          username: 'ai_assistant',
+          avatar: 'bg-gradient-to-r from-purple-500 to-pink-500',
+          verified: true
+        }
       }));
 
+      const newContent = [pollenContent, ...enhancedContent];
       setGeneratedContent(newContent);
       setHistory(prev => [...newContent, ...prev].slice(0, 50));
     } catch (error) {
@@ -359,23 +398,34 @@ export function UnifiedAIPlayground() {
   const getCurrentCategory = () => aiCategories.find(cat => cat.id === activeCategory);
 
   return (
-    <div className="flex-1 bg-gray-950 min-h-0 flex flex-col">
-      {/* Header - Black design like feed */}
-      <div className="bg-gray-900/95 border-b border-gray-800/50 p-6">
+    <div className="flex-1 bg-black min-h-0 flex flex-col">
+      {/* Header - Pure black design with social feel */}
+      <div className="bg-black border-b border-gray-900/50 p-6">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <div className="p-3 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-2xl border border-purple-500/30">
-                <Brain className="w-8 h-8 text-purple-400" />
+              <div className="p-3 bg-gradient-to-br from-cyan-500/20 to-blue-500/20 rounded-2xl border border-cyan-500/30">
+                <Brain className="w-8 h-8 text-cyan-400" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-white mb-2">AI Playground</h1>
-                <p className="text-gray-400">Complete creative workspace with entertainment, learning & automation</p>
+                <h1 className="text-3xl font-bold text-white mb-2 flex items-center gap-3">
+                  AI Playground 
+                  <span className="text-sm bg-cyan-500/10 text-cyan-400 px-3 py-1 rounded-full border border-cyan-500/20">
+                    Live
+                  </span>
+                </h1>
+                <p className="text-gray-400">Create, explore, and share with Pollen AI • Real-time generation • Social creativity</p>
               </div>
             </div>
-            <div className="flex items-center space-x-2 text-sm text-purple-400 bg-purple-500/10 px-3 py-2 rounded-lg border border-purple-500/30">
-              <Zap className="w-4 h-4" />
-              <span>Powered by Pollen LLMX</span>
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2 text-sm text-cyan-400 bg-cyan-500/10 px-3 py-2 rounded-lg border border-cyan-500/30">
+                <Zap className="w-4 h-4 animate-pulse" />
+                <span>Pollen AI • Live</span>
+              </div>
+              <div className="flex items-center space-x-2 text-sm text-green-400 bg-green-500/10 px-3 py-2 rounded-lg border border-green-500/30">
+                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+                <span>{generatedContent.length} creations</span>
+              </div>
             </div>
           </div>
         </div>
@@ -383,8 +433,8 @@ export function UnifiedAIPlayground() {
 
       <div className="flex-1 max-w-7xl mx-auto p-6 w-full">
         <Tabs value={activeCategory} onValueChange={setActiveCategory} className="w-full">
-          {/* Category Navigation - Enhanced with more categories */}
-          <TabsList className="grid w-full grid-cols-3 lg:grid-cols-9 mb-8 bg-gray-900/50 border border-gray-800/50">
+          {/* Category Navigation - Pure black with social feel */}
+          <TabsList className="grid w-full grid-cols-3 lg:grid-cols-9 mb-8 bg-black border border-gray-900/50">
             {aiCategories.map((category) => (
               <TabsTrigger
                 key={category.id}
