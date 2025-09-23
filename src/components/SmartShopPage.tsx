@@ -8,6 +8,7 @@ import { FilterControls } from './shop/FilterControls';
 import { ProductGrid } from './shop/ProductGrid';
 import { enhancedTrendEngine } from '../services/enhancedTrendEngine';
 import { reRankProducts } from '../services/shopReRanker';
+import { insightFlow, ContentItem } from '../services/insightFlow';
 import { ExternalLink, Store, TrendingUp } from 'lucide-react';
 
 // Removed hardcoded templates - now using AI-generated products
@@ -25,38 +26,71 @@ export const SmartShopPage = () => {
     setLoading(true);
     try {
       const strategy = {
-        diversity: 0.8,
-        freshness: 0.7,
-        personalization: 0.4,
-        qualityThreshold: 6.5,
-        trendingBoost: 1.4
+        diversity: 0.85,
+        freshness: 0.9,
+        personalization: 0.6,
+        qualityThreshold: 7.5, // Increased for InsightFlow compatibility
+        trendingBoost: 1.6
       } as const;
 
-      const { content: shopContent } = await contentOrchestrator.generateContent({ type: 'shop', count: 16, strategy });
-      const convertedProducts: Product[] = shopContent.map((item) => {
+      const { content: shopContent } = await contentOrchestrator.generateContent({ 
+        type: 'shop', 
+        count: 24, // Generate more to have options after filtering
+        strategy 
+      });
+
+      // Convert to InsightFlow ContentItem format for analysis
+      const contentItems: ContentItem[] = shopContent.map((item) => {
         const shopItem = item as ShopContent;
         return {
           id: shopItem.id,
-          name: shopItem.name,
+          title: shopItem.name,
           description: shopItem.description,
-          price: shopItem.price,
-          originalPrice: shopItem.originalPrice,
-          discount: shopItem.discount,
-          rating: shopItem.rating,
-          reviews: shopItem.reviews,
           category: shopItem.category,
-          brand: shopItem.brand,
           tags: shopItem.tags,
-          link: shopItem.link,
-          inStock: shopItem.inStock,
-          trending: shopItem.trending,
-          significance: shopItem.significance,
-          features: shopItem.features,
-          seller: shopItem.seller,
+          source: shopItem.seller || 'shop',
+          publishedAt: new Date().toISOString(), // Recent for timeliness
           views: shopItem.views,
-          rank: shopItem.rank || 0,
-          quality: shopItem.quality,
-          impact: shopItem.impact === 'critical' ? 'premium' : shopItem.impact as 'low' | 'medium' | 'high' | 'premium'
+          rating: shopItem.rating,
+          price: typeof shopItem.price === 'string' ? 
+            parseFloat(shopItem.price.replace('$', '')) : shopItem.price,
+          type: 'product' as const
+        };
+      });
+
+      // Apply InsightFlow 7-factor significance analysis (only items >7 shown)
+      const significantItems = await insightFlow.analyzeContentBatch(contentItems);
+      console.log(`InsightFlow filtered ${contentItems.length} products to ${significantItems.length} significant items (threshold: ${insightFlow.getThreshold()})`);
+
+      const convertedProducts: Product[] = significantItems.map((scoredItem) => {
+        const originalShopItem = shopContent.find(item => item.id === scoredItem.id) as ShopContent;
+        return {
+          id: scoredItem.id,
+          name: scoredItem.title,
+          description: scoredItem.description,
+          price: originalShopItem.price,
+          originalPrice: originalShopItem.originalPrice,
+          discount: originalShopItem.discount,
+          rating: scoredItem.rating || originalShopItem.rating,
+          reviews: originalShopItem.reviews,
+          category: scoredItem.category,
+          brand: originalShopItem.brand,
+          tags: scoredItem.tags || originalShopItem.tags,
+          link: originalShopItem.link,
+          inStock: originalShopItem.inStock,
+          trending: scoredItem.significance >= 8.5, // High significance = trending
+          significance: scoredItem.significance, // Use InsightFlow score
+          features: originalShopItem.features,
+          seller: originalShopItem.seller,
+          views: scoredItem.views || originalShopItem.views,
+          rank: Math.floor(scoredItem.significance * 10), // Convert to rank
+          quality: Math.floor(scoredItem.factors.quality * 10),
+          impact: scoredItem.significance >= 9.0 ? 'premium' : 
+                  scoredItem.significance >= 8.0 ? 'high' :
+                  scoredItem.significance >= 7.5 ? 'medium' : 'low',
+          insightFlowScore: scoredItem.significance,
+          insightFlowReasoning: scoredItem.reasoning,
+          insightFlowFactors: scoredItem.factors
         };
       });
       
@@ -68,8 +102,12 @@ export const SmartShopPage = () => {
         !p.tags?.some(t => isBlacklistedText(t))
       );
       
-      const ranked = reRankProducts(safeProducts, enhancedTrendEngine.getTrends());
-      setProducts(ranked);
+      // Sort by InsightFlow significance instead of traditional re-ranking
+      const insightFlowRanked = safeProducts.sort((a, b) => 
+        (b.insightFlowScore || 0) - (a.insightFlowScore || 0)
+      );
+      
+      setProducts(insightFlowRanked);
     } catch (error) {
       console.error('Failed to load products:', error);
     }

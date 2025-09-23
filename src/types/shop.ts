@@ -1,4 +1,6 @@
 
+import { SignificanceFactors } from '../services/insightFlow';
+
 export interface Product {
   id: string;
   name: string;
@@ -21,4 +23,8 @@ export interface Product {
   rank: number;
   quality: number;
   impact: 'low' | 'medium' | 'high' | 'premium';
+  // InsightFlow algorithm properties
+  insightFlowScore?: number;
+  insightFlowReasoning?: string;
+  insightFlowFactors?: SignificanceFactors;
 }

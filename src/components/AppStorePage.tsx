@@ -3,6 +3,7 @@ import { significanceAlgorithm } from '../services/significanceAlgorithm';
 import { rankItems } from '../services/generalRanker';
 import { contentOrchestrator } from '../services/contentOrchestrator';
 import { enhancedTrendEngine } from '../services/enhancedTrendEngine';
+import { insightFlow, ContentItem } from '../services/insightFlow';
 import { AppStoreHeader } from './appstore/AppStoreHeader';
 import { AppStoreFilters } from './appstore/AppStoreFilters';
 import { AppGrid } from './appstore/AppGrid';
@@ -116,32 +117,53 @@ export const AppStorePage = () => {
     try {
       // Generate trending apps using content orchestrator for better quality
       const strategy = {
-        diversity: 0.8,
-        freshness: 0.9,
-        personalization: 0.6,
-        qualityThreshold: 7.5,
-        trendingBoost: 1.5
+        diversity: 0.85,
+        freshness: 0.95,
+        personalization: 0.7,
+        qualityThreshold: 8.0, // Increased for InsightFlow compatibility
+        trendingBoost: 1.8
       } as const;
 
       // Generate a mix of AI-driven and template-based apps
       const { content: aiApps } = await contentOrchestrator.generateContent({ 
         type: 'shop', 
-        count: 8, 
+        count: 20, // Generate more to have options after filtering
         strategy,
-        query: 'trending mobile apps and software applications' 
+        query: 'innovative mobile apps, software applications, and digital tools' 
       });
 
-      // Convert AI generated content to app format
-      const convertedAiApps: App[] = aiApps.map((item: any, index: number) => ({
+      // Convert to InsightFlow ContentItem format for analysis
+      const contentItems: ContentItem[] = aiApps.map((item: any, index: number) => ({
         id: `ai-${Date.now()}-${index}`,
-        name: item.name || `Trending App ${index + 1}`,
+        title: item.name || `Trending App ${index + 1}`,
         description: item.description || 'AI-powered application with advanced features',
         category: item.category || 'Productivity',
-        developer: item.brand || item.seller || 'AI Developer',
+        tags: item.tags || ['app', 'software', 'productivity'],
+        source: item.brand || item.seller || 'AI Developer',
+        publishedAt: new Date().toISOString(), // Recent for timeliness
         rating: item.rating || Number((Math.random() * 1.5 + 3.5).toFixed(1)),
-        reviews: item.reviews || Math.floor(Math.random() * 50000) + 1000,
-        price: item.price || (Math.random() > 0.3 ? `$${(Math.random() * 50 + 5).toFixed(2)}` : 'Free'),
-        originalPrice: item.originalPrice,
+        price: typeof item.price === 'string' ? 
+          parseFloat(item.price.replace('$', '')) || 0 : (item.price || 0),
+        type: 'app' as const
+      }));
+
+      // Apply InsightFlow 7-factor significance analysis (only items >7 shown)
+      const significantItems = await insightFlow.analyzeContentBatch(contentItems);
+      console.log(`InsightFlow filtered ${contentItems.length} apps to ${significantItems.length} significant items (threshold: ${insightFlow.getThreshold()})`);
+
+      // Convert AI generated content to app format
+      const convertedAiApps: App[] = significantItems.map((scoredItem) => {
+        const originalItem = aiApps.find(item => item.name === scoredItem.title) || aiApps[0];
+        return {
+        id: scoredItem.id,
+        name: scoredItem.title,
+        description: scoredItem.description,
+        category: scoredItem.category,
+        developer: scoredItem.source || 'AI Developer',
+        rating: scoredItem.rating || Number((Math.random() * 1.5 + 3.5).toFixed(1)),
+        reviews: Math.floor(Math.random() * 50000) + 1000,
+        price: scoredItem.price === 0 ? 'Free' : `$${scoredItem.price?.toFixed(2)}`,
+        originalPrice: originalItem.originalPrice,
         discount: item.discount || 0,
         downloadLink: `https://example.com/download/${(item.name || 'app').toLowerCase().replace(/\s+/g, '-')}`,
         iconUrl: '/placeholder.svg',
