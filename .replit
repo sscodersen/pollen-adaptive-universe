@@ -10,28 +10,6 @@ run = ["node", "start.cjs"]
 build = ["npm", "install"]
 
 [workflows]
-runButton = "Project"
-
-[[workflows.workflow]]
-name = "Project"
-mode = "parallel"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Pollen AI Platform"
-
-[[workflows.workflow]]
-name = "Pollen AI Platform"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "node start.cjs"
-waitForPort = 5000
-
-[workflows.workflow.metadata]
-outputType = "webview"
 
 [[ports]]
 localPort = 3001
