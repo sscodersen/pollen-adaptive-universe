@@ -250,7 +250,6 @@ export const AppStorePage = () => {
         };
       });
       setApps(fallbackApps);
-    }
     } finally {
       setLoading(false);
     }
@@ -266,7 +265,7 @@ export const AppStorePage = () => {
           console.warn('Scheduled app refresh failed:', error.message);
         });
       }
-    }, 5 * 60 * 1000); // Increased to 5 minutes to reduce API load
+    }, 10 * 60 * 1000); // Increased to 10 minutes to reduce API load
     return () => clearInterval(interval);
   }, [loadApps]);
 
