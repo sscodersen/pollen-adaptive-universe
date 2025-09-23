@@ -153,7 +153,7 @@ export const AppStorePage = () => {
 
       // Convert AI generated content to app format
       const convertedAiApps: App[] = significantItems.map((scoredItem) => {
-        const originalItem = aiApps.find(item => item.name === scoredItem.title) || aiApps[0];
+        const originalItem = aiApps.find((item: any) => item.name === scoredItem.title) || aiApps[0] || {};
         return {
         id: scoredItem.id,
         name: scoredItem.title,
@@ -163,22 +163,22 @@ export const AppStorePage = () => {
         rating: scoredItem.rating || Number((Math.random() * 1.5 + 3.5).toFixed(1)),
         reviews: Math.floor(Math.random() * 50000) + 1000,
         price: scoredItem.price === 0 ? 'Free' : `$${scoredItem.price?.toFixed(2)}`,
-        originalPrice: originalItem.originalPrice,
-        discount: item.discount || 0,
-        downloadLink: `https://example.com/download/${(item.name || 'app').toLowerCase().replace(/\s+/g, '-')}`,
+        originalPrice: (originalItem as any)?.originalPrice || undefined,
+        discount: (originalItem as any)?.discount || 0,
+        downloadLink: `https://example.com/download/${(scoredItem.title || 'app').toLowerCase().replace(/\s+/g, '-')}`,
         iconUrl: '/placeholder.svg',
         screenshots: ['/placeholder.svg', '/placeholder.svg', '/placeholder.svg'],
         size: `${Math.floor(Math.random() * 100 + 20)}.${Math.floor(Math.random() * 9)} MB`,
         version: `${Math.floor(Math.random() * 3 + 1)}.${Math.floor(Math.random() * 9)}.${Math.floor(Math.random() * 9)}`,
         updated: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toLocaleDateString(),
-        tags: item.tags || ['Popular', 'Trending', 'New'],
-        inStock: item.inStock !== false,
-        trending: item.trending || item.significance > 7.5,
-        significance: item.significance || 8.0,
+        tags: scoredItem.tags || ['Popular', 'Trending', 'New'],
+        inStock: (originalItem as any)?.inStock !== false,
+        trending: (originalItem as any)?.trending || scoredItem.significance > 7.5,
+        significance: scoredItem.significance || 8.0,
         downloads: `${Math.floor(Math.random() * 900 + 100)}K+`,
         rank: 0,
         featured: scoredItem.significance > 8.5
-      });
+      };
 
       // Also generate some template-based apps for variety
       const templateApps: App[] = Array.from({ length: 4 }, (_, index) => {
@@ -251,7 +251,9 @@ export const AppStorePage = () => {
       });
       setApps(fallbackApps);
     }
-    setLoading(false);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => {
