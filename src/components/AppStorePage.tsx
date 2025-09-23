@@ -177,8 +177,8 @@ export const AppStorePage = () => {
         significance: item.significance || 8.0,
         downloads: `${Math.floor(Math.random() * 900 + 100)}K+`,
         rank: 0,
-        featured: item.significance > 8.5
-      }));
+        featured: scoredItem.significance > 8.5
+      });
 
       // Also generate some template-based apps for variety
       const templateApps: App[] = Array.from({ length: 4 }, (_, index) => {
