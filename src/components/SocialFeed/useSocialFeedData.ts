@@ -19,6 +19,7 @@ export const useSocialFeedData = ({
   const [posts, setPosts] = useState<SocialContent[]>(activities || []);
   const [trendPosts, setTrendPosts] = useState<GeneratedPost[]>([]);
   const [loading, setLoading] = useState(true);
+  const [continuousGeneration, setContinuousGeneration] = useState(true);
 
   // Hash function for deterministic content generation
   const hashString = useCallback((s: string) => {
@@ -75,7 +76,89 @@ export const useSocialFeedData = ({
     }));
   }, [makeOriginalSummary]);
 
-  // Load posts from content orchestrator
+  // Continuous content generation from multiple platform sources
+  const generateContinuousContent = useCallback(async () => {
+    if (!continuousGeneration) return;
+    
+    try {
+      // Generate content from different platform events and sources
+      const contentSources = [
+        { type: 'social', query: 'trending discussions and insights', count: 3 },
+        { type: 'news', query: 'latest technology and innovation news', count: 2 },
+        { type: 'entertainment', query: 'entertainment and creative content', count: 2 },
+        { type: 'shop', query: 'featured products and innovations', count: 2 },
+        { type: 'general', query: 'explore diverse topics and discoveries', count: 3 }
+      ];
+      
+      const newContent: SocialContent[] = [];
+      
+      for (const source of contentSources) {
+        const { content } = await contentOrchestrator.generateContent({
+          type: source.type as any,
+          count: source.count,
+          query: source.query,
+          strategy: {
+            diversity: 0.95,
+            freshness: 1.0,
+            personalization: 0.7,
+            qualityThreshold: 7.0,
+            trendingBoost: 1.2
+          },
+          realtime: true
+        });
+        
+        // Convert content to social format with platform event context
+        const socialContent = content.map((item: any, idx: number) => ({
+          id: `${source.type}-${Date.now()}-${idx}`,
+          type: 'social' as const,
+          title: item.title || `${source.type.charAt(0).toUpperCase() + source.type.slice(1)} Update`,
+          description: item.description || item.content || 'Platform generated content',
+          content: item.content || item.description,
+          category: source.type,
+          user: {
+            name: `${source.type.charAt(0).toUpperCase() + source.type.slice(1)}Bot`,
+            username: `${source.type}bot`,
+            avatar: `bg-gradient-to-r ${getSourceColor(source.type)}`,
+            verified: true,
+            rank: 95 + Math.floor(Math.random() * 5),
+            badges: ['AI Generated', 'Live Feed', source.type.charAt(0).toUpperCase() + source.type.slice(1)]
+          },
+          timestamp: new Date().toLocaleString(),
+          views: Math.floor(Math.random() * 3000) + 500,
+          engagement: Math.floor(Math.random() * 800) + 200,
+          significance: item.significance || (8.0 + Math.random() * 2),
+          quality: Math.floor((item.significance || 8.0) * 10),
+          trending: item.significance > 8.5,
+          impact: item.significance > 9.0 ? 'high' : item.significance > 7.5 ? 'medium' : 'low',
+          contentType: source.type === 'news' ? 'news' : source.type === 'entertainment' ? 'entertainment' : 'social',
+          tags: item.tags || [source.type, 'trending', 'live'],
+          readTime: '1-3 min'
+        }));
+        
+        newContent.push(...socialContent as SocialContent[]);
+      }
+      
+      // Add new content to existing posts (prepend for chronological order)
+      setPosts(prevPosts => [...newContent, ...prevPosts.slice(0, 50)]); // Keep max 50 posts
+      
+    } catch (error) {
+      console.error('Continuous content generation failed:', error);
+    }
+  }, [continuousGeneration]);
+
+  // Helper function to get source-specific colors
+  const getSourceColor = (sourceType: string) => {
+    const colors = {
+      social: 'from-blue-500 to-cyan-500',
+      news: 'from-red-500 to-orange-500',
+      entertainment: 'from-purple-500 to-pink-500',
+      shop: 'from-green-500 to-teal-500',
+      general: 'from-gray-500 to-slate-500'
+    };
+    return colors[sourceType as keyof typeof colors] || colors.general;
+  };
+
+  // Load initial posts from content orchestrator
   const loadPosts = useCallback(async () => {
     if (activities && activities.length > 0) {
       setPosts(activities);
@@ -156,12 +239,21 @@ export const useSocialFeedData = ({
       }
     });
     
-    // Reduced frequency to improve performance
+    // Setup continuous content generation from platform events
+    const continuousTimer = setTimeout(() => {
+      generateContinuousContent();
+      // Set up recurring generation every 45 seconds
+      const recurringTimer = setInterval(generateContinuousContent, 45000);
+      return () => clearInterval(recurringTimer);
+    }, 8000); // Start after 8 seconds
+
+    // Reduced frequency for regular reload to improve performance
     const interval = setInterval(loadPosts, 120000); // 2 minutes instead of 45 seconds
     
     return () => {
-      clearInterval(interval);
       unsubscribe();
+      clearInterval(interval);
+      clearTimeout(continuousTimer);
     };
   }, [loadPosts]);
 

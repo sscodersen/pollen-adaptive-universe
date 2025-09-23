@@ -10,18 +10,48 @@ run = ["node", "start.cjs"]
 build = ["npm", "install"]
 
 [workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Frontend Development Server"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Backend API Server"
+
+[[workflows.workflow]]
+name = "Frontend Development Server"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run dev"
+waitForPort = 5000
+
+[workflows.workflow.metadata]
+outputType = "webview"
+
+[[workflows.workflow]]
+name = "Backend API Server"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "node local-backend.cjs"
+waitForPort = 3001
+
+[workflows.workflow.metadata]
+outputType = "console"
 
 [[ports]]
 localPort = 3001
 externalPort = 3001
-
-[[ports]]
-localPort = 5000
-externalPort = 80
-
-[[ports]]
-localPort = 8080
-externalPort = 8080
 
 [[ports]]
 localPort = 33593
