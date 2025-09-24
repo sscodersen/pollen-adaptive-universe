@@ -22,7 +22,7 @@ const server = http.createServer((req, res) => {
   // Route API calls to backend, everything else to frontend
   const target = req.url.startsWith('/api/') ? 
     'http://localhost:3001' : 
-    'http://localhost:5173';
+    'http://localhost:5000';
 
   proxy.web(req, res, {
     target: target,
@@ -56,7 +56,7 @@ const PORT = process.env.PORT || 5000;
 // Start proxy on the specified port
 server.listen(PORT, '0.0.0.0', () => {
   console.log('🚀 Pollen Adaptive Universe is starting up...');
-  console.log('   Frontend: http://localhost:5173 (Vite dev server)');
+  console.log('   Frontend: http://localhost:5000 (Vite dev server)');
   console.log('   Backend: http://localhost:3001 (Local API server)');
   console.log(`   Proxy: http://localhost:${PORT} (Main application URL)`);
   console.log('   ✨ Application ready!');
@@ -82,7 +82,7 @@ server.on('upgrade', (req, socket, head) => {
   // Route API calls to backend, everything else to frontend
   const target = req.url.startsWith('/api/') ? 
     'http://localhost:3001' : 
-    'http://localhost:5173';
+    'http://localhost:5000';
   
   proxy.ws(req, socket, head, { target });
 });
