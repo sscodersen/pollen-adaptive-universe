@@ -22,42 +22,66 @@ class PollenAI {
   constructor() {
     this.baseURL = process.env.POLLEN_AI_ENDPOINT || 'http://localhost:8000';
     this.fallbackEnabled = true;
-    console.log(`✨ Connecting to real Pollen AI at ${this.baseURL}`);
+    this.isPollenAIAvailable = false;
+    console.log(`✨ Connecting to Pollen AI at ${this.baseURL}`);
+    this.checkPollenAIHealth();
+  }
+
+  async checkPollenAIHealth() {
+    try {
+      const response = await axios.get(`${this.baseURL}/health`, { timeout: 3000 });
+      if (response.status === 200) {
+        this.isPollenAIAvailable = true;
+        console.log(`✅ Pollen AI is available and healthy`);
+      }
+    } catch (error) {
+      this.isPollenAIAvailable = false;
+      console.log(`⚠️ Pollen AI not available, using fallback mode`);
+    }
   }
 
   async generate(type, prompt, mode = 'chat') {
-    try {
-      // Try to connect to real Pollen AI service first
-      const response = await axios.post(`${this.baseURL}/generate`, {
-        prompt,
-        mode,
-        type
-      }, {
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        timeout: 5000
-      });
-      
-      if (response.data && response.data.content) {
-        console.log(`✅ Real AI response generated for ${type} mode: ${mode}`);
-        return {
-          content: response.data.content,
-          confidence: response.data.confidence || 0.8,
-          reasoning: response.data.reasoning || 'AI-generated content',
-          type: type,
-          mode: mode,
-          timestamp: new Date().toISOString()
-        };
-      } else {
-        throw new Error('Invalid response from Pollen AI');
-      }
-    } catch (error) {
-      console.log(`⚠️ Pollen AI unavailable, using fallback generation for ${type}`);
-      
-      // Use fallback content generation
-      return this.generateFallbackContent(type, prompt, mode);
+    // Always check health first if we haven't recently
+    if (!this.isPollenAIAvailable) {
+      await this.checkPollenAIHealth();
     }
+
+    if (this.isPollenAIAvailable) {
+      try {
+        const response = await axios.post(`${this.baseURL}/generate`, {
+          input_text: prompt,
+          mode,
+          type
+        }, {
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          timeout: 10000  // Increased timeout for AI processing
+        });
+        
+        if (response.data && response.data.content) {
+          console.log(`✅ Pollen AI response generated for ${type} mode: ${mode}`);
+          return {
+            content: response.data.content,
+            confidence: response.data.confidence || 0.8,
+            reasoning: response.data.reasoning || 'AI-generated content',
+            type: type,
+            mode: mode,
+            timestamp: response.data.timestamp || new Date().toISOString()
+          };
+        } else {
+          throw new Error('Invalid response from Pollen AI');
+        }
+      } catch (error) {
+        console.log(`⚠️ Pollen AI request failed: ${error.message}`);
+        this.isPollenAIAvailable = false;
+        // Fall through to fallback generation
+      }
+    }
+    
+    // Use fallback content generation
+    console.log(`🔄 Using enhanced fallback generation for ${type}`);
+    return this.generateFallbackContent(type, prompt, mode);
   }
 
   generateFallbackContent(type, prompt, mode) {
