@@ -1,6 +1,7 @@
-// App Store Feed Algorithm - Similar to Social Feed but optimized for apps
+// App Store Feed Algorithm - Enhanced with Bento Buzz 7-factor significance algorithm
 import { significanceAlgorithm } from './significanceAlgorithm';
 import { contentOrchestrator } from './contentOrchestrator';
+import { pollenAI } from './pollenAI';
 import { App } from '../components/AppStorePage';
 
 export interface AppFeedStrategy {
@@ -55,8 +56,8 @@ class AppStoreFeed {
   ): Promise<AppFeedResponse> {
     const effectiveStrategy = { ...this.defaultStrategy, ...strategy };
     
-    // Generate apps using content orchestrator (would need to extend for apps)
-    const apps = await this.generateAppsWithAI(count * 2, effectiveStrategy);
+    // Generate apps using enhanced Bento Buzz algorithm
+    const apps = await this.generateAppsWithBentoBuzz(count * 2, effectiveStrategy);
 
     // Apply filters
     let filteredApps = filters ? this.applyFilters(apps, filters) : apps;
@@ -129,82 +130,226 @@ class AppStoreFeed {
     });
   }
 
-  // Generate apps with AI (similar to content generation)
-  private async generateAppsWithAI(count: number, strategy: AppFeedStrategy): Promise<App[]> {
+  // Enhanced app generation using Bento Buzz 7-factor significance algorithm
+  private async generateAppsWithBentoBuzz(count: number, strategy: AppFeedStrategy): Promise<App[]> {
+    const apps: App[] = [];
     const categories = [
       'Photography', 'Health & Fitness', 'Developer Tools', 'Music', 
-      'Games', 'Productivity', 'Education', 'Business', 'Utilities', 'Entertainment'
+      'Games', 'Productivity', 'Education', 'Business', 'Utilities', 'Entertainment',
+      'Social', 'Finance', 'Travel', 'News', 'Shopping', 'Weather', 'Sports'
     ];
     
-    const apps: App[] = [];
-    
+    // Use Bento Buzz algorithm to generate high-significance apps
     for (let i = 0; i < count; i++) {
       const category = categories[Math.floor(Math.random() * categories.length)];
-      const app = await this.generateSingleApp(category, strategy);
-      apps.push(app);
+      const prompt = this.generateAppPrompt(category, strategy);
+      
+      try {
+        // Use enhanced pollenAI with Bento Buzz algorithm
+        const aiResponse = await pollenAI.generate(prompt, 'app_store');
+        const appData = aiResponse.content;
+        
+        if (appData && typeof appData === 'object') {
+          const enhancedApp = this.processAIGeneratedApp(appData, category, strategy);
+          if (enhancedApp.significance >= strategy.qualityThreshold) {
+            apps.push(enhancedApp);
+          }
+        }
+      } catch (error) {
+        // Fallback to enhanced template generation
+        const fallbackApp = await this.generateEnhancedTemplateApp(category, strategy);
+        if (fallbackApp.significance >= strategy.qualityThreshold) {
+          apps.push(fallbackApp);
+        }
+      }
+    }
+    
+    // Ensure we have enough apps
+    while (apps.length < count) {
+      const category = categories[Math.floor(Math.random() * categories.length)];
+      const fallbackApp = await this.generateEnhancedTemplateApp(category, strategy);
+      apps.push(fallbackApp);
     }
     
     return apps;
   }
 
-  private async generateSingleApp(category: string, strategy: AppFeedStrategy): Promise<App> {
-    // This would use AI to generate app concepts (simplified version)
-    const appNames = {
-      'Photography': ['PhotoMaster Pro', 'LensArt Studio', 'PixelPerfect', 'ViewCraft'],
-      'Health & Fitness': ['FitTracker AI', 'HealthHub Pro', 'WellnessCoach', 'ActiveLife'],
-      'Developer Tools': ['CodeCraft Pro', 'DevHelper AI', 'GitMaster', 'APITester'],
-      'Music': ['SoundStudio Pro', 'BeatMaker AI', 'MusicCraft', 'AudioWave'],
-      'Games': ['GameCraft Pro', 'AdventureQuest', 'PuzzleMaster', 'ActionHero'],
-      'Productivity': ['TaskMaster Pro', 'WorkFlow AI', 'ProductivePro', 'FocusTime'],
-      'Education': ['LearnPro AI', 'StudyHelper', 'KnowledgeHub', 'SkillCraft'],
-      'Business': ['BizPro Suite', 'WorkSmart AI', 'BusinessHub', 'ProfessionalPro'],
-      'Utilities': ['ToolKit Pro', 'SystemHelper', 'UtilityMaster', 'HandyTools'],
-      'Entertainment': ['StreamPro', 'EntertainHub', 'MediaCraft', 'FunTime']
+  // Generate app prompts for Bento Buzz algorithm
+  private generateAppPrompt(category: string, strategy: AppFeedStrategy): string {
+    const trendingKeywords = strategy.trendingBoost > 0.7 ? ['trending', 'viral', 'popular'] : [];
+    const qualityKeywords = strategy.qualityThreshold > 8 ? ['premium', 'professional', 'advanced'] : ['innovative', 'smart'];
+    
+    const prompts = {
+      'Photography': `${qualityKeywords.join(' ')} photo editing app with AI filters and professional tools`,
+      'Health & Fitness': `${qualityKeywords.join(' ')} fitness tracking app with AI personal trainer features`,
+      'Developer Tools': `${qualityKeywords.join(' ')} code editor with AI assistance and development tools`,
+      'Music': `${qualityKeywords.join(' ')} music production app with AI composition capabilities`,
+      'Games': `${qualityKeywords.join(' ')} mobile game with innovative gameplay mechanics`,
+      'Productivity': `${qualityKeywords.join(' ')} productivity app with smart automation features`,
+      'Education': `${qualityKeywords.join(' ')} learning app with AI tutoring and personalization`,
+      'Business': `${qualityKeywords.join(' ')} business management app with analytics dashboard`,
+      'Utilities': `${qualityKeywords.join(' ')} utility app with system optimization tools`,
+      'Entertainment': `${qualityKeywords.join(' ')} entertainment app with streaming and social features`,
+      'Social': `${qualityKeywords.join(' ')} social networking app with unique community features`,
+      'Finance': `${qualityKeywords.join(' ')} finance app with investment tracking and AI insights`,
+      'Travel': `${qualityKeywords.join(' ')} travel planning app with AI recommendations`,
+      'News': `${qualityKeywords.join(' ')} news app with personalized content curation`,
+      'Shopping': `${qualityKeywords.join(' ')} shopping app with AR try-on features`,
+      'Weather': `${qualityKeywords.join(' ')} weather app with hyper-local forecasting`,
+      'Sports': `${qualityKeywords.join(' ')} sports tracking app with performance analytics`
+    };
+    
+    const basePrompt = prompts[category as keyof typeof prompts] || `${qualityKeywords.join(' ')} ${category.toLowerCase()} application`;
+    return `${trendingKeywords.join(' ')} ${basePrompt}`;
+  }
+
+  // Process AI-generated app data with Bento Buzz enhancements
+  private processAIGeneratedApp(appData: any, category: string, strategy: AppFeedStrategy): App {
+    const isFree = strategy.freeAppWeight > 0.5 ? Math.random() > 0.4 : Math.random() > 0.6;
+    const price = appData.price || (isFree ? 'Free' : `$${(Math.random() * 30 + 4.99).toFixed(2)}`);
+    const hasDiscount = !isFree && appData.discount && appData.discount > 0;
+    
+    return {
+      id: appData.id || `app-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      name: appData.name || `${category} Pro`,
+      description: appData.description || `Advanced ${category.toLowerCase()} application with cutting-edge features.`,
+      category: appData.category || category,
+      developer: appData.developer || `${appData.name?.split(' ')[0] || category} Studios`,
+      rating: appData.rating || Number((Math.random() * 1.5 + 3.5).toFixed(1)),
+      reviews: appData.reviews || Math.floor(Math.random() * 100000) + 1000,
+      price: typeof price === 'string' ? price : `$${price}`,
+      originalPrice: hasDiscount ? appData.originalPrice : undefined,
+      discount: appData.discount || 0,
+      downloadLink: appData.downloadLink || `https://apps.pollen.ai/${(appData.name || 'app').toLowerCase().replace(/\s+/g, '-')}`,
+      iconUrl: appData.iconUrl || '/placeholder-app-icon.png',
+      screenshots: appData.screenshots || ['/placeholder.svg', '/placeholder.svg'],
+      size: appData.size || `${Math.floor(Math.random() * 150 + 25)}.${Math.floor(Math.random() * 9)}MB`,
+      version: appData.version || `${Math.floor(Math.random() * 3 + 1)}.${Math.floor(Math.random() * 10)}.0`,
+      updated: this.generateRandomDate(),
+      tags: appData.tags || this.generateAppTags(category),
+      inStock: true,
+      trending: appData.trending || appData.significance > 8.5,
+      significance: appData.significance || 8.0,
+      downloads: this.generateDownloadCount(),
+      rank: 0,
+      featured: appData.significance > 9.0 || appData.editors_choice === true
+    };
+  }
+
+  // Enhanced template app generation with Bento Buzz factors
+  private async generateEnhancedTemplateApp(category: string, strategy: AppFeedStrategy): Promise<App> {
+    const enhancedNames = {
+      'Photography': ['Lens AI Pro', 'PhotoCraft Studio', 'Visual Master', 'PixelGenius'],
+      'Health & Fitness': ['FitAI Trainer', 'HealthSync Pro', 'WellBeing Coach', 'ActiveMind'],
+      'Developer Tools': ['CodeForge AI', 'DevMaster Pro', 'GitFlow Studio', 'API Wizard'],
+      'Music': ['BeatCraft AI', 'SoundForge Pro', 'MusicMind Studio', 'AudioGenius'],
+      'Games': ['GameCraft Pro', 'PlayMaster', 'QuestForge', 'ActionCraft'],
+      'Productivity': ['TaskAI Pro', 'WorkFlow Master', 'ProductiveGenius', 'FocusCraft'],
+      'Education': ['LearnAI Pro', 'StudyMaster', 'KnowledgeCraft', 'SkillForge'],
+      'Business': ['BizAI Suite', 'WorkMaster Pro', 'BusinessCraft', 'ProfessionalAI'],
+      'Utilities': ['ToolCraft Pro', 'SystemAI', 'UtilityMaster', 'HandyCraft'],
+      'Entertainment': ['StreamCraft Pro', 'EntertainAI', 'MediaMaster', 'FunForge'],
+      'Social': ['SocialCraft Pro', 'ConnectAI', 'CommunityMaster', 'NetworkForge'],
+      'Finance': ['FinanceAI Pro', 'MoneyMaster', 'WealthCraft', 'InvestForge'],
+      'Travel': ['TravelAI Pro', 'JourneyMaster', 'ExploreCraft', 'WanderForge'],
+      'News': ['NewsAI Pro', 'InfoMaster', 'NewsCraft', 'MediaForge'],
+      'Shopping': ['ShopAI Pro', 'BuyMaster', 'CommerceCraft', 'RetailForge'],
+      'Weather': ['WeatherAI Pro', 'ClimateMaster', 'ForecastCraft', 'SkyForge'],
+      'Sports': ['SportsAI Pro', 'AthleteMaster', 'FitnessCraft', 'SportForge']
     };
 
-    const names = appNames[category as keyof typeof appNames] || ['Generic App Pro'];
+    const names = enhancedNames[category as keyof typeof enhancedNames] || ['AppCraft Pro'];
     const name = names[Math.floor(Math.random() * names.length)];
     
-    // Generate significance score
-    const significanceScore = significanceAlgorithm.calculateSignificance({
-      scope: Math.random() * 10,
-      intensity: Math.random() * 10,
-      originality: Math.random() * 10,
-      immediacy: Math.random() * 10,
-      practicability: Math.random() * 10,
-      positivity: Math.random() * 10,
-      credibility: Math.random() * 10
-    });
+    // Calculate enhanced significance with Bento Buzz factors
+    const bentoBuzzFactors = this.calculateBentoBuzzFactors(name, category, strategy);
+    const significanceScore = significanceAlgorithm.calculateSignificance(bentoBuzzFactors);
 
-    const isFree = Math.random() > 0.6;
-    const price = isFree ? 'Free' : `$${Math.floor(Math.random() * 50) + 1}.99`;
+    const isFree = strategy.freeAppWeight > 0.5 ? Math.random() > 0.3 : Math.random() > 0.6;
+    const basePrice = Math.random() * 40 + 4.99;
+    const price = isFree ? 'Free' : `$${basePrice.toFixed(2)}`;
     const hasDiscount = !isFree && Math.random() > 0.7;
     
     return {
       id: `app-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       name,
-      description: `Advanced ${category.toLowerCase()} app with AI-powered features and professional capabilities.`,
+      description: this.generateEnhancedDescription(name, category, significanceScore),
       category,
       developer: `${name.split(' ')[0]} Studios`,
-      rating: Number((Math.random() * 1.5 + 3.5).toFixed(1)),
-      reviews: Math.floor(Math.random() * 50000) + 500,
+      rating: Number((Math.random() * 1.5 + 3.5 + significanceScore / 10).toFixed(1)),
+      reviews: Math.floor((significanceScore * 10000) + Math.random() * 50000) + 1000,
       price,
-      originalPrice: hasDiscount ? `$${Math.floor(Math.random() * 30) + parseInt(price.replace('$', '')) + 10}.99` : undefined,
-      discount: hasDiscount ? Math.floor(Math.random() * 40) + 10 : 0,
-      downloadLink: `https://example.com/app/${name.toLowerCase().replace(/\s+/g, '-')}`,
+      originalPrice: hasDiscount ? `$${(basePrice * 1.4).toFixed(2)}` : undefined,
+      discount: hasDiscount ? Math.floor(Math.random() * 40) + 15 : 0,
+      downloadLink: `https://apps.pollen.ai/${name.toLowerCase().replace(/\s+/g, '-')}`,
       iconUrl: '/placeholder-app-icon.png',
-      screenshots: [],
-      size: `${Math.floor(Math.random() * 200) + 10}.${Math.floor(Math.random() * 9)}MB`,
-      version: `${Math.floor(Math.random() * 5) + 1}.${Math.floor(Math.random() * 20)}.${Math.floor(Math.random() * 10)}`,
+      screenshots: ['/placeholder.svg', '/placeholder.svg', '/placeholder.svg'],
+      size: `${Math.floor(Math.random() * 150 + 30)}.${Math.floor(Math.random() * 9)}MB`,
+      version: `${Math.floor(Math.random() * 4 + 1)}.${Math.floor(Math.random() * 15)}.${Math.floor(Math.random() * 10)}`,
       updated: this.generateRandomDate(),
       tags: this.generateAppTags(category),
       inStock: true,
-      trending: significanceScore > 8.0 || Math.random() > 0.8,
-      significance: significanceScore,
+      trending: significanceScore > 8.5 || Math.random() > (1.0 - strategy.trendingBoost),
+      significance: Math.max(significanceScore, strategy.qualityThreshold),
       downloads: this.generateDownloadCount(),
       rank: 0,
       featured: significanceScore > 9.0 && Math.random() > 0.7
     };
+  }
+
+  // Calculate Bento Buzz factors for apps
+  private calculateBentoBuzzFactors(name: string, category: string, strategy: AppFeedStrategy) {
+    const keywords = name.toLowerCase();
+    
+    // Enhanced scope based on app category and potential reach
+    const scope = category === 'Social' || category === 'Productivity' ? 9 : 
+                 category === 'Games' || category === 'Entertainment' ? 8 : 7;
+
+    // Higher intensity for trending or premium apps
+    const intensity = strategy.trendingBoost > 0.7 ? 8.5 : 
+                     strategy.qualityThreshold > 8 ? 8 : 7;
+
+    // App originality based on AI features and innovation
+    const originalityKeywords = ['ai', 'pro', 'master', 'craft', 'forge', 'genius'];
+    const originality = Math.min(10, originalityKeywords.filter(k => keywords.includes(k)).length * 1.5 + 7);
+
+    // Apps have high immediacy (always available for download)
+    const immediacy = 9;
+
+    // High practicability for apps (direct value to users)
+    const practicability = category === 'Productivity' || category === 'Utilities' ? 9.5 :
+                          category === 'Education' || category === 'Health & Fitness' ? 9 : 8;
+
+    // Positive aspects (apps generally solve problems)
+    const positivity = strategy.freeAppWeight > 0.5 ? 8.5 : 8;
+
+    // High credibility for curated app store content
+    const credibility = 8.8;
+
+    return { scope, intensity, originality, immediacy, practicability, positivity, credibility };
+  }
+
+  // Generate enhanced app descriptions
+  private generateEnhancedDescription(name: string, category: string, significance: number): string {
+    const qualityLevel = significance > 9 ? 'Revolutionary' :
+                        significance > 8.5 ? 'Premium' :
+                        significance > 8 ? 'Advanced' : 'Professional';
+    
+    const descriptions = {
+      'Photography': `${qualityLevel} photo editing experience with AI-powered enhancement tools, professional filters, and intuitive controls that transform your photography workflow.`,
+      'Health & Fitness': `${qualityLevel} fitness companion featuring personalized workout plans, health tracking, and AI-driven insights to help you achieve your wellness goals.`,
+      'Developer Tools': `${qualityLevel} development environment with intelligent code assistance, seamless integrations, and powerful debugging tools for modern software development.`,
+      'Music': `${qualityLevel} music creation suite with AI composition assistance, professional mixing tools, and comprehensive audio processing capabilities.`,
+      'Games': `${qualityLevel} gaming experience featuring innovative mechanics, stunning visuals, and engaging gameplay that pushes the boundaries of mobile entertainment.`,
+      'Productivity': `${qualityLevel} productivity solution with smart automation, seamless synchronization, and powerful organizational tools to optimize your workflow.`,
+      'Education': `${qualityLevel} learning platform with personalized curricula, interactive content, and AI tutoring to accelerate your educational journey.`,
+      'Business': `${qualityLevel} business management suite with comprehensive analytics, workflow automation, and professional tools for modern enterprises.`,
+      'Utilities': `${qualityLevel} utility collection with system optimization, file management, and productivity enhancements for power users.`,
+      'Entertainment': `${qualityLevel} entertainment platform with curated content, social features, and personalized recommendations for endless enjoyment.`
+    };
+
+    return descriptions[category as keyof typeof descriptions] || 
+           `${qualityLevel} ${category.toLowerCase()} application with cutting-edge features and exceptional user experience.`;
   }
 
   // Ensure category diversity like social feed ensures content diversity

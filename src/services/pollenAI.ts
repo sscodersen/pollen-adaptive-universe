@@ -154,7 +154,7 @@ class PollenAI {
     const { content, significance } = this.generateBentoBuzzContent(prompt, mode);
     
     return {
-      content,
+      content: content, // Ensure content is just the string, not the object
       confidence: Math.min(0.9, 0.6 + significance / 15), // Higher confidence for higher significance
       learning: true,
       reasoning: `Enhanced Bento Buzz algorithm (significance: ${significance}/10, mode: ${mode})`
@@ -162,7 +162,7 @@ class PollenAI {
   }
 
   // Bento Buzz content generation based on 7-factor significance algorithm
-  private generateBentoBuzzContent(prompt: string, mode: string): { content: any, significance: number } {
+  private generateBentoBuzzContent(prompt: string, mode: string): { content: string, significance: number } {
     const factors = this.calculateBentoBuzzFactors(prompt, mode);
     const significance = this.calculateSignificanceScore(factors);
     
@@ -268,7 +268,7 @@ class PollenAI {
     return `${randomEnhancer} ${prompt}`;
   }
 
-  private generateSocialContent(prompt: string, factors: any, significance: number): any {
+  private generateSocialContent(prompt: string, factors: any, significance: number): string {
     const topics = [
       { icon: '🚀', theme: 'Innovation', hashtags: '#Innovation #TechBreakthrough #Future' },
       { icon: '🌟', theme: 'Achievement', hashtags: '#Success #Milestone #Growth' },
@@ -279,11 +279,8 @@ class PollenAI {
 
     const topic = topics[Math.floor(Math.random() * topics.length)];
     
-    return {
-      id: `social-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      type: 'social',
-      title: `${topic.icon} ${topic.theme}: ${prompt}`,
-      content: `${topic.icon} Exploring the fascinating world of ${prompt}! This ${topic.theme.toLowerCase()} represents a significant shift in how we approach modern challenges. The implications are far-reaching and offer exciting opportunities for innovation and growth.
+    // Return properly formatted string content for React rendering
+    return `${topic.icon} Exploring the fascinating world of ${prompt}! This ${topic.theme.toLowerCase()} represents a significant shift in how we approach modern challenges. The implications are far-reaching and offer exciting opportunities for innovation and growth.
 
 Key insights:
 • Breakthrough developments in ${prompt}
@@ -291,157 +288,103 @@ Key insights:
 • Future possibilities and trends
 • Community impact and engagement
 
-Join the conversation and share your thoughts! ${topic.hashtags}`,
-      timestamp: new Date().toISOString(),
-      author: 'Pollen AI',
-      engagement: Math.floor(significance * 100) + Math.floor(Math.random() * 500),
-      shares: Math.floor(significance * 20) + Math.floor(Math.random() * 100),
-      significance,
-      trending: significance > 8.5,
-      category: 'Innovation'
-    };
+Join the conversation and share your thoughts! ${topic.hashtags}`;
   }
 
-  private generateShopContent(prompt: string, factors: any, significance: number): any {
+  private generateShopContent(prompt: string, factors: any, significance: number): string {
     const categories = ['Tech', 'Lifestyle', 'Health', 'Education', 'Entertainment'];
     const category = categories[Math.floor(Math.random() * categories.length)];
     const price = (Math.random() * 200 + 29.99).toFixed(2);
     const discount = significance > 8 ? Math.floor(Math.random() * 30) + 10 : 0;
     
-    return {
-      id: `product-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      type: 'product',
-      name: `Premium ${prompt} Solution`,
-      description: `Revolutionary ${prompt} technology designed for modern users. This premium solution combines cutting-edge innovation with practical functionality, delivering exceptional value and performance.`,
-      price: `$${price}`,
-      originalPrice: discount > 0 ? `$${(parseFloat(price) * 1.3).toFixed(2)}` : undefined,
-      discount: discount > 0 ? discount : undefined,
-      category,
-      rating: Math.min(5, 3.5 + significance / 5),
-      reviews: Math.floor(significance * 50) + Math.floor(Math.random() * 200),
-      inStock: true,
-      trending: significance > 8.0,
-      significance,
-      features: [
-        `Advanced ${prompt} capabilities`,
-        'Premium quality materials',
-        'User-friendly design',
-        'Excellent customer support'
-      ],
-      views: Math.floor(significance * 1000) + Math.floor(Math.random() * 5000)
-    };
+    return `Revolutionary ${prompt} technology designed for modern users. This premium solution combines cutting-edge innovation with practical functionality, delivering exceptional value and performance.
+
+Features:
+• Advanced ${prompt} capabilities
+• Premium quality materials
+• User-friendly design
+• Excellent customer support
+
+Price: $${price}${discount > 0 ? ` (${discount}% off!)` : ''}
+Category: ${category}
+Rating: ${Math.min(5, 3.5 + significance / 5).toFixed(1)} stars`;
   }
 
-  private generateAppStoreContent(prompt: string, factors: any, significance: number): any {
+  private generateAppStoreContent(prompt: string, factors: any, significance: number): string {
     const appCategories = ['Productivity', 'Entertainment', 'Education', 'Health', 'Finance', 'Social'];
     const category = appCategories[Math.floor(Math.random() * appCategories.length)];
     const isPremium = significance > 8.5;
     
-    return {
-      id: `app-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      type: 'app',
-      name: `${prompt} Pro`,
-      description: `The ultimate ${prompt} application that revolutionizes how you interact with ${category.toLowerCase()} technology. Featuring cutting-edge AI integration and intuitive design.`,
-      category,
-      price: isPremium ? `$${(Math.random() * 10 + 4.99).toFixed(2)}` : 'Free',
-      rating: Math.min(5, 4.0 + significance / 10),
-      downloads: `${Math.floor(significance * 10)}K+`,
-      size: `${Math.floor(Math.random() * 50) + 15}MB`,
-      version: '2.1.0',
-      developer: 'Pollen Studios',
-      screenshots: 4,
-      features: [
-        `Advanced ${prompt} processing`,
-        'Intuitive user interface',
-        'Real-time synchronization',
-        'Premium support included'
-      ],
-      significance,
-      trending: significance > 8.0,
-      editors_choice: significance > 9.0,
-      new: true
-    };
+    return `The ultimate ${prompt} application that revolutionizes how you interact with ${category.toLowerCase()} technology. Featuring cutting-edge AI integration and intuitive design.
+
+Features:
+• Advanced ${prompt} processing
+• Intuitive user interface
+• Real-time synchronization
+• Premium support included
+
+Category: ${category}
+Price: ${isPremium ? `$${(Math.random() * 10 + 4.99).toFixed(2)}` : 'Free'}
+Downloads: ${Math.floor(significance * 10)}K+
+Developer: Pollen Studios${significance > 9.0 ? ' ⭐ Editor\'s Choice' : ''}${significance > 8.0 ? ' 🔥 Trending' : ''}`;
   }
 
-  private generateEntertainmentContent(prompt: string, factors: any, significance: number): any {
+  private generateEntertainmentContent(prompt: string, factors: any, significance: number): string {
     const formats = ['Movie', 'Series', 'Documentary', 'Podcast', 'Game'];
     const format = formats[Math.floor(Math.random() * formats.length)];
     
-    return {
-      id: `entertainment-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      type: 'entertainment',
-      title: `${prompt}: The ${format}`,
-      description: `An engaging ${format.toLowerCase()} that explores the fascinating world of ${prompt}. This production combines entertainment with education, offering viewers deep insights into cutting-edge developments.`,
-      format,
-      genre: format === 'Game' ? 'Strategy' : 'Sci-Fi Drama',
-      duration: format === 'Movie' ? '2h 15m' : format === 'Series' ? '8 episodes' : '45min',
-      rating: Math.min(10, 6.5 + significance / 3),
-      releaseDate: new Date().toISOString().split('T')[0],
-      director: 'AI Studios',
-      cast: ['Leading AI Personalities'],
-      significance,
-      trending: significance > 8.0,
-      critical_acclaim: significance > 8.5,
-      audience_score: Math.floor((6.5 + significance / 3) * 10)
-    };
+    return `${prompt}: The ${format}
+
+An engaging ${format.toLowerCase()} that explores the fascinating world of ${prompt}. This production combines entertainment with education, offering viewers deep insights into cutting-edge developments.
+
+Details:
+• Genre: ${format === 'Game' ? 'Strategy' : 'Sci-Fi Drama'}
+• Duration: ${format === 'Movie' ? '2h 15m' : format === 'Series' ? '8 episodes' : '45min'}
+• Rating: ${Math.min(10, 6.5 + significance / 3).toFixed(1)}/10
+• Director: AI Studios
+• Release: ${new Date().toISOString().split('T')[0]}${significance > 8.5 ? ' 🏆 Critically Acclaimed' : ''}${significance > 8.0 ? ' 🔥 Trending Now' : ''}`;
   }
 
-  private generateNewsContent(prompt: string, factors: any, significance: number): any {
-    return {
-      id: `news-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      type: 'news',
-      headline: `Breaking: Major ${prompt} Development Reshapes Industry`,
-      summary: `Significant breakthrough in ${prompt} technology announced today, with far-reaching implications for multiple industries and consumers worldwide.`,
-      content: `In a groundbreaking development, researchers and industry leaders have announced major advances in ${prompt} technology. This breakthrough is expected to transform how we approach modern challenges and create new opportunities across multiple sectors.
+  private generateNewsContent(prompt: string, factors: any, significance: number): string {
+    return `Breaking: Major ${prompt} Development Reshapes Industry
 
-**Key Developments:**
+Significant breakthrough in ${prompt} technology announced today, with far-reaching implications for multiple industries and consumers worldwide.
+
+In a groundbreaking development, researchers and industry leaders have announced major advances in ${prompt} technology. This breakthrough is expected to transform how we approach modern challenges and create new opportunities across multiple sectors.
+
+Key Developments:
 • Revolutionary approach to ${prompt} implementation
 • Significant improvements in efficiency and accessibility  
 • Broad industry adoption expected within 18 months
 • Positive impact on consumer experience and costs
 
-**Industry Impact:**
+Industry Impact:
 The announcement has generated considerable interest from major corporations and investment firms. Early adopters are already exploring integration opportunities, while regulatory bodies are reviewing frameworks to support widespread adoption.
 
-**Expert Analysis:**
-"This represents a paradigm shift in how we understand ${prompt}," commented leading industry analysts. "The implications extend far beyond immediate applications."`,
-      author: 'Pollen News Network',
-      timestamp: new Date().toISOString(),
-      category: 'Technology',
-      significance,
-      breaking: significance > 9.0,
-      trending: significance > 8.0,
-      readTime: '3 min',
-      shares: Math.floor(significance * 200),
-      source: 'Verified Industry Sources'
-    };
+Expert Analysis:
+"This represents a paradigm shift in how we understand ${prompt}," commented leading industry analysts. "The implications extend far beyond immediate applications."
+
+Source: Pollen News Network | ${significance > 9.0 ? '🚨 BREAKING' : ''} ${significance > 8.0 ? '🔥 Trending' : ''}`;
   }
 
-  private generateGeneralContent(prompt: string, factors: any, significance: number): any {
-    return {
-      id: `general-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      type: 'general',
-      title: `Understanding ${prompt}: A Comprehensive Overview`,
-      content: `${prompt} represents an important development in our rapidly evolving technological landscape. Through careful analysis and research, we can identify several key trends and implications that make this topic particularly significant.
+  private generateGeneralContent(prompt: string, factors: any, significance: number): string {
+    return `Understanding ${prompt}: A Comprehensive Overview
 
-**Significance Analysis (Score: ${significance}/10):**
+${prompt} represents an important development in our rapidly evolving technological landscape. Through careful analysis and research, we can identify several key trends and implications that make this topic particularly significant.
+
+Significance Analysis (Score: ${significance}/10):
 • Scope: Affects ${factors.scope > 8 ? 'millions of users globally' : 'thousands of users regionally'}
 • Impact: ${factors.intensity > 8 ? 'Revolutionary changes expected' : 'Moderate improvements anticipated'}
 • Innovation: ${factors.originality > 8 ? 'Unprecedented approach' : 'Building on established methods'}
 • Timeliness: ${factors.immediacy > 8 ? 'Immediate relevance' : 'Growing importance over time'}
 
-**Practical Applications:**
+Practical Applications:
 The developments in ${prompt} offer concrete opportunities for individuals and organizations to benefit from emerging trends. Key areas include improved efficiency, enhanced user experience, and sustainable growth approaches.
 
-**Future Outlook:**
-Based on current trends and technological capabilities, ${prompt} is positioned to play an increasingly important role in shaping how we approach complex challenges and opportunities.`,
-      timestamp: new Date().toISOString(),
-      author: 'Pollen Analysis',
-      significance,
-      category: 'Analysis',
-      readTime: '4 min',
-      quality: Math.min(10, 7 + significance / 5)
-    };
+Future Outlook:
+Based on current trends and technological capabilities, ${prompt} is positioned to play an increasingly important role in shaping how we approach complex challenges and opportunities.
+
+Author: Pollen Analysis | Quality Score: ${Math.min(10, 7 + significance / 5).toFixed(1)}/10`;
   }
 }
 
