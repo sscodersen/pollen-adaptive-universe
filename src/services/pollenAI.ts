@@ -5,7 +5,7 @@ import { PollenResponse, PollenConfig } from './pollenTypes';
 // Environment-based API configuration
 const API_BASE_URL = process.env.NODE_ENV === 'production' 
   ? '/api'  // Use relative path for Vercel production deployment
-  : 'http://localhost:3001/api';  // Local development backend
+  : '/api';  // Use relative path for Replit development
 
 class PollenAI {
   private config: PollenConfig & { endpoint: string };

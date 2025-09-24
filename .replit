@@ -19,47 +19,15 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Python AI Backend"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Backend API"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Frontend"
+args = "Pollen AI Platform"
 
 [[workflows.workflow]]
-name = "Python AI Backend"
+name = "Pollen AI Platform"
 author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "python3 -m uvicorn pollen_ai_backend:app --host 0.0.0.0 --port 8000"
-waitForPort = 8000
-
-[workflows.workflow.metadata]
-outputType = "console"
-
-[[workflows.workflow]]
-name = "Backend API"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "node local-backend.cjs"
-waitForPort = 3001
-
-[workflows.workflow.metadata]
-outputType = "console"
-
-[[workflows.workflow]]
-name = "Frontend"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "npm run dev"
+args = "node start.cjs"
 waitForPort = 5000
 
 [workflows.workflow.metadata]
@@ -70,12 +38,20 @@ localPort = 3001
 externalPort = 3001
 
 [[ports]]
-localPort = 39343
+localPort = 5000
 externalPort = 80
+
+[[ports]]
+localPort = 5173
+externalPort = 5173
 
 [[ports]]
 localPort = 39639
 externalPort = 3002
+
+[[ports]]
+localPort = 42533
+externalPort = 3000
 
 [[ports]]
 localPort = 46367
@@ -84,10 +60,6 @@ externalPort = 5000
 [[ports]]
 localPort = 46527
 externalPort = 3003
-
-[[ports]]
-localPort = 5000
-externalPort = 80
 
 [agent]
 integrations = ["javascript_websocket:1.0.0", "javascript_openai:1.0.0", "javascript_database:1.0.0"]
