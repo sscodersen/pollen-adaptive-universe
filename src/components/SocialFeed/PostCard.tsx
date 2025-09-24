@@ -82,7 +82,26 @@ export const PostCard = memo(({ post, onPostClick }: PostCardProps) => {
           </h3>
         )}
         <p className="text-gray-300 leading-relaxed">
-          {post.description || post.content}
+          {(() => {
+            const content = post.description || post.content;
+            if (typeof content === 'string') {
+              return content;
+            } else if (typeof content === 'object' && content !== null && typeof content === 'object') {
+              // Handle object content safely
+              const obj = content as any;
+              if (obj.content && typeof obj.content === 'string') {
+                return obj.content;
+              } else if (obj.title && typeof obj.title === 'string') {
+                return obj.title;
+              } else if (obj.summary && typeof obj.summary === 'string') {
+                return obj.summary;
+              } else {
+                return 'Generated content available';
+              }
+            } else {
+              return 'Generated content available';
+            }
+          })()}
         </p>
       </div>
 

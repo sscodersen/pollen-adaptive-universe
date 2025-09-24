@@ -18,9 +18,9 @@ class PollenConnectionManager {
   constructor() {
     this.config = {
       apiUrl: this.getApiUrl(),
-      retryAttempts: 3,
-      retryDelay: 5000,
-      healthCheckInterval: 30000,
+      retryAttempts: 2,
+      retryDelay: 2000,
+      healthCheckInterval: 120000, // Reduced from 30s to 2 minutes to prevent performance issues
     };
   }
 

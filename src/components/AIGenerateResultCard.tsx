@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 
 interface AIGenerateResultCardProps {
-  content: string;
+  content: string | { title?: string; content?: string; summary?: string; significance?: number } | any;
   confidence: number;
   reasoning?: string | null;
 }
@@ -27,7 +27,12 @@ export const AIGenerateResultCard: React.FC<AIGenerateResultCardProps> = ({
       : "bg-red-400";
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(content).then(() => {
+    const textContent = typeof content === 'string' ? content : 
+      typeof content === 'object' && content?.content ? content.content :
+      typeof content === 'object' && content?.title ? content.title :
+      'Generated content';
+    
+    navigator.clipboard.writeText(textContent).then(() => {
       toast({
         title: "Copied to clipboard!",
         description: "The AI result was copied successfully.",
@@ -53,7 +58,27 @@ export const AIGenerateResultCard: React.FC<AIGenerateResultCardProps> = ({
           <Copy className="w-4 h-4" />
         </Button>
       </div>
-      <div className="text-lg text-cyan-100 font-semibold whitespace-pre-line mb-4">{content}</div>
+      <div className="text-lg text-cyan-100 font-semibold whitespace-pre-line mb-4">
+        {(() => {
+          if (typeof content === 'string') {
+            return content;
+          } else if (typeof content === 'object' && content !== null) {
+            // Handle object content safely
+            const obj = content as any;
+            if (obj.content && typeof obj.content === 'string') {
+              return obj.content;
+            } else if (obj.title && typeof obj.title === 'string') {
+              return obj.title;
+            } else if (obj.summary && typeof obj.summary === 'string') {
+              return obj.summary;
+            } else {
+              return 'Generated content available';
+            }
+          } else {
+            return 'Generated content available';
+          }
+        })()}
+      </div>
       <div className="mb-4 flex flex-col gap-2">
         <div className="flex items-center gap-2">
           <span className="text-xs font-medium text-cyan-100 opacity-80">Confidence</span>
