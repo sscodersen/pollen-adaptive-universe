@@ -22,7 +22,7 @@ const server = http.createServer((req, res) => {
   // Route API calls to backend, everything else to frontend
   const target = req.url.startsWith('/api/') ? 
     'http://localhost:3001' : 
-    'http://localhost:5000';
+    'http://localhost:5001';
 
   proxy.web(req, res, {
     target: target,
@@ -82,7 +82,7 @@ server.on('upgrade', (req, socket, head) => {
   // Route API calls to backend, everything else to frontend
   const target = req.url.startsWith('/api/') ? 
     'http://localhost:3001' : 
-    'http://localhost:5000';
+    'http://localhost:5001';
   
   proxy.ws(req, socket, head, { target });
 });
