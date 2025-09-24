@@ -2,7 +2,7 @@ modules = ["nodejs-20", "python-3.11", "web"]
 
 [nix]
 channel = "stable-25_05"
-packages = ["glibcLocales", "libxcrypt"]
+packages = ["glibcLocales", "libxcrypt", "unzip"]
 
 [deployment]
 deploymentTarget = "autoscale"
@@ -19,15 +19,15 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Pollen AI Platform"
+args = "Frontend"
 
 [[workflows.workflow]]
-name = "Pollen AI Platform"
+name = "Frontend"
 author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "node start.cjs"
+args = "npm run dev"
 waitForPort = 5000
 
 [workflows.workflow.metadata]
@@ -42,12 +42,12 @@ localPort = 5000
 externalPort = 80
 
 [[ports]]
-localPort = 5173
-externalPort = 5173
-
-[[ports]]
 localPort = 39639
 externalPort = 3002
+
+[[ports]]
+localPort = 40639
+externalPort = 4200
 
 [[ports]]
 localPort = 42533
