@@ -95,6 +95,11 @@ class PollenTrendEngine {
   private parsePollenResponse(content: string, category: PollenTrendCategory, timestamp: number): TrendData[] {
     const trends: TrendData[] = [];
     
+    // Ensure content is a string
+    if (typeof content !== 'string' || !content) {
+      return trends;
+    }
+    
     // Split response into individual trend items
     const lines = content.split('\n').filter(line => line.trim().length > 0);
     let currentTrend = '';
