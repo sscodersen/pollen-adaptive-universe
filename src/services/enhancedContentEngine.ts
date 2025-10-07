@@ -183,7 +183,7 @@ News Guidelines:
   }
 
   private async analyzeContentQuality(content: string, type: string): Promise<ContentQualityMetrics> {
-    const text = content.toLowerCase();
+    const text = typeof content === 'string' ? content.toLowerCase() : String(content).toLowerCase();
 
     // Bias analysis
     let biasScore = 0;
@@ -212,7 +212,8 @@ News Guidelines:
     const originality = hasCommonPhrases ? 3 : Math.random() * 2 + 8;
 
     // Relevance analysis
-    const wordCount = content.split(/\s+/).length;
+    const contentStr = typeof content === 'string' ? content : String(content);
+    const wordCount = contentStr.split(/\s+/).length;
     const relevance = wordCount > 10 && wordCount < 1000 ? Math.random() * 2 + 8 : 6;
 
     // Copyright analysis (simplified)
