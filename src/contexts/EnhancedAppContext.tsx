@@ -4,6 +4,7 @@ import { anonymousAuth, type AnonymousUser } from '@/services/anonymousAuth';
 import { personalizationEngine } from '@/services/personalizationEngine';
 import { realDataIntegration } from '@/services/realDataIntegration';
 import { clientAI } from '@/services/clientAI';
+import { collectionsService } from '@/services/collectionsService';
 
 interface AppState {
   user: AnonymousUser | null;
@@ -126,6 +127,9 @@ export function EnhancedAppProvider({ children }: { children: ReactNode }) {
       
       // Initialize personalization engine
       await personalizationEngine.initialize();
+      
+      // Initialize collections service
+      await collectionsService.initialize();
       
       // Initialize real data integration
       await realDataIntegration.initialize();

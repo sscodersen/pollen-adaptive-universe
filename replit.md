@@ -34,6 +34,7 @@ Preferred communication style: Simple, everyday language.
 - **Memory Engine**: User interaction patterns and personalization data
 - **Content Caching**: Optimized content delivery and offline capabilities
 - **Analytics**: User behavior tracking and platform metrics
+- **Collections System**: User-organized content curation with categories (Travel, Food, Goals, Events, Shopping)
 
 ## Security & Performance
 - **Anonymous Operation**: No user accounts or external authentication required
