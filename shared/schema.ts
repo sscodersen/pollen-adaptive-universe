@@ -158,6 +158,168 @@ export const userMatchingScores = pgTable("user_matching_scores", {
   calculatedAt: timestamp("calculated_at").defaultNow()
 });
 
+// Health & Wellness Research Platform Tables
+
+// Health data submissions (anonymized)
+export const healthData = pgTable("health_data", {
+  id: serial("id").primaryKey(),
+  dataId: text("data_id").notNull().unique(),
+  anonymousUserId: text("anonymous_user_id").notNull(), // Hashed user identifier
+  dataType: text("data_type").notNull(), // 'fitness', 'nutrition', 'mental_health', 'sleep', 'medical'
+  category: text("category").notNull(), // Specific subcategory
+  metrics: jsonb("metrics").notNull(), // Health metrics data
+  demographics: jsonb("demographics"), // Age range, region (anonymized)
+  tags: jsonb("tags"), // Searchable tags
+  isPublic: boolean("is_public").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow()
+});
+
+// Wellness journeys tracking
+export const wellnessJourneys = pgTable("wellness_journeys", {
+  id: serial("id").primaryKey(),
+  journeyId: text("journey_id").notNull().unique(),
+  anonymousUserId: text("anonymous_user_id").notNull(),
+  journeyType: text("journey_type").notNull(), // 'weight_loss', 'fitness', 'mental_wellness', 'recovery'
+  startDate: timestamp("start_date").notNull(),
+  endDate: timestamp("end_date"),
+  milestones: jsonb("milestones"), // Journey milestones and progress
+  outcomes: jsonb("outcomes"), // Results achieved
+  challenges: jsonb("challenges"), // Challenges faced
+  insights: text("insights"), // Personal insights
+  isActive: boolean("is_active").default(true),
+  isPublic: boolean("is_public").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow()
+});
+
+// AI-generated health insights
+export const healthInsights = pgTable("health_insights", {
+  id: serial("id").primaryKey(),
+  insightId: text("insight_id").notNull().unique(),
+  insightType: text("insight_type").notNull(), // 'trend', 'correlation', 'recommendation', 'breakthrough'
+  category: text("category").notNull(), // Health category
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  dataPoints: integer("data_points"), // Number of data points analyzed
+  confidence: real("confidence"), // AI confidence score
+  significance: real("significance"), // Statistical significance
+  visualizationData: jsonb("visualization_data"), // Data for charts/graphs
+  metadata: jsonb("metadata"),
+  createdAt: timestamp("created_at").defaultNow()
+});
+
+// Research findings and breakthroughs
+export const researchFindings = pgTable("research_findings", {
+  id: serial("id").primaryKey(),
+  findingId: text("finding_id").notNull().unique(),
+  title: text("title").notNull(),
+  summary: text("summary").notNull(),
+  fullReport: text("full_report"),
+  findingType: text("finding_type").notNull(), // 'correlation', 'breakthrough', 'pattern', 'anomaly'
+  impactScore: real("impact_score"), // Potential impact rating
+  datasetSize: integer("dataset_size"),
+  categories: jsonb("categories"), // Related health categories
+  keyMetrics: jsonb("key_metrics"), // Important metrics
+  visualizations: jsonb("visualizations"), // Visualization configs
+  citations: jsonb("citations"), // Related data sources
+  status: text("status").default('draft'), // 'draft', 'published', 'peer_review'
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow()
+});
+
+// AI Ethics and Responsible Innovation Forum Tables
+
+// Forum topics and discussions
+export const forumTopics = pgTable("forum_topics", {
+  id: serial("id").primaryKey(),
+  topicId: text("topic_id").notNull().unique(),
+  creatorId: text("creator_id").notNull(),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  category: text("category").notNull(), // 'ai_bias', 'privacy', 'transparency', 'fairness', 'accountability', 'safety'
+  tags: jsonb("tags"),
+  status: text("status").default('active'), // 'active', 'closed', 'archived'
+  isPinned: boolean("is_pinned").default(false),
+  viewCount: integer("view_count").default(0),
+  postCount: integer("post_count").default(0),
+  upvotes: integer("upvotes").default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow()
+});
+
+// Forum posts and replies
+export const forumPosts = pgTable("forum_posts", {
+  id: serial("id").primaryKey(),
+  postId: text("post_id").notNull().unique(),
+  topicId: text("topic_id").notNull(),
+  userId: text("user_id").notNull(),
+  parentPostId: text("parent_post_id"), // For threaded replies
+  content: text("content").notNull(),
+  postType: text("post_type").default('reply'), // 'reply', 'expert_opinion', 'proposal'
+  upvotes: integer("upvotes").default(0),
+  downvotes: integer("downvotes").default(0),
+  isExpertPost: boolean("is_expert_post").default(false),
+  metadata: jsonb("metadata"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow()
+});
+
+// Forum voting records
+export const forumVotes = pgTable("forum_votes", {
+  id: serial("id").primaryKey(),
+  voteId: text("vote_id").notNull().unique(),
+  userId: text("user_id").notNull(),
+  targetType: text("target_type").notNull(), // 'topic', 'post'
+  targetId: text("target_id").notNull(),
+  voteType: text("vote_type").notNull(), // 'upvote', 'downvote'
+  createdAt: timestamp("created_at").defaultNow()
+});
+
+// Ethical guidelines and policies
+export const ethicalGuidelines = pgTable("ethical_guidelines", {
+  id: serial("id").primaryKey(),
+  guidelineId: text("guideline_id").notNull().unique(),
+  title: text("title").notNull(),
+  content: text("content").notNull(),
+  category: text("category").notNull(),
+  version: text("version").notNull(),
+  contributorCount: integer("contributor_count").default(0),
+  approvalStatus: text("approval_status").default('draft'), // 'draft', 'review', 'approved'
+  metadata: jsonb("metadata"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow()
+});
+
+// Expert contributions and invitations
+export const expertContributions = pgTable("expert_contributions", {
+  id: serial("id").primaryKey(),
+  contributionId: text("contribution_id").notNull().unique(),
+  expertId: text("expert_id").notNull(),
+  contributionType: text("contribution_type").notNull(), // 'opinion', 'guideline', 'research', 'review'
+  relatedTopicId: text("related_topic_id"),
+  relatedGuidelineId: text("related_guideline_id"),
+  content: text("content").notNull(),
+  expertise: jsonb("expertise"), // Areas of expertise
+  citations: jsonb("citations"),
+  impactScore: real("impact_score"),
+  createdAt: timestamp("created_at").defaultNow()
+});
+
+// Forum moderation for ethics discussions
+export const forumModerationActions = pgTable("forum_moderation_actions", {
+  id: serial("id").primaryKey(),
+  actionId: text("action_id").notNull().unique(),
+  moderatorId: text("moderator_id").notNull(),
+  targetType: text("target_type").notNull(), // 'topic', 'post', 'user'
+  targetId: text("target_id").notNull(),
+  actionType: text("action_type").notNull(), // 'approve', 'flag', 'remove', 'warn', 'ban'
+  reason: text("reason").notNull(),
+  automated: boolean("automated").default(false), // AI-assisted moderation
+  metadata: jsonb("metadata"),
+  createdAt: timestamp("created_at").defaultNow()
+});
+
 // Relations
 export const contentRelations = relations(content, ({ many }) => ({
   feedItems: many(feedItems),
@@ -208,6 +370,27 @@ export const communityMembersRelations = relations(communityMembers, ({ one }) =
   })
 }));
 
+export const forumTopicsRelations = relations(forumTopics, ({ one, many }) => ({
+  creator: one(users, {
+    fields: [forumTopics.creatorId],
+    references: [users.userId]
+  }),
+  posts: many(forumPosts),
+  votes: many(forumVotes)
+}));
+
+export const forumPostsRelations = relations(forumPosts, ({ one, many }) => ({
+  topic: one(forumTopics, {
+    fields: [forumPosts.topicId],
+    references: [forumTopics.topicId]
+  }),
+  author: one(users, {
+    fields: [forumPosts.userId],
+    references: [users.userId]
+  }),
+  votes: many(forumVotes)
+}));
+
 // Types
 export type Content = typeof content.$inferSelect;
 export type InsertContent = typeof content.$inferInsert;
@@ -231,3 +414,23 @@ export type CommunityPost = typeof communityPosts.$inferSelect;
 export type InsertCommunityPost = typeof communityPosts.$inferInsert;
 export type ModerationAction = typeof moderationActions.$inferSelect;
 export type InsertModerationAction = typeof moderationActions.$inferInsert;
+export type HealthData = typeof healthData.$inferSelect;
+export type InsertHealthData = typeof healthData.$inferInsert;
+export type WellnessJourney = typeof wellnessJourneys.$inferSelect;
+export type InsertWellnessJourney = typeof wellnessJourneys.$inferInsert;
+export type HealthInsight = typeof healthInsights.$inferSelect;
+export type InsertHealthInsight = typeof healthInsights.$inferInsert;
+export type ResearchFinding = typeof researchFindings.$inferSelect;
+export type InsertResearchFinding = typeof researchFindings.$inferInsert;
+export type ForumTopic = typeof forumTopics.$inferSelect;
+export type InsertForumTopic = typeof forumTopics.$inferInsert;
+export type ForumPost = typeof forumPosts.$inferSelect;
+export type InsertForumPost = typeof forumPosts.$inferInsert;
+export type ForumVote = typeof forumVotes.$inferSelect;
+export type InsertForumVote = typeof forumVotes.$inferInsert;
+export type EthicalGuideline = typeof ethicalGuidelines.$inferSelect;
+export type InsertEthicalGuideline = typeof ethicalGuidelines.$inferInsert;
+export type ExpertContribution = typeof expertContributions.$inferSelect;
+export type InsertExpertContribution = typeof expertContributions.$inferInsert;
+export type ForumModerationAction = typeof forumModerationActions.$inferSelect;
+export type InsertForumModerationAction = typeof forumModerationActions.$inferInsert;

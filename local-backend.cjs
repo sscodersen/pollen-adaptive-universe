@@ -425,6 +425,379 @@ app.get('/api/community/users/:userId/suggestions', (req, res) => {
   }))});
 });
 
+let healthResearchStorage, forumStorage;
+
+(async () => {
+  try {
+    const { db } = require('./server/db.cjs');
+    const { HealthResearchStorage, ForumStorage } = require('./server/storage.cjs');
+    
+    healthResearchStorage = new HealthResearchStorage(db);
+    forumStorage = new ForumStorage(db);
+    console.log('✅ Database storage modules loaded successfully');
+  } catch (error) {
+    console.warn('⚠️ Database storage not available, using fallback mode:', error.message);
+  }
+})();
+
+app.post('/api/health-research/data', async (req, res) => {
+  if (!healthResearchStorage) {
+    return res.status(503).json({ error: 'Database not available' });
+  }
+  try {
+    const { userId, dataType, category, metrics, demographics, tags, isPublic } = req.body;
+    if (!userId || !dataType || !category || !metrics) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+    const result = await healthResearchStorage.submitHealthData({
+      userId, dataType, category, metrics, demographics, tags, isPublic: isPublic ?? true
+    });
+    res.json({ success: true, data: result });
+  } catch (error) {
+    console.error('Error submitting health data:', error);
+    res.status(500).json({ error: 'Failed to submit health data' });
+  }
+});
+
+app.get('/api/health-research/data', async (req, res) => {
+  if (!healthResearchStorage) {
+    return res.status(503).json({ error: 'Database not available' });
+  }
+  try {
+    const { dataType, category, isPublic } = req.query;
+    const filters = {};
+    if (dataType) filters.dataType = dataType;
+    if (category) filters.category = category;
+    if (isPublic !== undefined) filters.isPublic = isPublic === 'true';
+    const data = await healthResearchStorage.getHealthData(filters);
+    res.json({ success: true, data });
+  } catch (error) {
+    console.error('Error fetching health data:', error);
+    res.status(500).json({ error: 'Failed to fetch health data' });
+  }
+});
+
+app.post('/api/health-research/journeys', async (req, res) => {
+  if (!healthResearchStorage) {
+    return res.status(503).json({ error: 'Database not available' });
+  }
+  try {
+    const { userId, journeyType, startDate, endDate, milestones, outcomes, challenges, insights, isActive, isPublic } = req.body;
+    if (!userId || !journeyType || !startDate) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+    const result = await healthResearchStorage.submitWellnessJourney({
+      userId, journeyType, startDate: new Date(startDate),
+      endDate: endDate ? new Date(endDate) : undefined,
+      milestones, outcomes, challenges, insights,
+      isActive: isActive ?? true, isPublic: isPublic ?? true
+    });
+    res.json({ success: true, journey: result });
+  } catch (error) {
+    console.error('Error submitting wellness journey:', error);
+    res.status(500).json({ error: 'Failed to submit wellness journey' });
+  }
+});
+
+app.get('/api/health-research/journeys', async (req, res) => {
+  if (!healthResearchStorage) {
+    return res.status(503).json({ error: 'Database not available' });
+  }
+  try {
+    const { journeyType, isActive, isPublic } = req.query;
+    const filters = {};
+    if (journeyType) filters.journeyType = journeyType;
+    if (isActive !== undefined) filters.isActive = isActive === 'true';
+    if (isPublic !== undefined) filters.isPublic = isPublic === 'true';
+    const journeys = await healthResearchStorage.getWellnessJourneys(filters);
+    res.json({ success: true, journeys });
+  } catch (error) {
+    console.error('Error fetching wellness journeys:', error);
+    res.status(500).json({ error: 'Failed to fetch wellness journeys' });
+  }
+});
+
+app.post('/api/health-research/insights', async (req, res) => {
+  if (!healthResearchStorage) {
+    return res.status(503).json({ error: 'Database not available' });
+  }
+  try {
+    const { insightType, category, title, description, dataPoints, confidence, significance, visualizationData, metadata } = req.body;
+    if (!insightType || !category || !title || !description) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+    const result = await healthResearchStorage.createHealthInsight({
+      insightType, category, title, description, dataPoints, confidence, significance, visualizationData, metadata
+    });
+    res.json({ success: true, insight: result });
+  } catch (error) {
+    console.error('Error creating health insight:', error);
+    res.status(500).json({ error: 'Failed to create health insight' });
+  }
+});
+
+app.get('/api/health-research/insights', async (req, res) => {
+  if (!healthResearchStorage) {
+    return res.status(503).json({ error: 'Database not available' });
+  }
+  try {
+    const { insightType, category } = req.query;
+    const filters = {};
+    if (insightType) filters.insightType = insightType;
+    if (category) filters.category = category;
+    const insights = await healthResearchStorage.getHealthInsights(filters);
+    res.json({ success: true, insights });
+  } catch (error) {
+    console.error('Error fetching health insights:', error);
+    res.status(500).json({ error: 'Failed to fetch health insights' });
+  }
+});
+
+app.post('/api/health-research/findings', async (req, res) => {
+  if (!healthResearchStorage) {
+    return res.status(503).json({ error: 'Database not available' });
+  }
+  try {
+    const { title, summary, fullReport, findingType, impactScore, datasetSize, categories, keyMetrics, visualizations, citations, status } = req.body;
+    if (!title || !summary || !findingType) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+    const result = await healthResearchStorage.createResearchFinding({
+      title, summary, fullReport, findingType, impactScore, datasetSize, categories, keyMetrics, visualizations, citations, status: status || 'draft'
+    });
+    res.json({ success: true, finding: result });
+  } catch (error) {
+    console.error('Error creating research finding:', error);
+    res.status(500).json({ error: 'Failed to create research finding' });
+  }
+});
+
+app.get('/api/health-research/findings', async (req, res) => {
+  if (!healthResearchStorage) {
+    return res.status(503).json({ error: 'Database not available' });
+  }
+  try {
+    const { findingType, status } = req.query;
+    const filters = {};
+    if (findingType) filters.findingType = findingType;
+    if (status) filters.status = status;
+    const findings = await healthResearchStorage.getResearchFindings(filters);
+    res.json({ success: true, findings });
+  } catch (error) {
+    console.error('Error fetching research findings:', error);
+    res.status(500).json({ error: 'Failed to fetch research findings' });
+  }
+});
+
+app.post('/api/forum/topics', async (req, res) => {
+  if (!forumStorage) {
+    return res.status(503).json({ error: 'Database not available' });
+  }
+  try {
+    const { creatorId, title, description, category, tags } = req.body;
+    if (!creatorId || !title || !description || !category) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+    const result = await forumStorage.createTopic({ creatorId, title, description, category, tags });
+    res.json({ success: true, topic: result });
+  } catch (error) {
+    console.error('Error creating forum topic:', error);
+    res.status(500).json({ error: 'Failed to create forum topic' });
+  }
+});
+
+app.get('/api/forum/topics', async (req, res) => {
+  if (!forumStorage) {
+    return res.status(503).json({ error: 'Database not available' });
+  }
+  try {
+    const { category, status } = req.query;
+    const filters = {};
+    if (category) filters.category = category;
+    if (status) filters.status = status;
+    const topics = await forumStorage.getTopics(filters);
+    res.json({ success: true, topics });
+  } catch (error) {
+    console.error('Error fetching forum topics:', error);
+    res.status(500).json({ error: 'Failed to fetch forum topics' });
+  }
+});
+
+app.get('/api/forum/topics/:topicId', async (req, res) => {
+  if (!forumStorage) {
+    return res.status(503).json({ error: 'Database not available' });
+  }
+  try {
+    const { topicId } = req.params;
+    const topic = await forumStorage.getTopicById(topicId);
+    if (!topic) {
+      return res.status(404).json({ error: 'Topic not found' });
+    }
+    await forumStorage.incrementTopicViews(topicId);
+    res.json({ success: true, topic });
+  } catch (error) {
+    console.error('Error fetching forum topic:', error);
+    res.status(500).json({ error: 'Failed to fetch forum topic' });
+  }
+});
+
+app.post('/api/forum/topics/:topicId/posts', async (req, res) => {
+  if (!forumStorage) {
+    return res.status(503).json({ error: 'Database not available' });
+  }
+  try {
+    const { topicId } = req.params;
+    const { userId, content, parentPostId, postType, isExpertPost, metadata } = req.body;
+    if (!userId || !content) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+    const result = await forumStorage.createPost({
+      topicId, userId, content, parentPostId, postType: postType || 'reply', isExpertPost: isExpertPost || false, metadata
+    });
+    res.json({ success: true, post: result });
+  } catch (error) {
+    console.error('Error creating forum post:', error);
+    res.status(500).json({ error: 'Failed to create forum post' });
+  }
+});
+
+app.get('/api/forum/topics/:topicId/posts', async (req, res) => {
+  if (!forumStorage) {
+    return res.status(503).json({ error: 'Database not available' });
+  }
+  try {
+    const { topicId } = req.params;
+    const posts = await forumStorage.getPostsByTopic(topicId);
+    res.json({ success: true, posts });
+  } catch (error) {
+    console.error('Error fetching forum posts:', error);
+    res.status(500).json({ error: 'Failed to fetch forum posts' });
+  }
+});
+
+app.post('/api/forum/vote', async (req, res) => {
+  if (!forumStorage) {
+    return res.status(503).json({ error: 'Database not available' });
+  }
+  try {
+    const { userId, targetType, targetId, voteType } = req.body;
+    if (!userId || !targetType || !targetId || !voteType) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+    const result = await forumStorage.voteOnTarget({ userId, targetType, targetId, voteType });
+    res.json({ success: true, ...result });
+  } catch (error) {
+    console.error('Error processing vote:', error);
+    res.status(500).json({ error: 'Failed to process vote' });
+  }
+});
+
+app.post('/api/forum/guidelines', async (req, res) => {
+  if (!forumStorage) {
+    return res.status(503).json({ error: 'Database not available' });
+  }
+  try {
+    const { title, content, category, version, metadata } = req.body;
+    if (!title || !content || !category || !version) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+    const result = await forumStorage.createGuideline({ title, content, category, version, metadata });
+    res.json({ success: true, guideline: result });
+  } catch (error) {
+    console.error('Error creating guideline:', error);
+    res.status(500).json({ error: 'Failed to create guideline' });
+  }
+});
+
+app.get('/api/forum/guidelines', async (req, res) => {
+  if (!forumStorage) {
+    return res.status(503).json({ error: 'Database not available' });
+  }
+  try {
+    const { category, approvalStatus } = req.query;
+    const filters = {};
+    if (category) filters.category = category;
+    if (approvalStatus) filters.approvalStatus = approvalStatus;
+    const guidelines = await forumStorage.getGuidelines(filters);
+    res.json({ success: true, guidelines });
+  } catch (error) {
+    console.error('Error fetching guidelines:', error);
+    res.status(500).json({ error: 'Failed to fetch guidelines' });
+  }
+});
+
+app.post('/api/forum/expert-contributions', async (req, res) => {
+  if (!forumStorage) {
+    return res.status(503).json({ error: 'Database not available' });
+  }
+  try {
+    const { expertId, contributionType, relatedTopicId, relatedGuidelineId, content, expertise, citations, impactScore } = req.body;
+    if (!expertId || !contributionType || !content) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+    const result = await forumStorage.createExpertContribution({
+      expertId, contributionType, relatedTopicId, relatedGuidelineId, content, expertise, citations, impactScore
+    });
+    res.json({ success: true, contribution: result });
+  } catch (error) {
+    console.error('Error creating expert contribution:', error);
+    res.status(500).json({ error: 'Failed to create expert contribution' });
+  }
+});
+
+app.get('/api/forum/expert-contributions', async (req, res) => {
+  if (!forumStorage) {
+    return res.status(503).json({ error: 'Database not available' });
+  }
+  try {
+    const { expertId, contributionType } = req.query;
+    const filters = {};
+    if (expertId) filters.expertId = expertId;
+    if (contributionType) filters.contributionType = contributionType;
+    const contributions = await forumStorage.getExpertContributions(filters);
+    res.json({ success: true, contributions });
+  } catch (error) {
+    console.error('Error fetching expert contributions:', error);
+    res.status(500).json({ error: 'Failed to fetch expert contributions' });
+  }
+});
+
+app.post('/api/forum/moderation', async (req, res) => {
+  if (!forumStorage) {
+    return res.status(503).json({ error: 'Database not available' });
+  }
+  try {
+    const { moderatorId, targetType, targetId, actionType, reason, automated, metadata } = req.body;
+    if (!moderatorId || !targetType || !targetId || !actionType || !reason) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+    const result = await forumStorage.createModerationAction({
+      moderatorId, targetType, targetId, actionType, reason, automated: automated || false, metadata
+    });
+    res.json({ success: true, action: result });
+  } catch (error) {
+    console.error('Error creating moderation action:', error);
+    res.status(500).json({ error: 'Failed to create moderation action' });
+  }
+});
+
+app.get('/api/forum/moderation', async (req, res) => {
+  if (!forumStorage) {
+    return res.status(503).json({ error: 'Database not available' });
+  }
+  try {
+    const { targetType, actionType } = req.query;
+    const filters = {};
+    if (targetType) filters.targetType = targetType;
+    if (actionType) filters.actionType = actionType;
+    const actions = await forumStorage.getModerationActions(filters);
+    res.json({ success: true, actions });
+  } catch (error) {
+    console.error('Error fetching moderation actions:', error);
+    res.status(500).json({ error: 'Failed to fetch moderation actions' });
+  }
+});
+
 app.listen(port, '0.0.0.0', () => {
   console.log(`Local Pollen AI backend running on http://0.0.0.0:${port}`);
   console.log('API endpoints:');
