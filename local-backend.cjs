@@ -314,10 +314,129 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+// AI Ethics and Community Routes
+storage.ethicalReports = [];
+storage.biasLogs = [];
+storage.communities = [];
+storage.communityMembers = [];
+storage.communityPosts = [];
+
+// Ethics - Report ethical concerns
+app.post('/api/ethics/reports', (req, res) => {
+  const { userId, contentId, concernType, description, severity } = req.body;
+  const reportId = `report_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  const report = {
+    reportId, userId, contentId, concernType, description, severity,
+    status: 'pending', createdAt: new Date().toISOString()
+  };
+  storage.ethicalReports.push(report);
+  res.json({ success: true, report });
+});
+
+// Ethics - Get ethical reports
+app.get('/api/ethics/reports', (req, res) => {
+  const { userId, status } = req.query;
+  let reports = storage.ethicalReports;
+  if (userId) reports = reports.filter(r => r.userId === userId);
+  if (status) reports = reports.filter(r => r.status === status);
+  res.json({ success: true, reports: reports.slice(0, 100) });
+});
+
+// Ethics - Get transparency logs
+app.get('/api/ethics/transparency', (req, res) => {
+  res.json({ success: true, logs: [] });
+});
+
+// Ethics - Get bias statistics
+app.get('/api/ethics/bias-stats', (req, res) => {
+  res.json({
+    success: true,
+    stats: {
+      totalDetections: storage.biasLogs.length,
+      biasTypeCounts: {},
+      mitigationRate: '0%',
+      averageScore: 0
+    }
+  });
+});
+
+// Community - Get communities
+app.get('/api/community/communities', (req, res) => {
+  res.json({ success: true, communities: storage.communities });
+});
+
+// Community - Create community
+app.post('/api/community/communities', (req, res) => {
+  const { name, description, type, category, isPrivate, creatorId } = req.body;
+  const communityId = `community_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  const community = {
+    communityId, name, description, type, category, isPrivate, creatorId,
+    memberCount: 1, createdAt: new Date().toISOString()
+  };
+  storage.communities.push(community);
+  storage.communityMembers.push({
+    communityId, userId: creatorId, role: 'admin', status: 'active'
+  });
+  res.json({ success: true, community });
+});
+
+// Community - Join community
+app.post('/api/community/:communityId/join', (req, res) => {
+  const { communityId } = req.params;
+  const { userId } = req.body;
+  const existing = storage.communityMembers.find(
+    m => m.communityId === communityId && m.userId === userId
+  );
+  if (existing) {
+    return res.status(400).json({ error: 'Already a member' });
+  }
+  storage.communityMembers.push({
+    communityId, userId, role: 'member', status: 'active'
+  });
+  const community = storage.communities.find(c => c.communityId === communityId);
+  if (community) community.memberCount++;
+  res.json({ success: true });
+});
+
+// Community - Get posts
+app.get('/api/community/:communityId/posts', (req, res) => {
+  const { communityId } = req.params;
+  const posts = storage.communityPosts.filter(p => p.communityId === communityId);
+  res.json({ success: true, posts });
+});
+
+// Community - Create post
+app.post('/api/community/:communityId/posts', (req, res) => {
+  const { communityId } = req.params;
+  const { userId, content, postType } = req.body;
+  const postId = `post_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  const post = {
+    postId, communityId, userId, content, postType: postType || 'discussion',
+    likes: 0, replies: 0, createdAt: new Date().toISOString()
+  };
+  storage.communityPosts.push(post);
+  res.json({ success: true, post });
+});
+
+// Community - User suggestions
+app.get('/api/community/users/:userId/suggestions', (req, res) => {
+  res.json({ success: true, suggestions: storage.communities.slice(0, 3).map(c => ({
+    community: c, relevanceScore: 0.8, matchingInterests: []
+  }))});
+});
+
 app.listen(port, '0.0.0.0', () => {
   console.log(`Local Pollen AI backend running on http://0.0.0.0:${port}`);
   console.log('API endpoints:');
   console.log('  POST /api/ai/generate - Generate AI content');
   console.log('  GET /api/content/feed - Fetch content feed');
   console.log('  GET /api/health - Health check');
+  console.log('  POST /api/ethics/reports - Report ethical concerns');
+  console.log('  GET /api/ethics/transparency - Get AI transparency logs');
+  console.log('  GET /api/ethics/bias-stats - Get bias statistics');
+  console.log('  POST /api/community/communities - Create community');
+  console.log('  GET /api/community/communities - Get communities');
+  console.log('  POST /api/community/:id/join - Join community');
+  console.log('  GET /api/community/:id/posts - Get community posts');
+  console.log('  POST /api/community/:id/posts - Create community post');
 });

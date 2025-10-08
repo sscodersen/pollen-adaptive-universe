@@ -1,8 +1,8 @@
-import { Home, Compass, ShoppingBag } from "lucide-react";
+import { Home, Compass, ShoppingBag, Users } from "lucide-react";
 
 interface BottomNavProps {
-  currentScreen: 'feed' | 'explore' | 'shop';
-  onNavigate: (screen: 'feed' | 'explore' | 'shop') => void;
+  currentScreen: 'feed' | 'explore' | 'shop' | 'community';
+  onNavigate: (screen: 'feed' | 'explore' | 'shop' | 'community') => void;
 }
 
 export function BottomNav({ currentScreen, onNavigate }: BottomNavProps) {
@@ -36,6 +36,20 @@ export function BottomNav({ currentScreen, onNavigate }: BottomNavProps) {
               <Compass className="w-6 h-6" />
             </div>
             <span className="text-xs font-medium">Explore</span>
+          </button>
+          
+          <button 
+            onClick={() => onNavigate('community')} 
+            className={`flex flex-col items-center gap-1 transition-colors ${
+              currentScreen === 'community' ? 'text-purple-600' : 'text-gray-400'
+            }`}
+          >
+            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${
+              currentScreen === 'community' ? 'bg-purple-100' : 'bg-transparent'
+            }`}>
+              <Users className="w-6 h-6" />
+            </div>
+            <span className="text-xs font-medium">Community</span>
           </button>
           
           <button 
