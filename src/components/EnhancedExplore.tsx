@@ -10,7 +10,7 @@ import { opportunityCurationService, TrendOpportunity, RealEstateOpportunity } f
 import type { ExploreSection } from '../types/explore';
 
 interface EnhancedExploreProps {
-  onNavigate: (screen: 'feed' | 'explore' | 'shop') => void;
+  onNavigate: (screen: 'feed' | 'explore' | 'shop' | 'community') => void;
 }
 
 interface SectionConfig {

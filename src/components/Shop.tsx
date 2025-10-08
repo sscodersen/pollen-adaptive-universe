@@ -2,7 +2,7 @@ import { ArrowLeft, Search, Plus, Star } from "lucide-react";
 import { BottomNav } from "./BottomNav";
 
 interface ShopProps {
-  onNavigate: (screen: 'feed' | 'explore' | 'shop') => void;
+  onNavigate: (screen: 'feed' | 'explore' | 'shop' | 'community') => void;
 }
 
 export function Shop({ onNavigate }: ShopProps) {

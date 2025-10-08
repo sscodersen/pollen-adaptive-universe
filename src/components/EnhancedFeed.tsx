@@ -11,7 +11,7 @@ import { opportunityCurationService, Opportunity } from '../services/opportunity
 import type { FeedTab } from '../types/feed';
 
 interface EnhancedFeedProps {
-  onNavigate: (screen: 'feed' | 'explore' | 'shop') => void;
+  onNavigate: (screen: 'feed' | 'explore' | 'shop' | 'community') => void;
 }
 
 interface TabConfig {
