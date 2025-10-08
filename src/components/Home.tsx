@@ -8,29 +8,40 @@ export function Home({ onNavigate }: HomeProps) {
   return (
     <div className="relative min-h-screen pb-20">
       {/* Header with greeting and user profile */}
-      <div className="p-6 pt-8">
-        <div className="flex items-start justify-between mb-8">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center text-white font-semibold text-lg">
+      <div className="p-4 sm:p-6 pt-6 sm:pt-8">
+        <div className="flex items-start justify-between mb-6">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center text-white font-semibold text-base sm:text-lg">
               J
             </div>
-            <div className="flex items-center gap-2 glass-card px-4 py-2">
+            <div className="flex items-center gap-2 glass-card px-3 sm:px-4 py-1.5 sm:py-2">
               <Clock className="w-4 h-4 text-gray-600" />
-              <span className="text-2xl font-semibold">Hey Jane,</span>
+              <span className="text-xl sm:text-2xl font-semibold">Hey Jane,</span>
             </div>
           </div>
-          <div className="glass-card px-4 py-2 flex items-center gap-2">
-            <Sun className="w-5 h-5 text-yellow-500" />
-            <span className="text-lg font-medium">11°C</span>
+          <div className="glass-card px-3 sm:px-4 py-1.5 sm:py-2 flex items-center gap-2">
+            <Sun className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-500" />
+            <span className="text-base sm:text-lg font-medium">11°C</span>
           </div>
         </div>
         
-        <h2 className="text-xl font-medium text-gray-800 mb-6">Welcome back!</h2>
+        <h2 className="text-lg sm:text-xl font-medium text-gray-800 mb-4">Welcome back!</h2>
+        
+        {/* Search Bar */}
+        <button 
+          onClick={() => onNavigate('search')}
+          className="w-full glass-card p-4 rounded-2xl mb-6 text-left flex items-center gap-3"
+        >
+          <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          <span className="text-gray-500">Ask Pollen anything...</span>
+        </button>
 
         {/* Activity Cards Grid */}
         <div className="space-y-4">
           {/* Sister's Birthday Card */}
-          <div className="gradient-card-pink p-6 shadow-lg">
+          <div className="gradient-card-pink p-4 sm:p-6 shadow-lg">
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center gap-2">
                 <div className="w-10 h-10 rounded-full bg-black text-white flex items-center justify-center text-sm font-medium">
@@ -64,7 +75,7 @@ export function Home({ onNavigate }: HomeProps) {
           </div>
 
           {/* Travel Card */}
-          <div className="gradient-card-blue p-6 shadow-lg">
+          <div className="gradient-card-blue p-4 sm:p-6 shadow-lg">
             <div className="flex items-center justify-between mb-3">
               <h3 className="font-semibold text-lg">Travel</h3>
               <span className="bg-purple-500 text-white text-xs px-3 py-1 rounded-full font-medium">+2</span>
