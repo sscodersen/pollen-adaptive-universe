@@ -107,27 +107,97 @@
 
 @layer utilities {
   .glass-card {
-    @apply bg-white/80 backdrop-blur-xl rounded-3xl shadow-lg border border-white/50;
+    @apply bg-white/85 backdrop-blur-xl rounded-2xl shadow-sm border border-white/60;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .glass-card:hover {
+    @apply shadow-md bg-white/90 border-white/70;
+    transform: translateY(-1px);
   }
   
   .gradient-card-pink {
-    background: linear-gradient(135deg, rgba(255, 240, 245, 0.8), rgba(255, 250, 250, 0.8));
-    @apply backdrop-blur-md rounded-3xl border border-pink-100/50;
+    background: linear-gradient(135deg, rgba(255, 242, 248, 0.9), rgba(255, 250, 252, 0.9));
+    @apply backdrop-blur-md rounded-2xl border border-pink-200/40 shadow-sm;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .gradient-card-pink:hover {
+    @apply shadow-md border-pink-200/60;
+    transform: translateY(-2px);
   }
   
   .gradient-card-blue {
-    background: linear-gradient(135deg, rgba(240, 248, 255, 0.8), rgba(245, 250, 255, 0.8));
-    @apply backdrop-blur-md rounded-3xl border border-blue-100/50;
+    background: linear-gradient(135deg, rgba(240, 249, 255, 0.9), rgba(248, 252, 255, 0.9));
+    @apply backdrop-blur-md rounded-2xl border border-blue-200/40 shadow-sm;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .gradient-card-blue:hover {
+    @apply shadow-md border-blue-200/60;
+    transform: translateY(-2px);
   }
   
   .gradient-card-purple {
-    background: linear-gradient(135deg, rgba(248, 240, 255, 0.8), rgba(250, 245, 255, 0.8));
-    @apply backdrop-blur-md rounded-3xl border border-purple-100/50;
+    background: linear-gradient(135deg, rgba(250, 245, 255, 0.9), rgba(252, 248, 255, 0.9));
+    @apply backdrop-blur-md rounded-2xl border border-purple-200/40 shadow-sm;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .gradient-card-purple:hover {
+    @apply shadow-md border-purple-200/60;
+    transform: translateY(-2px);
   }
   
   .gradient-card-green {
-    background: linear-gradient(135deg, rgba(240, 255, 245, 0.8), rgba(245, 255, 250, 0.8));
-    @apply backdrop-blur-md rounded-3xl border border-green-100/50;
+    background: linear-gradient(135deg, rgba(240, 255, 248, 0.9), rgba(248, 255, 252, 0.9));
+    @apply backdrop-blur-md rounded-2xl border border-green-200/40 shadow-sm;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .gradient-card-green:hover {
+    @apply shadow-md border-green-200/60;
+    transform: translateY(-2px);
+  }
+  
+  .professional-button {
+    @apply px-6 py-3 rounded-xl font-medium transition-all duration-300;
+    @apply shadow-sm hover:shadow-md active:scale-95;
+  }
+  
+  .professional-button-primary {
+    @apply professional-button bg-gradient-to-r from-purple-600 to-pink-600;
+    @apply text-white hover:from-purple-700 hover:to-pink-700;
+  }
+  
+  .professional-button-secondary {
+    @apply professional-button bg-white/90 backdrop-blur-sm;
+    @apply text-gray-700 border border-gray-200 hover:bg-white hover:border-gray-300;
+  }
+  
+  .professional-tab {
+    @apply px-5 py-2.5 rounded-xl text-sm font-medium transition-all duration-300;
+    @apply flex items-center gap-2 whitespace-nowrap;
+  }
+  
+  .professional-tab-active {
+    @apply professional-tab bg-white shadow-sm border border-gray-200/50;
+  }
+  
+  .professional-tab-inactive {
+    @apply professional-tab bg-white/40 text-gray-600;
+    @apply hover:bg-white/60 hover:text-gray-800;
+  }
+  
+  .professional-badge {
+    @apply px-3 py-1 rounded-full text-xs font-semibold;
+    @apply inline-flex items-center gap-1;
+  }
+  
+  .stat-card {
+    @apply bg-white/70 backdrop-blur-sm rounded-xl p-4;
+    @apply border border-white/60 transition-all duration-300;
+    @apply hover:bg-white/80 hover:shadow-sm;
   }
 }
 

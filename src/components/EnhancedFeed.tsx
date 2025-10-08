@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, memo } from 'react';
 import { 
   Clock, Sun, Search, TrendingUp, Flame, Shield, Heart, 
   Sprout, HandHeart, Sparkles, ChevronRight, CheckCircle, 
@@ -8,40 +8,70 @@ import { BottomNav } from "./BottomNav";
 import { wellnessContentService, WellnessTip } from '../services/wellnessContent';
 import { socialImpactService, SocialInitiative } from '../services/socialImpact';
 import { opportunityCurationService, Opportunity } from '../services/opportunityCuration';
+import type { FeedTab } from '../types/feed';
 
 interface EnhancedFeedProps {
   onNavigate: (screen: 'feed' | 'explore' | 'shop') => void;
 }
 
-export function EnhancedFeed({ onNavigate }: EnhancedFeedProps) {
-  const [activeTab, setActiveTab] = useState<'all' | 'wellness' | 'agriculture' | 'social-impact' | 'opportunities'>('all');
+interface TabConfig {
+  id: FeedTab;
+  label: string;
+  icon: typeof Flame;
+}
+
+const FEED_TABS: readonly TabConfig[] = [
+  { id: 'all', label: 'All Posts', icon: Flame },
+  { id: 'wellness', label: 'Wellness', icon: Heart },
+  { id: 'agriculture', label: 'Agriculture', icon: Sprout },
+  { id: 'social-impact', label: 'Social Impact', icon: HandHeart },
+  { id: 'opportunities', label: 'Opportunities', icon: Sparkles },
+] as const;
+
+export const EnhancedFeed = memo(({ onNavigate }: EnhancedFeedProps) => {
+  const [activeTab, setActiveTab] = useState<FeedTab>('all');
   const [dailyTip, setDailyTip] = useState<WellnessTip | null>(null);
   const [initiatives, setInitiatives] = useState<SocialInitiative[]>([]);
   const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
   const [votedInitiatives, setVotedInitiatives] = useState<Set<string>>(new Set());
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
     loadContent();
   }, []);
 
-  const loadContent = async () => {
-    const [tip, socialInitiatives, curatedOpps] = await Promise.all([
-      wellnessContentService.getDailyTip(),
-      socialImpactService.getCuratedInitiatives(3),
-      opportunityCurationService.getCuratedOpportunities(undefined, 4)
-    ]);
-    
-    setDailyTip(tip);
-    setInitiatives(socialInitiatives);
-    setOpportunities(curatedOpps);
-  };
+  const loadContent = useCallback(async (): Promise<void> => {
+    try {
+      setIsLoading(true);
+      const [tip, socialInitiatives, curatedOpps] = await Promise.all([
+        wellnessContentService.getDailyTip(),
+        socialImpactService.getCuratedInitiatives(3),
+        opportunityCurationService.getCuratedOpportunities(undefined, 4)
+      ]);
+      
+      setDailyTip(tip);
+      setInitiatives(socialInitiatives);
+      setOpportunities(curatedOpps);
+    } catch (error) {
+      console.error('Failed to load feed content:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
 
-  const handleVote = async (initiativeId: string) => {
+  const handleVote = useCallback(async (initiativeId: string): Promise<void> => {
     const success = await socialImpactService.voteForInitiative('user-1', initiativeId);
     if (success) {
       setVotedInitiatives(prev => new Set([...prev, initiativeId]));
+      setInitiatives(prev => 
+        prev.map(init => 
+          init.id === initiativeId 
+            ? { ...init, votes: init.votes + 1 }
+            : init
+        )
+      );
     }
-  };
+  }, []);
 
   return (
     <div className="relative min-h-screen pb-32 bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
@@ -76,76 +106,46 @@ export function EnhancedFeed({ onNavigate }: EnhancedFeedProps) {
 
         {/* Feed Categories */}
         <div className="flex gap-2 mb-6 overflow-x-auto scrollbar-thin pb-2">
-          <button 
-            onClick={() => setActiveTab('all')}
-            className={`px-6 py-2 rounded-full text-sm font-medium whitespace-nowrap flex items-center gap-2 transition-all ${
-              activeTab === 'all' ? 'bg-white/90' : 'bg-white/50 text-gray-600'
-            }`}
-          >
-            <Flame className="w-4 h-4" />
-            All Posts
-          </button>
-          <button 
-            onClick={() => setActiveTab('wellness')}
-            className={`px-6 py-2 rounded-full text-sm font-medium whitespace-nowrap flex items-center gap-2 transition-all ${
-              activeTab === 'wellness' ? 'bg-white/90' : 'bg-white/50 text-gray-600'
-            }`}
-          >
-            <Heart className="w-4 h-4" />
-            Wellness
-          </button>
-          <button 
-            onClick={() => setActiveTab('agriculture')}
-            className={`px-6 py-2 rounded-full text-sm font-medium whitespace-nowrap flex items-center gap-2 transition-all ${
-              activeTab === 'agriculture' ? 'bg-white/90' : 'bg-white/50 text-gray-600'
-            }`}
-          >
-            <Sprout className="w-4 h-4" />
-            Agriculture
-          </button>
-          <button 
-            onClick={() => setActiveTab('social-impact')}
-            className={`px-6 py-2 rounded-full text-sm font-medium whitespace-nowrap flex items-center gap-2 transition-all ${
-              activeTab === 'social-impact' ? 'bg-white/90' : 'bg-white/50 text-gray-600'
-            }`}
-          >
-            <HandHeart className="w-4 h-4" />
-            Social Impact
-          </button>
-          <button 
-            onClick={() => setActiveTab('opportunities')}
-            className={`px-6 py-2 rounded-full text-sm font-medium whitespace-nowrap flex items-center gap-2 transition-all ${
-              activeTab === 'opportunities' ? 'bg-white/90' : 'bg-white/50 text-gray-600'
-            }`}
-          >
-            <Sparkles className="w-4 h-4" />
-            Opportunities
-          </button>
+          {FEED_TABS.map(({ id, label, icon: Icon }) => (
+            <button
+              key={id}
+              onClick={() => setActiveTab(id)}
+              className={activeTab === id ? 'professional-tab-active' : 'professional-tab-inactive'}
+            >
+              <Icon className="w-4 h-4" />
+              {label}
+            </button>
+          ))}
         </div>
 
         {/* Content Sections */}
         <div className="space-y-4">
           {/* Content Verification Feature */}
-          {(activeTab === 'all') && (
-            <div className="glass-card p-6 shadow-lg border-2 border-purple-200">
-              <div className="flex items-center gap-3 mb-4">
-                <Shield className="w-6 h-6 text-purple-600" />
-                <h3 className="font-semibold text-lg">Content Verification</h3>
+          {activeTab === 'all' && (
+            <div className="glass-card p-6 border-2 border-purple-200/50">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center shadow-md">
+                  <Shield className="w-6 h-6 text-white" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-lg text-gray-900">Content Verification</h3>
+                  <p className="text-xs text-gray-500">AI-Powered Analysis</p>
+                </div>
               </div>
-              <p className="text-gray-600 text-sm mb-4">
-                Verify content authenticity with AI-powered deepfake detection
+              <p className="text-gray-600 text-sm mb-5 leading-relaxed">
+                Verify content authenticity with advanced deepfake detection technology
               </p>
-              <button className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3 rounded-xl font-medium hover:shadow-lg transition-all">
+              <button className="w-full professional-button-primary">
                 Upload Content to Verify
               </button>
-              <div className="mt-4 flex items-center justify-between text-sm">
+              <div className="mt-5 pt-5 border-t border-gray-200/50 flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-green-500" />
-                  <span className="text-gray-600">94% Accuracy</span>
+                  <CheckCircle className="w-5 h-5 text-green-500" />
+                  <span className="text-sm font-medium text-gray-700">94% Accuracy</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Shield className="w-4 h-4 text-purple-500" />
-                  <span className="text-gray-600">Secure Analysis</span>
+                  <Shield className="w-5 h-5 text-purple-500" />
+                  <span className="text-sm font-medium text-gray-700">Secure Analysis</span>
                 </div>
               </div>
             </div>
@@ -153,27 +153,29 @@ export function EnhancedFeed({ onNavigate }: EnhancedFeedProps) {
 
           {/* Daily Wellness Tip */}
           {(activeTab === 'all' || activeTab === 'wellness') && dailyTip && (
-            <div className="gradient-card-pink p-6 shadow-lg">
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2">
-                  <Heart className="w-5 h-5 text-pink-600" />
-                  <h3 className="font-semibold text-lg">Daily Wellness Tip</h3>
+            <div className="gradient-card-pink p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-pink-500/10 flex items-center justify-center">
+                    <Heart className="w-5 h-5 text-pink-600" />
+                  </div>
+                  <h3 className="font-semibold text-lg text-gray-900">Daily Wellness Tip</h3>
                 </div>
-                <span className="text-xs bg-pink-200 text-pink-800 px-3 py-1 rounded-full">
+                <span className="professional-badge bg-pink-100 text-pink-700">
                   {dailyTip.duration}
                 </span>
               </div>
-              <h4 className="font-semibold text-gray-800 mb-2">{dailyTip.title}</h4>
-              <p className="text-gray-600 text-sm mb-4">{dailyTip.content}</p>
-              <div className="flex items-center justify-between">
+              <h4 className="font-semibold text-gray-900 mb-2 text-base">{dailyTip.title}</h4>
+              <p className="text-gray-600 text-sm mb-5 leading-relaxed">{dailyTip.content}</p>
+              <div className="flex items-center justify-between pt-4 border-t border-pink-200/30">
                 <div className="flex gap-2">
                   {dailyTip.tags.slice(0, 2).map(tag => (
-                    <span key={tag} className="text-xs bg-white/60 px-3 py-1 rounded-full">
+                    <span key={tag} className="professional-badge bg-white/70 text-gray-600">
                       #{tag}
                     </span>
                   ))}
                 </div>
-                <button className="text-purple-600 text-sm font-medium flex items-center gap-1">
+                <button className="text-purple-600 text-sm font-semibold flex items-center gap-1 hover:text-purple-700 transition-colors">
                   Read More <ChevronRight className="w-4 h-4" />
                 </button>
               </div>
@@ -182,27 +184,32 @@ export function EnhancedFeed({ onNavigate }: EnhancedFeedProps) {
 
           {/* Agriculture Tools */}
           {(activeTab === 'all' || activeTab === 'agriculture') && (
-            <div className="gradient-card-green p-6 shadow-lg">
-              <div className="flex items-center gap-3 mb-4">
-                <Sprout className="w-6 h-6 text-green-700" />
-                <h3 className="font-semibold text-lg">Smart Farming Tools</h3>
+            <div className="gradient-card-green p-6">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-12 h-12 rounded-xl bg-green-500/10 flex items-center justify-center">
+                  <Sprout className="w-6 h-6 text-green-600" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-lg text-gray-900">Smart Farming Tools</h3>
+                  <p className="text-xs text-gray-500">Precision Agriculture</p>
+                </div>
               </div>
-              <p className="text-gray-700 text-sm mb-4">
-                AI-powered insights for precision agriculture
+              <p className="text-gray-600 text-sm mb-5 leading-relaxed">
+                AI-powered insights for optimized crop management
               </p>
-              <div className="grid grid-cols-2 gap-3 mb-4">
-                <div className="bg-white/60 rounded-xl p-3">
+              <div className="grid grid-cols-2 gap-3 mb-5">
+                <div className="stat-card">
                   <Droplets className="w-5 h-5 text-blue-600 mb-2" />
-                  <p className="text-sm font-medium">Soil Analysis</p>
-                  <p className="text-xs text-gray-600">pH 6.5, Medium N</p>
+                  <p className="text-sm font-semibold text-gray-900">Soil Analysis</p>
+                  <p className="text-xs text-gray-600 mt-1">pH 6.5, Medium N</p>
                 </div>
-                <div className="bg-white/60 rounded-xl p-3">
+                <div className="stat-card">
                   <ThermometerSun className="w-5 h-5 text-orange-600 mb-2" />
-                  <p className="text-sm font-medium">Weather</p>
-                  <p className="text-xs text-gray-600">Rain in 3 days</p>
+                  <p className="text-sm font-semibold text-gray-900">Weather</p>
+                  <p className="text-xs text-gray-600 mt-1">Rain in 3 days</p>
                 </div>
               </div>
-              <button className="w-full bg-green-600 text-white py-3 rounded-xl font-medium hover:bg-green-700 transition-all">
+              <button className="w-full professional-button bg-green-600 text-white hover:bg-green-700">
                 Get Crop Recommendations
               </button>
             </div>
@@ -303,4 +310,6 @@ export function EnhancedFeed({ onNavigate }: EnhancedFeedProps) {
       <BottomNav currentScreen="feed" onNavigate={onNavigate} />
     </div>
   );
-}
+});
+
+EnhancedFeed.displayName = 'EnhancedFeed';
