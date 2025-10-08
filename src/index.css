@@ -5,86 +5,88 @@
 
 @layer base {
   :root {
-    /* Base colors */
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    /* Pastel Light Theme */
+    --background: 0 0% 100%;
+    --foreground: 240 10% 15%;
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 15%;
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 15%;
 
-    --primary: 189 100% 50%; /* Cyan primary */
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: 260 60% 65%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 240 10% 15%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 220 14% 96%;
+    --muted-foreground: 240 5% 45%;
 
-    --accent: 272 76% 63%; /* Purple accent */
-    --accent-foreground: 210 40% 98%;
+    --accent: 280 50% 70%;
+    --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 70% 60%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 260 60% 65%;
 
-    /* Platform-specific semantic tokens */
-    --surface-primary: 222.2 84% 4.9%; /* Main background */
-    --surface-secondary: 217.2 32.6% 17.5%; /* Cards, panels */
-    --surface-tertiary: 215 27.9% 16.9%; /* Elevated surfaces */
+    /* Pastel gradient backgrounds */
+    --gradient-pink: 340 80% 92%;
+    --gradient-blue: 200 70% 90%;
+    --gradient-purple: 270 65% 92%;
+    --gradient-green: 150 60% 88%;
     
-    --brand-cyan: 189 100% 50%;
-    --brand-purple: 272 76% 63%;
-    --brand-green: 142 76% 36%;
-    --brand-orange: 25 95% 53%;
-    --brand-pink: 330 81% 60%;
+    /* Weather widget colors */
+    --weather-sun: 45 100% 65%;
+    --weather-cloud: 210 20% 85%;
     
-    /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(var(--brand-cyan)), hsl(var(--brand-purple)));
-    --gradient-secondary: linear-gradient(135deg, hsl(var(--brand-purple)), hsl(var(--brand-pink)));
-    --gradient-success: linear-gradient(135deg, hsl(var(--brand-green)), hsl(var(--brand-cyan)));
-    --gradient-warning: linear-gradient(135deg, hsl(var(--brand-orange)), hsl(var(--brand-pink)));
+    /* Card shadows */
+    --shadow-soft: 0 2px 8px rgba(0, 0, 0, 0.08);
+    --shadow-medium: 0 4px 16px rgba(0, 0, 0, 0.12);
     
-    /* Status colors */
-    --status-success: 142 76% 36%;
-    --status-warning: 45 93% 47%;
-    --status-error: 0 84% 60%;
-    --status-info: 189 100% 50%;
-    
-    /* Interactive states */
-    --hover-overlay: 0 0% 100% / 0.05;
-    --active-overlay: 0 0% 100% / 0.1;
-    --disabled-overlay: 0 0% 0% / 0.3;
-    
-    /* Animations */
-    --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
-    --transition-normal: 300ms cubic-bezier(0.4, 0, 0.2, 1);
-    --transition-slow: 500ms cubic-bezier(0.4, 0, 0.2, 1);
-    
-    /* Shadows */
-    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-    --shadow-glow: 0 0 20px hsl(var(--brand-cyan) / 0.3);
-    
-    /* Sidebar */
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
-
-    --radius: 0.5rem;
+    --radius: 1.25rem;
   }
+
+  body {
+    background: linear-gradient(135deg, 
+      hsl(var(--gradient-pink)), 
+      hsl(var(--gradient-blue)), 
+      hsl(var(--gradient-purple)),
+      hsl(var(--gradient-green))
+    );
+    background-size: 400% 400%;
+    animation: gradientShift 15s ease infinite;
+    position: relative;
+    min-height: 100vh;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+      radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.3) 1px, transparent 1px),
+      radial-gradient(circle at 80% 70%, rgba(255, 255, 255, 0.3) 1px, transparent 1px),
+      radial-gradient(circle at 40% 60%, rgba(255, 255, 255, 0.25) 1px, transparent 1px),
+      radial-gradient(circle at 60% 40%, rgba(255, 255, 255, 0.25) 1px, transparent 1px);
+    background-size: 50px 50px, 80px 80px, 60px 60px, 70px 70px;
+    background-position: 0 0, 40px 40px, 20px 20px, 50px 50px;
+    pointer-events: none;
+    z-index: 0;
+  }
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
 @layer base {
@@ -93,53 +95,59 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-weight: 600;
   }
 }
 
 @layer utilities {
-  .line-clamp-2 {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+  .glass-card {
+    @apply bg-white/80 backdrop-blur-xl rounded-3xl shadow-lg border border-white/50;
   }
   
-  .line-clamp-3 {
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+  .gradient-card-pink {
+    background: linear-gradient(135deg, rgba(255, 240, 245, 0.8), rgba(255, 250, 250, 0.8));
+    @apply backdrop-blur-md rounded-3xl border border-pink-100/50;
   }
-
-  .scrollbar-thin {
-    scrollbar-width: thin;
-    scrollbar-color: rgba(100, 116, 139, 0.5) rgba(30, 41, 59, 0.3);
+  
+  .gradient-card-blue {
+    background: linear-gradient(135deg, rgba(240, 248, 255, 0.8), rgba(245, 250, 255, 0.8));
+    @apply backdrop-blur-md rounded-3xl border border-blue-100/50;
+  }
+  
+  .gradient-card-purple {
+    background: linear-gradient(135deg, rgba(248, 240, 255, 0.8), rgba(250, 245, 255, 0.8));
+    @apply backdrop-blur-md rounded-3xl border border-purple-100/50;
+  }
+  
+  .gradient-card-green {
+    background: linear-gradient(135deg, rgba(240, 255, 245, 0.8), rgba(245, 255, 250, 0.8));
+    @apply backdrop-blur-md rounded-3xl border border-green-100/50;
   }
 }
 
-/* Enhanced scrollbar styling */
+/* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(30, 41, 59, 0.3);
+  background: rgba(255, 255, 255, 0.3);
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(100, 116, 139, 0.5);
+  background: rgba(100, 116, 139, 0.3);
   border-radius: 3px;
   transition: background 0.2s ease;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(100, 116, 139, 0.7);
-}
-
-::-webkit-scrollbar-corner {
-  background: rgba(30, 41, 59, 0.3);
+  background: rgba(100, 116, 139, 0.5);
 }
