@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, memo } from 'react';
 import { 
   ArrowLeft, Search as SearchIcon, Sparkles, TrendingUp, 
   Lightbulb, Zap, Globe, Briefcase, Home, ShoppingBag,
@@ -7,34 +7,56 @@ import {
 import { BottomNav } from "./BottomNav";
 import { sseWorkerBot, ContentSuggestion, UGCAdContent } from '../services/sseWorkerBot';
 import { opportunityCurationService, TrendOpportunity, RealEstateOpportunity } from '../services/opportunityCuration';
+import type { ExploreSection } from '../types/explore';
 
 interface EnhancedExploreProps {
   onNavigate: (screen: 'feed' | 'explore' | 'shop') => void;
 }
 
-export function EnhancedExplore({ onNavigate }: EnhancedExploreProps) {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [activeSection, setActiveSection] = useState<'trending' | 'real-estate' | 'content-creator' | 'all'>('all');
+interface SectionConfig {
+  id: ExploreSection;
+  label: string;
+  icon: typeof Sparkles;
+}
+
+const EXPLORE_SECTIONS: readonly SectionConfig[] = [
+  { id: 'all', label: 'All', icon: Globe },
+  { id: 'trending', label: 'Trending', icon: TrendingUp },
+  { id: 'real-estate', label: 'Real Estate', icon: Home },
+  { id: 'content-creator', label: 'AI Creator', icon: Bot },
+] as const;
+
+export const EnhancedExplore = memo(({ onNavigate }: EnhancedExploreProps) => {
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [activeSection, setActiveSection] = useState<ExploreSection>('all');
   const [contentSuggestions, setContentSuggestions] = useState<ContentSuggestion[]>([]);
   const [trendingOpportunities, setTrendingOpportunities] = useState<TrendOpportunity[]>([]);
   const [realEstateOpps, setRealEstateOpps] = useState<RealEstateOpportunity[]>([]);
-  const [isGenerating, setIsGenerating] = useState(false);
+  const [isGenerating, setIsGenerating] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
     loadOpportunities();
   }, []);
 
-  const loadOpportunities = async () => {
-    const [trending, realEstate] = await Promise.all([
-      opportunityCurationService.getTrendingOpportunities(),
-      opportunityCurationService.getRealEstateOpportunities()
-    ]);
-    
-    setTrendingOpportunities(trending);
-    setRealEstateOpps(realEstate);
-  };
+  const loadOpportunities = useCallback(async (): Promise<void> => {
+    try {
+      setIsLoading(true);
+      const [trending, realEstate] = await Promise.all([
+        opportunityCurationService.getTrendingOpportunities(),
+        opportunityCurationService.getRealEstateOpportunities()
+      ]);
+      
+      setTrendingOpportunities(trending);
+      setRealEstateOpps(realEstate);
+    } catch (error) {
+      console.error('Failed to load opportunities:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
 
-  const handleGenerateContent = async () => {
+  const handleGenerateContent = useCallback(async (): Promise<void> => {
     if (!searchQuery.trim()) return;
     
     setIsGenerating(true);
@@ -46,12 +68,12 @@ export function EnhancedExplore({ onNavigate }: EnhancedExploreProps) {
     } finally {
       setIsGenerating(false);
     }
-  };
+  }, [searchQuery]);
 
-  const handleSearch = (e: React.FormEvent) => {
+  const handleSearch = useCallback((e: React.FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
     handleGenerateContent();
-  };
+  }, [handleGenerateContent]);
 
   return (
     <div className="relative min-h-screen pb-32 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
@@ -86,41 +108,16 @@ export function EnhancedExplore({ onNavigate }: EnhancedExploreProps) {
 
         {/* Section Tabs */}
         <div className="flex gap-2 mb-6 overflow-x-auto scrollbar-thin pb-2">
-          <button 
-            onClick={() => setActiveSection('all')}
-            className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all ${
-              activeSection === 'all' ? 'bg-white/90' : 'bg-white/50 text-gray-600'
-            }`}
-          >
-            All
-          </button>
-          <button 
-            onClick={() => setActiveSection('trending')}
-            className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap flex items-center gap-2 transition-all ${
-              activeSection === 'trending' ? 'bg-white/90' : 'bg-white/50 text-gray-600'
-            }`}
-          >
-            <TrendingUp className="w-4 h-4" />
-            Trending
-          </button>
-          <button 
-            onClick={() => setActiveSection('real-estate')}
-            className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap flex items-center gap-2 transition-all ${
-              activeSection === 'real-estate' ? 'bg-white/90' : 'bg-white/50 text-gray-600'
-            }`}
-          >
-            <Home className="w-4 h-4" />
-            Real Estate
-          </button>
-          <button 
-            onClick={() => setActiveSection('content-creator')}
-            className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap flex items-center gap-2 transition-all ${
-              activeSection === 'content-creator' ? 'bg-white/90' : 'bg-white/50 text-gray-600'
-            }`}
-          >
-            <Bot className="w-4 h-4" />
-            AI Creator
-          </button>
+          {EXPLORE_SECTIONS.map(({ id, label, icon: Icon }) => (
+            <button
+              key={id}
+              onClick={() => setActiveSection(id)}
+              className={activeSection === id ? 'professional-tab-active' : 'professional-tab-inactive'}
+            >
+              <Icon className="w-4 h-4" />
+              {label}
+            </button>
+          ))}
         </div>
 
         <div className="space-y-4">
@@ -336,4 +333,6 @@ export function EnhancedExplore({ onNavigate }: EnhancedExploreProps) {
       <BottomNav currentScreen="explore" onNavigate={onNavigate} />
     </div>
   );
-}
+});
+
+EnhancedExplore.displayName = 'EnhancedExplore';
