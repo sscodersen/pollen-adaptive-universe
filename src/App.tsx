@@ -1,21 +1,19 @@
 import React, { useState } from "react";
-import { Home } from "@/components/Home";
-import { Search } from "@/components/Search";
-import { Collections } from "@/components/Collections";
-import { Shopping } from "@/components/Shopping";
+import { Feed } from "@/components/Feed";
+import { Explore } from "@/components/Explore";
+import { Shop } from "@/components/Shop";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { Toaster } from "@/components/ui/sonner";
 
 function App() {
-  const [currentScreen, setCurrentScreen] = useState<'home' | 'search' | 'collections' | 'shopping'>('home');
+  const [currentScreen, setCurrentScreen] = useState<'feed' | 'explore' | 'shop'>('feed');
 
   return (
     <ErrorBoundary>
       <div className="relative min-h-screen w-full overflow-x-hidden">
-        {currentScreen === 'home' && <Home onNavigate={setCurrentScreen} />}
-        {currentScreen === 'search' && <Search onNavigate={setCurrentScreen} />}
-        {currentScreen === 'collections' && <Collections onNavigate={setCurrentScreen} />}
-        {currentScreen === 'shopping' && <Shopping onNavigate={setCurrentScreen} />}
+        {currentScreen === 'feed' && <Feed onNavigate={setCurrentScreen} />}
+        {currentScreen === 'explore' && <Explore onNavigate={setCurrentScreen} />}
+        {currentScreen === 'shop' && <Shop onNavigate={setCurrentScreen} />}
         <Toaster />
       </div>
     </ErrorBoundary>
