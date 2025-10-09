@@ -27,7 +27,18 @@ Preferred communication style: Simple, everyday language.
     - **AI-Driven Explore**: SSE Worker Bot for content creation, trending opportunities, real estate insights, and AI-driven discovery.
     - **Community & AI Ethics**: AI transparency dashboard (decision logs, bias detection), ethical concerns reporting, AI-driven user matching, support groups, and moderation tools.
     - **Smart Shop**: Product listings and shopping features.
-- **Data Architecture**: Browser-based local storage, memory engine for personalization, content caching, and analytics. Comprehensive database schema (10+ tables) for users, communities, posts, ethical reports, bias detection, and moderation.
+    - **Health & Wellness Research** (NEW - Oct 2025):
+        - **Data Submission**: Multi-category health data forms (fitness, nutrition, mental health, sleep, medical) with privacy controls
+        - **Research Dashboard**: AI-driven insights, trend analysis, and data correlations visualization
+        - **Wellness Journey Tracker**: Goal setting, progress tracking, and milestone management for wellness journeys
+        - **Research Community**: Contributors stats, top researchers, and collaborative research initiatives
+    - **AI Ethics & Responsible Innovation Forum** (NEW - Oct 2025):
+        - **Forum System**: Topic-based discussions with categories (AI bias, privacy, transparency, fairness, accountability, safety)
+        - **Voting System**: Upvoting for topics and posts with vote count display
+        - **Expert Badges**: Verification system for experts, researchers, and regular users
+        - **Guidelines**: Community-driven ethical principles for AI development
+        - **Transparency Dashboard**: AI decision logs and bias statistics integrated view
+- **Data Architecture**: Browser-based local storage, memory engine for personalization, content caching, and analytics. Comprehensive database schema (10+ tables) for users, communities, posts, ethical reports, bias detection, and moderation. New tables for health data, wellness journeys, research findings, and forum topics.
 - **Security & Performance**: Anonymous operation, real-time performance monitoring, error boundaries, and progressive enhancement.
 
 # External Dependencies
