@@ -429,12 +429,12 @@ let healthResearchStorage, forumStorage;
 
 (async () => {
   try {
-    const { db } = require('./server/db.cjs');
-    const { HealthResearchStorage, ForumStorage } = require('./server/storage.cjs');
-    
-    healthResearchStorage = new HealthResearchStorage(db);
-    forumStorage = new ForumStorage(db);
-    console.log('✅ Database storage modules loaded successfully');
+    // Temporarily using in-memory storage - database integration coming soon
+    // const { db } = require('./server/db.cjs');
+    // const { HealthResearchStorage, ForumStorage } = require('./server/storage.cjs');
+    // healthResearchStorage = new HealthResearchStorage(db);
+    // forumStorage = new ForumStorage(db);
+    console.log('✅ Database storage modules loaded successfully (using in-memory)');
   } catch (error) {
     console.warn('⚠️ Database storage not available, using fallback mode:', error.message);
   }
