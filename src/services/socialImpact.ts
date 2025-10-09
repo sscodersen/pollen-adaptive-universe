@@ -1,4 +1,5 @@
 import { pollenAI } from './pollenAI';
+import { DemoFeedAdapter } from './demoFeedAdapter';
 
 export interface SocialInitiative {
   id: string;
@@ -182,12 +183,12 @@ class SocialImpactService {
   }
 
   private async loadInitiatives(): Promise<void> {
-    this.initiatives = [
+    const baseInitiatives: SocialInitiative[] = [
       {
         id: 'init-1',
         title: 'AI-Powered Crop Disease Detection for Small Farmers',
         description: 'Develop and distribute a mobile app that uses AI to identify crop diseases early, helping small-scale farmers prevent crop loss and increase yields.',
-        category: 'technology',
+        category: 'technology' as const,
         organization: 'AgriTech for Good',
         fundingGoal: 250000,
         currentFunding: 185000,
@@ -208,7 +209,7 @@ class SocialImpactService {
         id: 'init-2',
         title: 'Digital Literacy Program for Seniors',
         description: 'Provide free digital literacy training to seniors, helping them navigate online services, connect with family, and avoid online scams.',
-        category: 'education',
+        category: 'education' as const,
         organization: 'Tech for All Ages',
         fundingGoal: 100000,
         currentFunding: 87000,
@@ -228,7 +229,7 @@ class SocialImpactService {
         id: 'init-3',
         title: 'Ocean Plastic to Building Materials',
         description: 'Convert ocean plastic waste into durable building materials for affordable housing in coastal communities.',
-        category: 'environment',
+        category: 'environment' as const,
         organization: 'Blue Planet Initiative',
         fundingGoal: 500000,
         currentFunding: 325000,
@@ -246,6 +247,9 @@ class SocialImpactService {
         ]
       }
     ];
+
+    const demoInitiatives = DemoFeedAdapter.getSocialInitiatives();
+    this.initiatives = [...baseInitiatives, ...demoInitiatives];
   }
 
   private calculateImpactScore(initiative: Partial<SocialInitiative>): number {

@@ -6,6 +6,7 @@ import { contentOrchestrator } from './services/contentOrchestrator';
 import { platformOptimizer } from './services/platformOptimizer';
 import { performanceMonitor } from './services/performanceMonitor';
 import { systemHealthChecker } from './services/systemHealthCheck';
+import { seedDataService } from './services/seedData';
 
 // Comprehensive global error handling
 window.addEventListener('unhandledrejection', (event) => {
@@ -48,6 +49,10 @@ const initializePlatform = async () => {
     // Initialize platform optimizer
     await platformOptimizer.autoOptimize();
     console.log('🚀 Platform optimizer initialized');
+    
+    // Seed demo data for better first-time user experience
+    await seedDataService.seedAllData();
+    console.log('✨ Demo content loaded');
     
     // Initialize optional Pollen AI integration from saved preferences (non-blocking)
     initializePollenFromPreferences().catch(error => {

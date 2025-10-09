@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Users, Shield, Eye, Plus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { storageService } from '@/services/storageService';
 
 export default function Community() {
   const [communities, setCommunities] = useState([]);
@@ -27,11 +28,20 @@ export default function Community() {
     try {
       const response = await fetch('/api/community/communities');
       const data = await response.json();
-      if (data.success) {
+      if (data.success && data.communities && data.communities.length > 0) {
         setCommunities(data.communities);
+      } else {
+        const demoCommunities = storageService.getItem('demo_communities', []);
+        if (demoCommunities.length > 0) {
+          setCommunities(demoCommunities);
+        }
       }
     } catch (error) {
       console.error('Error fetching communities:', error);
+      const demoCommunities = storageService.getItem('demo_communities', []);
+      if (demoCommunities.length > 0) {
+        setCommunities(demoCommunities);
+      }
     }
   };
 
@@ -39,11 +49,26 @@ export default function Community() {
     try {
       const response = await fetch(`/api/community/users/${mockUserId}/suggestions`);
       const data = await response.json();
-      if (data.success) {
+      if (data.success && data.suggestions && data.suggestions.length > 0) {
         setSuggestedCommunities(data.suggestions);
+      } else {
+        const demoCommunities = storageService.getItem('demo_communities', []);
+        const suggestions = demoCommunities.slice(0, 3).map((comm: any) => ({
+          community: comm,
+          matchScore: 0.8 + Math.random() * 0.2,
+          reasons: ['Based on your interests', 'Popular in your area', 'Recommended for you']
+        }));
+        setSuggestedCommunities(suggestions);
       }
     } catch (error) {
       console.error('Error fetching suggestions:', error);
+      const demoCommunities = storageService.getItem('demo_communities', []);
+      const suggestions = demoCommunities.slice(0, 3).map((comm: any) => ({
+        community: comm,
+        matchScore: 0.8 + Math.random() * 0.2,
+        reasons: ['Based on your interests', 'Popular in your area', 'Recommended for you']
+      }));
+      setSuggestedCommunities(suggestions);
     }
   };
 

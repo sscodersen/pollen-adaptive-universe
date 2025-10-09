@@ -1,4 +1,5 @@
 import { pollenAI } from './pollenAI';
+import { DemoFeedAdapter } from './demoFeedAdapter';
 
 export interface Opportunity {
   id: string;
@@ -168,15 +169,15 @@ class OpportunityCurationService {
   }
 
   private async loadOpportunities(): Promise<void> {
-    this.opportunities = [
+    const baseOpportunities = [
       {
         id: 'opp-1',
-        type: 'app',
+        type: 'app' as const,
         title: 'Voice-Controlled Smart Home App',
         description: 'New platform integrating all smart home devices with advanced voice AI.',
         relevanceScore: 9.0,
         qualityScore: 8.7,
-        urgency: 'high',
+        urgency: 'high' as const,
         category: 'Smart Home',
         tags: ['IoT', 'voice-AI', 'automation'],
         source: 'App Store Trends',
@@ -187,12 +188,12 @@ class OpportunityCurationService {
       },
       {
         id: 'opp-2',
-        type: 'product',
+        type: 'product' as const,
         title: 'Biodegradable Phone Cases',
         description: 'Eco-friendly phone protection made from plant-based materials.',
         relevanceScore: 8.5,
         qualityScore: 9.0,
-        urgency: 'medium',
+        urgency: 'medium' as const,
         category: 'Sustainable Tech',
         tags: ['eco-friendly', 'accessories', 'innovation'],
         source: 'Product Hunt',
@@ -202,12 +203,12 @@ class OpportunityCurationService {
       },
       {
         id: 'opp-3',
-        type: 'travel',
+        type: 'travel' as const,
         title: 'Off-Season Mediterranean Cruises',
         description: 'Luxury cruises at 60% discount during shoulder season with perfect weather.',
         relevanceScore: 8.0,
         qualityScore: 8.5,
-        urgency: 'high',
+        urgency: 'high' as const,
         category: 'Travel Deals',
         tags: ['cruise', 'luxury', 'discount'],
         source: 'Travel AI',
@@ -218,12 +219,12 @@ class OpportunityCurationService {
       },
       {
         id: 'opp-4',
-        type: 'news',
+        type: 'news' as const,
         title: 'New AI Regulation Framework Announced',
         description: 'Government unveils comprehensive AI governance guidelines affecting tech startups.',
         relevanceScore: 9.2,
         qualityScore: 9.5,
-        urgency: 'high',
+        urgency: 'high' as const,
         category: 'Policy & Regulation',
         tags: ['AI-regulation', 'compliance', 'policy'],
         source: 'News Aggregator AI',
@@ -233,12 +234,12 @@ class OpportunityCurationService {
       },
       {
         id: 'opp-5',
-        type: 'lifestyle',
+        type: 'lifestyle' as const,
         title: 'Personalized Meal Prep Services',
         description: 'AI-customized meal plans delivered weekly based on health goals and preferences.',
         relevanceScore: 8.3,
         qualityScore: 8.4,
-        urgency: 'low',
+        urgency: 'low' as const,
         category: 'Health & Wellness',
         tags: ['nutrition', 'meal-prep', 'personalization'],
         source: 'Lifestyle Trends',
@@ -247,6 +248,9 @@ class OpportunityCurationService {
         estimatedValue: 'Save 5 hours weekly'
       }
     ];
+
+    const demoOpportunities = DemoFeedAdapter.getOpportunities();
+    this.opportunities = [...baseOpportunities, ...demoOpportunities];
   }
 
   private calculateQualityScore(opportunity: Partial<Opportunity>): number {
