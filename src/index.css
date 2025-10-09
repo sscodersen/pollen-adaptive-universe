@@ -5,63 +5,109 @@
 
 @layer base {
   :root {
-    /* Pastel Light Theme */
+    /* Professional Light Theme - Black, White, Gold */
     --background: 0 0% 100%;
-    --foreground: 240 10% 15%;
+    --foreground: 0 0% 10%;
 
     --card: 0 0% 100%;
-    --card-foreground: 240 10% 15%;
+    --card-foreground: 0 0% 10%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 15%;
+    --popover-foreground: 0 0% 10%;
 
-    --primary: 260 60% 65%;
+    /* Gold/Yellow Pollen Primary Color */
+    --primary: 45 93% 47%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 220 14% 96%;
-    --secondary-foreground: 240 10% 15%;
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 10%;
 
-    --muted: 220 14% 96%;
-    --muted-foreground: 240 5% 45%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 45%;
 
-    --accent: 280 50% 70%;
-    --accent-foreground: 0 0% 100%;
+    /* Gold accent for hover states */
+    --accent: 43 96% 56%;
+    --accent-foreground: 0 0% 10%;
 
-    --destructive: 0 70% 60%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 260 60% 65%;
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 45 93% 47%;
 
-    /* Pastel gradient backgrounds */
-    --gradient-pink: 340 80% 92%;
-    --gradient-blue: 200 70% 90%;
-    --gradient-purple: 270 65% 92%;
-    --gradient-green: 150 60% 88%;
-    
-    /* Weather widget colors */
-    --weather-sun: 45 100% 65%;
-    --weather-cloud: 210 20% 85%;
+    /* Professional gradient backgrounds */
+    --gradient-light: 0 0% 98%;
+    --gradient-white: 0 0% 100%;
+    --gradient-gold: 45 100% 96%;
+    --gradient-cream: 40 40% 97%;
     
     /* Card shadows */
-    --shadow-soft: 0 2px 8px rgba(0, 0, 0, 0.08);
-    --shadow-medium: 0 4px 16px rgba(0, 0, 0, 0.12);
+    --shadow-soft: 0 2px 12px rgba(0, 0, 0, 0.08);
+    --shadow-medium: 0 4px 20px rgba(0, 0, 0, 0.12);
+    --shadow-strong: 0 8px 32px rgba(0, 0, 0, 0.16);
     
-    --radius: 1.25rem;
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    /* Professional Dark Theme - Black backgrounds, Gold accents */
+    --background: 0 0% 8%;
+    --foreground: 0 0% 98%;
+
+    --card: 0 0% 12%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 0 0% 12%;
+    --popover-foreground: 0 0% 98%;
+
+    /* Brighter gold for dark mode */
+    --primary: 45 93% 58%;
+    --primary-foreground: 0 0% 10%;
+
+    --secondary: 0 0% 16%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 0 0% 16%;
+    --muted-foreground: 0 0% 60%;
+
+    --accent: 43 96% 65%;
+    --accent-foreground: 0 0% 10%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 0 0% 20%;
+    --input: 0 0% 20%;
+    --ring: 45 93% 58%;
+
+    /* Dark theme gradients */
+    --gradient-dark: 0 0% 10%;
+    --gradient-black: 0 0% 8%;
+    --gradient-gold-dark: 45 40% 15%;
+    --gradient-warm: 40 20% 12%;
   }
 
   body {
     background: linear-gradient(135deg, 
-      hsl(var(--gradient-pink)), 
-      hsl(var(--gradient-blue)), 
-      hsl(var(--gradient-purple)),
-      hsl(var(--gradient-green))
+      hsl(var(--gradient-white)), 
+      hsl(var(--gradient-cream)), 
+      hsl(var(--gradient-gold)),
+      hsl(var(--gradient-light))
     );
     background-size: 400% 400%;
-    animation: gradientShift 15s ease infinite;
+    animation: gradientShift 20s ease infinite;
     position: relative;
     min-height: 100vh;
+  }
+
+  .dark body {
+    background: linear-gradient(135deg, 
+      hsl(var(--gradient-black)), 
+      hsl(var(--gradient-dark)), 
+      hsl(var(--gradient-gold-dark)),
+      hsl(var(--gradient-warm))
+    );
   }
 
   body::before {
@@ -72,12 +118,11 @@
     right: 0;
     bottom: 0;
     background-image: 
-      radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.3) 1px, transparent 1px),
-      radial-gradient(circle at 80% 70%, rgba(255, 255, 255, 0.3) 1px, transparent 1px),
-      radial-gradient(circle at 40% 60%, rgba(255, 255, 255, 0.25) 1px, transparent 1px),
-      radial-gradient(circle at 60% 40%, rgba(255, 255, 255, 0.25) 1px, transparent 1px);
-    background-size: 50px 50px, 80px 80px, 60px 60px, 70px 70px;
-    background-position: 0 0, 40px 40px, 20px 20px, 50px 50px;
+      radial-gradient(circle at 20% 30%, rgba(234, 179, 8, 0.1) 1px, transparent 1px),
+      radial-gradient(circle at 80% 70%, rgba(234, 179, 8, 0.08) 1px, transparent 1px),
+      radial-gradient(circle at 40% 60%, rgba(234, 179, 8, 0.06) 1px, transparent 1px);
+    background-size: 50px 50px, 80px 80px, 60px 60px;
+    background-position: 0 0, 40px 40px, 20px 20px;
     pointer-events: none;
     z-index: 0;
   }
@@ -107,117 +152,157 @@
 
 @layer utilities {
   .glass-card {
-    @apply bg-white/85 backdrop-blur-xl rounded-2xl shadow-sm border border-white/60;
+    @apply bg-white/90 dark:bg-black/90 backdrop-blur-xl rounded-xl shadow-lg border border-gray-200/50 dark:border-gray-700/50;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
   
   .glass-card:hover {
-    @apply shadow-md bg-white/90 border-white/70;
-    transform: translateY(-1px);
-  }
-  
-  .gradient-card-pink {
-    background: linear-gradient(135deg, rgba(255, 242, 248, 0.9), rgba(255, 250, 252, 0.9));
-    @apply backdrop-blur-md rounded-2xl border border-pink-200/40 shadow-sm;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-  
-  .gradient-card-pink:hover {
-    @apply shadow-md border-pink-200/60;
+    @apply shadow-xl bg-white/95 dark:bg-black/95 border-gray-300/60 dark:border-gray-600/60;
     transform: translateY(-2px);
   }
   
-  .gradient-card-blue {
-    background: linear-gradient(135deg, rgba(240, 249, 255, 0.9), rgba(248, 252, 255, 0.9));
-    @apply backdrop-blur-md rounded-2xl border border-blue-200/40 shadow-sm;
+  .gradient-card-gold {
+    background: linear-gradient(135deg, rgba(255, 251, 235, 0.95), rgba(254, 249, 231, 0.95));
+    @apply dark:bg-gradient-to-br dark:from-yellow-950/40 dark:to-yellow-900/30;
+    @apply backdrop-blur-md rounded-xl border border-yellow-200/50 dark:border-yellow-700/30 shadow-md;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
   
-  .gradient-card-blue:hover {
-    @apply shadow-md border-blue-200/60;
+  .gradient-card-gold:hover {
+    @apply shadow-xl border-yellow-300/70 dark:border-yellow-600/50;
     transform: translateY(-2px);
   }
   
-  .gradient-card-purple {
-    background: linear-gradient(135deg, rgba(250, 245, 255, 0.9), rgba(252, 248, 255, 0.9));
-    @apply backdrop-blur-md rounded-2xl border border-purple-200/40 shadow-sm;
+  .gradient-card-white {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(250, 250, 250, 0.95));
+    @apply dark:bg-gradient-to-br dark:from-gray-900/90 dark:to-gray-800/90;
+    @apply backdrop-blur-md rounded-xl border border-gray-200/60 dark:border-gray-700/40 shadow-md;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
   
-  .gradient-card-purple:hover {
-    @apply shadow-md border-purple-200/60;
+  .gradient-card-white:hover {
+    @apply shadow-xl border-gray-300/80 dark:border-gray-600/60;
     transform: translateY(-2px);
   }
   
-  .gradient-card-green {
-    background: linear-gradient(135deg, rgba(240, 255, 248, 0.9), rgba(248, 255, 252, 0.9));
-    @apply backdrop-blur-md rounded-2xl border border-green-200/40 shadow-sm;
+  .gradient-card-black {
+    background: linear-gradient(135deg, rgba(20, 20, 20, 0.95), rgba(30, 30, 30, 0.95));
+    @apply dark:bg-gradient-to-br dark:from-gray-950/95 dark:to-black/95;
+    @apply backdrop-blur-md rounded-xl border border-gray-800/60 dark:border-gray-700/40 shadow-lg;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
   
-  .gradient-card-green:hover {
-    @apply shadow-md border-green-200/60;
+  .gradient-card-black:hover {
+    @apply shadow-2xl border-gray-700/80 dark:border-gray-600/60;
     transform: translateY(-2px);
   }
   
   .professional-button {
-    @apply px-6 py-3 rounded-xl font-medium transition-all duration-300;
+    @apply px-6 py-3 rounded-lg font-medium transition-all duration-300;
     @apply shadow-sm hover:shadow-md active:scale-95;
   }
   
   .professional-button-primary {
-    @apply professional-button bg-gradient-to-r from-purple-600 to-pink-600;
-    @apply text-white hover:from-purple-700 hover:to-pink-700;
+    @apply professional-button bg-gradient-to-r from-yellow-500 to-yellow-600;
+    @apply text-black hover:from-yellow-600 hover:to-yellow-700;
+    @apply dark:from-yellow-400 dark:to-yellow-500 dark:text-black;
   }
   
   .professional-button-secondary {
-    @apply professional-button bg-white/90 backdrop-blur-sm;
-    @apply text-gray-700 border border-gray-200 hover:bg-white hover:border-gray-300;
+    @apply professional-button bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm;
+    @apply text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-600;
+    @apply hover:bg-white dark:hover:bg-gray-700 hover:border-gray-400 dark:hover:border-gray-500;
+  }
+
+  .professional-button-outline {
+    @apply professional-button bg-transparent backdrop-blur-sm;
+    @apply text-gray-900 dark:text-gray-100 border-2 border-yellow-500 dark:border-yellow-400;
+    @apply hover:bg-yellow-500/10 dark:hover:bg-yellow-400/10;
   }
   
   .professional-tab {
-    @apply px-5 py-2.5 rounded-xl text-sm font-medium transition-all duration-300;
+    @apply px-5 py-2.5 rounded-lg text-sm font-medium transition-all duration-300;
     @apply flex items-center gap-2 whitespace-nowrap;
   }
   
   .professional-tab-active {
-    @apply professional-tab bg-white shadow-sm border border-gray-200/50;
+    @apply professional-tab bg-white dark:bg-gray-800 shadow-md border border-yellow-200 dark:border-yellow-700/50;
+    @apply text-gray-900 dark:text-gray-100;
   }
   
   .professional-tab-inactive {
-    @apply professional-tab bg-white/40 text-gray-600;
-    @apply hover:bg-white/60 hover:text-gray-800;
+    @apply professional-tab bg-white/60 dark:bg-gray-800/60 text-gray-600 dark:text-gray-400;
+    @apply hover:bg-white/80 dark:hover:bg-gray-800/80 hover:text-gray-900 dark:hover:text-gray-100;
   }
   
   .professional-badge {
     @apply px-3 py-1 rounded-full text-xs font-semibold;
     @apply inline-flex items-center gap-1;
   }
+
+  .badge-gold {
+    @apply bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400;
+    @apply border border-yellow-200 dark:border-yellow-700/50;
+  }
+
+  .badge-white {
+    @apply bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200;
+    @apply border border-gray-200 dark:border-gray-700;
+  }
+
+  .badge-black {
+    @apply bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900;
+    @apply border border-gray-800 dark:border-gray-300;
+  }
   
   .stat-card {
-    @apply bg-white/70 backdrop-blur-sm rounded-xl p-4;
-    @apply border border-white/60 transition-all duration-300;
-    @apply hover:bg-white/80 hover:shadow-sm;
+    @apply bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm rounded-xl p-4;
+    @apply border border-gray-200/70 dark:border-gray-700/50 transition-all duration-300;
+    @apply hover:bg-white/90 dark:hover:bg-gray-900/90 hover:shadow-lg;
+  }
+
+  .text-gold {
+    @apply text-yellow-600 dark:text-yellow-400;
+  }
+
+  .bg-gold {
+    @apply bg-yellow-500 dark:bg-yellow-600;
+  }
+
+  .border-gold {
+    @apply border-yellow-500 dark:border-yellow-600;
   }
 }
 
 /* Custom scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.3);
-  border-radius: 3px;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(100, 116, 139, 0.3);
-  border-radius: 3px;
+  background: rgba(234, 179, 8, 0.4);
+  border-radius: 4px;
   transition: background 0.2s ease;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(100, 116, 139, 0.5);
+  background: rgba(234, 179, 8, 0.6);
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(234, 179, 8, 0.5);
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(234, 179, 8, 0.7);
 }
