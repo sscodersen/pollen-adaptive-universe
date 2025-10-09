@@ -8,6 +8,7 @@ import { BottomNav } from "./BottomNav";
 import { wellnessContentService, WellnessTip } from '../services/wellnessContent';
 import { socialImpactService, SocialInitiative } from '../services/socialImpact';
 import { opportunityCurationService, Opportunity } from '../services/opportunityCuration';
+import { realWeatherService } from '../services/realWeatherService';
 import type { FeedTab } from '../types/feed';
 
 interface EnhancedFeedProps {
@@ -35,6 +36,7 @@ export const EnhancedFeed = memo(({ onNavigate }: EnhancedFeedProps) => {
   const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
   const [votedInitiatives, setVotedInitiatives] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [weather, setWeather] = useState<{ temp: number; icon: string } | null>(null);
 
   useEffect(() => {
     loadContent();
@@ -43,15 +45,17 @@ export const EnhancedFeed = memo(({ onNavigate }: EnhancedFeedProps) => {
   const loadContent = useCallback(async (): Promise<void> => {
     try {
       setIsLoading(true);
-      const [tip, socialInitiatives, curatedOpps] = await Promise.all([
+      const [tip, socialInitiatives, curatedOpps, weatherData] = await Promise.all([
         wellnessContentService.getDailyTip(),
         socialImpactService.getCuratedInitiatives(3),
-        opportunityCurationService.getCuratedOpportunities(undefined, 4)
+        opportunityCurationService.getCuratedOpportunities(undefined, 4),
+        realWeatherService.getCurrentWeather()
       ]);
       
       setDailyTip(tip);
       setInitiatives(socialInitiatives);
       setOpportunities(curatedOpps);
+      setWeather({ temp: weatherData.temperature, icon: weatherData.icon });
     } catch (error) {
       console.error('Failed to load feed content:', error);
     } finally {
@@ -88,8 +92,8 @@ export const EnhancedFeed = memo(({ onNavigate }: EnhancedFeedProps) => {
             </div>
           </div>
           <div className="glass-card px-3 sm:px-4 py-1.5 sm:py-2 flex items-center gap-2">
-            <Sun className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-500" />
-            <span className="text-base sm:text-lg font-medium">11°C</span>
+            <span className="text-base sm:text-lg">{weather?.icon || '☀️'}</span>
+            <span className="text-base sm:text-lg font-medium">{weather?.temp || 11}°C</span>
           </div>
         </div>
         
