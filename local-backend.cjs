@@ -321,6 +321,111 @@ storage.communities = [];
 storage.communityMembers = [];
 storage.communityPosts = [];
 
+// Initialize seed data for better first-time user experience
+const initializeSeedData = () => {
+  const sampleCommunities = [
+    {
+      communityId: 'community_ai_ethics_001',
+      name: 'AI Ethics & Transparency',
+      description: 'Discussion on responsible AI development, bias detection, and ethical guidelines for AI systems.',
+      type: 'support_group',
+      category: 'ai_ethics',
+      isPrivate: false,
+      creatorId: 'system',
+      memberCount: 247,
+      createdAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
+    },
+    {
+      communityId: 'community_wellness_002',
+      name: 'Wellness & Mental Health',
+      description: 'Share wellness journeys, mental health tips, and support each other in achieving better health outcomes.',
+      type: 'support_group',
+      category: 'wellness',
+      isPrivate: false,
+      creatorId: 'system',
+      memberCount: 532,
+      createdAt: new Date(Date.now() - 45 * 24 * 60 * 60 * 1000).toISOString()
+    },
+    {
+      communityId: 'community_tech_003',
+      name: 'Tech Innovators Hub',
+      description: 'Connect with tech enthusiasts, developers, and innovators building the future with AI and emerging technologies.',
+      type: 'general',
+      category: 'technology',
+      isPrivate: false,
+      creatorId: 'system',
+      memberCount: 891,
+      createdAt: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString()
+    },
+    {
+      communityId: 'community_agriculture_004',
+      name: 'Smart Agriculture & Farming',
+      description: 'Modern farming techniques, smart agriculture tools, and sustainable farming practices discussion.',
+      type: 'general',
+      category: 'agriculture',
+      isPrivate: false,
+      creatorId: 'system',
+      memberCount: 156,
+      createdAt: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000).toISOString()
+    },
+    {
+      communityId: 'community_opportunities_005',
+      name: 'Career & Opportunities',
+      description: 'Share job opportunities, career advice, and professional development resources.',
+      type: 'general',
+      category: 'opportunities',
+      isPrivate: false,
+      creatorId: 'system',
+      memberCount: 1243,
+      createdAt: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString()
+    }
+  ];
+
+  const samplePosts = [
+    {
+      postId: 'post_001',
+      communityId: 'community_ai_ethics_001',
+      userId: 'user_alice_123',
+      content: 'Just read an interesting paper on bias detection in large language models. The key is continuous monitoring and diverse training data. What strategies is everyone using?',
+      postType: 'discussion',
+      likes: 34,
+      replies: 12,
+      createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString()
+    },
+    {
+      postId: 'post_002',
+      communityId: 'community_wellness_002',
+      userId: 'user_bob_456',
+      content: '30 days into my wellness journey and feeling amazing! Started with small changes: 20 min walks daily, meditation, and better sleep schedule. Keep going everyone! 💪',
+      postType: 'success_story',
+      likes: 89,
+      replies: 23,
+      createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString()
+    },
+    {
+      postId: 'post_003',
+      communityId: 'community_tech_003',
+      userId: 'user_carol_789',
+      content: 'Building a real-time AI assistant using WebGPU for client-side inference. Performance is impressive! Anyone else working on edge AI?',
+      postType: 'discussion',
+      likes: 56,
+      replies: 18,
+      createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString()
+    }
+  ];
+
+  storage.communities.push(...sampleCommunities);
+  storage.communityPosts.push(...samplePosts);
+  
+  console.log('✅ Seed data initialized:', {
+    communities: storage.communities.length,
+    posts: storage.communityPosts.length
+  });
+};
+
+// Initialize seed data on server start
+initializeSeedData();
+
 // Ethics - Report ethical concerns
 app.post('/api/ethics/reports', (req, res) => {
   const { userId, contentId, concernType, description, severity } = req.body;

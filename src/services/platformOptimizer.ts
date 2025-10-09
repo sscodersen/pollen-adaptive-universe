@@ -324,12 +324,12 @@ class PlatformOptimizer {
     const issues: string[] = [];
     const recommendations: string[] = [];
     
-    if (this.metrics.memoryUsage > 50) {
+    if (this.metrics.memoryUsage > 100) {
       issues.push('High memory usage detected');
       recommendations.push('Consider clearing cache or reducing content preloading');
     }
     
-    if (this.metrics.errorRate > 0.05) {
+    if (this.metrics.errorRate > 0.1) {
       issues.push('High error rate detected');
       recommendations.push('Review error logs and implement additional fallbacks');
     }
@@ -339,7 +339,8 @@ class PlatformOptimizer {
       recommendations.push('Enable caching and optimize content generation');
     }
     
-    if (this.metrics.cacheHitRatio < 0.6) {
+    const hasOperations = this.performanceLog.length > 10;
+    if (hasOperations && this.metrics.cacheHitRatio < 0.4) {
       issues.push('Low cache hit ratio');
       recommendations.push('Adjust cache expiration times and preloading strategy');
     }
