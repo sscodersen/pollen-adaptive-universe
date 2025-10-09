@@ -284,7 +284,7 @@ export default function HealthResearch() {
   };
 
   return (
-    <div className="container mx-auto p-6 max-w-7xl">
+    <div className="container mx-auto p-6 max-w-7xl animate-fade-in-up">
       <div className="mb-8">
         <h1 className="text-4xl font-bold mb-2">Health & Wellness Research</h1>
         <p className="text-muted-foreground">

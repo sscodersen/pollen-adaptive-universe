@@ -223,7 +223,7 @@ export default function AIEthicsForum() {
     : topics.filter(t => t.category === selectedCategory);
 
   return (
-    <div className="container mx-auto p-6 max-w-7xl">
+    <div className="container mx-auto p-6 max-w-7xl animate-fade-in-up">
       <div className="mb-8">
         <h1 className="text-4xl font-bold mb-2">AI Ethics & Responsible Innovation Forum</h1>
         <p className="text-muted-foreground">
