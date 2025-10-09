@@ -8,15 +8,18 @@ import AIEthicsForum from "@/pages/AIEthicsForum";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { Toaster } from "@/components/ui/sonner";
 import { Button } from "@/components/ui/button";
-import { Home, Compass, ShoppingBag, Users, Activity, Shield, Moon, Sun } from "lucide-react";
+import { WelcomeOnboarding } from "@/components/WelcomeOnboarding";
+import { HelpSupport } from "@/components/HelpSupport";
+import { Home, Compass, ShoppingBag, Users, Activity, Shield, Moon, Sun, HelpCircle } from "lucide-react";
 import { useTheme } from "next-themes";
 
 function App() {
-  const [currentScreen, setCurrentScreen] = useState<'feed' | 'explore' | 'shop' | 'community' | 'health' | 'ethics'>('feed');
+  const [currentScreen, setCurrentScreen] = useState<'feed' | 'explore' | 'shop' | 'community' | 'health' | 'ethics' | 'help'>('feed');
   const { theme, setTheme } = useTheme();
 
   return (
     <ErrorBoundary>
+      <WelcomeOnboarding />
       <div className="relative min-h-screen w-full overflow-x-hidden">
         {/* Top Navigation Bar */}
         <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 dark:bg-gray-900/95 backdrop-blur-lg border-b border-gray-200 dark:border-gray-800">
@@ -86,6 +89,14 @@ function App() {
                   <Shield className="w-4 h-4 mr-2" />
                   Ethics
                 </Button>
+                <Button
+                  variant={currentScreen === 'help' ? 'default' : 'ghost'}
+                  size="icon"
+                  onClick={() => setCurrentScreen('help')}
+                  title="Help & Support"
+                >
+                  <HelpCircle className="w-4 h-4" />
+                </Button>
               </div>
             </div>
           </div>
@@ -99,6 +110,7 @@ function App() {
           {currentScreen === 'community' && <Community />}
           {currentScreen === 'health' && <HealthResearch />}
           {currentScreen === 'ethics' && <AIEthicsForum />}
+          {currentScreen === 'help' && <HelpSupport />}
         </div>
 
         <Toaster />
