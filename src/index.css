@@ -103,6 +103,10 @@
     @apply border-border;
   }
 
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
     @apply text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
@@ -112,32 +116,60 @@
   h1, h2, h3, h4, h5, h6 {
     font-weight: 600;
   }
+
+  /* Smooth animations for all elements */
+  * {
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  }
 }
 
 @layer utilities {
   .glass-card {
     @apply bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm rounded-lg shadow-sm border border-gray-200/80 dark:border-gray-700/50;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: fadeInUp 0.4s ease-out;
   }
   
   .glass-card:hover {
     @apply shadow-md border-gray-300/90 dark:border-gray-600/60;
-    transform: translateY(-1px);
+    transform: translateY(-2px) scale(1.01);
+  }
+
+  .glass-card:active {
+    transform: translateY(0) scale(0.99);
+    transition: all 0.1s ease;
   }
   
   .card-elevated {
     @apply bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: fadeInUp 0.5s ease-out;
   }
   
   .card-elevated:hover {
     @apply shadow-xl;
-    transform: translateY(-2px);
+    transform: translateY(-4px) scale(1.02);
+  }
+
+  .card-elevated:active {
+    transform: translateY(-1px) scale(0.99);
+    transition: all 0.1s ease;
   }
   
   .professional-button {
-    @apply px-6 py-3 rounded-md font-medium transition-all duration-200;
-    @apply shadow-sm hover:shadow-md active:scale-95;
+    @apply px-6 py-3 rounded-md font-medium;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    @apply shadow-sm;
+  }
+
+  .professional-button:hover {
+    @apply shadow-lg;
+    transform: translateY(-1px);
+  }
+
+  .professional-button:active {
+    transform: translateY(0) scale(0.98);
+    @apply shadow-sm;
   }
   
   .professional-button-primary {
@@ -158,17 +190,27 @@
   }
   
   .professional-tab {
-    @apply px-4 py-2 rounded-md text-sm font-medium transition-all duration-200;
+    @apply px-4 py-2 rounded-md text-sm font-medium;
     @apply flex items-center gap-2 whitespace-nowrap;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   }
   
   .professional-tab-active {
-    @apply professional-tab bg-black dark:bg-white text-white dark:text-black shadow-sm;
+    @apply professional-tab bg-black dark:bg-white text-white dark:text-black shadow-md;
+    transform: scale(1.05);
   }
   
   .professional-tab-inactive {
     @apply professional-tab bg-transparent text-gray-600 dark:text-gray-400;
     @apply hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100;
+  }
+
+  .professional-tab-inactive:hover {
+    transform: translateY(-1px);
+  }
+
+  .professional-tab:active {
+    transform: scale(0.95);
   }
   
   .professional-badge {
@@ -240,4 +282,79 @@
 
 .dark ::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.3);
+}
+
+/* Smooth animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.4s ease-out;
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.3s ease-out;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.3s ease-out;
+}
+
+/* Stagger animations for lists */
+.stagger-animation > * {
+  animation: fadeInUp 0.4s ease-out;
+}
+
+.stagger-animation > *:nth-child(1) { animation-delay: 0.05s; }
+.stagger-animation > *:nth-child(2) { animation-delay: 0.1s; }
+.stagger-animation > *:nth-child(3) { animation-delay: 0.15s; }
+.stagger-animation > *:nth-child(4) { animation-delay: 0.2s; }
+.stagger-animation > *:nth-child(5) { animation-delay: 0.25s; }
+
+/* Smooth page transitions */
+.page-transition {
+  animation: fadeIn 0.3s ease-out;
 }

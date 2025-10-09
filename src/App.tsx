@@ -103,7 +103,7 @@ function App() {
         </nav>
 
         {/* Main Content */}
-        <div className="pt-16">
+        <div className="pt-16 page-transition">
           {currentScreen === 'feed' && <EnhancedFeed onNavigate={setCurrentScreen} />}
           {currentScreen === 'explore' && <EnhancedExplore onNavigate={setCurrentScreen} />}
           {currentScreen === 'shop' && <Shop onNavigate={setCurrentScreen} />}

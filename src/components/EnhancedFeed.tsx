@@ -123,7 +123,7 @@ export const EnhancedFeed = memo(({ onNavigate }: EnhancedFeedProps) => {
         </div>
 
         {/* Content Sections */}
-        <div className="space-y-4">
+        <div className="space-y-4 stagger-animation">
           {/* Content Verification Feature */}
           {activeTab === 'all' && (
             <div className="card-elevated p-6">
