@@ -74,12 +74,12 @@ export const EnhancedFeed = memo(({ onNavigate }: EnhancedFeedProps) => {
   }, []);
 
   return (
-    <div className="relative min-h-screen pb-32 bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
+    <div className="relative min-h-screen pb-32">
       {/* Header */}
       <div className="p-4 sm:p-6 pt-6 sm:pt-8">
         <div className="flex items-start justify-between mb-6">
           <div className="flex items-center gap-2 sm:gap-3">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center text-white font-semibold text-base sm:text-lg">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-black dark:bg-white flex items-center justify-center text-white dark:text-black font-semibold text-base sm:text-lg shadow-md">
               J
             </div>
             <div className="flex items-center gap-2 glass-card px-3 sm:px-4 py-1.5 sm:py-2">
@@ -122,10 +122,10 @@ export const EnhancedFeed = memo(({ onNavigate }: EnhancedFeedProps) => {
         <div className="space-y-4">
           {/* Content Verification Feature */}
           {activeTab === 'all' && (
-            <div className="glass-card p-6 border-2 border-purple-200/50">
+            <div className="card-elevated p-6">
               <div className="flex items-center gap-3 mb-3">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center shadow-md">
-                  <Shield className="w-6 h-6 text-white" />
+                <div className="w-12 h-12 rounded-lg bg-black dark:bg-white flex items-center justify-center shadow-md">
+                  <Shield className="w-6 h-6 text-white dark:text-black" />
                 </div>
                 <div className="flex-1">
                   <h3 className="font-semibold text-lg text-gray-900">Content Verification</h3>
@@ -144,8 +144,8 @@ export const EnhancedFeed = memo(({ onNavigate }: EnhancedFeedProps) => {
                   <span className="text-sm font-medium text-gray-700">94% Accuracy</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Shield className="w-5 h-5 text-purple-500" />
-                  <span className="text-sm font-medium text-gray-700">Secure Analysis</span>
+                  <Shield className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Secure Analysis</span>
                 </div>
               </div>
             </div>
@@ -153,21 +153,21 @@ export const EnhancedFeed = memo(({ onNavigate }: EnhancedFeedProps) => {
 
           {/* Daily Wellness Tip */}
           {(activeTab === 'all' || activeTab === 'wellness') && dailyTip && (
-            <div className="gradient-card-pink p-6">
+            <div className="card-elevated p-6">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-pink-500/10 flex items-center justify-center">
-                    <Heart className="w-5 h-5 text-pink-600" />
+                  <div className="w-10 h-10 rounded-lg bg-red-50 dark:bg-red-950 flex items-center justify-center">
+                    <Heart className="w-5 h-5 text-red-600 dark:text-red-400" />
                   </div>
-                  <h3 className="font-semibold text-lg text-gray-900">Daily Wellness Tip</h3>
+                  <h3 className="font-semibold text-lg text-gray-900 dark:text-gray-100">Daily Wellness Tip</h3>
                 </div>
-                <span className="professional-badge bg-pink-100 text-pink-700">
+                <span className="badge-secondary">
                   {dailyTip.duration}
                 </span>
               </div>
-              <h4 className="font-semibold text-gray-900 mb-2 text-base">{dailyTip.title}</h4>
-              <p className="text-gray-600 text-sm mb-5 leading-relaxed">{dailyTip.content}</p>
-              <div className="flex items-center justify-between pt-4 border-t border-pink-200/30">
+              <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-2 text-base">{dailyTip.title}</h4>
+              <p className="text-gray-600 dark:text-gray-300 text-sm mb-5 leading-relaxed">{dailyTip.content}</p>
+              <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
                 <div className="flex gap-2">
                   {dailyTip.tags.slice(0, 2).map(tag => (
                     <span key={tag} className="professional-badge bg-white/70 text-gray-600">
@@ -175,7 +175,7 @@ export const EnhancedFeed = memo(({ onNavigate }: EnhancedFeedProps) => {
                     </span>
                   ))}
                 </div>
-                <button className="text-purple-600 text-sm font-semibold flex items-center gap-1 hover:text-purple-700 transition-colors">
+                <button className="text-gray-900 dark:text-gray-100 text-sm font-semibold flex items-center gap-1 hover:text-gray-700 dark:hover:text-gray-300 transition-colors">
                   Read More <ChevronRight className="w-4 h-4" />
                 </button>
               </div>
@@ -184,7 +184,7 @@ export const EnhancedFeed = memo(({ onNavigate }: EnhancedFeedProps) => {
 
           {/* Agriculture Tools */}
           {(activeTab === 'all' || activeTab === 'agriculture') && (
-            <div className="gradient-card-green p-6">
+            <div className="card-elevated p-6">
               <div className="flex items-center gap-3 mb-3">
                 <div className="w-12 h-12 rounded-xl bg-green-500/10 flex items-center justify-center">
                   <Sprout className="w-6 h-6 text-green-600" />
@@ -220,16 +220,16 @@ export const EnhancedFeed = memo(({ onNavigate }: EnhancedFeedProps) => {
             <div className="glass-card p-6 shadow-lg">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
-                  <HandHeart className="w-6 h-6 text-purple-600" />
+                  <HandHeart className="w-6 h-6 text-gray-900 dark:text-gray-100" />
                   <h3 className="font-semibold text-lg">Social Impact</h3>
                 </div>
-                <span className="text-xs bg-purple-100 text-purple-800 px-3 py-1 rounded-full">
+                <span className="badge-accent">
                   AI Curated
                 </span>
               </div>
               <div className="space-y-3">
                 {initiatives.map((initiative) => (
-                  <div key={initiative.id} className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-4">
+                  <div key={initiative.id} className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
                     <div className="flex justify-between items-start mb-2">
                       <h4 className="font-semibold text-gray-800 text-sm flex-1">{initiative.title}</h4>
                       <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full ml-2">
@@ -247,7 +247,7 @@ export const EnhancedFeed = memo(({ onNavigate }: EnhancedFeedProps) => {
                         className={`flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium transition-all ${
                           votedInitiatives.has(initiative.id)
                             ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                            : 'bg-purple-600 text-white hover:bg-purple-700'
+                            : 'bg-black dark:bg-white text-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200'
                         }`}
                       >
                         <Vote className="w-3 h-3" />
@@ -285,20 +285,20 @@ export const EnhancedFeed = memo(({ onNavigate }: EnhancedFeedProps) => {
                         </div>
                         <h4 className="font-semibold text-gray-800 text-sm">{opp.title}</h4>
                       </div>
-                      <span className="text-xs font-bold text-purple-600 ml-2">
+                      <span className="text-xs font-bold accent-blue ml-2">
                         {opp.relevanceScore.toFixed(1)}
                       </span>
                     </div>
                     <p className="text-xs text-gray-600 mb-2 line-clamp-2">{opp.description}</p>
                     {opp.aiInsights && opp.aiInsights.length > 0 && (
-                      <p className="text-xs text-purple-600 italic">💡 {opp.aiInsights[0]}</p>
+                      <p className="text-xs accent-blue italic">💡 {opp.aiInsights[0]}</p>
                     )}
                   </div>
                 ))}
               </div>
               <button 
                 onClick={() => onNavigate('explore')}
-                className="w-full mt-4 text-purple-600 font-medium text-sm flex items-center justify-center gap-2 hover:text-purple-700 transition-all"
+                className="w-full mt-4 text-gray-900 dark:text-gray-100 font-medium text-sm flex items-center justify-center gap-2 hover:text-gray-700 dark:hover:text-gray-300 transition-all"
               >
                 Explore All Opportunities <ChevronRight className="w-4 h-4" />
               </button>

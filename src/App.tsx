@@ -19,11 +19,11 @@ function App() {
     <ErrorBoundary>
       <div className="relative min-h-screen w-full overflow-x-hidden">
         {/* Top Navigation Bar */}
-        <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 dark:bg-black/95 backdrop-blur-lg border-b border-gray-200 dark:border-gray-800">
+        <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 dark:bg-gray-900/95 backdrop-blur-lg border-b border-gray-200 dark:border-gray-800">
           <div className="container mx-auto px-4">
             <div className="flex items-center justify-between h-16">
               <div className="flex items-center space-x-2">
-                <h1 className="text-xl font-bold bg-gradient-to-r from-yellow-600 to-yellow-500 dark:from-yellow-400 dark:to-yellow-300 bg-clip-text text-transparent">
+                <h1 className="text-xl font-bold text-black dark:text-white">
                   Pollen Universe
                 </h1>
               </div>
