@@ -30,7 +30,7 @@ export function Shop({ onNavigate }: ShopProps) {
         {/* Products Grid */}
         <div className="space-y-4">
           {/* Wireless Headphones Card */}
-          <div className="gradient-card-blue p-4 shadow-md">
+          <div className="glass-card p-4 shadow-md">
             <div className="flex gap-4 mb-3">
               <div className="w-32 h-32 rounded-2xl overflow-hidden bg-gray-100 flex items-center justify-center">
                 <img 
@@ -74,7 +74,7 @@ export function Shop({ onNavigate }: ShopProps) {
 
           {/* Products List */}
           <div className="space-y-3">
-            <div className="gradient-card-pink p-4 shadow-md flex gap-3">
+            <div className="glass-card p-4 shadow-md flex gap-3">
               <div className="w-24 h-24 rounded-xl overflow-hidden">
                 <img 
                   src="https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=120&h=120&fit=crop" 
@@ -97,7 +97,7 @@ export function Shop({ onNavigate }: ShopProps) {
               </button>
             </div>
 
-            <div className="gradient-card-purple p-4 shadow-md flex gap-3">
+            <div className="glass-card p-4 shadow-md flex gap-3">
               <div className="w-24 h-24 rounded-xl overflow-hidden">
                 <img 
                   src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=120&h=120&fit=crop" 
@@ -120,7 +120,7 @@ export function Shop({ onNavigate }: ShopProps) {
               </button>
             </div>
 
-            <div className="gradient-card-blue p-4 shadow-md">
+            <div className="glass-card p-4 shadow-md">
               <div className="flex gap-3 mb-3">
                 <div className="w-32 h-32 rounded-2xl overflow-hidden">
                   <img 
