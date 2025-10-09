@@ -4,16 +4,21 @@ This project, "Pollen Adaptive Universe," is a React-based, AI-powered content p
 
 # User Preferences
 
-Preferred communication style: Simple, everyday language.
+- **Communication Style**: Simple, everyday language
+- **Design Preferences**: 
+  - Professional black and white color scheme with subtle blue accents (no purple, pink, or excessive gold)
+  - Smooth, fluid animations inspired by modern mobile apps
+  - Clean, minimal UI with emphasis on functionality
 
 # System Architecture
 
 ## Frontend Architecture
 - **Framework**: React 18 with TypeScript and Vite.
-- **UI/UX Design**: Modern pastel gradient design system with glass morphism effects, animated backgrounds, and a mobile-first, card-based responsive layout. Features include professional button systems, optimized tab navigation, and enhanced visual hierarchy.
+- **UI/UX Design**: Professional black and white color scheme with subtle blue accents, glass morphism effects, smooth animations, and a mobile-first, card-based responsive layout. Features include dark/light mode toggle, professional button systems, optimized tab navigation, and enhanced visual hierarchy with smooth transitions.
 - **Components**: Shadcn/ui, Radix UI primitives, custom utility classes for design consistency (e.g., `glass-card`, `professional-button-primary`).
 - **State Management**: React `useState` for screen navigation.
-- **Routing**: Bottom navigation with Feed, Explore, Community, and Smart Shop screens.
+- **Navigation**: Top navigation bar with tabs for Feed, Explore, Community, Smart Shop, Health Research, and Ethics Forum. Bottom navigation removed for cleaner UI.
+- **Animations**: Smooth fade-in, slide-in, and scale animations with staggered effects for lists. All interactive elements have fluid hover and click feedback.
 
 ## Backend Architecture
 - **AI Engine**: Custom Pollen LLMX neural network with adaptive intelligence capabilities, designed for containerized deployment (Docker).
@@ -40,6 +45,12 @@ Preferred communication style: Simple, everyday language.
         - **Transparency Dashboard**: AI decision logs and bias statistics integrated view
 - **Data Architecture**: Browser-based local storage, memory engine for personalization, content caching, and analytics. Comprehensive database schema (10+ tables) for users, communities, posts, ethical reports, bias detection, and moderation. New tables for health data, wellness journeys, research findings, and forum topics.
 - **Security & Performance**: Anonymous operation, real-time performance monitoring, error boundaries, and progressive enhancement.
+- **User Experience Enhancements** (Oct 2025):
+  - **Welcome Onboarding**: 4-step tutorial flow shown on first visit
+  - **Help & Support System**: Comprehensive FAQ, video tutorials, search functionality, and contact options
+  - **Real-time Weather**: Live weather data integration via Open-Meteo API
+  - **Smooth Animations**: Fade-in, slide-in, and scale animations with proper timing functions
+  - **Theme Toggle**: Dark/light mode with smooth transitions using next-themes
 
 # External Dependencies
 
