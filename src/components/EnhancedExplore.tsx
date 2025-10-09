@@ -97,7 +97,7 @@ export const EnhancedExplore = memo(({ onNavigate }: EnhancedExploreProps) => {
             {searchQuery && (
               <button 
                 type="submit"
-                className="bg-purple-600 text-white p-2 rounded-lg hover:bg-purple-700 transition-all"
+                className="bg-black dark:bg-white text-white dark:text-black p-2 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-200 transition-all"
               >
                 <Sparkles className="w-4 h-4" />
               </button>
@@ -122,9 +122,9 @@ export const EnhancedExplore = memo(({ onNavigate }: EnhancedExploreProps) => {
         <div className="space-y-4">
           {/* SSE Worker Bot - Content Creation */}
           {(activeSection === 'all' || activeSection === 'content-creator') && (
-            <div className="glass-card p-6 shadow-lg border-2 border-purple-200">
+            <div className="glass-card p-6 shadow-lg">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center">
                   <Bot className="w-6 h-6 text-white" />
                 </div>
                 <div className="flex-1">
@@ -138,10 +138,10 @@ export const EnhancedExplore = memo(({ onNavigate }: EnhancedExploreProps) => {
               </p>
 
               {isGenerating && (
-                <div className="bg-purple-50 rounded-xl p-4 mb-4">
+                <div className="bg-gray-100 dark:bg-gray-800 rounded-xl p-4 mb-4">
                   <div className="flex items-center gap-3">
-                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-purple-600"></div>
-                    <span className="text-sm text-gray-600">AI is crafting your content...</span>
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-500"></div>
+                    <span className="text-sm text-gray-600 dark:text-gray-300">AI is crafting your content...</span>
                   </div>
                 </div>
               )}
@@ -149,10 +149,10 @@ export const EnhancedExplore = memo(({ onNavigate }: EnhancedExploreProps) => {
               {contentSuggestions.length > 0 && (
                 <div className="space-y-3 mb-4">
                   {contentSuggestions.map((suggestion) => (
-                    <div key={suggestion.id} className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-4">
+                    <div key={suggestion.id} className="bg-gray-50 dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
                       <div className="flex items-start justify-between mb-2">
                         <div className="flex-1">
-                          <span className="text-xs bg-purple-200 text-purple-800 px-2 py-1 rounded-full">
+                          <span className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded-full">
                             {suggestion.type}
                           </span>
                           <h4 className="font-semibold text-gray-800 mt-2">{suggestion.title}</h4>
@@ -161,8 +161,8 @@ export const EnhancedExplore = memo(({ onNavigate }: EnhancedExploreProps) => {
                       </div>
                       <p className="text-xs text-gray-600 mb-2">{suggestion.description}</p>
                       <div className="flex items-center justify-between mt-3">
-                        <span className="text-xs text-gray-500">{suggestion.estimatedTime}</span>
-                        <button className="text-purple-600 text-xs font-medium flex items-center gap-1">
+                        <span className="text-xs text-gray-500 dark:text-gray-400">{suggestion.estimatedTime}</span>
+                        <button className="text-blue-600 dark:text-blue-400 text-xs font-medium flex items-center gap-1 hover:text-blue-700 dark:hover:text-blue-300 transition-colors">
                           Use Template <ChevronRight className="w-3 h-3" />
                         </button>
                       </div>
@@ -172,10 +172,10 @@ export const EnhancedExplore = memo(({ onNavigate }: EnhancedExploreProps) => {
               )}
 
               <div className="grid grid-cols-2 gap-3">
-                <button className="bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3 rounded-xl font-medium hover:shadow-lg transition-all text-sm">
+                <button className="professional-button-primary text-sm">
                   Create UGC Ad
                 </button>
-                <button className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white py-3 rounded-xl font-medium hover:shadow-lg transition-all text-sm">
+                <button className="professional-button-secondary text-sm">
                   Social Post
                 </button>
               </div>
@@ -187,20 +187,20 @@ export const EnhancedExplore = memo(({ onNavigate }: EnhancedExploreProps) => {
             <div className="glass-card p-6 shadow-lg">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
-                  <TrendingUp className="w-6 h-6 text-green-600" />
+                  <TrendingUp className="w-6 h-6 text-blue-600 dark:text-blue-400" />
                   <h3 className="font-semibold text-lg">Trending Now</h3>
                 </div>
-                <Zap className="w-5 h-5 text-yellow-500" />
+                <Zap className="w-5 h-5 text-blue-500" />
               </div>
               
               <div className="space-y-3">
                 {trendingOpportunities.map((trend) => (
-                  <div key={trend.id} className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-4">
+                  <div key={trend.id} className="bg-gray-50 dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
                     <div className="flex justify-between items-start mb-2">
-                      <h4 className="font-semibold text-gray-800 flex-1">{trend.title}</h4>
+                      <h4 className="font-semibold text-gray-800 dark:text-gray-100 flex-1">{trend.title}</h4>
                       <div className="flex items-center gap-1 ml-2">
-                        <TrendingUp className="w-4 h-4 text-green-600" />
-                        <span className="text-xs font-bold text-green-600">
+                        <TrendingUp className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                        <span className="text-xs font-bold text-blue-600 dark:text-blue-400">
                           {trend.trendingScore.toFixed(1)}
                         </span>
                       </div>
@@ -209,18 +209,18 @@ export const EnhancedExplore = memo(({ onNavigate }: EnhancedExploreProps) => {
                     
                     <div className="flex items-center justify-between mb-3">
                       <span className={`text-xs px-2 py-1 rounded-full ${
-                        trend.momentum === 'rising' ? 'bg-green-200 text-green-800' :
-                        trend.momentum === 'stable' ? 'bg-blue-200 text-blue-800' :
-                        'bg-gray-200 text-gray-800'
+                        trend.momentum === 'rising' ? 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200' :
+                        trend.momentum === 'stable' ? 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200' :
+                        'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200'
                       }`}>
                         {trend.momentum}
                       </span>
-                      <span className="text-xs text-gray-500">Peak: {trend.predictedPeak}</span>
+                      <span className="text-xs text-gray-500 dark:text-gray-400">Peak: {trend.predictedPeak}</span>
                     </div>
 
                     {trend.aiInsights && trend.aiInsights.length > 0 && (
-                      <div className="bg-white/60 rounded-lg p-2 mb-2">
-                        <p className="text-xs text-purple-600 flex items-start gap-1">
+                      <div className="bg-white/60 dark:bg-gray-900/60 rounded-lg p-2 mb-2">
+                        <p className="text-xs text-blue-600 dark:text-blue-400 flex items-start gap-1">
                           <Lightbulb className="w-3 h-3 mt-0.5 flex-shrink-0" />
                           {trend.aiInsights[0]}
                         </p>
@@ -229,7 +229,7 @@ export const EnhancedExplore = memo(({ onNavigate }: EnhancedExploreProps) => {
 
                     <div className="flex gap-2 mt-2">
                       {trend.relatedTopics.slice(0, 3).map(topic => (
-                        <span key={topic} className="text-xs bg-white/60 px-2 py-1 rounded-full">
+                        <span key={topic} className="text-xs bg-white/60 dark:bg-gray-900/60 px-2 py-1 rounded-full text-gray-700 dark:text-gray-300">
                           {topic}
                         </span>
                       ))}
@@ -245,27 +245,27 @@ export const EnhancedExplore = memo(({ onNavigate }: EnhancedExploreProps) => {
             <div className="glass-card p-6 shadow-lg">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
-                  <Home className="w-6 h-6 text-blue-600" />
+                  <Home className="w-6 h-6 text-blue-600 dark:text-blue-400" />
                   <h3 className="font-semibold text-lg">Real Estate</h3>
                 </div>
-                <Award className="w-5 h-5 text-yellow-500" />
+                <Award className="w-5 h-5 text-blue-500" />
               </div>
               
               <div className="space-y-3">
                 {realEstateOpps.map((property) => (
-                  <div key={property.id} className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl p-4">
+                  <div key={property.id} className="bg-gray-50 dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
                     <div className="flex justify-between items-start mb-3">
                       <div className="flex-1">
-                        <h4 className="font-semibold text-gray-800">{property.title}</h4>
+                        <h4 className="font-semibold text-gray-800 dark:text-gray-100">{property.title}</h4>
                         <div className="flex items-center gap-2 mt-1">
-                          <MapPin className="w-3 h-3 text-gray-500" />
-                          <span className="text-xs text-gray-600">{property.location}</span>
+                          <MapPin className="w-3 h-3 text-gray-500 dark:text-gray-400" />
+                          <span className="text-xs text-gray-600 dark:text-gray-300">{property.location}</span>
                         </div>
                       </div>
                       <span className={`text-xs px-2 py-1 rounded-full ${
-                        property.marketTrend === 'bullish' ? 'bg-green-200 text-green-800' :
-                        property.marketTrend === 'neutral' ? 'bg-blue-200 text-blue-800' :
-                        'bg-red-200 text-red-800'
+                        property.marketTrend === 'bullish' ? 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200' :
+                        property.marketTrend === 'neutral' ? 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200' :
+                        'bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-gray-200'
                       }`}>
                         {property.marketTrend}
                       </span>
@@ -274,19 +274,19 @@ export const EnhancedExplore = memo(({ onNavigate }: EnhancedExploreProps) => {
                     <p className="text-xs text-gray-600 mb-3">{property.description}</p>
 
                     <div className="grid grid-cols-2 gap-2 mb-3">
-                      <div className="bg-white/60 rounded-lg p-2">
-                        <p className="text-xs text-gray-500">Price Range</p>
-                        <p className="text-sm font-semibold text-gray-800">{property.priceRange}</p>
+                      <div className="bg-white/60 dark:bg-gray-900/60 rounded-lg p-2">
+                        <p className="text-xs text-gray-500 dark:text-gray-400">Price Range</p>
+                        <p className="text-sm font-semibold text-gray-800 dark:text-gray-100">{property.priceRange}</p>
                       </div>
-                      <div className="bg-white/60 rounded-lg p-2">
-                        <p className="text-xs text-gray-500">ROI</p>
-                        <p className="text-sm font-semibold text-green-600">{property.roi}%</p>
+                      <div className="bg-white/60 dark:bg-gray-900/60 rounded-lg p-2">
+                        <p className="text-xs text-gray-500 dark:text-gray-400">ROI</p>
+                        <p className="text-sm font-semibold text-blue-600 dark:text-blue-400">{property.roi}%</p>
                       </div>
                     </div>
 
                     {property.aiInsights && property.aiInsights.length > 0 && (
-                      <div className="bg-white/60 rounded-lg p-2">
-                        <p className="text-xs text-blue-600 flex items-start gap-1">
+                      <div className="bg-white/60 dark:bg-gray-900/60 rounded-lg p-2">
+                        <p className="text-xs text-blue-600 dark:text-blue-400 flex items-start gap-1">
                           <Target className="w-3 h-3 mt-0.5 flex-shrink-0" />
                           {property.aiInsights[0]}
                         </p>
@@ -303,25 +303,25 @@ export const EnhancedExplore = memo(({ onNavigate }: EnhancedExploreProps) => {
             <div className="glass-card p-6 shadow-lg">
               <h3 className="font-semibold text-lg mb-4">Explore Categories</h3>
               <div className="grid grid-cols-2 gap-3">
-                <button className="bg-gradient-to-br from-purple-100 to-pink-100 p-4 rounded-xl text-left hover:shadow-md transition-all">
-                  <ShoppingBag className="w-6 h-6 text-purple-600 mb-2" />
-                  <p className="font-medium text-sm">Products</p>
-                  <p className="text-xs text-gray-600">Latest finds</p>
+                <button className="glass-card p-4 rounded-xl text-left hover:shadow-md transition-all">
+                  <ShoppingBag className="w-6 h-6 text-gray-700 dark:text-gray-300 mb-2" />
+                  <p className="font-medium text-sm text-gray-900 dark:text-gray-100">Products</p>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">Latest finds</p>
                 </button>
-                <button className="bg-gradient-to-br from-blue-100 to-cyan-100 p-4 rounded-xl text-left hover:shadow-md transition-all">
-                  <Globe className="w-6 h-6 text-blue-600 mb-2" />
-                  <p className="font-medium text-sm">Travel</p>
-                  <p className="text-xs text-gray-600">Best deals</p>
+                <button className="glass-card p-4 rounded-xl text-left hover:shadow-md transition-all">
+                  <Globe className="w-6 h-6 text-blue-600 dark:text-blue-400 mb-2" />
+                  <p className="font-medium text-sm text-gray-900 dark:text-gray-100">Travel</p>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">Best deals</p>
                 </button>
-                <button className="bg-gradient-to-br from-green-100 to-emerald-100 p-4 rounded-xl text-left hover:shadow-md transition-all">
-                  <Briefcase className="w-6 h-6 text-green-600 mb-2" />
-                  <p className="font-medium text-sm">Apps</p>
-                  <p className="text-xs text-gray-600">Trending apps</p>
+                <button className="glass-card p-4 rounded-xl text-left hover:shadow-md transition-all">
+                  <Briefcase className="w-6 h-6 text-gray-700 dark:text-gray-300 mb-2" />
+                  <p className="font-medium text-sm text-gray-900 dark:text-gray-100">Apps</p>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">Trending apps</p>
                 </button>
-                <button className="bg-gradient-to-br from-yellow-100 to-orange-100 p-4 rounded-xl text-left hover:shadow-md transition-all">
-                  <Lightbulb className="w-6 h-6 text-yellow-600 mb-2" />
-                  <p className="font-medium text-sm">Lifestyle</p>
-                  <p className="text-xs text-gray-600">Curated tips</p>
+                <button className="glass-card p-4 rounded-xl text-left hover:shadow-md transition-all">
+                  <Lightbulb className="w-6 h-6 text-blue-600 dark:text-blue-400 mb-2" />
+                  <p className="font-medium text-sm text-gray-900 dark:text-gray-100">Lifestyle</p>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">Curated tips</p>
                 </button>
               </div>
             </div>
