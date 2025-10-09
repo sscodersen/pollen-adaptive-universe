@@ -1,5 +1,4 @@
 import { ArrowLeft, Search, Plus, Star } from "lucide-react";
-import { BottomNav } from "./BottomNav";
 
 interface ShopProps {
   onNavigate: (screen: 'feed' | 'explore' | 'shop' | 'community') => void;
@@ -7,7 +6,7 @@ interface ShopProps {
 
 export function Shop({ onNavigate }: ShopProps) {
   return (
-    <div className="relative min-h-screen pb-32 animate-fade-in-up">
+    <div className="relative min-h-screen pb-8 animate-fade-in-up">
       {/* Header */}
       <div className="p-4 sm:p-6 pt-6 sm:pt-8">
         <div className="flex items-center justify-between mb-6">
@@ -139,8 +138,6 @@ export function Shop({ onNavigate }: ShopProps) {
           </div>
         </div>
       </div>
-      
-      <BottomNav currentScreen="shop" onNavigate={onNavigate} />
     </div>
   );
 }

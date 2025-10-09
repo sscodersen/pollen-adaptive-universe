@@ -4,7 +4,6 @@ import {
   Sprout, HandHeart, Sparkles, ChevronRight, CheckCircle, 
   AlertTriangle, Droplets, ThermometerSun, Vote
 } from "lucide-react";
-import { BottomNav } from "./BottomNav";
 import { wellnessContentService, WellnessTip } from '../services/wellnessContent';
 import { socialImpactService, SocialInitiative } from '../services/socialImpact';
 import { opportunityCurationService, Opportunity } from '../services/opportunityCuration';
@@ -78,7 +77,7 @@ export const EnhancedFeed = memo(({ onNavigate }: EnhancedFeedProps) => {
   }, []);
 
   return (
-    <div className="relative min-h-screen pb-32">
+    <div className="relative min-h-screen pb-8">
       {/* Header */}
       <div className="p-4 sm:p-6 pt-6 sm:pt-8">
         <div className="flex items-start justify-between mb-6">
@@ -310,8 +309,6 @@ export const EnhancedFeed = memo(({ onNavigate }: EnhancedFeedProps) => {
           )}
         </div>
       </div>
-      
-      <BottomNav currentScreen="feed" onNavigate={onNavigate} />
     </div>
   );
 });

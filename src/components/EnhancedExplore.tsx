@@ -4,7 +4,6 @@ import {
   Lightbulb, Zap, Globe, Briefcase, Home, ShoppingBag,
   MapPin, Target, Award, Clock, ChevronRight, Bot
 } from "lucide-react";
-import { BottomNav } from "./BottomNav";
 import { sseWorkerBot, ContentSuggestion, UGCAdContent } from '../services/sseWorkerBot';
 import { opportunityCurationService, TrendOpportunity, RealEstateOpportunity } from '../services/opportunityCuration';
 import type { ExploreSection } from '../types/explore';
@@ -76,7 +75,7 @@ export const EnhancedExplore = memo(({ onNavigate }: EnhancedExploreProps) => {
   }, [handleGenerateContent]);
 
   return (
-    <div className="relative min-h-screen pb-32 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 animate-fade-in-up">
+    <div className="relative min-h-screen pb-8 animate-fade-in-up">
       {/* Header */}
       <div className="p-4 sm:p-6 pt-6 sm:pt-8">
         <div className="flex items-center gap-3 mb-6">
@@ -329,8 +328,6 @@ export const EnhancedExplore = memo(({ onNavigate }: EnhancedExploreProps) => {
           )}
         </div>
       </div>
-      
-      <BottomNav currentScreen="explore" onNavigate={onNavigate} />
     </div>
   );
 });
