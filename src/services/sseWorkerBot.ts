@@ -41,9 +41,27 @@ export interface WorkerTask {
   completionTime?: string;
 }
 
+export interface BotConfig {
+  enabled: boolean;
+  autoGeneration: boolean;
+  generationInterval: number;
+  maxConcurrentTasks: number;
+  platforms: string[];
+  contentTypes: string[];
+}
+
 class SSEWorkerBotService {
   private tasks: Map<string, WorkerTask> = new Map();
   private eventSource: EventSource | null = null;
+  private config: BotConfig = {
+    enabled: false,
+    autoGeneration: false,
+    generationInterval: 3600,
+    maxConcurrentTasks: 3,
+    platforms: ['instagram', 'tiktok'],
+    contentTypes: ['ugc-ad', 'content-suggestion']
+  };
+  private autoGenerationInterval: number | null = null;
 
   async createUGCAd(params: {
     product: string;
@@ -388,6 +406,111 @@ class SSEWorkerBotService {
       toneOfVoice: this.selectTone(i),
       estimatedTime: this.estimateCreationTime(this.selectContentType(i))
     }));
+  }
+
+  getConfig(): BotConfig {
+    const stored = localStorage.getItem('worker_bot_config');
+    if (stored) {
+      this.config = JSON.parse(stored);
+    }
+    return { ...this.config };
+  }
+
+  updateConfig(newConfig: Partial<BotConfig>): void {
+    this.config = { ...this.config, ...newConfig };
+    localStorage.setItem('worker_bot_config', JSON.stringify(this.config));
+    
+    if (this.config.autoGeneration && this.config.enabled) {
+      this.startAutoGeneration();
+    } else {
+      this.stopAutoGeneration();
+    }
+  }
+
+  start(): void {
+    this.config.enabled = true;
+    this.updateConfig({ enabled: true });
+    
+    if (this.config.autoGeneration) {
+      this.startAutoGeneration();
+    }
+  }
+
+  stop(): void {
+    this.config.enabled = false;
+    this.stopAutoGeneration();
+    this.updateConfig({ enabled: false, autoGeneration: false });
+  }
+
+  private startAutoGeneration(): void {
+    this.stopAutoGeneration();
+    
+    this.autoGenerationInterval = window.setInterval(() => {
+      const activeTasks = Array.from(this.tasks.values()).filter(
+        t => t.status === 'processing'
+      ).length;
+      
+      if (activeTasks < this.config.maxConcurrentTasks) {
+        this.generateRandomContent();
+      }
+    }, this.config.generationInterval * 1000);
+  }
+
+  private stopAutoGeneration(): void {
+    if (this.autoGenerationInterval !== null) {
+      clearInterval(this.autoGenerationInterval);
+      this.autoGenerationInterval = null;
+    }
+  }
+
+  private async generateRandomContent(): Promise<void> {
+    const contentTypes = this.config.contentTypes;
+    const randomType = contentTypes[Math.floor(Math.random() * contentTypes.length)];
+    
+    try {
+      if (randomType === 'ugc-ad') {
+        const platform = this.config.platforms[
+          Math.floor(Math.random() * this.config.platforms.length)
+        ] as UGCAdContent['platform'];
+        
+        await this.createUGCAd({
+          product: 'Auto-generated Product',
+          platform,
+          targetAudience: 'General audience'
+        });
+      } else if (randomType === 'content-suggestion') {
+        await this.generateContentSuggestions('Auto-generated topic', 3);
+      }
+    } catch (error) {
+      console.error('Auto-generation failed:', error);
+    }
+  }
+
+  getAllTasks(): WorkerTask[] {
+    return Array.from(this.tasks.values()).sort((a, b) => 
+      new Date(b.startTime).getTime() - new Date(a.startTime).getTime()
+    );
+  }
+
+  getTaskStats(): {
+    total: number;
+    completed: number;
+    processing: number;
+    failed: number;
+    pending: number;
+  } {
+    const tasks = this.getAllTasks();
+    return {
+      total: tasks.length,
+      completed: tasks.filter(t => t.status === 'completed').length,
+      processing: tasks.filter(t => t.status === 'processing').length,
+      failed: tasks.filter(t => t.status === 'failed').length,
+      pending: tasks.filter(t => t.status === 'pending').length
+    };
+  }
+
+  clearTasks(): void {
+    this.tasks.clear();
   }
 }
 

@@ -6,16 +6,17 @@ import Community from "@/pages/Community";
 import HealthResearch from "@/pages/HealthResearch";
 import AIEthicsForum from "@/pages/AIEthicsForum";
 import AdminDashboard from "@/pages/AdminDashboard";
+import WorkerBotManagement from "@/pages/WorkerBotManagement";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { Toaster } from "@/components/ui/sonner";
 import { Button } from "@/components/ui/button";
 import { WelcomeOnboarding } from "@/components/WelcomeOnboarding";
 import { HelpSupport } from "@/components/HelpSupport";
-import { Home, Compass, ShoppingBag, Users, Activity, Shield, Moon, Sun, HelpCircle, Settings } from "lucide-react";
+import { Home, Compass, ShoppingBag, Users, Activity, Shield, Moon, Sun, HelpCircle, Settings, Bot } from "lucide-react";
 import { useTheme } from "next-themes";
 
 function App() {
-  const [currentScreen, setCurrentScreen] = useState<'feed' | 'explore' | 'shop' | 'community' | 'health' | 'ethics' | 'help' | 'admin'>('feed');
+  const [currentScreen, setCurrentScreen] = useState<'feed' | 'explore' | 'shop' | 'community' | 'health' | 'ethics' | 'help' | 'admin' | 'worker'>('feed');
   const { theme, setTheme } = useTheme();
 
   return (
@@ -99,6 +100,14 @@ function App() {
                   <HelpCircle className="w-4 h-4" />
                 </Button>
                 <Button
+                  variant={currentScreen === 'worker' ? 'default' : 'ghost'}
+                  size="icon"
+                  onClick={() => setCurrentScreen('worker')}
+                  title="Worker Bot"
+                >
+                  <Bot className="w-4 h-4" />
+                </Button>
+                <Button
                   variant={currentScreen === 'admin' ? 'default' : 'ghost'}
                   size="icon"
                   onClick={() => setCurrentScreen('admin')}
@@ -120,6 +129,7 @@ function App() {
           {currentScreen === 'health' && <HealthResearch />}
           {currentScreen === 'ethics' && <AIEthicsForum />}
           {currentScreen === 'help' && <HelpSupport />}
+          {currentScreen === 'worker' && <WorkerBotManagement />}
           {currentScreen === 'admin' && <AdminDashboard />}
         </div>
 
