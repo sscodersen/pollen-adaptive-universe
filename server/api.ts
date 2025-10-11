@@ -1,7 +1,10 @@
 import { Router } from 'express';
 import { healthResearchStorage, forumStorage } from './storage.js';
+import { communityRouter } from './routes/community.js';
 
 const router = Router();
+
+router.use('/community', communityRouter);
 
 router.post('/health-research/data', async (req, res) => {
   try {

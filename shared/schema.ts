@@ -434,3 +434,359 @@ export type ExpertContribution = typeof expertContributions.$inferSelect;
 export type InsertExpertContribution = typeof expertContributions.$inferInsert;
 export type ForumModerationAction = typeof forumModerationActions.$inferSelect;
 export type InsertForumModerationAction = typeof forumModerationActions.$inferInsert;
+
+// Real-time Chat Rooms
+export const chatRooms = pgTable("chat_rooms", {
+  id: serial("id").primaryKey(),
+  roomId: text("room_id").notNull().unique(),
+  name: text("name").notNull(),
+  description: text("description"),
+  roomType: text("room_type").notNull(), // 'public', 'private', 'community', 'event'
+  communityId: text("community_id"), // Link to community if community chat
+  creatorId: text("creator_id").notNull(),
+  maxParticipants: integer("max_participants").default(100),
+  activeParticipants: integer("active_participants").default(0),
+  metadata: jsonb("metadata"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow()
+});
+
+export const chatMessages = pgTable("chat_messages", {
+  id: serial("id").primaryKey(),
+  messageId: text("message_id").notNull().unique(),
+  roomId: text("room_id").notNull(),
+  userId: text("user_id").notNull(),
+  content: text("content").notNull(),
+  messageType: text("message_type").default('text'), // 'text', 'image', 'file', 'system'
+  replyToId: text("reply_to_id"), // For threaded conversations
+  reactions: jsonb("reactions"), // Emoji reactions
+  isEdited: boolean("is_edited").default(false),
+  isDeleted: boolean("is_deleted").default(false),
+  metadata: jsonb("metadata"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow()
+});
+
+export const chatParticipants = pgTable("chat_participants", {
+  id: serial("id").primaryKey(),
+  roomId: text("room_id").notNull(),
+  userId: text("user_id").notNull(),
+  role: text("role").default('participant'), // 'participant', 'moderator', 'admin'
+  lastReadAt: timestamp("last_read_at"),
+  joinedAt: timestamp("joined_at").defaultNow(),
+  status: text("status").default('active') // 'active', 'away', 'offline'
+});
+
+// Gamification System
+export const badges = pgTable("badges", {
+  id: serial("id").primaryKey(),
+  badgeId: text("badge_id").notNull().unique(),
+  name: text("name").notNull(),
+  description: text("description").notNull(),
+  iconUrl: text("icon_url"),
+  badgeType: text("badge_type").notNull(), // 'achievement', 'milestone', 'special', 'expert'
+  category: text("category"), // 'contribution', 'engagement', 'expertise', 'community'
+  criteria: jsonb("criteria").notNull(), // Requirements to earn
+  points: integer("points").default(0),
+  rarity: text("rarity").default('common'), // 'common', 'rare', 'epic', 'legendary'
+  metadata: jsonb("metadata"),
+  createdAt: timestamp("created_at").defaultNow()
+});
+
+export const userBadges = pgTable("user_badges", {
+  id: serial("id").primaryKey(),
+  userId: text("user_id").notNull(),
+  badgeId: text("badge_id").notNull(),
+  earnedAt: timestamp("earned_at").defaultNow(),
+  progress: jsonb("progress"), // Progress tracking
+  isDisplayed: boolean("is_displayed").default(true)
+});
+
+export const userPoints = pgTable("user_points", {
+  id: serial("id").primaryKey(),
+  userId: text("user_id").notNull().unique(),
+  totalPoints: integer("total_points").default(0),
+  levelPoints: integer("level_points").default(0), // Points in current level
+  level: integer("level").default(1),
+  rank: integer("rank"),
+  streak: integer("streak").default(0), // Consecutive days active
+  lastActivityDate: timestamp("last_activity_date"),
+  metadata: jsonb("metadata"),
+  updatedAt: timestamp("updated_at").defaultNow()
+});
+
+export const pointTransactions = pgTable("point_transactions", {
+  id: serial("id").primaryKey(),
+  transactionId: text("transaction_id").notNull().unique(),
+  userId: text("user_id").notNull(),
+  points: integer("points").notNull(),
+  action: text("action").notNull(), // 'post', 'comment', 'like', 'share', 'achievement', 'daily_login'
+  reason: text("reason"),
+  metadata: jsonb("metadata"),
+  createdAt: timestamp("created_at").defaultNow()
+});
+
+export const leaderboards = pgTable("leaderboards", {
+  id: serial("id").primaryKey(),
+  leaderboardId: text("leaderboard_id").notNull().unique(),
+  name: text("name").notNull(),
+  description: text("description"),
+  leaderboardType: text("leaderboard_type").notNull(), // 'global', 'weekly', 'monthly', 'community'
+  category: text("category"), // 'points', 'contributions', 'engagement'
+  timeframe: text("timeframe"), // 'all_time', 'monthly', 'weekly', 'daily'
+  metadata: jsonb("metadata"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow()
+});
+
+// Virtual Events and Webinars
+export const events = pgTable("events", {
+  id: serial("id").primaryKey(),
+  eventId: text("event_id").notNull().unique(),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  eventType: text("event_type").notNull(), // 'webinar', 'workshop', 'conference', 'meetup', 'ama'
+  category: text("category"), // 'wellness', 'agriculture', 'ai_ethics', 'community'
+  organizerId: text("organizer_id").notNull(),
+  startTime: timestamp("start_time").notNull(),
+  endTime: timestamp("end_time").notNull(),
+  timezone: text("timezone").default('UTC'),
+  capacity: integer("capacity"),
+  registeredCount: integer("registered_count").default(0),
+  attendanceCount: integer("attendance_count").default(0),
+  isVirtual: boolean("is_virtual").default(true),
+  location: text("location"), // Physical location or virtual platform
+  meetingUrl: text("meeting_url"), // Video conference link
+  chatRoomId: text("chat_room_id"), // Associated chat room
+  status: text("status").default('upcoming'), // 'upcoming', 'live', 'completed', 'cancelled'
+  recordingUrl: text("recording_url"),
+  materials: jsonb("materials"), // Slides, resources, etc.
+  metadata: jsonb("metadata"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow()
+});
+
+export const eventRegistrations = pgTable("event_registrations", {
+  id: serial("id").primaryKey(),
+  registrationId: text("registration_id").notNull().unique(),
+  eventId: text("event_id").notNull(),
+  userId: text("user_id").notNull(),
+  registrationStatus: text("registration_status").default('registered'), // 'registered', 'attended', 'cancelled', 'no_show'
+  reminderSent: boolean("reminder_sent").default(false),
+  feedback: text("feedback"),
+  rating: integer("rating"), // 1-5 stars
+  metadata: jsonb("metadata"),
+  registeredAt: timestamp("registered_at").defaultNow()
+});
+
+export const eventSpeakers = pgTable("event_speakers", {
+  id: serial("id").primaryKey(),
+  eventId: text("event_id").notNull(),
+  userId: text("user_id").notNull(),
+  role: text("role").default('speaker'), // 'speaker', 'moderator', 'panelist', 'host'
+  bio: text("bio"),
+  topic: text("topic"), // What they're speaking about
+  order: integer("order"), // Speaking order
+  metadata: jsonb("metadata")
+});
+
+// Feedback Collection System
+export const feedbackSubmissions = pgTable("feedback_submissions", {
+  id: serial("id").primaryKey(),
+  feedbackId: text("feedback_id").notNull().unique(),
+  userId: text("user_id"),
+  feedbackType: text("feedback_type").notNull(), // 'bug', 'feature_request', 'improvement', 'general', 'complaint'
+  category: text("category"), // 'platform', 'ai_features', 'community', 'ui_ux', 'performance'
+  subject: text("subject").notNull(),
+  description: text("description").notNull(),
+  priority: text("priority").default('medium'), // 'low', 'medium', 'high', 'critical'
+  status: text("status").default('submitted'), // 'submitted', 'under_review', 'planned', 'in_progress', 'completed', 'rejected'
+  sentiment: text("sentiment"), // 'positive', 'neutral', 'negative' (NLP-analyzed)
+  topics: jsonb("topics"), // Auto-extracted topics via NLP
+  relatedFeature: text("related_feature"),
+  attachments: jsonb("attachments"),
+  votes: integer("votes").default(0), // Community voting
+  metadata: jsonb("metadata"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow()
+});
+
+export const feedbackResponses = pgTable("feedback_responses", {
+  id: serial("id").primaryKey(),
+  responseId: text("response_id").notNull().unique(),
+  feedbackId: text("feedback_id").notNull(),
+  responderId: text("responder_id").notNull(),
+  responseType: text("response_type").default('comment'), // 'comment', 'status_update', 'resolution'
+  content: text("content").notNull(),
+  isOfficial: boolean("is_official").default(false), // From platform team
+  metadata: jsonb("metadata"),
+  createdAt: timestamp("created_at").defaultNow()
+});
+
+export const feedbackCategories = pgTable("feedback_categories", {
+  id: serial("id").primaryKey(),
+  categoryId: text("category_id").notNull().unique(),
+  name: text("name").notNull(),
+  description: text("description"),
+  parentCategoryId: text("parent_category_id"), // For subcategories
+  submissionCount: integer("submission_count").default(0),
+  metadata: jsonb("metadata")
+});
+
+export const feedbackAnalytics = pgTable("feedback_analytics", {
+  id: serial("id").primaryKey(),
+  analyticsId: text("analytics_id").notNull().unique(),
+  timeframe: text("timeframe").notNull(), // 'daily', 'weekly', 'monthly'
+  date: timestamp("date").notNull(),
+  totalSubmissions: integer("total_submissions").default(0),
+  byType: jsonb("by_type"), // Count by feedback type
+  byCategory: jsonb("by_category"), // Count by category
+  bySentiment: jsonb("by_sentiment"), // Count by sentiment
+  topTopics: jsonb("top_topics"), // Most common topics
+  averageResponseTime: real("average_response_time"), // In hours
+  resolutionRate: real("resolution_rate"), // Percentage
+  metadata: jsonb("metadata"),
+  createdAt: timestamp("created_at").defaultNow()
+});
+
+// AI-Curated Content Sections
+export const curatedContentSections = pgTable("curated_content_sections", {
+  id: serial("id").primaryKey(),
+  sectionId: text("section_id").notNull().unique(),
+  name: text("name").notNull(),
+  description: text("description"),
+  sectionType: text("section_type").notNull(), // 'music', 'ads', 'trending', 'news', 'opportunities', 'wellness'
+  displayOrder: integer("display_order").default(0),
+  isActive: boolean("is_active").default(true),
+  aiCurationEnabled: boolean("ai_curation_enabled").default(true),
+  refreshInterval: integer("refresh_interval").default(3600), // Seconds
+  metadata: jsonb("metadata"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow()
+});
+
+export const curatedContent = pgTable("curated_content", {
+  id: serial("id").primaryKey(),
+  curatedId: text("curated_id").notNull().unique(),
+  sectionId: text("section_id").notNull(),
+  contentId: text("content_id"), // Link to content table
+  title: text("title").notNull(),
+  description: text("description"),
+  contentType: text("content_type").notNull(), // 'music_playlist', 'ad', 'article', 'video', 'opportunity'
+  contentData: jsonb("content_data").notNull(), // The actual content
+  curatedBy: text("curated_by").default('ai'), // 'ai', 'human', 'hybrid'
+  relevanceScore: real("relevance_score"), // AI-calculated relevance
+  trendingScore: real("trending_score"), // Trending algorithm score
+  personalizedFor: text("personalized_for"), // User ID if personalized
+  displayOrder: integer("display_order").default(0),
+  impressions: integer("impressions").default(0),
+  clicks: integer("clicks").default(0),
+  engagement: real("engagement"), // CTR or engagement metric
+  expiresAt: timestamp("expires_at"),
+  metadata: jsonb("metadata"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow()
+});
+
+export const contentRecommendations = pgTable("content_recommendations", {
+  id: serial("id").primaryKey(),
+  recommendationId: text("recommendation_id").notNull().unique(),
+  userId: text("user_id").notNull(),
+  contentId: text("content_id").notNull(),
+  recommendationType: text("recommendation_type").notNull(), // 'personalized', 'trending', 'similar', 'collaborative'
+  score: real("score").notNull(),
+  reasoning: text("reasoning"), // Why this was recommended
+  algorithm: text("algorithm"), // Which algorithm generated this
+  wasClicked: boolean("was_clicked").default(false),
+  wasLiked: boolean("was_liked"),
+  userFeedback: text("user_feedback"), // 'relevant', 'not_relevant', 'offensive'
+  metadata: jsonb("metadata"),
+  createdAt: timestamp("created_at").defaultNow()
+});
+
+// Notifications System
+export const notifications = pgTable("notifications", {
+  id: serial("id").primaryKey(),
+  notificationId: text("notification_id").notNull().unique(),
+  userId: text("user_id").notNull(),
+  notificationType: text("notification_type").notNull(), // 'event_reminder', 'feedback_response', 'badge_earned', 'chat_message', 'achievement'
+  title: text("title").notNull(),
+  message: text("message").notNull(),
+  actionUrl: text("action_url"),
+  priority: text("priority").default('normal'), // 'low', 'normal', 'high', 'urgent'
+  isRead: boolean("is_read").default(false),
+  readAt: timestamp("read_at"),
+  metadata: jsonb("metadata"),
+  createdAt: timestamp("created_at").defaultNow()
+});
+
+// Add relation types
+export const chatRoomsRelations = relations(chatRooms, ({ one, many }) => ({
+  creator: one(users, {
+    fields: [chatRooms.creatorId],
+    references: [users.userId]
+  }),
+  messages: many(chatMessages),
+  participants: many(chatParticipants)
+}));
+
+export const badgesRelations = relations(badges, ({ many }) => ({
+  userBadges: many(userBadges)
+}));
+
+export const eventsRelations = relations(events, ({ one, many }) => ({
+  organizer: one(users, {
+    fields: [events.organizerId],
+    references: [users.userId]
+  }),
+  registrations: many(eventRegistrations),
+  speakers: many(eventSpeakers)
+}));
+
+export const feedbackSubmissionsRelations = relations(feedbackSubmissions, ({ one, many }) => ({
+  user: one(users, {
+    fields: [feedbackSubmissions.userId],
+    references: [users.userId]
+  }),
+  responses: many(feedbackResponses)
+}));
+
+// Add types
+export type ChatRoom = typeof chatRooms.$inferSelect;
+export type InsertChatRoom = typeof chatRooms.$inferInsert;
+export type ChatMessage = typeof chatMessages.$inferSelect;
+export type InsertChatMessage = typeof chatMessages.$inferInsert;
+export type ChatParticipant = typeof chatParticipants.$inferSelect;
+export type InsertChatParticipant = typeof chatParticipants.$inferInsert;
+export type Badge = typeof badges.$inferSelect;
+export type InsertBadge = typeof badges.$inferInsert;
+export type UserBadge = typeof userBadges.$inferSelect;
+export type InsertUserBadge = typeof userBadges.$inferInsert;
+export type UserPoints = typeof userPoints.$inferSelect;
+export type InsertUserPoints = typeof userPoints.$inferInsert;
+export type PointTransaction = typeof pointTransactions.$inferSelect;
+export type InsertPointTransaction = typeof pointTransactions.$inferInsert;
+export type Leaderboard = typeof leaderboards.$inferSelect;
+export type InsertLeaderboard = typeof leaderboards.$inferInsert;
+export type Event = typeof events.$inferSelect;
+export type InsertEvent = typeof events.$inferInsert;
+export type EventRegistration = typeof eventRegistrations.$inferSelect;
+export type InsertEventRegistration = typeof eventRegistrations.$inferInsert;
+export type EventSpeaker = typeof eventSpeakers.$inferSelect;
+export type InsertEventSpeaker = typeof eventSpeakers.$inferInsert;
+export type FeedbackSubmission = typeof feedbackSubmissions.$inferSelect;
+export type InsertFeedbackSubmission = typeof feedbackSubmissions.$inferInsert;
+export type FeedbackResponse = typeof feedbackResponses.$inferSelect;
+export type InsertFeedbackResponse = typeof feedbackResponses.$inferInsert;
+export type FeedbackCategory = typeof feedbackCategories.$inferSelect;
+export type InsertFeedbackCategory = typeof feedbackCategories.$inferInsert;
+export type FeedbackAnalytics = typeof feedbackAnalytics.$inferSelect;
+export type InsertFeedbackAnalytics = typeof feedbackAnalytics.$inferInsert;
+export type CuratedContentSection = typeof curatedContentSections.$inferSelect;
+export type InsertCuratedContentSection = typeof curatedContentSections.$inferInsert;
+export type CuratedContent = typeof curatedContent.$inferSelect;
+export type InsertCuratedContent = typeof curatedContent.$inferInsert;
+export type ContentRecommendation = typeof contentRecommendations.$inferSelect;
+export type InsertContentRecommendation = typeof contentRecommendations.$inferInsert;
+export type Notification = typeof notifications.$inferSelect;
+export type InsertNotification = typeof notifications.$inferInsert;
