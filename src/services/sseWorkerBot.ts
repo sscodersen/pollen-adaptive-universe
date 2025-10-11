@@ -202,16 +202,28 @@ class SSEWorkerBotService {
     };
     
     this.tasks.set(id, task);
+    
+    // Report task start to metrics
+    this.reportTaskMetrics('started', id, 0).catch(err => 
+      console.warn('Failed to report task start:', err)
+    );
+    
     return id;
   }
 
   private completeTask(id: string, output: any): void {
     const task = this.tasks.get(id);
     if (task) {
+      const duration = new Date().getTime() - new Date(task.startTime).getTime();
       task.status = 'completed';
       task.output = output;
       task.progress = 100;
       task.completionTime = new Date().toISOString();
+      
+      // Report task completion to metrics
+      this.reportTaskMetrics('completed', id, duration).catch(err => 
+        console.warn('Failed to report task completion:', err)
+      );
     }
   }
 
@@ -221,6 +233,23 @@ class SSEWorkerBotService {
       task.status = 'failed';
       task.progress = 0;
       task.completionTime = new Date().toISOString();
+      
+      // Report task failure to metrics
+      this.reportTaskMetrics('failed', id, 0).catch(err => 
+        console.warn('Failed to report task failure:', err)
+      );
+    }
+  }
+
+  private async reportTaskMetrics(status: 'started' | 'completed' | 'failed', taskId: string, duration: number): Promise<void> {
+    try {
+      await fetch('/api/admin/worker-task-update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status, taskId, duration })
+      });
+    } catch (error) {
+      // Silent fail - metrics reporting shouldn't break functionality
     }
   }
 
