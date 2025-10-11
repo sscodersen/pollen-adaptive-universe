@@ -243,9 +243,17 @@ class SSEWorkerBotService {
 
   private async reportTaskMetrics(status: 'started' | 'completed' | 'failed', taskId: string, duration: number): Promise<void> {
     try {
+      const apiKey = sessionStorage.getItem('admin_api_key');
+      if (!apiKey) {
+        return; // Skip metrics reporting if not authenticated as admin
+      }
+      
       await fetch('/api/admin/worker-task-update', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'X-API-Key': apiKey
+        },
         body: JSON.stringify({ status, taskId, duration })
       });
     } catch (error) {

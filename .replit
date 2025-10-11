@@ -25,13 +25,13 @@ args = "Main Application"
 name = "Main Application"
 author = "agent"
 
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "node start.cjs"
-waitForPort = 5000
-
 [workflows.workflow.metadata]
 outputType = "webview"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "ADMIN_API_KEY=pollen-secure-admin-2024 node start.cjs"
+waitForPort = 5000
 
 [[ports]]
 localPort = 3001
@@ -52,10 +52,6 @@ externalPort = 5173
 [[ports]]
 localPort = 37617
 externalPort = 8080
-
-[[ports]]
-localPort = 37821
-externalPort = 9000
 
 [[ports]]
 localPort = 39249

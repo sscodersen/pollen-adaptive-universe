@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Activity, Brain, Zap, TrendingUp, Users, Clock, AlertCircle, CheckCircle } from 'lucide-react';
+import { Activity, Brain, Zap, TrendingUp, Users, Clock, AlertCircle, CheckCircle, LogOut } from 'lucide-react';
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { AdminLogin } from '@/components/AdminLogin';
+import { Button } from '@/components/ui/button';
 
 interface AIMetrics {
   performance: {
@@ -37,16 +39,53 @@ export default function AdminDashboard() {
   const [metrics, setMetrics] = useState<AIMetrics | null>(null);
   const [loading, setLoading] = useState(true);
   const [lastUpdate, setLastUpdate] = useState<string>('');
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [apiKey, setApiKey] = useState<string>('');
 
   useEffect(() => {
-    fetchMetrics();
-    const interval = setInterval(fetchMetrics, 30000); // Update every 30 seconds
-    return () => clearInterval(interval);
+    const storedKey = sessionStorage.getItem('admin_api_key');
+    if (storedKey) {
+      setApiKey(storedKey);
+      setIsAuthenticated(true);
+    } else {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    if (isAuthenticated && apiKey) {
+      fetchMetrics();
+      const interval = setInterval(fetchMetrics, 30000); // Update every 30 seconds
+      return () => clearInterval(interval);
+    }
+  }, [isAuthenticated, apiKey]);
+
+  const handleLogin = (key: string) => {
+    setApiKey(key);
+    setIsAuthenticated(true);
+    setLoading(true);
+  };
+
+  const handleLogout = () => {
+    sessionStorage.removeItem('admin_api_key');
+    setIsAuthenticated(false);
+    setApiKey('');
+    setMetrics(null);
+  };
 
   const fetchMetrics = async () => {
     try {
-      const response = await fetch('/api/admin/metrics');
+      const response = await fetch('/api/admin/metrics', {
+        headers: {
+          'X-API-Key': apiKey
+        }
+      });
+      
+      if (response.status === 401) {
+        handleLogout();
+        return;
+      }
+      
       const data = await response.json();
       setMetrics(data);
       setLastUpdate(new Date().toLocaleTimeString());
@@ -56,6 +95,10 @@ export default function AdminDashboard() {
       setLoading(false);
     }
   };
+
+  if (!isAuthenticated) {
+    return <AdminLogin onLogin={handleLogin} />;
+  }
 
   if (loading) {
     return (
@@ -81,16 +124,22 @@ export default function AdminDashboard() {
 
   return (
     <div className="container mx-auto px-4 py-8 pt-24">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-black dark:text-white mb-2">
-          Pollen AI Monitoring Dashboard
-        </h1>
-        <p className="text-gray-600 dark:text-gray-400">
-          Real-time performance, usage, and model metrics
-        </p>
-        <p className="text-sm text-gray-500 dark:text-gray-500 mt-2">
-          Last updated: {lastUpdate}
-        </p>
+      <div className="mb-8 flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-black dark:text-white mb-2">
+            Pollen AI Monitoring Dashboard
+          </h1>
+          <p className="text-gray-600 dark:text-gray-400">
+            Real-time performance, usage, and model metrics
+          </p>
+          <p className="text-sm text-gray-500 dark:text-gray-500 mt-2">
+            Last updated: {lastUpdate}
+          </p>
+        </div>
+        <Button variant="outline" onClick={handleLogout} className="flex items-center gap-2">
+          <LogOut className="w-4 h-4" />
+          Logout
+        </Button>
       </div>
 
       {/* Key Metrics Overview */}

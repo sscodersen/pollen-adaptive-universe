@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const axios = require('axios');
+const rateLimit = require('express-rate-limit');
 
 const app = express();
 const port = 3001;
@@ -8,6 +9,56 @@ const port = 3001;
 // Enable CORS
 app.use(cors());
 app.use(express.json());
+
+// Admin API Key (Must be set via environment variable)
+const ADMIN_API_KEY = process.env.ADMIN_API_KEY;
+
+if (!ADMIN_API_KEY) {
+  console.warn('⚠️  WARNING: No ADMIN_API_KEY environment variable set!');
+  console.warn('⚠️  Admin endpoints will not be accessible.');
+  console.warn('⚠️  Set ADMIN_API_KEY in environment to enable admin access.');
+}
+
+// Rate Limiting Middleware
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
+  message: 'Too many requests from this IP, please try again later.',
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const aiLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minute
+  max: 20, // Limit AI generation to 20 requests per minute
+  message: 'AI generation rate limit exceeded. Please try again in a minute.',
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// Authentication Middleware for Admin Routes
+const adminAuth = (req, res, next) => {
+  if (!ADMIN_API_KEY) {
+    return res.status(503).json({ 
+      error: 'Service Unavailable', 
+      message: 'Admin access is not configured. Please set ADMIN_API_KEY environment variable.' 
+    });
+  }
+
+  const apiKey = req.headers['x-api-key'] || req.headers['authorization']?.replace('Bearer ', '');
+  
+  if (!apiKey || apiKey !== ADMIN_API_KEY) {
+    return res.status(401).json({ 
+      error: 'Unauthorized', 
+      message: 'Valid API key required for admin access' 
+    });
+  }
+  
+  next();
+};
+
+// Apply general API rate limiting to all routes
+app.use('/api/', apiLimiter);
 
 // In-memory storage to replace Vercel KV
 const storage = {
@@ -276,8 +327,8 @@ class PollenAI {
 
 const pollenAI = new PollenAI();
 
-// API Routes
-app.post('/api/ai/generate', async (req, res) => {
+// API Routes with rate limiting
+app.post('/api/ai/generate', aiLimiter, async (req, res) => {
   try {
     const { prompt, mode = 'chat', type = 'general' } = req.body;
     
@@ -957,8 +1008,8 @@ app.get('/api/forum/moderation', async (req, res) => {
   }
 });
 
-// Worker Bot Task Tracking Endpoint
-app.post('/api/admin/worker-task-update', (req, res) => {
+// Worker Bot Task Tracking Endpoint (with authentication)
+app.post('/api/admin/worker-task-update', adminAuth, (req, res) => {
   try {
     const { status, taskId, duration } = req.body;
     
@@ -986,8 +1037,8 @@ app.post('/api/admin/worker-task-update', (req, res) => {
   }
 });
 
-// Admin Metrics Endpoint
-app.get('/api/admin/metrics', (req, res) => {
+// Admin Metrics Endpoint (with authentication)
+app.get('/api/admin/metrics', adminAuth, (req, res) => {
   const now = new Date();
   const oneHourAgo = new Date(now - 60 * 60 * 1000);
   const recentRequests = aiMetrics.requests.filter(r => r.timestamp > oneHourAgo);
