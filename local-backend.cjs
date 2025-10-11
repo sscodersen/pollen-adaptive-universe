@@ -6,6 +6,9 @@ const rateLimit = require('express-rate-limit');
 const app = express();
 const port = 3001;
 
+// Enable trust proxy for proper rate limiting behind proxy
+app.set('trust proxy', 1);
+
 // Enable CORS
 app.use(cors());
 app.use(express.json());
@@ -1129,6 +1132,115 @@ app.get('/api/admin/metrics', adminAuth, (req, res) => {
   };
   
   res.json(metrics);
+});
+
+// Worker Bot Integration
+const { workerBot } = require('./server/workerBot.cjs');
+
+// Worker Bot SSE endpoint
+app.get('/api/worker/stream', (req, res) => {
+  const clientId = `client_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  const userId = req.query.userId;
+
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection', 'keep-alive');
+  res.setHeader('X-Accel-Buffering', 'no');
+
+  workerBot.addSSEClient(clientId, res, userId);
+
+  req.on('close', () => {
+    workerBot.removeSSEClient(clientId);
+  });
+});
+
+// Worker Bot task management
+app.post('/api/worker/tasks', (req, res) => {
+  try {
+    const { type, payload, priority = 5 } = req.body;
+    if (!type || !payload) {
+      return res.status(400).json({ error: 'Type and payload are required' });
+    }
+    const taskId = workerBot.addTask({ type, payload, priority });
+    res.json({ success: true, taskId, message: 'Task queued successfully' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/worker/tasks/:taskId', (req, res) => {
+  const { taskId } = req.params;
+  const task = workerBot.getTaskStatus(taskId);
+  if (!task) {
+    return res.status(404).json({ error: 'Task not found' });
+  }
+  res.json({ task });
+});
+
+app.get('/api/worker/stats', (req, res) => {
+  const stats = workerBot.getStats();
+  res.json({ stats });
+});
+
+// Quick action endpoints for Worker Bot
+app.post('/api/worker/generate-content', (req, res) => {
+  const { prompt, type, userId } = req.body;
+  const taskId = workerBot.addTask({
+    type: 'content',
+    payload: { prompt, type, userId },
+    priority: 7
+  });
+  res.json({ taskId, message: 'Content generation queued' });
+});
+
+app.post('/api/worker/generate-music', (req, res) => {
+  const { mood, genre, occasion } = req.body;
+  const taskId = workerBot.addTask({
+    type: 'music',
+    payload: { mood, genre, occasion },
+    priority: 6
+  });
+  res.json({ taskId, message: 'Music generation queued' });
+});
+
+app.post('/api/worker/generate-ads', (req, res) => {
+  const { targetAudience, product, goals } = req.body;
+  const taskId = workerBot.addTask({
+    type: 'ads',
+    payload: { targetAudience, product, goals },
+    priority: 5
+  });
+  res.json({ taskId, message: 'Ad generation queued' });
+});
+
+app.post('/api/worker/analyze-trends', (req, res) => {
+  const { data, timeRange, category } = req.body;
+  const taskId = workerBot.addTask({
+    type: 'trends',
+    payload: { data, timeRange, category },
+    priority: 8
+  });
+  res.json({ taskId, message: 'Trend analysis queued' });
+});
+
+app.post('/api/worker/perform-analytics', (req, res) => {
+  const { userData, metrics, insights } = req.body;
+  const taskId = workerBot.addTask({
+    type: 'analytics',
+    payload: { userData, metrics, insights },
+    priority: 7
+  });
+  res.json({ taskId, message: 'Analytics queued' });
+});
+
+app.post('/api/worker/personalize-content', (req, res) => {
+  const { userProfile, contentPool, preferences } = req.body;
+  const taskId = workerBot.addTask({
+    type: 'personalization',
+    payload: { userProfile, contentPool, preferences },
+    priority: 9
+  });
+  res.json({ taskId, message: 'Personalization queued' });
 });
 
 // Update AI generate endpoint to track modes
