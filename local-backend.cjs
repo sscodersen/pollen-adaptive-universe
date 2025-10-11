@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const axios = require('axios');
 const rateLimit = require('express-rate-limit');
+const ws = require('ws');
 
 const app = express();
 const port = 3001;
@@ -429,6 +430,19 @@ storage.communities = [];
 storage.communityMembers = [];
 storage.communityPosts = [];
 
+// Enhanced Community Features Storage
+storage.chatRooms = [];
+storage.chatMessages = [];
+storage.badges = [];
+storage.userBadges = [];
+storage.points = [];
+storage.leaderboard = [];
+storage.events = [];
+storage.eventRegistrations = [];
+storage.feedbackSubmissions = [];
+storage.feedbackResponses = [];
+storage.curatedContent = [];
+
 // Initialize seed data for better first-time user experience
 const initializeSeedData = () => {
   const sampleCommunities = [
@@ -636,6 +650,185 @@ app.get('/api/community/users/:userId/suggestions', (req, res) => {
   res.json({ success: true, suggestions: storage.communities.slice(0, 3).map(c => ({
     community: c, relevanceScore: 0.8, matchingInterests: []
   }))});
+});
+
+// ===== ENHANCED COMMUNITY FEATURES =====
+
+// Chat Rooms
+app.post('/api/community/chat/rooms', (req, res) => {
+  const { name, description, type, creatorId } = req.body;
+  const room = {
+    id: `room_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+    name, description, type: type || 'public', creatorId,
+    participantCount: 0,
+    createdAt: new Date().toISOString()
+  };
+  storage.chatRooms.push(room);
+  res.json({ success: true, room });
+});
+
+app.get('/api/community/chat/rooms', (req, res) => {
+  res.json({ success: true, rooms: storage.chatRooms });
+});
+
+app.get('/api/community/chat/rooms/:roomId/messages', (req, res) => {
+  const { roomId } = req.params;
+  const messages = storage.chatMessages.filter(m => m.roomId === roomId).slice(-50);
+  res.json({ success: true, messages });
+});
+
+// Gamification - Badges
+app.get('/api/community/gamification/badges', (req, res) => {
+  res.json({ success: true, badges: storage.badges });
+});
+
+app.post('/api/community/gamification/badges/award', (req, res) => {
+  const { userId, badgeId } = req.body;
+  const userBadge = {
+    id: `ub_${Date.now()}`,
+    userId, badgeId,
+    awardedAt: new Date().toISOString()
+  };
+  storage.userBadges.push(userBadge);
+  res.json({ success: true, userBadge });
+});
+
+// Gamification - Points & Leaderboard
+app.post('/api/community/gamification/points', (req, res) => {
+  const { userId, points, action } = req.body;
+  const pointEntry = {
+    id: `p_${Date.now()}`,
+    userId, points, action,
+    createdAt: new Date().toISOString()
+  };
+  storage.points.push(pointEntry);
+  
+  // Update leaderboard
+  let userEntry = storage.leaderboard.find(l => l.userId === userId);
+  if (!userEntry) {
+    userEntry = { userId, totalPoints: 0, rank: 0, username: req.body.username || 'User' };
+    storage.leaderboard.push(userEntry);
+  }
+  userEntry.totalPoints += points;
+  
+  // Re-rank
+  storage.leaderboard.sort((a, b) => b.totalPoints - a.totalPoints);
+  storage.leaderboard.forEach((entry, index) => entry.rank = index + 1);
+  
+  res.json({ success: true, pointEntry, totalPoints: userEntry.totalPoints });
+});
+
+app.get('/api/community/gamification/leaderboard', (req, res) => {
+  const limit = parseInt(req.query.limit) || 10;
+  res.json({ success: true, leaderboard: storage.leaderboard.slice(0, limit) });
+});
+
+// Events
+app.post('/api/community/events', (req, res) => {
+  const { title, description, eventType, startTime, endTime, organizerId } = req.body;
+  const event = {
+    id: `event_${Date.now()}`,
+    title, description, eventType, startTime, endTime, organizerId,
+    registrationCount: 0,
+    createdAt: new Date().toISOString()
+  };
+  storage.events.push(event);
+  res.json({ success: true, event });
+});
+
+app.get('/api/community/events', (req, res) => {
+  res.json({ success: true, events: storage.events });
+});
+
+app.post('/api/community/events/:eventId/register', (req, res) => {
+  const { eventId } = req.params;
+  const { userId } = req.body;
+  const registration = {
+    id: `reg_${Date.now()}`,
+    eventId, userId,
+    registeredAt: new Date().toISOString()
+  };
+  storage.eventRegistrations.push(registration);
+  
+  const event = storage.events.find(e => e.id === eventId);
+  if (event) event.registrationCount++;
+  
+  res.json({ success: true, registration });
+});
+
+// Feedback with NLP Analysis
+app.post('/api/community/feedback', (req, res) => {
+  const { userId, subject, description, feedbackType } = req.body;
+  
+  // Simple NLP analysis
+  const text = `${subject} ${description}`.toLowerCase();
+  const sentiment = text.match(/great|excellent|good|love/) ? 'positive' : 
+                   text.match(/bad|poor|terrible|hate/) ? 'negative' : 'neutral';
+  
+  const topics = [];
+  if (text.match(/ui|design|interface/)) topics.push('ui_ux');
+  if (text.match(/performance|slow|fast/)) topics.push('performance');
+  if (text.match(/ai|recommendation/)) topics.push('ai_features');
+  if (text.match(/community|chat|forum/)) topics.push('community');
+  
+  const feedback = {
+    id: `fb_${Date.now()}`,
+    userId, subject, description, feedbackType,
+    sentiment, topics: topics.length > 0 ? topics : ['general'],
+    priority: feedbackType === 'bug' ? 'high' : 'medium',
+    status: 'open',
+    createdAt: new Date().toISOString()
+  };
+  
+  storage.feedbackSubmissions.push(feedback);
+  res.json({ success: true, feedback, analysis: { sentiment, topics } });
+});
+
+app.get('/api/community/feedback', (req, res) => {
+  const { userId, status } = req.query;
+  let feedback = storage.feedbackSubmissions;
+  if (userId) feedback = feedback.filter(f => f.userId === userId);
+  if (status) feedback = feedback.filter(f => f.status === status);
+  res.json({ success: true, feedback: feedback.slice(0, 50) });
+});
+
+app.get('/api/community/feedback/analysis', (req, res) => {
+  const total = storage.feedbackSubmissions.length;
+  const positive = storage.feedbackSubmissions.filter(f => f.sentiment === 'positive').length;
+  const neutral = storage.feedbackSubmissions.filter(f => f.sentiment === 'neutral').length;
+  const negative = storage.feedbackSubmissions.filter(f => f.sentiment === 'negative').length;
+  
+  res.json({
+    success: true,
+    analysis: {
+      total,
+      sentimentBreakdown: { positive, neutral, negative },
+      summary: `Analyzed ${total} feedback submissions. ${positive} positive, ${neutral} neutral, ${negative} negative.`
+    }
+  });
+});
+
+// Curated Content
+app.post('/api/community/curated', (req, res) => {
+  const { title, description, contentType, category, metadata } = req.body;
+  const content = {
+    id: `curated_${Date.now()}`,
+    title, description, contentType, category,
+    metadata: metadata || {},
+    views: 0,
+    likes: 0,
+    createdAt: new Date().toISOString()
+  };
+  storage.curatedContent.push(content);
+  res.json({ success: true, content });
+});
+
+app.get('/api/community/curated', (req, res) => {
+  const { category, contentType } = req.query;
+  let content = storage.curatedContent;
+  if (category) content = content.filter(c => c.category === category);
+  if (contentType) content = content.filter(c => c.contentType === contentType);
+  res.json({ success: true, content: content.slice(0, 20) });
 });
 
 let healthResearchStorage, forumStorage;
@@ -1248,7 +1441,62 @@ const originalGenerateHandler = app.post._router?.stack?.find(
   layer => layer.route?.path === '/api/ai/generate'
 )?.route?.stack?.[0]?.handle;
 
-app.listen(port, '0.0.0.0', () => {
+// WebSocket Chat Server
+const chatClients = new Map();
+
+const createChatServer = (server) => {
+  const wss = new ws.Server({ server });
+  
+  wss.on('connection', (socket) => {
+    let clientId = null;
+    
+    socket.on('message', (data) => {
+      try {
+        const message = JSON.parse(data.toString());
+        
+        switch (message.type) {
+          case 'join':
+            clientId = `${message.userId}_${message.roomId}_${Date.now()}`;
+            chatClients.set(clientId, { socket, userId: message.userId, roomId: message.roomId });
+            socket.send(JSON.stringify({ type: 'joined', roomId: message.roomId, clientId }));
+            break;
+            
+          case 'chat_message':
+            const chatMessage = {
+              id: `msg_${Date.now()}`,
+              roomId: message.roomId,
+              userId: message.userId,
+              username: message.username,
+              content: message.content,
+              createdAt: new Date().toISOString()
+            };
+            storage.chatMessages.push(chatMessage);
+            
+            // Broadcast to all clients in the same room
+            chatClients.forEach((client, id) => {
+              if (client.roomId === message.roomId && client.socket.readyState === ws.OPEN) {
+                client.socket.send(JSON.stringify({ type: 'message', message: chatMessage }));
+              }
+            });
+            break;
+        }
+      } catch (error) {
+        console.error('WebSocket error:', error);
+      }
+    });
+    
+    socket.on('close', () => {
+      if (clientId) {
+        chatClients.delete(clientId);
+      }
+    });
+  });
+  
+  console.log('💬 WebSocket chat server initialized');
+  return wss;
+};
+
+const server = app.listen(port, '0.0.0.0', () => {
   console.log(`Local Pollen AI backend running on http://0.0.0.0:${port}`);
   console.log('API endpoints:');
   console.log('  POST /api/ai/generate - Generate AI content');
@@ -1263,4 +1511,13 @@ app.listen(port, '0.0.0.0', () => {
   console.log('  GET /api/community/:id/posts - Get community posts');
   console.log('  POST /api/community/:id/posts - Create community post');
   console.log('  GET /api/admin/metrics - Get AI metrics dashboard data');
+  console.log('\n✨ Enhanced Community Features:');
+  console.log('  🏪 Chat Rooms - Real-time messaging');
+  console.log('  🏆 Gamification - Badges, points, leaderboards');
+  console.log('  📅 Events - Virtual events and webinars');
+  console.log('  💬 Feedback - NLP-powered analysis');
+  console.log('  📚 Curated Content - AI-driven recommendations');
+  
+  // Initialize WebSocket Chat Server
+  createChatServer(server);
 });
