@@ -22,9 +22,24 @@ window.addEventListener('error', (event) => {
   event.preventDefault();
 });
 
+// Register Service Worker for edge computing
+const registerServiceWorker = async () => {
+  if ('serviceWorker' in navigator) {
+    try {
+      const registration = await navigator.serviceWorker.register('/service-worker.js');
+      console.log('🌐 Edge computing service worker registered:', registration.scope);
+    } catch (error) {
+      console.warn('Service worker registration failed:', error);
+    }
+  }
+};
+
 // Initialize comprehensive platform optimization
 const initializePlatform = async () => {
   try {
+    // Register edge computing service worker
+    registerServiceWorker();
+    
     // Start performance monitoring
     performanceMonitor.startMonitoring();
     
