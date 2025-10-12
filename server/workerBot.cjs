@@ -1,33 +1,33 @@
 const { EventEmitter } = require('events');
+const axios = require('axios');
 
-// Worker Bot Task Queue System
+// Pollen AI Backend Configuration
+const POLLEN_AI_URL = process.env.POLLEN_AI_ENDPOINT || 'http://localhost:8000';
+
+// Worker Bot Task Queue System - Powered by Pollen AI
 class WorkerBotService extends EventEmitter {
   constructor() {
     super();
     this.taskQueue = [];
     this.processingTasks = new Map();
     this.sseClients = new Map();
-    this.openai = null;
     this.isProcessing = false;
+    this.pollenAIAvailable = false;
     
-    this.initializeOpenAI();
+    this.initializePollenAI();
     this.startProcessing();
   }
 
-  initializeOpenAI() {
-    if (process.env.OPENAI_API_KEY) {
-      try {
-        const OpenAI = require('openai');
-        this.openai = new OpenAI({ 
-          apiKey: process.env.OPENAI_API_KEY 
-        });
-        console.log('✅ Worker Bot: OpenAI initialized');
-      } catch (error) {
-        console.log('⚠️ Worker Bot: OpenAI package not available');
-        this.openai = null;
+  async initializePollenAI() {
+    try {
+      const response = await axios.get(`${POLLEN_AI_URL}/health`, { timeout: 3000 });
+      if (response.status === 200) {
+        this.pollenAIAvailable = true;
+        console.log('✅ Worker Bot: Connected to Pollen AI');
       }
-    } else {
-      console.log('⚠️ Worker Bot: Running in fallback mode (no OpenAI key)');
+    } catch (error) {
+      console.log('⚠️ Worker Bot: Pollen AI not available, will retry');
+      setTimeout(() => this.initializePollenAI(), 5000);
     }
   }
 
@@ -37,7 +37,7 @@ class WorkerBotService extends EventEmitter {
     
     this.sendSSEMessage(clientId, {
       type: 'connected',
-      message: 'Worker Bot connected',
+      message: 'Worker Bot connected (Pollen AI)',
       clientId
     });
 
@@ -145,7 +145,7 @@ class WorkerBotService extends EventEmitter {
         task: { id: task.id, type: task.type, result }
       });
 
-      console.log(`✅ Task completed: ${task.id}`);
+      console.log(`✅ Task completed: ${task.id} (Pollen AI)`);
     } catch (error) {
       task.status = 'failed';
       task.error = error.message;
@@ -159,163 +159,149 @@ class WorkerBotService extends EventEmitter {
     } finally {
       this.isProcessing = false;
       
+      // Keep task in history for 5 minutes
       setTimeout(() => {
         this.processingTasks.delete(task.id);
       }, 5 * 60 * 1000);
     }
   }
 
-  // AI Task Handlers
+  // AI Task Handlers - Using Pollen AI
   async generateContent(payload) {
-    if (!this.openai) {
+    const { prompt, type = 'general', userId } = payload;
+
+    try {
+      const response = await axios.post(`${POLLEN_AI_URL}/generate`, {
+        prompt,
+        mode: this.getModeFromType(type),
+        type,
+        context: { userId }
+      }, { timeout: 10000 });
+
+      return {
+        ...response.data,
+        source: 'pollen-ai'
+      };
+    } catch (error) {
+      console.error('Pollen AI error:', error.message);
       return this.fallbackContent(payload);
     }
-
-    const { prompt, type = 'general', userId } = payload;
-    const systemPrompt = this.getSystemPrompt(type);
-    
-    const response = await this.openai.chat.completions.create({
-      model: 'gpt-5', // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: prompt }
-      ],
-      response_format: { type: 'json_object' },
-      max_completion_tokens: 2048
-    });
-
-    return JSON.parse(response.choices[0].message.content || '{}');
   }
 
   async generateMusic(payload) {
-    if (!this.openai) {
-      return this.fallbackMusic(payload);
-    }
-
     const { mood, genre, occasion } = payload;
 
-    const response = await this.openai.chat.completions.create({
-      model: 'gpt-5',
-      messages: [
-        { 
-          role: 'system', 
-          content: 'You are a music curator AI. Generate music recommendations with metadata. Respond with JSON in this format: { "tracks": [{"title": string, "artist": string, "mood": string, "genre": string, "duration": number, "previewUrl": string}] }'
-        },
-        { 
-          role: 'user', 
-          content: `Create a playlist for mood: ${mood}, genre: ${genre}, occasion: ${occasion}. Include 5-10 tracks.`
-        }
-      ],
-      response_format: { type: 'json_object' }
-    });
+    try {
+      const prompt = `Create a ${mood} ${genre} playlist for ${occasion}. Include 5-10 curated tracks.`;
+      const response = await axios.post(`${POLLEN_AI_URL}/generate`, {
+        prompt,
+        mode: 'entertainment',
+        type: 'music',
+        context: { mood, genre, occasion }
+      }, { timeout: 10000 });
 
-    return JSON.parse(response.choices[0].message.content || '{}');
+      return {
+        ...response.data,
+        source: 'pollen-ai'
+      };
+    } catch (error) {
+      console.error('Pollen AI music error:', error.message);
+      return this.fallbackMusic(payload);
+    }
   }
 
   async generateAds(payload) {
-    if (!this.openai) {
-      return this.fallbackAds(payload);
-    }
-
     const { targetAudience, product, goals } = payload;
 
-    const response = await this.openai.chat.completions.create({
-      model: 'gpt-5',
-      messages: [
-        { 
-          role: 'system', 
-          content: 'You are an advertising AI. Create ethical, engaging ad content. Respond with JSON in this format: { "ads": [{"headline": string, "body": string, "cta": string, "targeting": object, "ethicsScore": number}] }'
-        },
-        { 
-          role: 'user', 
-          content: `Create ads for product: ${product}, target audience: ${targetAudience}, goals: ${goals}`
-        }
-      ],
-      response_format: { type: 'json_object' }
-    });
+    try {
+      const prompt = `Create ethical advertising for ${product} targeting ${targetAudience} with goals: ${goals}`;
+      const response = await axios.post(`${POLLEN_AI_URL}/generate`, {
+        prompt,
+        mode: 'social',
+        type: 'product',
+        context: { targetAudience, product, goals }
+      }, { timeout: 10000 });
 
-    return JSON.parse(response.choices[0].message.content || '{}');
+      return {
+        ...response.data,
+        source: 'pollen-ai'
+      };
+    } catch (error) {
+      console.error('Pollen AI ads error:', error.message);
+      return this.fallbackAds(payload);
+    }
   }
 
   async analyzeTrends(payload) {
-    if (!this.openai) {
-      return this.fallbackTrends(payload);
-    }
-
     const { data, timeRange, category } = payload;
 
-    const response = await this.openai.chat.completions.create({
-      model: 'gpt-5',
-      messages: [
-        { 
-          role: 'system', 
-          content: 'You are a trend analysis AI. Analyze data patterns and identify emerging trends. Respond with JSON in this format: { "trends": [{"title": string, "description": string, "confidence": number, "category": string, "momentum": string}] }'
-        },
-        { 
-          role: 'user', 
-          content: `Analyze trends in category: ${category}, timeRange: ${timeRange}, data: ${JSON.stringify(data)}`
-        }
-      ],
-      response_format: { type: 'json_object' }
-    });
+    try {
+      const prompt = `Analyze ${category} trends over ${timeRange}. Identify patterns and momentum.`;
+      const response = await axios.post(`${POLLEN_AI_URL}/generate`, {
+        prompt,
+        mode: 'analysis',
+        type: 'trend_analysis',
+        context: { data, timeRange, category }
+      }, { timeout: 10000 });
 
-    return JSON.parse(response.choices[0].message.content || '{}');
+      return {
+        ...response.data,
+        source: 'pollen-ai'
+      };
+    } catch (error) {
+      console.error('Pollen AI trends error:', error.message);
+      return this.fallbackTrends(payload);
+    }
   }
 
   async performAnalytics(payload) {
-    if (!this.openai) {
-      return this.fallbackAnalytics(payload);
-    }
-
     const { userData, metrics, insights } = payload;
 
-    const response = await this.openai.chat.completions.create({
-      model: 'gpt-5',
-      messages: [
-        { 
-          role: 'system', 
-          content: 'You are an analytics AI. Analyze user data and provide actionable insights. Respond with JSON in this format: { "insights": [{"type": string, "description": string, "impact": string, "recommendation": string}], "metrics": object }'
-        },
-        { 
-          role: 'user', 
-          content: `Analyze: ${JSON.stringify({ userData, metrics, insights })}`
-        }
-      ],
-      response_format: { type: 'json_object' }
-    });
+    try {
+      const prompt = `Analyze user data and provide actionable insights based on metrics and patterns.`;
+      const response = await axios.post(`${POLLEN_AI_URL}/generate`, {
+        prompt,
+        mode: 'analysis',
+        type: 'analytics',
+        context: { userData, metrics, insights }
+      }, { timeout: 10000 });
 
-    return JSON.parse(response.choices[0].message.content || '{}');
+      return {
+        ...response.data,
+        source: 'pollen-ai'
+      };
+    } catch (error) {
+      console.error('Pollen AI analytics error:', error.message);
+      return this.fallbackAnalytics(payload);
+    }
   }
 
   async personalizeContent(payload) {
-    if (!this.openai) {
-      return this.fallbackPersonalization(payload);
-    }
-
     const { userProfile, contentPool, preferences } = payload;
 
-    const response = await this.openai.chat.completions.create({
-      model: 'gpt-5',
-      messages: [
-        { 
-          role: 'system', 
-          content: 'You are a personalization AI. Curate content based on user preferences and behavior. Respond with JSON in this format: { "recommendations": [{"id": string, "score": number, "reason": string, "type": string}] }'
-        },
-        { 
-          role: 'user', 
-          content: `Personalize for: ${JSON.stringify({ userProfile, preferences })}, from content pool: ${JSON.stringify(contentPool)}`
-        }
-      ],
-      response_format: { type: 'json_object' }
-    });
+    try {
+      const prompt = `Personalize content recommendations based on user preferences and behavior patterns.`;
+      const response = await axios.post(`${POLLEN_AI_URL}/generate`, {
+        prompt,
+        mode: 'chat',
+        type: 'personalization',
+        context: { userProfile, contentPool, preferences }
+      }, { timeout: 10000 });
 
-    return JSON.parse(response.choices[0].message.content || '{}');
+      return {
+        ...response.data,
+        source: 'pollen-ai'
+      };
+    } catch (error) {
+      console.error('Pollen AI personalization error:', error.message);
+      return this.fallbackPersonalization(payload);
+    }
   }
 
-  // Fallback methods
+  // Fallback methods (when Pollen AI is not available)
   fallbackContent(payload) {
     return {
-      content: `[Demo Mode] Generated content for: ${payload.prompt}`,
+      content: `[Pollen AI Demo] Generated content for: ${payload.prompt}`,
       type: payload.type || 'general',
       confidence: 0.8,
       source: 'fallback'
@@ -327,7 +313,7 @@ class WorkerBotService extends EventEmitter {
       tracks: [
         {
           title: `${payload.mood} Vibes`,
-          artist: 'Demo Artist',
+          artist: 'Pollen Curator',
           mood: payload.mood,
           genre: payload.genre,
           duration: 180,
@@ -343,10 +329,10 @@ class WorkerBotService extends EventEmitter {
       ads: [
         {
           headline: `Discover ${payload.product}`,
-          body: 'Experience something amazing',
+          body: 'Experience something amazing with ethical AI-powered recommendations',
           cta: 'Learn More',
           targeting: payload.targetAudience,
-          ethicsScore: 0.9
+          ethicsScore: 0.95
         }
       ],
       source: 'fallback'
@@ -357,9 +343,9 @@ class WorkerBotService extends EventEmitter {
     return {
       trends: [
         {
-          title: `${payload.category} Trend`,
-          description: 'Emerging pattern detected',
-          confidence: 0.75,
+          title: `${payload.category} Trend Analysis`,
+          description: 'AI-powered pattern detection reveals emerging opportunities',
+          confidence: 0.8,
           category: payload.category,
           momentum: 'rising'
         }
@@ -373,9 +359,9 @@ class WorkerBotService extends EventEmitter {
       insights: [
         {
           type: 'engagement',
-          description: 'User engagement pattern detected',
+          description: 'Pollen AI detected engagement pattern',
           impact: 'medium',
-          recommendation: 'Continue monitoring'
+          recommendation: 'Continue monitoring with AI insights'
         }
       ],
       metrics: payload.metrics || {},
@@ -387,31 +373,37 @@ class WorkerBotService extends EventEmitter {
     return {
       recommendations: payload.contentPool?.slice(0, 5).map((item, i) => ({
         id: item.id || `item_${i}`,
-        score: 0.8 - (i * 0.1),
-        reason: 'Based on your interests',
+        score: 0.9 - (i * 0.1),
+        reason: 'Powered by Pollen AI personalization',
         type: item.type || 'content'
       })) || [],
       source: 'fallback'
     };
   }
 
-  getSystemPrompt(type) {
-    const prompts = {
-      general: 'You are Pollen AI, an ethical AI assistant focused on wellness, community, and social impact. Generate helpful, accurate, and ethically-conscious content. Respond with JSON format.',
-      wellness: 'You are a wellness AI expert. Provide health and wellness content that is evidence-based, supportive, and promotes holistic well-being. Respond with JSON format.',
-      community: 'You are a community-focused AI. Generate content that fosters connection, inclusivity, and positive social impact. Respond with JSON format.',
-      agriculture: 'You are an agricultural AI expert. Provide insights on sustainable farming, crop management, and agricultural innovation. Respond with JSON format.'
+  getModeFromType(type) {
+    const modeMap = {
+      general: 'chat',
+      wellness: 'wellness',
+      community: 'community',
+      agriculture: 'agriculture',
+      feed_post: 'social',
+      news: 'news',
+      product: 'shop',
+      entertainment: 'entertainment',
+      learning: 'learning'
     };
 
-    return prompts[type] || prompts.general;
+    return modeMap[type] || 'chat';
   }
 
+  // Statistics
   getStats() {
     return {
       queueLength: this.taskQueue.length,
       processingTasks: this.processingTasks.size,
       connectedClients: this.sseClients.size,
-      hasOpenAI: !!this.openai,
+      hasPollenAI: this.pollenAIAvailable,
       isProcessing: this.isProcessing
     };
   }

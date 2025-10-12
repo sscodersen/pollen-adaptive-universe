@@ -1,8 +1,8 @@
-import OpenAI from 'openai';
 import { EventEmitter } from 'events';
+import axios from 'axios';
 
-// the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
-const OPENAI_MODEL = 'gpt-5';
+// Pollen AI Backend Configuration
+const POLLEN_AI_URL = process.env.POLLEN_AI_ENDPOINT || 'http://localhost:8000';
 
 interface Task {
   id: string;
@@ -25,23 +25,25 @@ class WorkerBotService extends EventEmitter {
   private taskQueue: Task[] = [];
   private processingTasks: Map<string, Task> = new Map();
   private sseClients: Map<string, SSEClient> = new Map();
-  private openai: OpenAI | null = null;
   private isProcessing = false;
+  private pollenAIAvailable = false;
 
   constructor() {
     super();
-    this.initializeOpenAI();
+    this.initializePollenAI();
     this.startProcessing();
   }
 
-  private initializeOpenAI() {
-    if (process.env.OPENAI_API_KEY) {
-      this.openai = new OpenAI({ 
-        apiKey: process.env.OPENAI_API_KEY 
-      });
-      console.log('✅ Worker Bot: OpenAI initialized');
-    } else {
-      console.log('⚠️ Worker Bot: Running in fallback mode (no OpenAI key)');
+  private async initializePollenAI() {
+    try {
+      const response = await axios.get(`${POLLEN_AI_URL}/health`, { timeout: 3000 });
+      if (response.status === 200) {
+        this.pollenAIAvailable = true;
+        console.log('✅ Worker Bot: Connected to Pollen AI');
+      }
+    } catch (error) {
+      console.log('⚠️ Worker Bot: Pollen AI not available, will retry');
+      setTimeout(() => this.initializePollenAI(), 5000);
     }
   }
 
@@ -181,152 +183,136 @@ class WorkerBotService extends EventEmitter {
     }
   }
 
-  // AI Task Handlers
+  // AI Task Handlers - Using Pollen AI
   private async generateContent(payload: any) {
-    if (!this.openai) {
-      return this.fallbackContent(payload);
-    }
-
     const { prompt, type = 'general', userId } = payload;
 
-    const systemPrompt = this.getSystemPrompt(type);
-    
-    const response = await this.openai.chat.completions.create({
-      model: OPENAI_MODEL,
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: prompt }
-      ],
-      response_format: { type: 'json_object' },
-      max_completion_tokens: 2048
-    });
+    try {
+      const response = await axios.post(`${POLLEN_AI_URL}/generate`, {
+        prompt,
+        mode: this.getModeFromType(type),
+        type,
+        context: { userId }
+      }, { timeout: 10000 });
 
-    return JSON.parse(response.choices[0].message.content || '{}');
+      return {
+        ...response.data,
+        source: 'pollen-ai'
+      };
+    } catch (error: any) {
+      console.error('Pollen AI error:', error.message);
+      return this.fallbackContent(payload);
+    }
   }
 
   private async generateMusic(payload: any) {
-    if (!this.openai) {
-      return this.fallbackMusic(payload);
-    }
-
     const { mood, genre, occasion } = payload;
 
-    const response = await this.openai.chat.completions.create({
-      model: OPENAI_MODEL,
-      messages: [
-        { 
-          role: 'system', 
-          content: 'You are a music curator AI. Generate music recommendations with metadata. Respond with JSON in this format: { "tracks": [{"title": string, "artist": string, "mood": string, "genre": string, "duration": number, "previewUrl": string}] }'
-        },
-        { 
-          role: 'user', 
-          content: `Create a playlist for mood: ${mood}, genre: ${genre}, occasion: ${occasion}. Include 5-10 tracks.`
-        }
-      ],
-      response_format: { type: 'json_object' }
-    });
+    try {
+      const prompt = `Create a ${mood} ${genre} playlist for ${occasion}. Include 5-10 curated tracks.`;
+      const response = await axios.post(`${POLLEN_AI_URL}/generate`, {
+        prompt,
+        mode: 'entertainment',
+        type: 'music',
+        context: { mood, genre, occasion }
+      }, { timeout: 10000 });
 
-    return JSON.parse(response.choices[0].message.content || '{}');
+      return {
+        ...response.data,
+        source: 'pollen-ai'
+      };
+    } catch (error: any) {
+      console.error('Pollen AI music error:', error.message);
+      return this.fallbackMusic(payload);
+    }
   }
 
   private async generateAds(payload: any) {
-    if (!this.openai) {
-      return this.fallbackAds(payload);
-    }
-
     const { targetAudience, product, goals } = payload;
 
-    const response = await this.openai.chat.completions.create({
-      model: OPENAI_MODEL,
-      messages: [
-        { 
-          role: 'system', 
-          content: 'You are an advertising AI. Create ethical, engaging ad content. Respond with JSON in this format: { "ads": [{"headline": string, "body": string, "cta": string, "targeting": object, "ethicsScore": number}] }'
-        },
-        { 
-          role: 'user', 
-          content: `Create ads for product: ${product}, target audience: ${targetAudience}, goals: ${goals}`
-        }
-      ],
-      response_format: { type: 'json_object' }
-    });
+    try {
+      const prompt = `Create ethical advertising for ${product} targeting ${targetAudience} with goals: ${goals}`;
+      const response = await axios.post(`${POLLEN_AI_URL}/generate`, {
+        prompt,
+        mode: 'social',
+        type: 'product',
+        context: { targetAudience, product, goals }
+      }, { timeout: 10000 });
 
-    return JSON.parse(response.choices[0].message.content || '{}');
+      return {
+        ...response.data,
+        source: 'pollen-ai'
+      };
+    } catch (error: any) {
+      console.error('Pollen AI ads error:', error.message);
+      return this.fallbackAds(payload);
+    }
   }
 
   private async analyzeTrends(payload: any) {
-    if (!this.openai) {
-      return this.fallbackTrends(payload);
-    }
-
     const { data, timeRange, category } = payload;
 
-    const response = await this.openai.chat.completions.create({
-      model: OPENAI_MODEL,
-      messages: [
-        { 
-          role: 'system', 
-          content: 'You are a trend analysis AI. Analyze data patterns and identify emerging trends. Respond with JSON in this format: { "trends": [{"title": string, "description": string, "confidence": number, "category": string, "momentum": string}] }'
-        },
-        { 
-          role: 'user', 
-          content: `Analyze trends in category: ${category}, timeRange: ${timeRange}, data: ${JSON.stringify(data)}`
-        }
-      ],
-      response_format: { type: 'json_object' }
-    });
+    try {
+      const prompt = `Analyze ${category} trends over ${timeRange}. Identify patterns and momentum.`;
+      const response = await axios.post(`${POLLEN_AI_URL}/generate`, {
+        prompt,
+        mode: 'analysis',
+        type: 'trend_analysis',
+        context: { data, timeRange, category }
+      }, { timeout: 10000 });
 
-    return JSON.parse(response.choices[0].message.content || '{}');
+      return {
+        ...response.data,
+        source: 'pollen-ai'
+      };
+    } catch (error: any) {
+      console.error('Pollen AI trends error:', error.message);
+      return this.fallbackTrends(payload);
+    }
   }
 
   private async performAnalytics(payload: any) {
-    if (!this.openai) {
-      return this.fallbackAnalytics(payload);
-    }
-
     const { userData, metrics, insights } = payload;
 
-    const response = await this.openai.chat.completions.create({
-      model: OPENAI_MODEL,
-      messages: [
-        { 
-          role: 'system', 
-          content: 'You are an analytics AI. Analyze user data and provide actionable insights. Respond with JSON in this format: { "insights": [{"type": string, "description": string, "impact": string, "recommendation": string}], "metrics": object }'
-        },
-        { 
-          role: 'user', 
-          content: `Analyze: ${JSON.stringify({ userData, metrics, insights })}`
-        }
-      ],
-      response_format: { type: 'json_object' }
-    });
+    try {
+      const prompt = `Analyze user data and provide actionable insights based on metrics and patterns.`;
+      const response = await axios.post(`${POLLEN_AI_URL}/generate`, {
+        prompt,
+        mode: 'analysis',
+        type: 'analytics',
+        context: { userData, metrics, insights }
+      }, { timeout: 10000 });
 
-    return JSON.parse(response.choices[0].message.content || '{}');
+      return {
+        ...response.data,
+        source: 'pollen-ai'
+      };
+    } catch (error: any) {
+      console.error('Pollen AI analytics error:', error.message);
+      return this.fallbackAnalytics(payload);
+    }
   }
 
   private async personalizeContent(payload: any) {
-    if (!this.openai) {
-      return this.fallbackPersonalization(payload);
-    }
-
     const { userProfile, contentPool, preferences } = payload;
 
-    const response = await this.openai.chat.completions.create({
-      model: OPENAI_MODEL,
-      messages: [
-        { 
-          role: 'system', 
-          content: 'You are a personalization AI. Curate content based on user preferences and behavior. Respond with JSON in this format: { "recommendations": [{"id": string, "score": number, "reason": string, "type": string}] }'
-        },
-        { 
-          role: 'user', 
-          content: `Personalize for: ${JSON.stringify({ userProfile, preferences })}, from content pool: ${JSON.stringify(contentPool)}`
-        }
-      ],
-      response_format: { type: 'json_object' }
-    });
+    try {
+      const prompt = `Personalize content recommendations based on user preferences and behavior patterns.`;
+      const response = await axios.post(`${POLLEN_AI_URL}/generate`, {
+        prompt,
+        mode: 'chat',
+        type: 'personalization',
+        context: { userProfile, contentPool, preferences }
+      }, { timeout: 10000 });
 
-    return JSON.parse(response.choices[0].message.content || '{}');
+      return {
+        ...response.data,
+        source: 'pollen-ai'
+      };
+    } catch (error: any) {
+      console.error('Pollen AI personalization error:', error.message);
+      return this.fallbackPersonalization(payload);
+    }
   }
 
   // Fallback methods (when OpenAI is not available)
@@ -412,15 +398,20 @@ class WorkerBotService extends EventEmitter {
     };
   }
 
-  private getSystemPrompt(type: string): string {
-    const prompts: Record<string, string> = {
-      general: 'You are Pollen AI, an ethical AI assistant focused on wellness, community, and social impact. Generate helpful, accurate, and ethically-conscious content. Respond with JSON format.',
-      wellness: 'You are a wellness AI expert. Provide health and wellness content that is evidence-based, supportive, and promotes holistic well-being. Respond with JSON format.',
-      community: 'You are a community-focused AI. Generate content that fosters connection, inclusivity, and positive social impact. Respond with JSON format.',
-      agriculture: 'You are an agricultural AI expert. Provide insights on sustainable farming, crop management, and agricultural innovation. Respond with JSON format.'
+  private getModeFromType(type: string): string {
+    const modeMap: Record<string, string> = {
+      general: 'chat',
+      wellness: 'wellness',
+      community: 'community',
+      agriculture: 'agriculture',
+      feed_post: 'social',
+      news: 'news',
+      product: 'shop',
+      entertainment: 'entertainment',
+      learning: 'learning'
     };
 
-    return prompts[type] || prompts.general;
+    return modeMap[type] || 'chat';
   }
 
   // Statistics
@@ -429,7 +420,7 @@ class WorkerBotService extends EventEmitter {
       queueLength: this.taskQueue.length,
       processingTasks: this.processingTasks.size,
       connectedClients: this.sseClients.size,
-      hasOpenAI: !!this.openai,
+      hasPollenAI: this.pollenAIAvailable,
       isProcessing: this.isProcessing
     };
   }

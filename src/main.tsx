@@ -67,13 +67,20 @@ const initializePlatform = async () => {
 
 // Pre-warm caches and keep content fresh across key sections (with error protection)
 const startContentOrchestration = () => {
-  setTimeout(() => {
+  setTimeout(async () => {
     try {
-      // DISABLED: Continuous generation was causing infinite loops and resource consumption
-      // contentOrchestrator.startContinuousGeneration([
-      //   'social','shop','entertainment','games','music','news'
-      // ], 300000); // Every 5 minutes
-      console.log('🔄 Content orchestrator initialized (continuous generation disabled)');
+      // Import the optimized continuous AI generation service
+      const { continuousAIGeneration } = await import('./services/continuousAIGeneration');
+      
+      // Start continuous generation with Pollen AI (every 15 minutes)
+      continuousAIGeneration.start({
+        enabled: true,
+        intervalMinutes: 15,
+        maxConcurrentTasks: 2,
+        contentTypes: ['social', 'wellness', 'news']
+      });
+      
+      console.log('🔄 Content orchestrator initialized with Pollen AI continuous generation');
     } catch (error) {
       console.warn('Content orchestrator failed to start (non-critical):', error);
     }
