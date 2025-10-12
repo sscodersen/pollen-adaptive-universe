@@ -165,7 +165,7 @@ class EnhancedTrendEngine {
       const pollenTrends = await pollenTrendEngine.generateTrends();
       
       console.log(`✅ Generated ${pollenTrends.length} trends using real Pollen AI`);
-      return this.deduplicateAndScore(pollenTrends);
+      return pollenTrends; // processTrends will handle deduplication
     } catch (error) {
       console.error('Error fetching Pollen AI trends:', error);
       return [];
