@@ -46,7 +46,7 @@ outputType = "console"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = ".pythonlibs/bin/python -m uvicorn pollen_ai_optimized:app --host 0.0.0.0 --port 8000"
+args = "python3 -m uvicorn pollen_ai_optimized:app --host 0.0.0.0 --port 8000"
 waitForPort = 8000
 
 [[ports]]
@@ -66,16 +66,16 @@ localPort = 8000
 externalPort = 8000
 
 [[ports]]
-localPort = 35761
-externalPort = 5173
-
-[[ports]]
 localPort = 37617
 externalPort = 8080
 
 [[ports]]
 localPort = 39249
 externalPort = 6000
+
+[[ports]]
+localPort = 41141
+externalPort = 5173
 
 [[ports]]
 localPort = 41911
