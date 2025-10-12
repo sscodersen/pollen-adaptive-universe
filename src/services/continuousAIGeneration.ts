@@ -68,16 +68,17 @@ class ContinuousAIGeneration {
     try {
       console.log(`🤖 Generating ${contentType} content via Pollen AI`);
       
-      await workerBotClient.generateContent(
+      // Fire-and-forget: submit task without waiting for completion
+      const taskId = await workerBotClient.submitTask('content', {
         prompt,
-        contentType,
-        'continuous_generation'
-      );
+        type: contentType,
+        userId: 'continuous_generation'
+      }, 3); // Lower priority for background tasks
 
       this.totalGenerated++;
-      console.log(`✅ Generated ${contentType} content (Total: ${this.totalGenerated})`);
+      console.log(`✅ Queued ${contentType} content (Task: ${taskId}, Total: ${this.totalGenerated})`);
     } catch (error) {
-      console.error(`❌ Failed to generate ${contentType} content:`, error);
+      console.error(`❌ Failed to queue ${contentType} content:`, error);
     } finally {
       this.activeTasks--;
     }

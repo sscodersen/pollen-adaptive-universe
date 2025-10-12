@@ -6,8 +6,8 @@ packages = ["glibcLocales", "libxcrypt", "unzip"]
 
 [deployment]
 deploymentTarget = "vm"
-run = ["node", "start.cjs"]
-build = ["npm", "run", "build"]
+run = ["bash", "-c", "ADMIN_API_KEY=pollen-secure-admin-2024 node start.cjs & python3 -m uvicorn pollen_ai_optimized:app --host 0.0.0.0 --port 8000"]
+build = ["bash", "-c", "echo 'No build step required'"]
 
 [workflows]
 runButton = "Project"
