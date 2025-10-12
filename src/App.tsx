@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { EnhancedFeed } from "@/components/EnhancedFeed";
 import { EnhancedExplore } from "@/components/EnhancedExplore";
-import { Shop } from "@/components/Shop";
+import { EnhancedShop } from "@/components/EnhancedShop";
 import Community from "@/pages/Community";
 import HealthResearch from "@/pages/HealthResearch";
 import AIEthicsForum from "@/pages/AIEthicsForum";
@@ -12,11 +12,16 @@ import { Toaster } from "@/components/ui/sonner";
 import { Button } from "@/components/ui/button";
 import { WelcomeOnboarding } from "@/components/WelcomeOnboarding";
 import { HelpSupport } from "@/components/HelpSupport";
-import { Home, Compass, ShoppingBag, Users, Activity, Shield, Moon, Sun, HelpCircle, Settings, Bot } from "lucide-react";
+import { Home, Compass, ShoppingBag, Users, Activity, Shield, Moon, Sun, HelpCircle, Settings, Bot, Newspaper, Film, Heart, Music as MusicIcon, TrendingUp } from "lucide-react";
 import { useTheme } from "next-themes";
+import News from "@/pages/News";
+import Entertainment from "@/pages/Entertainment";
+import Wellness from "@/pages/Wellness";
+import Music from "@/pages/Music";
+import Trends from "@/pages/Trends";
 
 function App() {
-  const [currentScreen, setCurrentScreen] = useState<'feed' | 'explore' | 'shop' | 'community' | 'health' | 'ethics' | 'help' | 'admin' | 'worker'>('feed');
+  const [currentScreen, setCurrentScreen] = useState<'feed' | 'explore' | 'shop' | 'community' | 'health' | 'ethics' | 'help' | 'admin' | 'worker' | 'news' | 'entertainment' | 'wellness' | 'music' | 'trends'>('feed');
   const { theme, setTheme } = useTheme();
 
   return (
@@ -120,17 +125,70 @@ function App() {
           </div>
         </nav>
 
+        {/* Secondary Navigation - AI Content */}
+        <nav className="fixed top-16 left-0 right-0 z-40 bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg border-b border-gray-200 dark:border-gray-700">
+          <div className="container mx-auto px-4">
+            <div className="flex items-center gap-2 h-12 overflow-x-auto scrollbar-thin">
+              <Button
+                variant={currentScreen === 'news' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setCurrentScreen('news')}
+              >
+                <Newspaper className="w-4 h-4 mr-2" />
+                News
+              </Button>
+              <Button
+                variant={currentScreen === 'entertainment' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setCurrentScreen('entertainment')}
+              >
+                <Film className="w-4 h-4 mr-2" />
+                Entertainment
+              </Button>
+              <Button
+                variant={currentScreen === 'wellness' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setCurrentScreen('wellness')}
+              >
+                <Heart className="w-4 h-4 mr-2" />
+                Wellness
+              </Button>
+              <Button
+                variant={currentScreen === 'music' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setCurrentScreen('music')}
+              >
+                <MusicIcon className="w-4 h-4 mr-2" />
+                Music
+              </Button>
+              <Button
+                variant={currentScreen === 'trends' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setCurrentScreen('trends')}
+              >
+                <TrendingUp className="w-4 h-4 mr-2" />
+                Trends
+              </Button>
+            </div>
+          </div>
+        </nav>
+
         {/* Main Content */}
-        <div className="pt-16 page-transition">
+        <div className="pt-28 page-transition">
           {currentScreen === 'feed' && <EnhancedFeed onNavigate={setCurrentScreen} />}
           {currentScreen === 'explore' && <EnhancedExplore onNavigate={setCurrentScreen} />}
-          {currentScreen === 'shop' && <Shop onNavigate={setCurrentScreen} />}
+          {currentScreen === 'shop' && <EnhancedShop onNavigate={setCurrentScreen} />}
           {currentScreen === 'community' && <Community />}
           {currentScreen === 'health' && <HealthResearch />}
           {currentScreen === 'ethics' && <AIEthicsForum />}
           {currentScreen === 'help' && <HelpSupport />}
           {currentScreen === 'worker' && <WorkerBotManagement />}
           {currentScreen === 'admin' && <AdminDashboard />}
+          {currentScreen === 'news' && <News />}
+          {currentScreen === 'entertainment' && <Entertainment />}
+          {currentScreen === 'wellness' && <Wellness />}
+          {currentScreen === 'music' && <Music />}
+          {currentScreen === 'trends' && <Trends />}
         </div>
 
         <Toaster />
