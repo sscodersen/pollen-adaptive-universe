@@ -1,10 +1,12 @@
-import React, { memo } from 'react';
-import { Eye, TrendingUp, Award, Zap, Users, Sparkles, Star, Clock, Target } from 'lucide-react';
+import React, { memo, useState } from 'react';
+import { Eye, TrendingUp, Award, Zap, Users, Sparkles, Star, Clock, Target, ChevronUp, ChevronDown } from 'lucide-react';
 import { SocialContent } from '../../services/unifiedContentEngine';
+import { votingService } from '../../services/votingService';
 
 interface PostCardProps {
   post: SocialContent;
   onPostClick?: (post: SocialContent) => void;
+  onVoteChange?: (postId: string, votes: any) => void;
 }
 
 const getImpactColor = (impact: string) => {
@@ -23,9 +25,34 @@ const getRankBadge = (rank: number) => {
   return 'bg-gradient-to-r from-gray-600 to-gray-500 text-white';
 };
 
-export const PostCard = memo(({ post, onPostClick }: PostCardProps) => {
+export const PostCard = memo(({ post, onPostClick, onVoteChange }: PostCardProps) => {
+  const [localVotes, setLocalVotes] = useState(post.votes || { upvotes: 0, downvotes: 0, score: 0, userVote: null });
+
   const handleClick = () => {
     onPostClick?.(post);
+  };
+
+  const handleVote = async (e: React.MouseEvent, voteType: 'up' | 'down') => {
+    e.stopPropagation();
+    
+    // Use localVotes (current state) instead of post.votes (stale prop)
+    // localVotes already includes user's vote (from enrichPostsWithVotes or previous vote)
+    // We need to get the raw server counts by removing user's existing vote
+    const currentUserVote = votingService.getUserVote(post.id);
+    
+    const serverVotes = {
+      upvotes: localVotes.upvotes - (currentUserVote === 'up' ? 1 : 0),
+      downvotes: localVotes.downvotes - (currentUserVote === 'down' ? 1 : 0),
+      score: localVotes.score
+    };
+    
+    const newVotes = await votingService.vote(post.id, voteType, serverVotes);
+    const updatedVotes = {
+      ...newVotes,
+      userVote: votingService.getUserVote(post.id)
+    };
+    setLocalVotes(updatedVotes);
+    onVoteChange?.(post.id, updatedVotes);
   };
 
   return (
@@ -139,9 +166,9 @@ export const PostCard = memo(({ post, onPostClick }: PostCardProps) => {
         </div>
       )}
 
-      {/* Stats */}
-      <div className="flex items-center justify-between text-sm text-gray-400">
-        <div className="flex items-center space-x-4">
+      {/* Stats & Voting */}
+      <div className="flex items-center justify-between text-sm">
+        <div className="flex items-center space-x-4 text-gray-400">
           <div className="flex items-center space-x-1">
             <Eye className="w-4 h-4" />
             <span>{post.views?.toLocaleString() || '0'}</span>
@@ -156,13 +183,50 @@ export const PostCard = memo(({ post, onPostClick }: PostCardProps) => {
               <span>{post.significance.toFixed(1)}/10</span>
             </div>
           )}
+          {localVotes.score > 0 && (
+            <div className="flex items-center space-x-1 text-primary">
+              <Star className="w-4 h-4 fill-current" />
+              <span className="font-semibold">{localVotes.score.toFixed(1)}</span>
+            </div>
+          )}
         </div>
 
-        {post.impact && (
-          <div className={`px-2 py-1 rounded-full text-xs font-medium border ${getImpactColor(post.impact)}`}>
-            {post.impact.toUpperCase()} IMPACT
+        <div className="flex items-center space-x-2">
+          {post.impact && (
+            <div className={`px-2 py-1 rounded-full text-xs font-medium border ${getImpactColor(post.impact)}`}>
+              {post.impact.toUpperCase()}
+            </div>
+          )}
+          
+          {/* Voting Buttons */}
+          <div className="flex items-center bg-muted/30 rounded-lg border border-border overflow-hidden">
+            <button
+              onClick={(e) => handleVote(e, 'up')}
+              className={`flex items-center space-x-1 px-3 py-1.5 transition-colors ${
+                localVotes.userVote === 'up' 
+                  ? 'bg-green-500/20 text-green-400' 
+                  : 'hover:bg-green-500/10 text-gray-400 hover:text-green-400'
+              }`}
+              title="Upvote"
+            >
+              <ChevronUp className="w-4 h-4" />
+              <span className="text-xs font-medium">{localVotes.upvotes}</span>
+            </button>
+            <div className="w-px h-6 bg-border"></div>
+            <button
+              onClick={(e) => handleVote(e, 'down')}
+              className={`flex items-center space-x-1 px-3 py-1.5 transition-colors ${
+                localVotes.userVote === 'down' 
+                  ? 'bg-red-500/20 text-red-400' 
+                  : 'hover:bg-red-500/10 text-gray-400 hover:text-red-400'
+              }`}
+              title="Downvote"
+            >
+              <ChevronDown className="w-4 h-4" />
+              <span className="text-xs font-medium">{localVotes.downvotes}</span>
+            </button>
           </div>
-        )}
+        </div>
       </div>
     </div>
   );

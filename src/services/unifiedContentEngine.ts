@@ -37,6 +37,12 @@ export interface SocialContent extends BaseContent {
   content: string;
   contentType: 'social' | 'news' | 'discussion';
   readTime: string;
+  votes?: {
+    upvotes: number;
+    downvotes: number;
+    score: number;
+    userVote?: 'up' | 'down' | null;
+  };
 }
 
 export interface ShopContent extends BaseContent {

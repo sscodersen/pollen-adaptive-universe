@@ -1,9 +1,10 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import { SocialContent } from '../../services/unifiedContentEngine';
 import { SocialFeedHeader } from './SocialFeedHeader';
 import { PostCard } from './PostCard';
 import { useSocialFeedData } from './useSocialFeedData';
 import { PremiumBannerAd, NativeFeedAd, InlineAd } from '@/components/ads/AdComponents';
+import { Loader2 } from 'lucide-react';
 
 export interface SocialFeedProps {
   activities?: SocialContent[];
@@ -13,6 +14,8 @@ export interface SocialFeedProps {
 
 export const SocialFeed = ({ activities, isGenerating = false, filter = "all" }: SocialFeedProps) => {
   const [searchQuery, setSearchQuery] = useState('');
+  const loadMoreRef = useRef<HTMLDivElement>(null);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   
   // Use custom hook for data management - optimized with memoization
   const { posts, loading, refetch, postsCount } = useSocialFeedData({
@@ -31,6 +34,36 @@ export const SocialFeed = ({ activities, isGenerating = false, filter = "all" }:
     console.log('Post clicked:', post.id);
     // Add analytics or navigation logic here
   }, []);
+
+  // Handle vote changes
+  const handleVoteChange = useCallback((postId: string, votes: any) => {
+    console.log('Vote updated for post:', postId, votes);
+  }, []);
+
+  // Infinite scroll implementation
+  useEffect(() => {
+    if (!loadMoreRef.current || loading || isLoadingMore) return;
+
+    const observer = new IntersectionObserver(
+      async (entries) => {
+        const [entry] = entries;
+        if (entry.isIntersecting && posts.length > 0) {
+          setIsLoadingMore(true);
+          await refetch();
+          setIsLoadingMore(false);
+        }
+      },
+      { threshold: 0.1, rootMargin: '100px' }
+    );
+
+    observer.observe(loadMoreRef.current);
+
+    return () => {
+      if (loadMoreRef.current) {
+        observer.unobserve(loadMoreRef.current);
+      }
+    };
+  }, [posts.length, loading, isLoadingMore, refetch]);
 
   // Memoized ad positions for consistent placement
   const adPositions = useMemo(() => {
@@ -104,6 +137,7 @@ export const SocialFeed = ({ activities, isGenerating = false, filter = "all" }:
                   <PostCard 
                     post={post} 
                     onPostClick={handlePostClick}
+                    onVoteChange={handleVoteChange}
                   />
                   
                   {/* Insert ads at calculated positions */}
@@ -121,16 +155,15 @@ export const SocialFeed = ({ activities, isGenerating = false, filter = "all" }:
             )}
           </div>
 
-          {/* Load More Button */}
+          {/* Infinite Scroll Trigger */}
           {posts.length > 0 && (
-            <div className="text-center mt-8">
-              <button 
-                onClick={() => refetch()}
-                disabled={loading}
-                className="px-6 py-3 bg-primary hover:bg-primary/90 disabled:bg-primary/50 text-white rounded-lg font-medium transition-colors"
-              >
-                {loading ? 'Loading...' : 'Load More Content'}
-              </button>
+            <div ref={loadMoreRef} className="text-center mt-8 py-8">
+              {isLoadingMore && (
+                <div className="flex items-center justify-center space-x-2 text-primary">
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <span>Loading more content...</span>
+                </div>
+              )}
             </div>
           )}
 

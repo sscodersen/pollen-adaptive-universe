@@ -4,6 +4,7 @@ import { SocialContent } from '../../services/unifiedContentEngine';
 import { enhancedTrendEngine, GeneratedPost } from '../../services/enhancedTrendEngine';
 import { cleanText, truncateText } from '@/lib/textUtils';
 import { isBlacklistedText } from '@/lib/blacklist';
+import { votingService } from '../../services/votingService';
 
 interface UseSocialFeedDataProps {
   activities?: SocialContent[];
@@ -257,10 +258,15 @@ export const useSocialFeedData = ({
     };
   }, [loadPosts]);
 
+  // Enrich posts with voting data - memoized
+  const postsWithVotes = useMemo(() => {
+    return votingService.enrichPostsWithVotes(filteredPosts);
+  }, [filteredPosts]);
+
   return {
-    posts: filteredPosts,
+    posts: postsWithVotes,
     loading,
     refetch: loadPosts,
-    postsCount: filteredPosts.length
+    postsCount: postsWithVotes.length
   };
 };
