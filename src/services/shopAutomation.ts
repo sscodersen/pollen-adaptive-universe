@@ -1,7 +1,9 @@
 
 import { pythonScriptIntegration } from './pythonScriptIntegration';
-import { pollenAI } from './pollenAI';
+import { pollenAI } from './pollenAIUnified';
 import { Product } from '../types/shop';
+import { loadingStateManager, LoadingFeatures } from './loadingStateManager';
+import { errorHandler } from './errorHandler';
 
 export interface ShopGenerationRequest {
   category?: string;
@@ -18,54 +20,74 @@ class ShopAutomation {
   ];
 
   async generateProducts(request: ShopGenerationRequest): Promise<Product[]> {
-    console.log('🛍️ Starting enhanced shop automation with GEO optimization...');
-    
-    // Enhanced Pollen AI integration with GEO optimization
-    const pollenResponse = await pollenAI.generate(
-      `Generate innovative product concepts for ${request.category || 'technology'} category with GEO optimization.
-       
-       Requirements:
-       - Price range: $${request.priceRange?.min || 10} - $${request.priceRange?.max || 500}
-       - Keywords: ${request.keywords || 'smart, AI-powered, innovative'}
-       - Focus on trending, high-quality products with compelling descriptions
-       - Generate GEO-optimized metadata for maximum discoverability
-       - Include semantic tags for AI engine comprehension
-       - Optimize product descriptions for generative search queries
-       
-       GEO Optimization Goals:
-       - Maximize visibility in AI-powered search engines
-       - Optimize for voice search and conversational queries  
-       - Include structured data for AI parsing
-       - Generate contextual product relationships`,
-      'shop'
-    );
-    
-    // Try real web scraping with fallback handling
-    const scrapedProducts = await this.attemptWebScraping(request);
-    if (scrapedProducts.length > 0) {
-      console.log(`✅ Successfully scraped ${scrapedProducts.length} products`);
-      return await this.enhanceProductsWithGEO(scrapedProducts, pollenResponse);
-    }
-    
-    // Try Python script integration with GEO enhancement
-    const pythonResponse = await pythonScriptIntegration.generateShopContent({
-      category: request.category,
-      trending: request.trending,
-      priceRange: request.priceRange,
-      parameters: {
-        keywords: request.keywords,
-        pollenEnhancement: pollenResponse.content,
-        geoOptimization: true,
-        scrapingFallback: true
+    return loadingStateManager.withLoading(
+      LoadingFeatures.SHOP_PRODUCTS,
+      async () => {
+        return errorHandler.retry(
+          async () => {
+            console.log('🛍️ Starting enhanced shop automation with GEO optimization...');
+            
+            // Enhanced Pollen AI integration with GEO optimization
+            const pollenResponse = await pollenAI.generate({
+              prompt: `Generate innovative product concepts for ${request.category || 'technology'} category with GEO optimization.
+               
+               Requirements:
+               - Price range: $${request.priceRange?.min || 10} - $${request.priceRange?.max || 500}
+               - Keywords: ${request.keywords || 'smart, AI-powered, innovative'}
+               - Focus on trending, high-quality products with compelling descriptions
+               - Generate GEO-optimized metadata for maximum discoverability
+               - Include semantic tags for AI engine comprehension
+               - Optimize product descriptions for generative search queries
+               
+               GEO Optimization Goals:
+               - Maximize visibility in AI-powered search engines
+               - Optimize for voice search and conversational queries  
+               - Include structured data for AI parsing
+               - Generate contextual product relationships`,
+              mode: 'shop',
+              type: 'product'
+            });
+            
+            // Try real web scraping with fallback handling
+            const scrapedProducts = await this.attemptWebScraping(request);
+            if (scrapedProducts.length > 0) {
+              console.log(`✅ Successfully scraped ${scrapedProducts.length} products`);
+              return await this.enhanceProductsWithGEO(scrapedProducts, pollenResponse);
+            }
+            
+            // Try Python script integration with GEO enhancement
+            const pythonResponse = await pythonScriptIntegration.generateShopContent({
+              category: request.category,
+              trending: request.trending,
+              priceRange: request.priceRange,
+              parameters: {
+                keywords: request.keywords,
+                pollenEnhancement: pollenResponse.content,
+                geoOptimization: true,
+                scrapingFallback: true
+              }
+            });
+            
+            if (pythonResponse.success && pythonResponse.data) {
+              return await this.enhanceProductsWithGEO(pythonResponse.data, pollenResponse);
+            }
+            
+            // Enhanced fallback with GEO optimization
+            return this.generateGEOOptimizedProducts(request, pollenResponse);
+          },
+          {
+            maxAttempts: 2,
+            initialDelay: 1000,
+            feature: 'shop_products'
+          }
+        );
+      },
+      {
+        loading: `Generating ${request.category || 'product'} recommendations...`,
+        success: 'Products loaded successfully',
+        error: 'Failed to load products, showing fallback content'
       }
-    });
-    
-    if (pythonResponse.success && pythonResponse.data) {
-      return await this.enhanceProductsWithGEO(pythonResponse.data, pollenResponse);
-    }
-    
-    // Enhanced fallback with GEO optimization
-    return this.generateGEOOptimizedProducts(request, pollenResponse);
+    );
   }
 
   private async attemptWebScraping(request: ShopGenerationRequest): Promise<Product[]> {

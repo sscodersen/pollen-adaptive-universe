@@ -1,5 +1,6 @@
 
 import { significanceAlgorithm } from './significanceAlgorithm';
+import { pollenAI } from './pollenAIUnified';
 
 interface SearchResult {
   id: string;
@@ -24,10 +25,18 @@ interface CrossDomainInsight {
   confidence?: number;
 }
 
+interface SearchSuggestion {
+  text: string;
+  type: string;
+  confidence: number;
+}
+
 class GlobalSearchService {
   private searchIndex: Map<string, SearchResult[]> = new Map();
   private crossDomainMap: Map<string, CrossDomainInsight[]> = new Map();
   private intelligenceCache: Map<string, any> = new Map();
+  private suggestionCache: Map<string, SearchSuggestion[]> = new Map();
+  private searchHistory: string[] = [];
   
   constructor() {
     this.initializeSearchIndex();
@@ -343,6 +352,134 @@ class GlobalSearchService {
       actionable: Math.random() > 0.3,
       confidence: Math.random() * 0.2 + 0.8
     };
+  }
+
+  /**
+   * Get real-time search suggestions using Pollen AI
+   */
+  async getRealTimeSuggestions(partialQuery: string): Promise<SearchSuggestion[]> {
+    if (!partialQuery || partialQuery.length < 2) {
+      return this.getHistoryBasedSuggestions();
+    }
+
+    const cacheKey = partialQuery.toLowerCase().trim();
+    
+    // Check cache first
+    if (this.suggestionCache.has(cacheKey)) {
+      return this.suggestionCache.get(cacheKey)!;
+    }
+
+    try {
+      // Use Pollen AI to generate intelligent suggestions
+      const response = await pollenAI.generate({
+        prompt: `Generate 5 relevant search suggestions for partial query: "${partialQuery}". Focus on trending topics, cross-domain insights, and high-value content areas.`,
+        mode: 'analysis',
+        type: 'search_suggestions',
+        use_cache: true,
+        compression_level: 'high'
+      });
+
+      // Parse AI response into suggestions
+      const suggestions = this.parseAISuggestions(response.content, partialQuery);
+      
+      // Add to cache
+      this.suggestionCache.set(cacheKey, suggestions);
+      
+      return suggestions;
+    } catch (error) {
+      console.error('AI suggestion error:', error);
+      return this.getFallbackSuggestions(partialQuery);
+    }
+  }
+
+  /**
+   * Parse AI-generated suggestions
+   */
+  private parseAISuggestions(aiResponse: string, partialQuery: string): SearchSuggestion[] {
+    const suggestions: SearchSuggestion[] = [];
+    const lines = aiResponse.split('\n').filter(line => line.trim());
+    
+    lines.slice(0, 5).forEach((line, index) => {
+      const cleanText = line.replace(/^[-•*\d.)\s]+/, '').trim();
+      if (cleanText && cleanText.length > 3) {
+        suggestions.push({
+          text: cleanText,
+          type: this.inferSuggestionType(cleanText),
+          confidence: 0.9 - (index * 0.1)
+        });
+      }
+    });
+
+    // If AI didn't return enough, add fallback
+    if (suggestions.length < 3) {
+      suggestions.push(...this.getFallbackSuggestions(partialQuery).slice(0, 5 - suggestions.length));
+    }
+
+    return suggestions;
+  }
+
+  /**
+   * Infer suggestion type from content
+   */
+  private inferSuggestionType(text: string): string {
+    const lower = text.toLowerCase();
+    if (lower.includes('news') || lower.includes('article') || lower.includes('breaking')) return 'news';
+    if (lower.includes('music') || lower.includes('video') || lower.includes('entertainment')) return 'entertainment';
+    if (lower.includes('product') || lower.includes('shop') || lower.includes('buy')) return 'product';
+    if (lower.includes('social') || lower.includes('community') || lower.includes('connect')) return 'social';
+    if (lower.includes('analytics') || lower.includes('data') || lower.includes('insights')) return 'analytics';
+    if (lower.includes('automation') || lower.includes('workflow') || lower.includes('task')) return 'automation';
+    return 'general';
+  }
+
+  /**
+   * Get suggestions from search history
+   */
+  private getHistoryBasedSuggestions(): SearchSuggestion[] {
+    return this.searchHistory.slice(-5).reverse().map((query, index) => ({
+      text: query,
+      type: 'history',
+      confidence: 0.7 - (index * 0.1)
+    }));
+  }
+
+  /**
+   * Get fallback suggestions when AI is unavailable
+   */
+  private getFallbackSuggestions(partialQuery: string): SearchSuggestion[] {
+    const trendingTopics = [
+      { text: 'Quantum AI innovations', type: 'news', confidence: 0.95 },
+      { text: 'Sustainable technology trends', type: 'news', confidence: 0.92 },
+      { text: 'AI-powered music generation', type: 'entertainment', confidence: 0.88 },
+      { text: 'Smart home products', type: 'product', confidence: 0.85 },
+      { text: 'Productivity automation tools', type: 'automation', confidence: 0.82 }
+    ];
+
+    const matching = trendingTopics.filter(topic => 
+      topic.text.toLowerCase().includes(partialQuery.toLowerCase())
+    );
+
+    if (matching.length > 0) {
+      return matching;
+    }
+
+    return trendingTopics.slice(0, 5);
+  }
+
+  /**
+   * Add query to search history
+   */
+  addToHistory(query: string) {
+    if (query && query.trim().length > 2) {
+      this.searchHistory = [query, ...this.searchHistory.filter(q => q !== query)].slice(0, 20);
+    }
+  }
+
+  /**
+   * Clear suggestion cache
+   */
+  clearSuggestionCache() {
+    this.suggestionCache.clear();
   }
 }
 

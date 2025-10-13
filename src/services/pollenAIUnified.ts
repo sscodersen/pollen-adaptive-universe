@@ -75,6 +75,22 @@ class PollenAIUnifiedService {
   }
 
   /**
+   * Configure Pollen AI endpoint at runtime
+   */
+  configure(config: { apiUrl?: string; enableSSE?: boolean }) {
+    if (config.apiUrl) {
+      this.baseURL = config.apiUrl;
+      console.log(`✅ Pollen AI configured with endpoint: ${this.baseURL}`);
+      
+      // Restart health checks with new endpoint
+      if (this.healthCheckInterval) {
+        clearInterval(this.healthCheckInterval);
+      }
+      this.startHealthCheck();
+    }
+  }
+
+  /**
    * Check Pollen AI backend health
    */
   async checkHealth(): Promise<boolean> {

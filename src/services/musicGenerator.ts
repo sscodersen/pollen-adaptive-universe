@@ -1,4 +1,4 @@
-import { pollenAI } from './pollenAI';
+import { pollenAI } from './pollenAIUnified';
 import { pythonScriptIntegration } from './pythonScriptIntegration';
 
 export interface MusicGenerationRequest {
@@ -25,12 +25,13 @@ class MusicGenerator {
     console.log('🎵 Starting AI music generation pipeline...');
     
     // First, use Pollen AI to enhance and filter the music request
-    const pollenResponse = await pollenAI.generate(
-      `Transform this music request into a detailed, creative music generation prompt: "${request.prompt}". 
+    const pollenResponse = await pollenAI.generate({
+      prompt: `Transform this music request into a detailed, creative music generation prompt: "${request.prompt}". 
        Consider genre: ${request.genre || 'any'}, mood: ${request.mood || 'any'}. 
        Make it specific and inspiring for AI music generation.`,
-      'entertainment'
-    );
+      mode: 'entertainment',
+      type: 'music'
+    });
     
     const enhancedPrompt = pollenResponse.content;
     console.log('🌸 Pollen AI enhanced prompt:', enhancedPrompt);

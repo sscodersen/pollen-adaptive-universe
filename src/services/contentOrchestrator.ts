@@ -1,4 +1,4 @@
-import { pollenAI } from './pollenAI';
+import { pollenAI } from './pollenAIUnified';
 import { universalSSE } from './universalSSE';
 import { unifiedContentEngine, ContentType, UnifiedContent, GenerationStrategy } from './unifiedContentEngine';
 import { enhancedContentEngine } from './enhancedContentEngine';
@@ -159,13 +159,19 @@ class ContentOrchestrator {
     pythonScripts?: { [key: string]: string };
     enableSSE?: boolean;
   }): Promise<void> {
-    // Connect to your Pollen model
+    // Configure Pollen AI with runtime endpoint
     if (config.pollenEndpoint) {
-      await pollenAI.connect({ 
+      pollenAI.configure({
         apiUrl: config.pollenEndpoint,
         enableSSE: config.enableSSE || true
       });
-      console.log('✅ Pollen AI integration ready');
+      
+      const isHealthy = await pollenAI.checkHealth();
+      if (isHealthy) {
+        console.log('✅ Pollen AI integration ready');
+      } else {
+        console.warn('⚠️ Pollen AI backend not available, using fallback mode');
+      }
     }
 
     // Setup Python script connections
