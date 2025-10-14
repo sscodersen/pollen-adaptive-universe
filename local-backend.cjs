@@ -69,7 +69,8 @@ const storage = {
   feed: [],
   general_content: [],
   music_content: [],
-  product_content: []
+  product_content: [],
+  feedback: []
 };
 
 // AI Metrics Tracking
@@ -153,9 +154,12 @@ class PollenAI {
     if (this.isPollenAIAvailable) {
       try {
         const response = await axios.post(`${this.baseURL}/generate`, {
-          input_text: prompt,
-          mode,
-          type
+          prompt: prompt,
+          mode: mode,
+          type: type,
+          context: {},
+          use_cache: true,
+          compression_level: 'medium'
         }, {
           headers: {
             'Content-Type': 'application/json'
@@ -716,6 +720,78 @@ app.post('/api/community/gamification/points', (req, res) => {
   storage.leaderboard.forEach((entry, index) => entry.rank = index + 1);
   
   res.json({ success: true, pointEntry, totalPoints: userEntry.totalPoints });
+});
+
+// ===== FEEDBACK SYSTEM =====
+
+// Submit feedback
+app.post('/api/feedback', (req, res) => {
+  try {
+    const { type, title, description, severity, email, timestamp, userAgent, url } = req.body;
+    
+    const feedbackId = `feedback_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const feedback = {
+      id: feedbackId,
+      type,
+      title,
+      description,
+      severity: severity || 'medium',
+      email,
+      timestamp: timestamp || new Date().toISOString(),
+      userAgent,
+      url,
+      status: 'new',
+      createdAt: new Date().toISOString()
+    };
+    
+    storage.feedback.push(feedback);
+    
+    console.log(`📝 New feedback received: [${type}] ${title}`);
+    
+    res.json({ 
+      success: true, 
+      feedback,
+      message: 'Thank you for your feedback!' 
+    });
+  } catch (error) {
+    console.error('Feedback submission error:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Failed to submit feedback' 
+    });
+  }
+});
+
+// Get all feedback (admin only)
+app.get('/api/feedback', adminAuth, (req, res) => {
+  const { type, status } = req.query;
+  let feedback = storage.feedback;
+  
+  if (type) feedback = feedback.filter(f => f.type === type);
+  if (status) feedback = feedback.filter(f => f.status === status);
+  
+  res.json({ 
+    success: true, 
+    feedback: feedback.slice(-100).reverse(),
+    total: feedback.length
+  });
+});
+
+// Update feedback status (admin only)
+app.patch('/api/feedback/:feedbackId', adminAuth, (req, res) => {
+  const { feedbackId } = req.params;
+  const { status, response } = req.body;
+  
+  const feedback = storage.feedback.find(f => f.id === feedbackId);
+  if (!feedback) {
+    return res.status(404).json({ error: 'Feedback not found' });
+  }
+  
+  feedback.status = status || feedback.status;
+  if (response) feedback.adminResponse = response;
+  feedback.updatedAt = new Date().toISOString();
+  
+  res.json({ success: true, feedback });
 });
 
 app.get('/api/community/gamification/leaderboard', (req, res) => {

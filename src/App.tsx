@@ -7,13 +7,16 @@ import HealthResearch from "@/pages/HealthResearch";
 import AIEthicsForum from "@/pages/AIEthicsForum";
 import AdminDashboard from "@/pages/AdminDashboard";
 import WorkerBotManagement from "@/pages/WorkerBotManagement";
+import AIDetector from "@/pages/AIDetector";
+import CropAnalyzer from "@/pages/CropAnalyzer";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { Toaster } from "@/components/ui/sonner";
 import { Button } from "@/components/ui/button";
 import { WelcomeOnboarding } from "@/components/WelcomeOnboarding";
 import { HelpSupport } from "@/components/HelpSupport";
 import { GlobalLoadingIndicator } from "@/components/GlobalLoadingIndicator";
-import { Home, Compass, ShoppingBag, Users, Activity, Shield, Moon, Sun, HelpCircle, Settings, Bot, Newspaper, Film, Heart, Music as MusicIcon, TrendingUp } from "lucide-react";
+import FeedbackSystem from "@/components/FeedbackSystem";
+import { Home, Compass, ShoppingBag, Users, Activity, Shield, Moon, Sun, HelpCircle, Settings, Bot, Newspaper, Film, Heart, Music as MusicIcon, TrendingUp, Brain, Leaf } from "lucide-react";
 import { useTheme } from "next-themes";
 import News from "@/pages/News";
 import Entertainment from "@/pages/Entertainment";
@@ -22,7 +25,7 @@ import Music from "@/pages/Music";
 import Trends from "@/pages/Trends";
 
 function App() {
-  const [currentScreen, setCurrentScreen] = useState<'feed' | 'explore' | 'shop' | 'community' | 'health' | 'ethics' | 'help' | 'admin' | 'worker' | 'news' | 'entertainment' | 'wellness' | 'music' | 'trends'>('feed');
+  const [currentScreen, setCurrentScreen] = useState<'feed' | 'explore' | 'shop' | 'community' | 'health' | 'ethics' | 'help' | 'admin' | 'worker' | 'news' | 'entertainment' | 'wellness' | 'music' | 'trends' | 'ai-detector' | 'crop-analyzer'>('feed');
   const { theme, setTheme } = useTheme();
 
   return (
@@ -170,15 +173,31 @@ function App() {
                 <TrendingUp className="w-4 h-4 mr-2" />
                 Trends
               </Button>
+              <Button
+                variant={currentScreen === 'ai-detector' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setCurrentScreen('ai-detector')}
+              >
+                <Brain className="w-4 h-4 mr-2" />
+                AI Detector
+              </Button>
+              <Button
+                variant={currentScreen === 'crop-analyzer' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setCurrentScreen('crop-analyzer')}
+              >
+                <Leaf className="w-4 h-4 mr-2" />
+                Crop Analyzer
+              </Button>
             </div>
           </div>
         </nav>
 
         {/* Main Content */}
         <div className="pt-28 page-transition">
-          {currentScreen === 'feed' && <EnhancedFeed onNavigate={setCurrentScreen} />}
-          {currentScreen === 'explore' && <EnhancedExplore onNavigate={setCurrentScreen} />}
-          {currentScreen === 'shop' && <EnhancedShop onNavigate={setCurrentScreen} />}
+          {currentScreen === 'feed' && <EnhancedFeed onNavigate={(screen: string) => setCurrentScreen(screen as any)} />}
+          {currentScreen === 'explore' && <EnhancedExplore onNavigate={(screen: string) => setCurrentScreen(screen as any)} />}
+          {currentScreen === 'shop' && <EnhancedShop onNavigate={(screen: string) => setCurrentScreen(screen as any)} />}
           {currentScreen === 'community' && <Community />}
           {currentScreen === 'health' && <HealthResearch />}
           {currentScreen === 'ethics' && <AIEthicsForum />}
@@ -190,8 +209,11 @@ function App() {
           {currentScreen === 'wellness' && <Wellness />}
           {currentScreen === 'music' && <Music />}
           {currentScreen === 'trends' && <Trends />}
+          {currentScreen === 'ai-detector' && <AIDetector />}
+          {currentScreen === 'crop-analyzer' && <CropAnalyzer />}
         </div>
 
+        <FeedbackSystem />
         <Toaster />
         <GlobalLoadingIndicator />
       </div>
