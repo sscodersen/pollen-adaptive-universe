@@ -12,6 +12,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { Button } from "@/components/ui/button";
 import { WelcomeOnboarding } from "@/components/WelcomeOnboarding";
 import { HelpSupport } from "@/components/HelpSupport";
+import { GlobalLoadingIndicator } from "@/components/GlobalLoadingIndicator";
 import { Home, Compass, ShoppingBag, Users, Activity, Shield, Moon, Sun, HelpCircle, Settings, Bot, Newspaper, Film, Heart, Music as MusicIcon, TrendingUp } from "lucide-react";
 import { useTheme } from "next-themes";
 import News from "@/pages/News";
@@ -192,6 +193,7 @@ function App() {
         </div>
 
         <Toaster />
+        <GlobalLoadingIndicator />
       </div>
     </ErrorBoundary>
   );

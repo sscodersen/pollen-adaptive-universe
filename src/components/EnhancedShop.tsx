@@ -6,6 +6,8 @@ import { contentOrchestrator } from '@/services/contentOrchestrator';
 import { ShopContent } from '@/services/unifiedContentEngine';
 import { personalizationEngine } from '@/services/personalizationEngine';
 import { votingService } from '@/services/votingService';
+import { shopEnhancements } from '@/services/shopEnhancements';
+import { ContentAvailabilityIndicator } from '@/components/ContentAvailabilityIndicator';
 
 interface EnhancedShopProps {
   onNavigate: (screen: string) => void;
@@ -49,6 +51,17 @@ export function EnhancedShop({ onNavigate }: EnhancedShopProps) {
       );
 
       const enriched = votingService.enrichPostsWithVotes(personalized) as ShopContent[];
+      
+      // Update price history for wishlisted items
+      const wishlistItems = shopEnhancements.getWishlist();
+      enriched.forEach(product => {
+        const wishlisted = wishlistItems.find(item => item.product.id === product.id);
+        if (wishlisted && product.price) {
+          const priceNum = parseFloat(product.price.replace('$', ''));
+          shopEnhancements.updatePriceHistory(product.id, priceNum);
+        }
+      });
+      
       setProducts(enriched);
     } catch (error) {
       console.error('Failed to load products:', error);

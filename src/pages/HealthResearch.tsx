@@ -13,6 +13,8 @@ import { Activity, Heart, Brain, Moon, Stethoscope, TrendingUp, Users, Database 
 import { healthResearchService } from '@/services/healthResearch';
 import { HealthDashboard } from '@/components/health/HealthDashboard';
 import { WellnessJourneyTracker } from '@/components/health/WellnessJourneyTracker';
+import { enhancedCropAnalyzer } from '@/services/enhancedCropAnalyzer';
+import { ContentAvailabilityIndicator } from '@/components/ContentAvailabilityIndicator';
 
 export default function HealthResearch() {
   const [activeTab, setActiveTab] = useState('submit');

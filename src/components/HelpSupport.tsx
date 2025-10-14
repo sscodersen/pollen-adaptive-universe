@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { FeedbackSection } from '@/components/FeedbackSection';
 import {
   HelpCircle,
   Book,
@@ -201,6 +202,11 @@ export const HelpSupport = ({ onClose }: { onClose?: () => void }) => {
             </div>
           ))}
         </div>
+      </div>
+
+      {/* Feedback Section */}
+      <div className="mb-8">
+        <FeedbackSection />
       </div>
 
       {/* Still Need Help */}
