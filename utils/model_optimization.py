@@ -3,12 +3,20 @@ Model Optimization Utilities for Edge Computing
 Implements quantization, pruning, and other optimization techniques
 """
 
-import torch
-import torch.nn as nn
-from typing import Optional
+from typing import Optional, Any
+
+# Optional torch imports
+try:
+    import torch
+    import torch.nn as nn
+    TORCH_AVAILABLE = True
+except ImportError:
+    TORCH_AVAILABLE = False
+    torch = None
+    nn = None
 
 
-def quantize_model(model: nn.Module, backend: str = 'qnnpack') -> nn.Module:
+def quantize_model(model: Any, backend: str = 'qnnpack') -> Any:
     """
     Quantize a PyTorch model for edge deployment.
     
@@ -38,7 +46,7 @@ def quantize_model(model: nn.Module, backend: str = 'qnnpack') -> nn.Module:
         return model
 
 
-def prune_model(model: nn.Module, amount: float = 0.2, method: str = 'l1') -> nn.Module:
+def prune_model(model: Any, amount: float = 0.2, method: str = 'l1') -> Any:
     """
     Prune a PyTorch model to reduce size and improve inference speed.
     
@@ -78,7 +86,7 @@ def prune_model(model: nn.Module, amount: float = 0.2, method: str = 'l1') -> nn
         return model
 
 
-def optimize_for_inference(model: nn.Module) -> nn.Module:
+def optimize_for_inference(model: Any) -> Any:
     """
     Optimize model for inference by applying various techniques.
     
@@ -98,7 +106,7 @@ def optimize_for_inference(model: nn.Module) -> nn.Module:
     return model
 
 
-def calculate_model_size(model: nn.Module) -> dict:
+def calculate_model_size(model: Any) -> dict:
     """
     Calculate model size and parameter count.
     
@@ -128,7 +136,7 @@ def calculate_model_size(model: nn.Module) -> dict:
     }
 
 
-def compress_model(model: nn.Module, compression_level: str = 'medium') -> nn.Module:
+def compress_model(model: Any, compression_level: str = 'medium') -> Any:
     """
     Compress model using multiple techniques based on compression level.
     

@@ -423,10 +423,15 @@ Key insights emerge from analyzing current trends and future trajectories. Recom
 @app.get("/health")
 async def health_check():
     cache_stats = edge_cache.get_stats()
+    model_stats = pollen_model.get_stats() if pollen_model else {}
     
     return {
         "status": "healthy",
-        "model_version": "3.0.0-Edge-Optimized",
+        "model_version": "4.0.0-AbsoluteZero",
+        "absolute_zero_reasoner": {
+            "enabled": ENHANCED_MODEL_AVAILABLE,
+            "model_stats": model_stats
+        },
         "optimizations": {
             "edge_caching": "enabled",
             "request_batching": "enabled",
@@ -489,8 +494,93 @@ async def clear_cache():
         "current_size": len(edge_cache.cache)
     }
 
+# ============================================================================
+# ABSOLUTE ZERO REASONER ENDPOINTS
+# ============================================================================
+
+class FeedbackRequest(BaseModel):
+    input_text: str
+    expected_output: str
+    feedback_score: float = 1.0
+
+@app.post("/reasoner/learn")
+async def learn_from_feedback(feedback: FeedbackRequest):
+    """Learn from user feedback to improve responses"""
+    if not pollen_model:
+        raise HTTPException(status_code=503, detail="Enhanced model not available")
+    
+    pollen_model.learn_from_feedback(
+        feedback.input_text,
+        feedback.expected_output,
+        feedback.feedback_score
+    )
+    
+    return {
+        "status": "learned",
+        "learning_sessions": pollen_model.learning_sessions,
+        "message": "Feedback integrated into memory systems"
+    }
+
+@app.post("/reasoner/reflect")
+async def reflect_and_update():
+    """Trigger model reflection and memory consolidation"""
+    if not pollen_model:
+        raise HTTPException(status_code=503, detail="Enhanced model not available")
+    
+    pollen_model.reflect_and_update()
+    
+    return {
+        "status": "reflected",
+        "message": "Episodic memories consolidated into long-term memory"
+    }
+
+@app.get("/reasoner/stats")
+async def get_reasoner_stats():
+    """Get Absolute Zero Reasoner statistics"""
+    if not pollen_model:
+        raise HTTPException(status_code=503, detail="Enhanced model not available")
+    
+    stats = pollen_model.get_stats()
+    
+    return {
+        "model": "Absolute Zero Reasoner",
+        "version": "1.0.0",
+        "statistics": stats,
+        "capabilities": [
+            "Episodic Memory",
+            "Long-term Memory",
+            "Contextual Memory",
+            "Semantic Search",
+            "Advanced Reasoning",
+            "Personalization",
+            "Continuous Learning"
+        ]
+    }
+
+class SearchRequest(BaseModel):
+    query: str
+    top_k: int = 5
+
+@app.post("/reasoner/search")
+async def semantic_search(request: SearchRequest):
+    """Perform semantic search in contextual memory"""
+    if not pollen_model:
+        raise HTTPException(status_code=503, detail="Enhanced model not available")
+    
+    results = pollen_model.semantic_search(request.query, request.top_k)
+    
+    return {
+        "query": request.query,
+        "results": [
+            {"text": text, "similarity": score}
+            for text, score in results
+        ],
+        "total_memories": pollen_model.contextual_memory.size()
+    }
+
 if __name__ == "__main__":
     import uvicorn
-    print("🚀 Starting Pollen AI Edge-Optimized Backend")
-    print("📊 Features: Edge Caching | Request Batching | Response Quantization")
+    print("🚀 Starting Pollen AI Absolute Zero Reasoner Backend")
+    print("🧠 Features: Memory Systems | RL Loop | Edge Computing | Semantic Search")
+    print("💡 Capabilities: Continuous Learning | Advanced Reasoning | Personalization")
     uvicorn.run(app, host="0.0.0.0", port=8000)

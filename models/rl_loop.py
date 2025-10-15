@@ -3,10 +3,19 @@ Reinforcement Learning Loop for Pollen AI
 Implements training and optimization mechanisms
 """
 
-import torch
-import torch.nn as nn
-import torch.optim as optim
 from typing import List, Any, Optional
+
+# Optional torch imports
+try:
+    import torch
+    import torch.nn as nn
+    import torch.optim as optim
+    TORCH_AVAILABLE = True
+except ImportError:
+    TORCH_AVAILABLE = False
+    torch = None
+    nn = None
+    optim = None
 
 
 class RLLoop:
@@ -17,23 +26,28 @@ class RLLoop:
     
     def __init__(
         self, 
-        model: Optional[nn.Module] = None,
-        optimizer: Optional[optim.Optimizer] = None,
-        loss_fn: Optional[nn.Module] = None,
+        model: Optional[Any] = None,
+        optimizer: Optional[Any] = None,
+        loss_fn: Optional[Any] = None,
         learning_rate: float = 2e-5
     ):
         self.model = model
-        self.loss_fn = loss_fn or nn.CrossEntropyLoss()
         
-        # Create optimizer if model is provided
-        if model and not optimizer:
+        # Set loss function (only if torch is available)
+        if TORCH_AVAILABLE and nn:
+            self.loss_fn = loss_fn or nn.CrossEntropyLoss()
+        else:
+            self.loss_fn = loss_fn
+        
+        # Create optimizer if model is provided and torch is available
+        if model and not optimizer and TORCH_AVAILABLE and optim:
             self.optimizer = optim.AdamW(model.parameters(), lr=learning_rate)
         else:
             self.optimizer = optimizer
         
         self.training_history = []
     
-    def train_step(self, inputs: torch.Tensor, targets: torch.Tensor) -> float:
+    def train_step(self, inputs: Any, targets: Any) -> float:
         """
         Perform a single training step.
         Returns the loss value.
@@ -76,7 +90,7 @@ class RLLoop:
         
         return losses
     
-    def evaluate(self, inputs: torch.Tensor, targets: torch.Tensor) -> float:
+    def evaluate(self, inputs: Any, targets: Any) -> float:
         """
         Evaluate the model without training.
         Returns the loss value.
