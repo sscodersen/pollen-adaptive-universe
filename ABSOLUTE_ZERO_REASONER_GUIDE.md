@@ -193,10 +193,24 @@ request_batcher = RequestBatcher(batch_window_ms=50, max_batch_size=5)
 
 ## 📝 Notes
 
-- **Lightweight Mode**: The system works without PyTorch/Transformers using NumPy-based embeddings
+- **Lightweight Mode**: The system works without PyTorch/Transformers using deterministic SHA256-based embeddings
+- **Deterministic Embeddings**: Uses hashlib.sha256 for consistent embeddings across sessions (critical for persistence)
 - **Fallback Behavior**: Gracefully degrades to template-based responses if needed
-- **Memory Persistence**: Long-term memory automatically saves to disk
+- **Memory Persistence**: Long-term memory and contextual embeddings persist correctly across restarts
 - **Scalability**: Designed for edge computing and efficient resource usage
+
+### Fallback Mode Limitations
+
+When running without PyTorch/Transformers (current configuration):
+- **Learning Endpoints**: `/reasoner/learn` stores feedback but cannot perform gradient-based training
+- **Embeddings**: Uses deterministic hash-based embeddings (SHA256) instead of neural embeddings
+- **Memory**: All memory systems function normally with persistent storage
+- **Reasoning**: Advanced reasoning uses pattern matching instead of neural inference
+
+To enable full training capabilities:
+1. Install PyTorch: `pip install torch`
+2. Install Transformers: `pip install transformers`
+3. Restart the backend - the system will automatically use the ML libraries
 
 ## 🔒 Security Considerations
 

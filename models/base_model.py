@@ -6,6 +6,7 @@ Lightweight implementation with optional heavy dependencies
 import json
 import os
 import time
+import hashlib
 import numpy as np
 from typing import Optional, Dict, List, Any, Tuple
 from .memory_modules import EpisodicMemory, LongTermMemory, ContextualMemory
@@ -83,7 +84,7 @@ class PollenModel:
     def generate_embedding(self, text: str) -> np.ndarray:
         """
         Generate embedding for text.
-        Uses a simple hash-based embedding if ML libraries unavailable.
+        Uses deterministic hash-based embedding if ML libraries unavailable.
         """
         if TORCH_AVAILABLE and self.base_model:
             # Use actual model for embeddings
@@ -95,8 +96,13 @@ class PollenModel:
             except:
                 pass
         
-        # Fallback: simple hash-based embedding
-        np.random.seed(hash(text) % (2**32))
+        # Fallback: deterministic hash-based embedding using SHA256
+        # This ensures same text always produces same embedding across sessions
+        hash_obj = hashlib.sha256(text.encode('utf-8'))
+        hash_int = int.from_bytes(hash_obj.digest(), byteorder='big')
+        
+        # Use deterministic seed
+        np.random.seed(hash_int % (2**32))
         embedding = np.random.randn(self.embedding_dim)
         embedding = embedding / np.linalg.norm(embedding)  # Normalize
         return embedding
