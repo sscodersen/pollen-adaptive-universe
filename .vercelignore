@@ -1,0 +1,12 @@
+node_modules
+.git
+.env.local
+.env.*.local
+*.log
+.DS_Store
+.pythonlibs
+pollen_ai/__pycache__
+__pycache__
+*.pyc
+.vscode
+.idea

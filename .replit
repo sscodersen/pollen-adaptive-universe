@@ -25,6 +25,10 @@ args = "Main Application"
 task = "workflow.run"
 args = "Pollen AI Backend"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Trend Scraper SSE"
+
 [[workflows.workflow]]
 name = "Main Application"
 author = "agent"
@@ -49,6 +53,18 @@ task = "shell.exec"
 args = "python3 -m uvicorn pollen_ai_optimized:app --host 0.0.0.0 --port 8000"
 waitForPort = 8000
 
+[[workflows.workflow]]
+name = "Trend Scraper SSE"
+author = "agent"
+
+[workflows.workflow.metadata]
+outputType = "console"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python3 -m uvicorn pollen_ai.trend_scraper_sse:app --host 0.0.0.0 --port 8099"
+waitForPort = 8099
+
 [[ports]]
 localPort = 3001
 externalPort = 3001
@@ -66,7 +82,7 @@ localPort = 8000
 externalPort = 8000
 
 [[ports]]
-localPort = 36693
+localPort = 8099
 externalPort = 8099
 
 [[ports]]
