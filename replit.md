@@ -5,8 +5,9 @@ Pollen Universe is an AI-powered social platform featuring wellness, entertainme
 
 ## User Preferences
 ### Development Workflow
-- All features use AI-generated content via Pollen AI
-- No external API dependencies (OpenAI, Anthropic, etc.)
+- All features use AI-generated content via Pollen AI powered by OpenAI
+- **Anonymous-first platform** - No user authentication, privacy-focused design
+- Session-based user tracking (anonymous sessions, no personal data)
 - Comprehensive error handling and fallback mechanisms
 - Mobile-responsive design patterns throughout
 
