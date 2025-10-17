@@ -790,3 +790,75 @@ export type ContentRecommendation = typeof contentRecommendations.$inferSelect;
 export type InsertContentRecommendation = typeof contentRecommendations.$inferInsert;
 export type Notification = typeof notifications.$inferSelect;
 export type InsertNotification = typeof notifications.$inferInsert;
+
+// Anonymous Session Management (Privacy-first)
+export const anonymousSessions = pgTable("anonymous_sessions", {
+  id: serial("id").primaryKey(),
+  sessionId: text("session_id").notNull().unique(),
+  preferences: jsonb("preferences").default({}),
+  interactionCount: integer("interaction_count").default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+  lastActive: timestamp("last_active").defaultNow()
+});
+
+// AI Memory Systems - Episodic Memory
+export const aiMemoryEpisodes = pgTable("ai_memory_episodes", {
+  id: serial("id").primaryKey(),
+  episodeId: text("episode_id").notNull().unique(),
+  sessionId: text("session_id"),
+  input: text("input").notNull(),
+  output: text("output").notNull(),
+  mode: text("mode").notNull(),
+  confidence: real("confidence"),
+  metadata: jsonb("metadata"),
+  createdAt: timestamp("created_at").defaultNow()
+});
+
+// AI Memory Systems - Long-term Memory
+export const aiMemoryLongterm = pgTable("ai_memory_longterm", {
+  id: serial("id").primaryKey(),
+  memoryKey: text("memory_key").notNull().unique(),
+  value: jsonb("value").notNull(),
+  accessCount: integer("access_count").default(0),
+  lastAccessed: timestamp("last_accessed"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow()
+});
+
+// AI Memory Systems - Contextual Memory
+export const aiMemoryContextual = pgTable("ai_memory_contextual", {
+  id: serial("id").primaryKey(),
+  contextId: text("context_id").notNull().unique(),
+  content: text("content").notNull(),
+  embedding: jsonb("embedding"), // Store embedding vector as JSON
+  similarityScore: real("similarity_score"),
+  metadata: jsonb("metadata"),
+  createdAt: timestamp("created_at").defaultNow()
+});
+
+// AI Processing Queue for Background Tasks
+export const aiProcessingQueue = pgTable("ai_processing_queue", {
+  id: serial("id").primaryKey(),
+  jobId: text("job_id").notNull().unique(),
+  taskType: text("task_type").notNull(), // 'content_generation', 'memory_consolidation', 'trend_analysis'
+  payload: jsonb("payload").notNull(),
+  status: text("status").notNull().default('pending'), // 'pending', 'processing', 'completed', 'failed'
+  priority: integer("priority").default(0),
+  attempts: integer("attempts").default(0),
+  result: jsonb("result"),
+  error: text("error"),
+  createdAt: timestamp("created_at").defaultNow(),
+  processedAt: timestamp("processed_at")
+});
+
+// Export types for TypeScript
+export type AnonymousSession = typeof anonymousSessions.$inferSelect;
+export type InsertAnonymousSession = typeof anonymousSessions.$inferInsert;
+export type AiMemoryEpisode = typeof aiMemoryEpisodes.$inferSelect;
+export type InsertAiMemoryEpisode = typeof aiMemoryEpisodes.$inferInsert;
+export type AiMemoryLongterm = typeof aiMemoryLongterm.$inferSelect;
+export type InsertAiMemoryLongterm = typeof aiMemoryLongterm.$inferInsert;
+export type AiMemoryContextual = typeof aiMemoryContextual.$inferSelect;
+export type InsertAiMemoryContextual = typeof aiMemoryContextual.$inferInsert;
+export type AiProcessingQueue = typeof aiProcessingQueue.$inferSelect;
+export type InsertAiProcessingQueue = typeof aiProcessingQueue.$inferInsert;
