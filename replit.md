@@ -5,11 +5,13 @@ Pollen Universe is an AI-powered social platform featuring wellness, entertainme
 
 ## User Preferences
 ### Development Workflow
-- All features use AI-generated content via Pollen AI powered by OpenAI
+- All features use AI-generated content via **custom Pollen AI** (Absolute Zero Reasoner architecture)
 - **Anonymous-first platform** - No user authentication, privacy-focused design
-- Session-based user tracking (anonymous sessions, no personal data)
+- **Database-backed sessions** - Persistent anonymous session tracking via PostgreSQL
+- **AI Memory Persistence** - Episodic, long-term, and contextual memory systems
 - Comprehensive error handling and fallback mechanisms
 - Mobile-responsive design patterns throughout
+- Production-ready infrastructure with job queue and monitoring
 
 ### Code Style
 - TypeScript for type safety
@@ -24,9 +26,11 @@ Pollen Universe employs a service-based architecture with distinct frontend and 
 The backend comprises a FastAPI-based Pollen AI service (`pollen_ai_optimized.py`) for all AI-powered content generation and an Express.js local backend (`local-backend.cjs`) for community, ethics, and general content APIs. A proxy server (`start.cjs`) acts as the main entry point, routing requests and managing backend services.
 
 Key architectural decisions include:
-- **AI Integration**: A custom Pollen AI backend with a "Zero-Start Learning" model, episodic, long-term, and contextual memory systems, and reinforcement learning. AI content generation is centralized through `pollenAIUnified.ts`.
+- **AI Integration**: A custom Pollen AI backend with **Absolute Zero Reasoner** architecture (deterministic embeddings, no external models), episodic, long-term, and contextual memory systems with database persistence, and reinforcement learning. AI content generation is centralized through `pollenAIUnified.ts`.
+- **Session Management**: Database-backed anonymous sessions (`server/dbSessionManager.ts`) for persistent user tracking without personal data.
+- **Memory Persistence**: AI memories stored in PostgreSQL (`ai_memory_episodes`, `ai_memory_longterm`, `ai_memory_contextual`) with file-based fallback.
 - **Real-time Features**: Server-Sent Events (SSE) for real-time trend scraping, WebSockets for chat and notifications, and features like Watch Parties.
-- **Data Storage**: Client-side storage using LocalStorage for preferences, IndexedDB for larger datasets, and Session storage for temporary data. The backend is designed to be stateless regarding user data.
+- **Data Storage**: PostgreSQL database for all persistent data (content, communities, AI memory, sessions). Client-side storage using LocalStorage for preferences, IndexedDB for larger datasets, and Session storage for temporary data. Database schema includes 60+ tables for comprehensive functionality.
 - **Performance Optimization**: Includes edge computing, LRU caching, lazy loading, code splitting, image optimization, request batching, and response compression.
 - **UI/UX**: Emphasis on responsive, mobile-first design, consistent component library (Shadcn/ui), and AI-powered personalization for content recommendations and user feeds.
 - **Gamification System**: Integrated points, badges, and leaderboards across the platform.
