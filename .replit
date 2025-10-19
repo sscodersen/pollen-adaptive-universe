@@ -19,55 +19,7 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Main Application"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Pollen AI Backend"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Trend Scraper SSE"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
 args = "Start application"
-
-[[workflows.workflow]]
-name = "Main Application"
-author = "agent"
-
-[workflows.workflow.metadata]
-outputType = "webview"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "ADMIN_API_KEY=pollen-secure-admin-2024 node start.cjs"
-waitForPort = 5000
-
-[[workflows.workflow]]
-name = "Pollen AI Backend"
-author = "agent"
-
-[workflows.workflow.metadata]
-outputType = "console"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "python3 -m uvicorn pollen_ai_optimized:app --host 0.0.0.0 --port 8000"
-waitForPort = 8000
-
-[[workflows.workflow]]
-name = "Trend Scraper SSE"
-author = "agent"
-
-[workflows.workflow.metadata]
-outputType = "console"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "python3 -m uvicorn pollen_ai.trend_scraper_sse:app --host 0.0.0.0 --port 8099"
-waitForPort = 8099
 
 [[workflows.workflow]]
 name = "Start application"
@@ -75,8 +27,11 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "gunicorn --bind 0.0.0.0:5000 --reuse-port --reload main:app"
+args = "npm run dev"
 waitForPort = 5000
+
+[workflows.workflow.metadata]
+outputType = "webview"
 
 [[ports]]
 localPort = 3001
@@ -85,10 +40,6 @@ externalPort = 3001
 [[ports]]
 localPort = 5000
 externalPort = 80
-
-[[ports]]
-localPort = 5001
-externalPort = 3002
 
 [[ports]]
 localPort = 8000
@@ -101,6 +52,10 @@ externalPort = 8099
 [[ports]]
 localPort = 37617
 externalPort = 8080
+
+[[ports]]
+localPort = 37725
+externalPort = 9000
 
 [[ports]]
 localPort = 39249
