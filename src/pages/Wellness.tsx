@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Heart, Activity, Brain, Leaf, Sparkles, BookOpen, TrendingUp, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import pollenAIUnified from '@/services/pollenAIUnified';
+import { contentOrchestrator } from '@/services/contentOrchestrator';
 import { personalizationEngine } from '@/services/personalizationEngine';
 
 interface WellnessTip {
@@ -35,38 +35,26 @@ const Wellness = () => {
   const loadWellnessTips = async () => {
     setLoading(true);
     try {
-      const prompts = selectedCategory === 'all'
-        ? [
-            'Share a practical mental health tip for daily well-being',
-            'Provide a simple physical health recommendation',
-            'Give a nutrition tip for better health',
-            'Share a mindfulness practice for stress relief',
-            'Suggest a wellness habit for better life balance',
-            'Provide a self-care tip for busy people',
-            'Share a sleep hygiene recommendation',
-            'Give an exercise tip for beginners'
-          ]
-        : [
-            `Share a practical ${selectedCategory} health tip`,
-            `Provide a ${selectedCategory} wellness recommendation`,
-            `Give advice for improving ${selectedCategory} health`,
-            `Share a ${selectedCategory} practice for better well-being`,
-            `Suggest a ${selectedCategory} routine for daily life`
-          ];
+      const query = selectedCategory === 'all'
+        ? 'wellness tips for mental health, physical health, nutrition, and mindfulness'
+        : `${selectedCategory} wellness tips and health recommendations`;
 
-      const responses = await Promise.all(
-        prompts.map(prompt =>
-          pollenAIUnified.generate({
-            prompt,
-            mode: 'wellness' as any,
-            type: 'tip'
-          })
-        )
-      );
+      const response = await contentOrchestrator.generateContent({
+        type: 'social',
+        query,
+        count: 8,
+        strategy: {
+          diversity: 0.9,
+          freshness: 0.8,
+          personalization: 0.85,
+          qualityThreshold: 7.5,
+          trendingBoost: 0.6
+        }
+      });
 
-      const wellnessTips: WellnessTip[] = responses.map((response, index) => {
+      const wellnessTips: WellnessTip[] = response.content.map((item: any, index: number) => {
         const categories = ['mental', 'physical', 'nutrition', 'mindfulness'];
-        const category = selectedCategory === 'all' 
+        const category = selectedCategory === 'all'
           ? categories[index % categories.length]
           : selectedCategory;
 
@@ -78,12 +66,12 @@ const Wellness = () => {
         };
 
         return {
-          id: `tip_${Date.now()}_${index}`,
+          id: item.id || `tip_${Date.now()}_${index}`,
           title: `${category.charAt(0).toUpperCase() + category.slice(1)} Wellness Tip`,
-          content: response.content,
+          content: item.content || item.description || 'AI-generated wellness tip for better health',
           category,
           icon: icons[category] || Sparkles,
-          impact: response.confidence > 0.8 ? 'high' : response.confidence > 0.6 ? 'medium' : 'low',
+          impact: (item.quality || 70) > 80 ? 'high' : (item.quality || 70) > 60 ? 'medium' : 'low',
           readTime: '1-2 min'
         };
       });
@@ -116,7 +104,7 @@ const Wellness = () => {
   }, [selectedCategory]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-teal-50 to-blue-50 dark:from-gray-900 dark:via-teal-900/20 dark:to-gray-900">
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">

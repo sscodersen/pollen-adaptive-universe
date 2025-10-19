@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Music as MusicIcon, Play, Pause, Heart, ListMusic, Radio, Sparkles, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { musicSSEService } from '@/services/musicSSE';
+import { contentOrchestrator } from '@/services/contentOrchestrator';
 import { personalizationEngine } from '@/services/personalizationEngine';
 
 interface Track {
@@ -48,29 +48,48 @@ const Music = () => {
     setLoading(true);
     try {
       const genre = selectedGenre === 'all' ? 'mixed' : selectedGenre;
-      const moods = ['energetic', 'relaxing', 'focus', 'party', 'chill'];
-      
-      const generatedPlaylists: Playlist[] = moods.map((mood, index) => {
-        const tracks: Track[] = Array.from({ length: 10 }, (_, trackIndex) => ({
-          id: `track_${Date.now()}_${index}_${trackIndex}`,
-          title: `${genre.charAt(0).toUpperCase() + genre.slice(1)} Track ${trackIndex + 1}`,
-          artist: `AI Artist ${trackIndex + 1}`,
-          genre,
-          duration: `${Math.floor(Math.random() * 3) + 2}:${String(Math.floor(Math.random() * 60)).padStart(2, '0')}`,
-          mood,
-          thumbnail: `bg-gradient-to-br from-${['purple', 'blue', 'pink', 'green', 'orange'][trackIndex % 5]}-400 to-${['pink', 'purple', 'orange', 'teal', 'red'][trackIndex % 5]}-400`
-        }));
+      const query = `${genre} music playlists with different moods and vibes`;
 
-        return {
-          id: `playlist_${Date.now()}_${index}`,
-          name: `${mood.charAt(0).toUpperCase() + mood.slice(1)} ${genre} Mix`,
-          description: `AI-curated ${mood} ${genre} playlist`,
-          trackCount: tracks.length,
-          genre,
-          mood,
-          tracks
-        };
+      const response = await contentOrchestrator.generateContent({
+        type: 'music',
+        query,
+        count: 50,
+        strategy: {
+          diversity: 0.95,
+          freshness: 0.9,
+          personalization: 0.85,
+          qualityThreshold: 7.0,
+          trendingBoost: 0.75
+        }
       });
+
+      const moods = ['energetic', 'relaxing', 'focus', 'party', 'chill'];
+      const playlistsMap = new Map<string, any[]>();
+      
+      moods.forEach(mood => playlistsMap.set(mood, []));
+
+      response.content.forEach((item: any, index: number) => {
+        const mood = moods[index % moods.length];
+        playlistsMap.get(mood)?.push({
+          id: item.id || `track_${Date.now()}_${index}`,
+          title: item.title || `${genre} Track ${index + 1}`,
+          artist: item.artist || `AI Artist ${index + 1}`,
+          genre,
+          duration: item.duration || `${Math.floor(Math.random() * 3) + 2}:${String(Math.floor(Math.random() * 60)).padStart(2, '0')}`,
+          mood,
+          thumbnail: item.thumbnail || `bg-gradient-to-br from-${['purple', 'blue', 'pink', 'green', 'orange'][index % 5]}-400 to-${['pink', 'purple', 'orange', 'teal', 'red'][index % 5]}-400`
+        });
+      });
+
+      const generatedPlaylists: Playlist[] = moods.map((mood, index) => ({
+        id: `playlist_${Date.now()}_${index}`,
+        name: `${mood.charAt(0).toUpperCase() + mood.slice(1)} ${genre.charAt(0).toUpperCase() + genre.slice(1)} Mix`,
+        description: `AI-curated ${mood} ${genre} playlist powered by Pollen AI`,
+        trackCount: playlistsMap.get(mood)?.length || 10,
+        genre,
+        mood,
+        tracks: playlistsMap.get(mood) || []
+      }));
 
       setPlaylists(generatedPlaylists);
     } catch (error) {
@@ -111,7 +130,7 @@ const Music = () => {
   }, [selectedGenre]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-purple-900/20 dark:to-gray-900">
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
