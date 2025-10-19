@@ -4,6 +4,9 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "framework": "vite",
+  "env": {
+    "VITE_POLLEN_API_URL": "https://your-pollen-backend.railway.app"
+  },
   "rewrites": [
     {
       "source": "/(.*)",
