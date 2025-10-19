@@ -7,7 +7,6 @@ import { contentOrchestrator } from './services/contentOrchestrator';
 import { platformOptimizer } from './services/platformOptimizer';
 import { performanceMonitor } from './services/performanceMonitor';
 import { systemHealthChecker } from './services/systemHealthCheck';
-import { seedDataService } from './services/seedData';
 import { phase15Initializer } from './services/phase15Initializer';
 import { performanceOptimizer } from './services/performanceOptimizations';
 
@@ -67,10 +66,6 @@ const initializePlatform = async () => {
     // Initialize platform optimizer
     await platformOptimizer.autoOptimize();
     console.log('🚀 Platform optimizer initialized');
-    
-    // Seed demo data for better first-time user experience
-    await seedDataService.seedAllData();
-    console.log('✨ Demo content loaded');
     
     // Initialize Phase 15 Enhancements
     await phase15Initializer.initialize();

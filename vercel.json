@@ -1,32 +1,15 @@
 {
   "version": 2,
   "name": "pollen-ai-platform",
-  "builds": [
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "framework": "vite",
+  "rewrites": [
     {
-      "src": "package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "dist"
-      }
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ],
-  "routes": [
-    {
-      "handle": "filesystem"
-    },
-    {
-      "src": "/assets/(.*)",
-      "dest": "/assets/$1"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
-    }
-  ],
-  "env": {
-    "VITE_POLLEN_AI_URL": "@pollen_ai_url",
-    "VITE_TREND_SCRAPER_URL": "@trend_scraper_url"
-  },
   "headers": [
     {
       "source": "/assets/(.*)",
