@@ -16,16 +16,14 @@ import { WelcomeOnboarding } from "@/components/WelcomeOnboarding";
 import { HelpSupport } from "@/components/HelpSupport";
 import { GlobalLoadingIndicator } from "@/components/GlobalLoadingIndicator";
 import FeedbackSystem from "@/components/FeedbackSystem";
-import { Home, Compass, ShoppingBag, Users, Activity, Shield, Moon, Sun, HelpCircle, Settings, Bot, Newspaper, Film, Heart, Music as MusicIcon, TrendingUp, Brain, Leaf } from "lucide-react";
+import { Home, Compass, ShoppingBag, Users, Activity, Shield, Moon, Sun, HelpCircle, Settings, Bot, Film, Heart, Music as MusicIcon, Brain, Leaf } from "lucide-react";
 import { useTheme } from "next-themes";
-import News from "@/pages/News";
 import Entertainment from "@/pages/Entertainment";
 import Wellness from "@/pages/Wellness";
 import Music from "@/pages/Music";
-import Trends from "@/pages/Trends";
 
 function App() {
-  const [currentScreen, setCurrentScreen] = useState<'feed' | 'explore' | 'shop' | 'community' | 'health' | 'ethics' | 'help' | 'admin' | 'worker' | 'news' | 'entertainment' | 'wellness' | 'music' | 'trends' | 'ai-detector' | 'crop-analyzer'>('feed');
+  const [currentScreen, setCurrentScreen] = useState<'feed' | 'explore' | 'shop' | 'community' | 'health' | 'ethics' | 'help' | 'admin' | 'worker' | 'entertainment' | 'wellness' | 'music' | 'ai-detector' | 'crop-analyzer'>('feed');
   const { theme, setTheme } = useTheme();
 
   return (
@@ -134,14 +132,6 @@ function App() {
           <div className="container mx-auto px-4">
             <div className="flex items-center gap-2 h-12 overflow-x-auto scrollbar-thin">
               <Button
-                variant={currentScreen === 'news' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setCurrentScreen('news')}
-              >
-                <Newspaper className="w-4 h-4 mr-2" />
-                News
-              </Button>
-              <Button
                 variant={currentScreen === 'entertainment' ? 'default' : 'ghost'}
                 size="sm"
                 onClick={() => setCurrentScreen('entertainment')}
@@ -164,14 +154,6 @@ function App() {
               >
                 <MusicIcon className="w-4 h-4 mr-2" />
                 Music
-              </Button>
-              <Button
-                variant={currentScreen === 'trends' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setCurrentScreen('trends')}
-              >
-                <TrendingUp className="w-4 h-4 mr-2" />
-                Trends
               </Button>
               <Button
                 variant={currentScreen === 'ai-detector' ? 'default' : 'ghost'}
@@ -204,11 +186,9 @@ function App() {
           {currentScreen === 'help' && <HelpSupport />}
           {currentScreen === 'worker' && <WorkerBotManagement />}
           {currentScreen === 'admin' && <AdminDashboard />}
-          {currentScreen === 'news' && <News />}
           {currentScreen === 'entertainment' && <Entertainment />}
           {currentScreen === 'wellness' && <Wellness />}
           {currentScreen === 'music' && <Music />}
-          {currentScreen === 'trends' && <Trends />}
           {currentScreen === 'ai-detector' && <AIDetector />}
           {currentScreen === 'crop-analyzer' && <CropAnalyzer />}
         </div>
