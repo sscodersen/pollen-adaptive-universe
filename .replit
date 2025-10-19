@@ -2,11 +2,11 @@ modules = ["python-3.11", "nodejs-20", "web"]
 
 [nix]
 channel = "stable-25_05"
-packages = ["glibcLocales", "libxcrypt", "unzip"]
+packages = ["glibcLocales", "libxcrypt", "openssl", "postgresql", "unzip"]
 
 [deployment]
-deploymentTarget = "vm"
-run = ["bash", "-c", "ADMIN_API_KEY=pollen-secure-admin-2024 node start.cjs & python3 -m uvicorn pollen_ai_optimized:app --host 0.0.0.0 --port 8000"]
+deploymentTarget = "autoscale"
+run = ["gunicorn", "--bind", "0.0.0.0:5000", "main:app"]
 build = ["bash", "-c", "echo 'No build step required'"]
 
 [workflows]
@@ -28,6 +28,10 @@ args = "Pollen AI Backend"
 [[workflows.workflow.tasks]]
 task = "workflow.run"
 args = "Trend Scraper SSE"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Start application"
 
 [[workflows.workflow]]
 name = "Main Application"
@@ -64,6 +68,15 @@ outputType = "console"
 task = "shell.exec"
 args = "python3 -m uvicorn pollen_ai.trend_scraper_sse:app --host 0.0.0.0 --port 8099"
 waitForPort = 8099
+
+[[workflows.workflow]]
+name = "Start application"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "gunicorn --bind 0.0.0.0:5000 --reuse-port --reload main:app"
+waitForPort = 5000
 
 [[ports]]
 localPort = 3001
@@ -128,6 +141,10 @@ externalPort = 4200
 [[ports]]
 localPort = 46527
 externalPort = 3003
+
+[[ports]]
+localPort = 46677
+externalPort = 9000
 
 [agent]
 integrations = ["javascript_websocket:1.0.0", "javascript_openai:1.0.0", "javascript_database:1.0.0"]
