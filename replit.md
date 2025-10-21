@@ -35,6 +35,46 @@ Key architectural decisions include:
 - **UI/UX**: Emphasis on responsive, mobile-first design, consistent component library (Shadcn/ui), and AI-powered personalization for content recommendations and user feeds.
 - **Gamification System**: Integrated points, badges, and leaderboards across the platform.
 
+## Pollen AI Features (v4.0.0-AbsoluteZero)
+
+### Core AI Capabilities
+- **Text Processing**: Wellness tips, product descriptions, entertainment content, social posts, news articles
+- **Audio Processing**: Music generation, speech recognition, voice assistants (models in place)
+- **Image Processing**: Product images, entertainment visuals, 3D imaging (models in place)
+- **Video Processing**: Entertainment videos, educational content, game footage (models in place)
+- **Code Generation**: Code assistance, debugging, software development
+- **Game Creation**: 3D modeling, game mechanics, full game development concepts
+
+### Smart Home Management (NEW)
+- Device control and automation across 10+ device types
+- Energy usage tracking and AI-powered optimization
+- Room-based device management
+- Automated rule creation with AI suggestions
+- Real-time device status monitoring
+
+### Robot Management (NEW)
+- Multi-robot fleet management (mobile, manipulator, drone, humanoid)
+- Intelligent task planning and auto-assignment
+- A* path planning with obstacle avoidance
+- Battery and status monitoring
+- AI-powered task optimization suggestions
+
+### Synthetic Data Generation (NEW)
+- Continuous learning through synthetic data generation
+- Multi-domain training data (text, audio, image, code, game)
+- Balanced batch generation for model fine-tuning
+- Quality-scored samples with metadata
+- Statistics tracking and monitoring
+
+### API Endpoints
+All features accessible via FastAPI backend (`pollen_ai_optimized.py`):
+- `/generate` - Core AI content generation
+- `/smart-home/*` - Smart home device control and automation
+- `/robot/*` - Robot fleet and task management  
+- `/synthetic-data/generate/*` - Training data generation
+- `/reasoner/*` - Memory systems and advanced reasoning
+- `/optimization/*` - Performance statistics and cache management
+
 ## External Dependencies
 - **Pollen AI Backend**: Custom, in-house developed AI service (FastAPI-based).
 - **Express.js**: Used for the local backend API server.

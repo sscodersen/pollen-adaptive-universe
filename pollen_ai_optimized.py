@@ -578,9 +578,168 @@ async def semantic_search(request: SearchRequest):
         "total_memories": pollen_model.contextual_memory.size()
     }
 
+# ============================================================================
+# SMART HOME MANAGEMENT ENDPOINTS
+# ============================================================================
+
+from models.smart_home_management import SmartHomeManager
+
+smart_home = SmartHomeManager()
+
+class SmartHomeDeviceRequest(BaseModel):
+    device_type: str
+    name: str
+    room: str
+
+class SmartHomeControlRequest(BaseModel):
+    device_id: str
+    action: str
+    value: Optional[Any] = None
+
+@app.post("/smart-home/add-device")
+async def add_smart_device(request: SmartHomeDeviceRequest):
+    """Add a new smart home device"""
+    return smart_home.add_device(request.device_type, request.name, request.room)
+
+@app.post("/smart-home/control")
+async def control_smart_device(request: SmartHomeControlRequest):
+    """Control a smart home device"""
+    return smart_home.control_device(request.device_id, request.action, request.value)
+
+@app.get("/smart-home/devices")
+async def get_all_smart_devices():
+    """Get all smart home devices"""
+    return {"devices": smart_home.get_all_devices()}
+
+@app.get("/smart-home/room/{room}")
+async def get_room_devices(room: str):
+    """Get devices in a specific room"""
+    return smart_home.get_room_status(room)
+
+@app.get("/smart-home/energy-report")
+async def get_energy_report(timeframe: str = "day"):
+    """Get energy usage report"""
+    return smart_home.get_energy_report(timeframe)
+
+@app.post("/smart-home/suggest-automation")
+async def suggest_smart_home_automation(context: str):
+    """Get AI-generated automation suggestions"""
+    return smart_home.suggest_automation(context)
+
+# ============================================================================
+# ROBOT MANAGEMENT ENDPOINTS
+# ============================================================================
+
+from models.robot_management import RobotManager
+
+robot_manager = RobotManager()
+
+class AddRobotRequest(BaseModel):
+    robot_type: str
+    name: str
+
+class CreateTaskRequest(BaseModel):
+    task_type: str
+    description: str
+    priority: int = 5
+    robot_id: Optional[str] = None
+
+class PathPlanRequest(BaseModel):
+    robot_id: str
+    goal: Dict[str, float]
+    obstacles: Optional[List[Dict]] = None
+
+@app.post("/robot/add")
+async def add_robot(request: AddRobotRequest):
+    """Add a new robot to the fleet"""
+    return robot_manager.add_robot(request.robot_type, request.name)
+
+@app.post("/robot/task/create")
+async def create_robot_task(request: CreateTaskRequest):
+    """Create a new robot task"""
+    return robot_manager.create_task(
+        request.task_type,
+        request.description,
+        request.priority,
+        request.robot_id
+    )
+
+@app.post("/robot/task/complete/{task_id}")
+async def complete_robot_task(task_id: str, result: Optional[str] = None):
+    """Mark a robot task as completed"""
+    return robot_manager.complete_task(task_id, result)
+
+@app.post("/robot/plan-path")
+async def plan_robot_path(request: PathPlanRequest):
+    """Plan path for robot"""
+    return robot_manager.plan_robot_path(
+        request.robot_id,
+        request.goal,
+        request.obstacles
+    )
+
+@app.get("/robot/fleet-status")
+async def get_robot_fleet_status():
+    """Get status of robot fleet"""
+    return robot_manager.get_fleet_status()
+
+@app.get("/robot/tasks")
+async def get_all_robot_tasks():
+    """Get all robot tasks"""
+    return {"tasks": robot_manager.get_all_tasks()}
+
+@app.post("/robot/suggest-optimization")
+async def suggest_robot_optimization(context: str):
+    """Get AI-generated robot task optimization suggestions"""
+    return robot_manager.suggest_task_optimization(context)
+
+# ============================================================================
+# SYNTHETIC DATA GENERATION ENDPOINTS
+# ============================================================================
+
+from models.synthetic_data_generator import SyntheticDataGenerator
+
+data_generator = SyntheticDataGenerator()
+
+@app.post("/synthetic-data/generate/text")
+async def generate_synthetic_text(domain: str, count: int = 10):
+    """Generate synthetic text data"""
+    return {"samples": data_generator.generate_text_data(domain, count)}
+
+@app.post("/synthetic-data/generate/audio")
+async def generate_synthetic_audio(count: int = 10):
+    """Generate synthetic audio data"""
+    return {"samples": data_generator.generate_audio_data(count)}
+
+@app.post("/synthetic-data/generate/image")
+async def generate_synthetic_image(count: int = 10):
+    """Generate synthetic image data"""
+    return {"samples": data_generator.generate_image_data(count)}
+
+@app.post("/synthetic-data/generate/code")
+async def generate_synthetic_code(language: str = "python", count: int = 10):
+    """Generate synthetic code data"""
+    return {"samples": data_generator.generate_code_data(language, count)}
+
+@app.post("/synthetic-data/generate/game")
+async def generate_synthetic_game(count: int = 10):
+    """Generate synthetic game design data"""
+    return {"samples": data_generator.generate_game_data(count)}
+
+@app.post("/synthetic-data/generate/batch")
+async def generate_training_batch(batch_size: int = 50):
+    """Generate balanced training batch"""
+    return data_generator.generate_training_batch(batch_size)
+
+@app.get("/synthetic-data/stats")
+async def get_synthetic_data_stats():
+    """Get synthetic data generation statistics"""
+    return data_generator.get_stats()
+
 if __name__ == "__main__":
     import uvicorn
     print("🚀 Starting Pollen AI Absolute Zero Reasoner Backend")
     print("🧠 Features: Memory Systems | RL Loop | Edge Computing | Semantic Search")
+    print("🏠 Smart Home Management | 🤖 Robot Control | 📊 Synthetic Data Generation")
     print("💡 Capabilities: Continuous Learning | Advanced Reasoning | Personalization")
     uvicorn.run(app, host="0.0.0.0", port=8000)
