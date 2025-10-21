@@ -6,8 +6,8 @@ packages = ["glibcLocales", "libxcrypt", "openssl", "postgresql", "unzip"]
 
 [deployment]
 deploymentTarget = "autoscale"
-run = ["gunicorn", "--bind", "0.0.0.0:5000", "main:app"]
-build = ["bash", "-c", "echo 'No build step required'"]
+run = ["npm", "run", "preview"]
+build = ["npm", "run", "build"]
 
 [workflows]
 runButton = "Project"
@@ -25,13 +25,13 @@ args = "Start application"
 name = "Start application"
 author = "agent"
 
+[workflows.workflow.metadata]
+outputType = "webview"
+
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "npm run dev"
 waitForPort = 5000
-
-[workflows.workflow.metadata]
-outputType = "webview"
 
 [[ports]]
 localPort = 3001
@@ -42,12 +42,12 @@ localPort = 5000
 externalPort = 80
 
 [[ports]]
-localPort = 8000
-externalPort = 8000
-
-[[ports]]
 localPort = 8099
 externalPort = 8099
+
+[[ports]]
+localPort = 34483
+externalPort = 3002
 
 [[ports]]
 localPort = 37617
