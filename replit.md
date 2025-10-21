@@ -20,20 +20,30 @@ Pollen Universe is an AI-powered social platform featuring wellness, entertainme
 - Tailwind CSS for styling
 - Service-based architecture for business logic
 
-## System Architecture
-Pollen Universe employs a service-based architecture with distinct frontend and backend components. The frontend, built with React and TypeScript, utilizes Shadcn/ui for consistent UI components and Tailwind CSS for styling. It features dedicated pages and components for News, Entertainment, Wellness, Music, Trends, and Community, each supported by specific services for business logic (e.g., `newsDigest.ts`, `watchParty.ts`). Global state management is handled via `AppContext.tsx`.
+## System Architecture (Updated: October 2025)
 
+### Search-First Interface (v2.0)
+Pollen Universe has been redesigned as a **search-first, AI-powered platform** with a unified omnisearch interface. The frontend now centers on a single search canvas that orchestrates on-demand AI content generation across all domains.
+
+**Frontend Architecture:**
+- **Search Canvas System**: Primary interface featuring floating omnisearch bar with gradient aesthetics (`SearchCanvas.tsx`, `SearchHero.tsx`, `ResultsMasonry.tsx`)
+- **Search Orchestrator**: Unified service that parses user intent, routes to domain-specific adapters, and aggregates ranked results (`searchOrchestrator.ts`)
+- **Widget-Based Results**: Modular card components for different content types (ContentFeedCard, TrendBurstCard, WellnessCard, ShoppingCard, MediaCard, EntertainmentCard, AssistantCard)
+- **Smart Features**: Debounced search (500ms), result caching (5min TTL), intent-based routing, session-aware personalization
+- **Modern UI**: Gradient backgrounds (blue→purple→pink), glassmorphism effects, responsive card grid layout
+
+**Backend Architecture:**
 The backend comprises a FastAPI-based Pollen AI service (`pollen_ai_optimized.py`) for all AI-powered content generation and an Express.js local backend (`local-backend.cjs`) for community, ethics, and general content APIs. A proxy server (`start.cjs`) acts as the main entry point, routing requests and managing backend services.
 
-Key architectural decisions include:
-- **AI Integration**: A custom Pollen AI backend with **Absolute Zero Reasoner** architecture (deterministic embeddings, no external models), episodic, long-term, and contextual memory systems with database persistence, and reinforcement learning. AI content generation is centralized through `pollenAIUnified.ts`.
-- **Session Management**: Database-backed anonymous sessions (`server/dbSessionManager.ts`) for persistent user tracking without personal data.
-- **Memory Persistence**: AI memories stored in PostgreSQL (`ai_memory_episodes`, `ai_memory_longterm`, `ai_memory_contextual`) with file-based fallback.
-- **Real-time Features**: Server-Sent Events (SSE) for real-time trend scraping, WebSockets for chat and notifications, and features like Watch Parties.
-- **Data Storage**: PostgreSQL database for all persistent data (content, communities, AI memory, sessions). Client-side storage using LocalStorage for preferences, IndexedDB for larger datasets, and Session storage for temporary data. Database schema includes 60+ tables for comprehensive functionality.
-- **Performance Optimization**: Includes edge computing, LRU caching, lazy loading, code splitting, image optimization, request batching, and response compression.
-- **UI/UX**: Emphasis on responsive, mobile-first design, consistent component library (Shadcn/ui), and AI-powered personalization for content recommendations and user feeds.
-- **Gamification System**: Integrated points, badges, and leaderboards across the platform.
+**Key Architectural Decisions:**
+- **Search-Driven UX**: Replaced navigation-based system with omnisearch that generates content on-demand across 12+ intent categories (content, news, trends, wellness, shopping, music, media, entertainment, education, tools, smart_home, robot, assistant)
+- **AI Integration**: Custom Pollen AI backend with **Absolute Zero Reasoner** architecture (deterministic embeddings, no external models), episodic, long-term, and contextual memory systems with database persistence. All content generation centralized through `pollenAIUnified.ts`
+- **Session Management**: Database-backed anonymous sessions (`server/dbSessionManager.ts`) for persistent user tracking and search personalization
+- **Memory Persistence**: AI memories stored in PostgreSQL (`ai_memory_episodes`, `ai_memory_longterm`, `ai_memory_contextual`) with file-based fallback
+- **Real-time Features**: SSE for real-time trend scraping, WebSockets for chat and notifications
+- **Data Storage**: PostgreSQL database for all persistent data. Client-side storage using LocalStorage for preferences, IndexedDB for larger datasets
+- **Performance Optimization**: Search result caching, debounced queries, lazy-loaded widgets, parallel API calls, request batching
+- **UI/UX**: Modern gradient design, glassmorphism, mobile-first responsive layout, card-based masonry grid, optimistic loading states
 
 ## Pollen AI Features (v4.0.0-AbsoluteZero)
 
