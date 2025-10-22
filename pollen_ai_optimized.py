@@ -582,7 +582,7 @@ async def semantic_search(request: SearchRequest):
 # SMART HOME MANAGEMENT ENDPOINTS
 # ============================================================================
 
-from models.smart_home_management import SmartHomeManager
+from pollen_ai.models.smart_home_management import SmartHomeManager
 
 smart_home = SmartHomeManager()
 
@@ -630,7 +630,7 @@ async def suggest_smart_home_automation(context: str):
 # ROBOT MANAGEMENT ENDPOINTS
 # ============================================================================
 
-from models.robot_management import RobotManager
+from pollen_ai.models.robot_management import RobotManager
 
 robot_manager = RobotManager()
 
@@ -697,7 +697,7 @@ async def suggest_robot_optimization(context: str):
 # SYNTHETIC DATA GENERATION ENDPOINTS
 # ============================================================================
 
-from models.synthetic_data_generator import SyntheticDataGenerator
+from pollen_ai.models.synthetic_data_generator import SyntheticDataGenerator
 
 data_generator = SyntheticDataGenerator()
 
