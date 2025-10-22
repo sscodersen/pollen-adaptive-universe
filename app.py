@@ -10,7 +10,7 @@ class Base(DeclarativeBase):
 
 
 db = SQLAlchemy(model_class=Base)
-app = Flask(__name__, static_folder='public', static_url_path='')
+app = Flask(__name__, static_folder='dist', static_url_path='')
 app.secret_key = os.environ.get("SESSION_SECRET")
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
@@ -28,7 +28,14 @@ with app.app_context():
 
 @app.route('/')
 def index():
-    return app.send_static_file('index.html')
+    try:
+        return app.send_static_file('index.html')
+    except:
+        return """
+        <h1>Flask Backend is Running</h1>
+        <p>The backend API is available at <a href="/api/health">/api/health</a></p>
+        <p>Note: The frontend needs to be built first. Run: npm run build</p>
+        """, 200
 
 
 @app.route('/api/health')
