@@ -1,7 +1,0 @@
-components
-contexts
-hooks
-lib
-pages
-services
-types
