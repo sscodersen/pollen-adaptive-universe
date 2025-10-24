@@ -2,6 +2,7 @@ import { Box, Container } from '@chakra-ui/react';
 import { Outlet } from 'react-router-dom';
 import Header from './Header';
 import BottomNavigation from './BottomNavigation';
+import FloatingSearchBar from '../common/FloatingSearchBar';
 
 const MainLayout = () => {
   return (
@@ -37,6 +38,7 @@ const MainLayout = () => {
         </Box>
 
         <BottomNavigation />
+        <FloatingSearchBar />
       </Container>
     </Box>
   );

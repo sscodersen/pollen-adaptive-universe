@@ -8,6 +8,7 @@ import ContentGeneration from '@features/content/ContentGeneration';
 import SmartHome from '@features/smarthome/SmartHome';
 import Health from '@features/health/Health';
 import Education from '@features/education/Education';
+import ErrorBoundary from '@components/common/ErrorBoundary';
 import { Box, Text } from '@chakra-ui/react';
 
 const ComingSoon = ({ title }) => (
@@ -21,22 +22,25 @@ const ComingSoon = ({ title }) => (
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<MainLayout />}>
-          <Route index element={<Dashboard />} />
-          <Route path="shopping" element={<Shopping />} />
-          <Route path="travel" element={<Travel />} />
-          <Route path="news" element={<News />} />
-          <Route path="content" element={<ContentGeneration />} />
-          <Route path="smarthome" element={<SmartHome />} />
-          <Route path="health" element={<Health />} />
-          <Route path="education" element={<Education />} />
-          <Route path="explore" element={<ComingSoon title="Explore" />} />
-          <Route path="profile" element={<ComingSoon title="Profile" />} />
-        </Route>
-      </Routes>
-    </Router>
+    <ErrorBoundary>
+      <Router>
+        <Routes>
+          <Route path="/" element={<MainLayout />}>
+            <Route index element={<Dashboard />} />
+            <Route path="dashboard" element={<Dashboard />} />
+            <Route path="shopping" element={<Shopping />} />
+            <Route path="travel" element={<Travel />} />
+            <Route path="news" element={<News />} />
+            <Route path="content" element={<ContentGeneration />} />
+            <Route path="smarthome" element={<SmartHome />} />
+            <Route path="health" element={<Health />} />
+            <Route path="education" element={<Education />} />
+            <Route path="explore" element={<ComingSoon title="Explore" />} />
+            <Route path="profile" element={<ComingSoon title="Profile" />} />
+          </Route>
+        </Routes>
+      </Router>
+    </ErrorBoundary>
   );
 }
 

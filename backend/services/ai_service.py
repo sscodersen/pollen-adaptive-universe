@@ -8,7 +8,7 @@ class AIService:
         self.model_url = os.getenv("AI_MODEL_URL", "")
         self.api_key = os.getenv("OPENAI_API_KEY", "")
         
-    async def stream_response(self, prompt: str, context: dict = None) -> AsyncGenerator[str, None]:
+    async def stream_response(self, prompt: str, context: dict | None = None) -> AsyncGenerator[str, None]:
         """
         Stream AI responses using SSE
         """
