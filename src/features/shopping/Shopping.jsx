@@ -1,18 +1,21 @@
 import { Box, Heading, Text, VStack, Button, Textarea } from '@chakra-ui/react';
 import { useState } from 'react';
 import { ShoppingBag } from 'lucide-react';
+import { useSSEStream } from '@hooks/useSSEStream';
+import { API } from '@services/api';
 
 const Shopping = () => {
   const [query, setQuery] = useState('');
-  const [response, setResponse] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const { data, isStreaming, error, startStream, clearData } = useSSEStream();
 
-  const handleSearch = () => {
-    setIsLoading(true);
-    setTimeout(() => {
-      setResponse('Finding the best products for you... (SSE streaming will be integrated with backend)');
-      setIsLoading(false);
-    }, 1000);
+  const handleSearch = async () => {
+    if (!query.trim()) return;
+    
+    clearData();
+    await startStream(API.shopping.search, {
+      query: query,
+      user_id: 'user_123',
+    });
   };
 
   return (
@@ -43,16 +46,32 @@ const Shopping = () => {
 
         <Button
           onClick={handleSearch}
-          isLoading={isLoading}
+          isLoading={isStreaming}
           loadingText="Searching..."
           colorScheme="purple"
           w="100%"
           size="lg"
+          isDisabled={!query.trim()}
         >
           Search Products
         </Button>
 
-        {response && (
+        {error && (
+          <Box
+            w="100%"
+            p={4}
+            bg="red.50"
+            borderRadius="lg"
+            border="1px solid"
+            borderColor="red.200"
+          >
+            <Text fontSize="sm" color="red.700">
+              Error: {error}
+            </Text>
+          </Box>
+        )}
+
+        {data.length > 0 && (
           <Box
             w="100%"
             p={4}
@@ -63,11 +82,15 @@ const Shopping = () => {
             borderColor="whiteAlpha.400"
           >
             <Text fontSize="sm" fontWeight="medium" color="gray.800" mb={2}>
-              Recommendations:
+              AI Recommendations (Streaming):
             </Text>
-            <Text fontSize="sm" color="gray.700">
-              {response}
-            </Text>
+            <VStack align="start" spacing={2}>
+              {data.map((chunk, index) => (
+                <Text key={index} fontSize="sm" color="gray.700">
+                  {typeof chunk === 'string' ? chunk : JSON.stringify(chunk)}
+                </Text>
+              ))}
+            </VStack>
           </Box>
         )}
       </VStack>

@@ -7,6 +7,17 @@ node_modules/
 dist/
 build/
 
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+.venv/
+
 # Environment variables
 .env
 .env.local
@@ -35,6 +46,7 @@ lerna-debug.log*
 # Testing
 coverage/
 .nyc_output
+.pytest_cache/
 
 # Cache
 .cache/
@@ -43,6 +55,10 @@ coverage/
 # Replit specific
 .pythonlibs/
 .upm/
+
+# Database
+*.db
+*.sqlite
 
 # Progress tracker (keep this)
 !.local/state/replit/agent/progress_tracker.md
