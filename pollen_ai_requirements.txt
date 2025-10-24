@@ -1,5 +1,0 @@
-Flask
-torch
-transformers
-pydantic
-requests
