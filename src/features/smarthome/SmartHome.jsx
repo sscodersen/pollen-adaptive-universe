@@ -1,15 +1,14 @@
 import { useState } from 'react';
 import {
   Box,
-  Container,
   Heading,
   VStack,
-  Card,
-  CardBody,
+  Text,
+  Button,
+  Textarea,
   useToast
 } from '@chakra-ui/react';
 import { Home } from 'lucide-react';
-import SearchBar from '@components/common/SearchBar';
 import { useSSEStream } from '@hooks/useSSEStream';
 
 export default function SmartHome() {
@@ -32,40 +31,77 @@ export default function SmartHome() {
   };
 
   return (
-    <Container maxW="container.md" py={8}>
-      <VStack spacing={6} align="stretch">
-        <Box textAlign="center">
-          <Home size={48} style={{ margin: '0 auto 16px' }} />
-          <Heading size="lg" mb={2}>Smart Home Assistant</Heading>
-          <Box color="gray.600">Control and optimize your smart home</Box>
+    <Box px={4} py={6}>
+      <VStack align="start" spacing={4}>
+        <Box
+          p={4}
+          borderRadius="xl"
+          bgGradient="linear-gradient(135deg, #10b981 0%, #14b8a6 100%)"
+          color="white"
+          w="100%"
+        >
+          <Home size={32} />
+          <Heading size="lg" mt={2}>Smart Home Assistant</Heading>
+          <Text fontSize="sm" mt={1} opacity={0.9}>
+            Control and optimize your smart home
+          </Text>
         </Box>
 
-        <SearchBar
+        <Textarea
           value={query}
-          onChange={setQuery}
-          onSearch={handleSearch}
-          placeholder="How can I help with your smart home?"
-          isLoading={isStreaming}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="How can I help with your smart home? (e.g., turn off living room lights)"
+          bg="white"
+          borderRadius="lg"
+          minH="120px"
         />
 
+        <Button
+          onClick={handleSearch}
+          isLoading={isStreaming}
+          loadingText="Processing..."
+          colorScheme="teal"
+          w="100%"
+          size="lg"
+          isDisabled={!query.trim()}
+        >
+          Control Devices
+        </Button>
+
         {error && (
-          <Card bg="red.50" borderColor="red.200">
-            <CardBody>
-              <Box color="red.700">Error: {error}</Box>
-            </CardBody>
-          </Card>
+          <Box
+            w="100%"
+            p={4}
+            bg="red.50"
+            borderRadius="lg"
+            border="1px solid"
+            borderColor="red.200"
+          >
+            <Text fontSize="sm" color="red.700">
+              Error: {error}
+            </Text>
+          </Box>
         )}
 
         {data && (
-          <Card>
-            <CardBody>
-              <Box whiteSpace="pre-wrap" fontSize="md" lineHeight="tall">
-                {data}
-              </Box>
-            </CardBody>
-          </Card>
+          <Box
+            w="100%"
+            p={4}
+            bg="whiteAlpha.800"
+            backdropFilter="blur(10px)"
+            borderRadius="lg"
+            border="1px solid"
+            borderColor="whiteAlpha.400"
+          >
+            <Text fontSize="sm" fontWeight="medium" color="gray.800" mb={2}>
+              Smart Home Assistance (Live Streaming):
+            </Text>
+            <Text fontSize="sm" color="gray.700" whiteSpace="pre-wrap">
+              {data}
+            </Text>
+          </Box>
         )}
       </VStack>
-    </Container>
+    </Box>
   );
 }

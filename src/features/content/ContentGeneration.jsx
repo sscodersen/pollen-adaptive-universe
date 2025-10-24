@@ -1,16 +1,15 @@
 import { useState } from 'react';
 import {
   Box,
-  Container,
   Heading,
   VStack,
-  Card,
-  CardBody,
+  Text,
+  Button,
+  Textarea,
   Select,
   useToast
 } from '@chakra-ui/react';
 import { Sparkles } from 'lucide-react';
-import SearchBar from '@components/common/SearchBar';
 import { useSSEStream } from '@hooks/useSSEStream';
 
 export default function ContentGeneration() {
@@ -40,58 +39,103 @@ export default function ContentGeneration() {
   };
 
   return (
-    <Container maxW="container.md" py={8}>
-      <VStack spacing={6} align="stretch">
-        <Box textAlign="center">
-          <Sparkles size={48} style={{ margin: '0 auto 16px' }} />
-          <Heading size="lg" mb={2}>Content Generation</Heading>
-          <Box color="gray.600">Generate articles, posts, and more</Box>
+    <Box px={4} py={6}>
+      <VStack align="start" spacing={4}>
+        <Box
+          p={4}
+          borderRadius="xl"
+          bgGradient="linear-gradient(135deg, #f97316 0%, #fb923c 100%)"
+          color="white"
+          w="100%"
+        >
+          <Sparkles size={32} />
+          <Heading size="lg" mt={2}>Content Generation</Heading>
+          <Text fontSize="sm" mt={1} opacity={0.9}>
+            Generate articles, posts, and creative content
+          </Text>
         </Box>
 
-        <Box>
-          <Select value={contentType} onChange={(e) => setContentType(e.target.value)} mb={3}>
-            <option value="article">Article</option>
-            <option value="blog">Blog Post</option>
-            <option value="social">Social Media</option>
-            <option value="email">Email</option>
-            <option value="marketing">Marketing Copy</option>
-          </Select>
-          
-          <Select value={tone} onChange={(e) => setTone(e.target.value)} mb={3}>
-            <option value="professional">Professional</option>
-            <option value="casual">Casual</option>
-            <option value="friendly">Friendly</option>
-            <option value="formal">Formal</option>
-            <option value="creative">Creative</option>
-          </Select>
-        </Box>
+        <Select 
+          value={contentType} 
+          onChange={(e) => setContentType(e.target.value)}
+          bg="white"
+          borderRadius="lg"
+        >
+          <option value="article">Article</option>
+          <option value="blog">Blog Post</option>
+          <option value="social">Social Media</option>
+          <option value="email">Email</option>
+          <option value="marketing">Marketing Copy</option>
+        </Select>
+        
+        <Select 
+          value={tone} 
+          onChange={(e) => setTone(e.target.value)}
+          bg="white"
+          borderRadius="lg"
+        >
+          <option value="professional">Professional</option>
+          <option value="casual">Casual</option>
+          <option value="friendly">Friendly</option>
+          <option value="formal">Formal</option>
+          <option value="creative">Creative</option>
+        </Select>
 
-        <SearchBar
+        <Textarea
           value={query}
-          onChange={setQuery}
-          onSearch={handleSearch}
-          placeholder="What would you like to create?"
-          isLoading={isStreaming}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="What would you like to create? (e.g., article about sustainable living)"
+          bg="white"
+          borderRadius="lg"
+          minH="120px"
         />
 
+        <Button
+          onClick={handleSearch}
+          isLoading={isStreaming}
+          loadingText="Generating..."
+          colorScheme="orange"
+          w="100%"
+          size="lg"
+          isDisabled={!query.trim()}
+        >
+          Generate Content
+        </Button>
+
         {error && (
-          <Card bg="red.50" borderColor="red.200">
-            <CardBody>
-              <Box color="red.700">Error: {error}</Box>
-            </CardBody>
-          </Card>
+          <Box
+            w="100%"
+            p={4}
+            bg="red.50"
+            borderRadius="lg"
+            border="1px solid"
+            borderColor="red.200"
+          >
+            <Text fontSize="sm" color="red.700">
+              Error: {error}
+            </Text>
+          </Box>
         )}
 
         {data && (
-          <Card>
-            <CardBody>
-              <Box whiteSpace="pre-wrap" fontSize="md" lineHeight="tall">
-                {data}
-              </Box>
-            </CardBody>
-          </Card>
+          <Box
+            w="100%"
+            p={4}
+            bg="whiteAlpha.800"
+            backdropFilter="blur(10px)"
+            borderRadius="lg"
+            border="1px solid"
+            borderColor="whiteAlpha.400"
+          >
+            <Text fontSize="sm" fontWeight="medium" color="gray.800" mb={2}>
+              Generated Content (Live Streaming):
+            </Text>
+            <Text fontSize="sm" color="gray.700" whiteSpace="pre-wrap">
+              {data}
+            </Text>
+          </Box>
         )}
       </VStack>
-    </Container>
+    </Box>
   );
 }

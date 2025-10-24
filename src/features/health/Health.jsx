@@ -1,17 +1,16 @@
 import { useState } from 'react';
 import {
   Box,
-  Container,
   Heading,
   VStack,
-  Card,
-  CardBody,
+  Text,
+  Button,
+  Textarea,
   Alert,
   AlertIcon,
   useToast
 } from '@chakra-ui/react';
 import { Heart } from 'lucide-react';
-import SearchBar from '@components/common/SearchBar';
 import { useSSEStream } from '@hooks/useSSEStream';
 
 export default function Health() {
@@ -34,45 +33,84 @@ export default function Health() {
   };
 
   return (
-    <Container maxW="container.md" py={8}>
-      <VStack spacing={6} align="stretch">
-        <Box textAlign="center">
-          <Heart size={48} style={{ margin: '0 auto 16px' }} />
-          <Heading size="lg" mb={2}>Health & Wellness</Heading>
-          <Box color="gray.600">Evidence-based health guidance</Box>
+    <Box px={4} py={6}>
+      <VStack align="start" spacing={4}>
+        <Box
+          p={4}
+          borderRadius="xl"
+          bgGradient="linear-gradient(135deg, #dc2626 0%, #f43f5e 100%)"
+          color="white"
+          w="100%"
+        >
+          <Heart size={32} />
+          <Heading size="lg" mt={2}>Health & Wellness</Heading>
+          <Text fontSize="sm" mt={1} opacity={0.9}>
+            Evidence-based health guidance
+          </Text>
         </Box>
 
-        <Alert status="info" borderRadius="md">
+        <Alert status="info" borderRadius="lg">
           <AlertIcon />
-          This is general wellness information, not medical advice. Consult healthcare professionals for medical concerns.
+          <Text fontSize="sm">
+            This is general wellness information, not medical advice. Consult healthcare professionals for medical concerns.
+          </Text>
         </Alert>
 
-        <SearchBar
+        <Textarea
           value={query}
-          onChange={setQuery}
-          onSearch={handleSearch}
-          placeholder="What health topic would you like to explore?"
-          isLoading={isStreaming}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="What health topic would you like to explore? (e.g., benefits of meditation)"
+          bg="white"
+          borderRadius="lg"
+          minH="120px"
         />
 
+        <Button
+          onClick={handleSearch}
+          isLoading={isStreaming}
+          loadingText="Gathering info..."
+          colorScheme="red"
+          w="100%"
+          size="lg"
+          isDisabled={!query.trim()}
+        >
+          Get Health Advice
+        </Button>
+
         {error && (
-          <Card bg="red.50" borderColor="red.200">
-            <CardBody>
-              <Box color="red.700">Error: {error}</Box>
-            </CardBody>
-          </Card>
+          <Box
+            w="100%"
+            p={4}
+            bg="red.50"
+            borderRadius="lg"
+            border="1px solid"
+            borderColor="red.200"
+          >
+            <Text fontSize="sm" color="red.700">
+              Error: {error}
+            </Text>
+          </Box>
         )}
 
         {data && (
-          <Card>
-            <CardBody>
-              <Box whiteSpace="pre-wrap" fontSize="md" lineHeight="tall">
-                {data}
-              </Box>
-            </CardBody>
-          </Card>
+          <Box
+            w="100%"
+            p={4}
+            bg="whiteAlpha.800"
+            backdropFilter="blur(10px)"
+            borderRadius="lg"
+            border="1px solid"
+            borderColor="whiteAlpha.400"
+          >
+            <Text fontSize="sm" fontWeight="medium" color="gray.800" mb={2}>
+              Health Guidance (Live Streaming):
+            </Text>
+            <Text fontSize="sm" color="gray.700" whiteSpace="pre-wrap">
+              {data}
+            </Text>
+          </Box>
         )}
       </VStack>
-    </Container>
+    </Box>
   );
 }
