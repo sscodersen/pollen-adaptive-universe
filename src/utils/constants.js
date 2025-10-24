@@ -1,0 +1,68 @@
+export const FEATURES = [
+  {
+    id: 'shopping',
+    title: 'Sister',
+    subtitle: 'Shopping Check',
+    icon: 'ShoppingBag',
+    gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    description: 'AI-powered shopping assistant for quality products',
+    path: '/shopping',
+  },
+  {
+    id: 'travel',
+    title: 'Travel',
+    subtitle: 'Plan Your Trip',
+    icon: 'Plane',
+    gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+    description: 'Personalized travel recommendations and itineraries',
+    path: '/travel',
+  },
+  {
+    id: 'news',
+    title: 'News',
+    subtitle: 'Unbiased Updates',
+    icon: 'Newspaper',
+    gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+    description: 'Curated news from diverse, credible sources',
+    path: '/news',
+  },
+  {
+    id: 'content',
+    title: 'Create',
+    subtitle: 'Content Generation',
+    icon: 'Sparkles',
+    gradient: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)',
+    description: 'Generate articles, posts, and creative content',
+    path: '/content',
+  },
+  {
+    id: 'smarthome',
+    title: 'Smart Home',
+    subtitle: 'Control & Automate',
+    icon: 'Home',
+    gradient: 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
+    description: 'Manage IoT devices and home automation',
+    path: '/smarthome',
+  },
+  {
+    id: 'health',
+    title: 'Wellness',
+    subtitle: 'Health & Fitness',
+    icon: 'Heart',
+    gradient: 'linear-gradient(135deg, #FA8BFF 0%, #2BD2FF 100%)',
+    description: 'Personalized wellness plans and health tracking',
+    path: '/health',
+  },
+  {
+    id: 'education',
+    title: 'Learn',
+    subtitle: 'Education',
+    icon: 'GraduationCap',
+    gradient: 'linear-gradient(135deg, #FEE140 0%, #FA709A 100%)',
+    description: 'Adaptive learning paths and skill development',
+    path: '/education',
+  },
+];
+
+export const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+export const AI_MODEL_URL = import.meta.env.VITE_AI_MODEL_URL || '';
