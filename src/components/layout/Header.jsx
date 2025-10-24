@@ -1,10 +1,17 @@
+import { useState, useEffect } from 'react';
 import { Box, Flex, Text, Avatar, IconButton } from '@chakra-ui/react';
 import { Bell, Menu } from 'lucide-react';
-import { format } from 'date-fns';
 
 const Header = () => {
   const userName = 'Jane';
-  const currentTime = format(new Date(), 'EEEE, MMMM d');
+  const [greeting, setGreeting] = useState('');
+
+  useEffect(() => {
+    const hour = new Date().getHours();
+    if (hour < 12) setGreeting('Good morning');
+    else if (hour < 18) setGreeting('Good afternoon');
+    else setGreeting('Good evening');
+  }, []);
 
   return (
     <Box
@@ -17,7 +24,7 @@ const Header = () => {
       backdropFilter="blur(10px)"
       bg="whiteAlpha.300"
     >
-      <Flex justify="space-between" align="center" mb={4}>
+      <Flex justify="space-between" align="center">
         <IconButton
           icon={<Menu size={24} />}
           variant="ghost"
@@ -26,7 +33,12 @@ const Header = () => {
           size="sm"
         />
         
-        <Flex gap={2}>
+        <Flex align="center" gap={3}>
+          <Box textAlign="right" display={{ base: 'none', sm: 'block' }}>
+            <Text fontSize="sm" fontWeight="600" color="gray.800">
+              {greeting}, {userName}!
+            </Text>
+          </Box>
           <IconButton
             icon={<Bell size={20} />}
             variant="ghost"
@@ -34,18 +46,9 @@ const Header = () => {
             aria-label="Notifications"
             size="sm"
           />
-          <Avatar size="sm" name={userName} bg="brand.500" />
+          <Avatar size="sm" name={userName} bg="purple.500" />
         </Flex>
       </Flex>
-
-      <Box>
-        <Text fontSize="2xl" fontWeight="bold" color="gray.800" mb={1}>
-          Hey {userName},
-        </Text>
-        <Text fontSize="md" color="gray.600">
-          Welcome back!
-        </Text>
-      </Box>
     </Box>
   );
 };

@@ -1,15 +1,11 @@
 import { useState, useEffect } from 'react';
-import { Box, SimpleGrid, Text, VStack, HStack, Avatar, Badge, Icon } from '@chakra-ui/react';
-import { useLocation } from 'react-router-dom';
+import { Box, SimpleGrid, Text, VStack, HStack, Badge, Icon } from '@chakra-ui/react';
 import { FEATURES } from '@utils/constants';
 import FeatureCard from '@components/common/FeatureCard';
-import SearchBar from '@components/common/SearchBar';
 import { Clock, TrendingUp, Sparkles } from 'lucide-react';
 
 const Dashboard = () => {
-  const location = useLocation();
   const [greeting, setGreeting] = useState('');
-  const [userName] = useState('Jane');
 
   useEffect(() => {
     const hour = new Date().getHours();
@@ -31,31 +27,22 @@ const Dashboard = () => {
   ];
 
   return (
-    <Box px={4} py={4}>
-      <SearchBar placeholder="What can I help you with today?" />
-
-      <VStack align="start" spacing={6} mt={6}>
+    <Box px={4} py={2}>
+      <VStack align="start" spacing={6}>
         <Box width="100%">
-          <HStack spacing={4} mb={6}>
-            <Avatar 
-              name={userName} 
-              bg="purple.500" 
-              color="white" 
-              size="lg"
-            />
-            <VStack align="start" spacing={0}>
-              <Text fontSize="2xl" fontWeight="bold" color="gray.800">
-                {greeting}, {userName}!
-              </Text>
-              <Text fontSize="sm" color="gray.600">
-                Welcome back to your AI-powered hub
-              </Text>
-            </VStack>
-          </HStack>
-
-          <Text fontSize="lg" fontWeight="bold" color="gray.800" mb={4} mt={6}>
-            Your AI Assistant
+          <Text 
+            fontSize="2xl" 
+            fontWeight="bold" 
+            color="gray.800" 
+            mb={1}
+            display={{ base: 'block', sm: 'none' }}
+          >
+            {greeting}!
           </Text>
+          <Text fontSize="md" color="gray.600" mb={6}>
+            What can I help you with today?
+          </Text>
+
           <SimpleGrid columns={2} spacing={4}>
             {FEATURES.map((feature) => (
               <FeatureCard key={feature.id} feature={feature} />
@@ -63,9 +50,9 @@ const Dashboard = () => {
           </SimpleGrid>
         </Box>
 
-        <Box width="100%" mt={4}>
+        <Box width="100%" mt={2}>
           <HStack spacing={2} mb={3}>
-            <Icon as={Clock} color="purple.500" />
+            <Icon as={Clock} color="purple.500" boxSize={5} />
             <Text fontSize="md" fontWeight="semibold" color="gray.700">
               Recent Activity
             </Text>
@@ -83,7 +70,7 @@ const Dashboard = () => {
                 borderColor="whiteAlpha.400"
                 cursor="pointer"
                 transition="all 0.2s"
-                _hover={{ bg: 'whiteAlpha.900', transform: 'translateY(-2px)' }}
+                _hover={{ bg: 'whiteAlpha.900', transform: 'translateY(-2px)', boxShadow: 'md' }}
               >
                 <HStack justify="space-between">
                   <VStack align="start" spacing={1}>
@@ -103,9 +90,9 @@ const Dashboard = () => {
           </VStack>
         </Box>
 
-        <Box width="100%" mt={4}>
+        <Box width="100%">
           <HStack spacing={2} mb={3}>
-            <Icon as={TrendingUp} color="orange.500" />
+            <Icon as={TrendingUp} color="orange.500" boxSize={5} />
             <Text fontSize="md" fontWeight="semibold" color="gray.700">
               Trending Now
             </Text>
@@ -123,15 +110,15 @@ const Dashboard = () => {
                 borderColor="whiteAlpha.400"
                 cursor="pointer"
                 transition="all 0.2s"
-                _hover={{ bg: 'whiteAlpha.900', transform: 'translateY(-2px)' }}
+                _hover={{ bg: 'whiteAlpha.900', transform: 'translateY(-2px)', boxShadow: 'md' }}
               >
-                <HStack justify="space-between">
-                  <VStack align="start" spacing={1}>
+                <HStack justify="space-between" align="start">
+                  <VStack align="start" spacing={1} flex={1}>
                     <HStack>
                       <Text fontSize="sm" fontWeight="medium" color="gray.800">
                         {topic.title}
                       </Text>
-                      {topic.hot && <Icon as={Sparkles} color="orange.500" boxSize={3} />}
+                      {topic.hot && <Icon as={Sparkles} color="orange.500" boxSize={4} />}
                     </HStack>
                     <Badge colorScheme="blue" fontSize="xs">
                       {topic.category}
@@ -146,17 +133,17 @@ const Dashboard = () => {
         <Box 
           width="100%" 
           p={6} 
-          bg="purple.500" 
           borderRadius="2xl" 
-          mt={4}
+          mt={2}
           bgGradient="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+          boxShadow="lg"
         >
           <VStack spacing={3} align="center" color="white">
-            <Icon as={Sparkles} boxSize={10} />
-            <Text fontSize="lg" fontWeight="bold" textAlign="center">
+            <Icon as={Sparkles} boxSize={12} />
+            <Text fontSize="xl" fontWeight="bold" textAlign="center">
               Powered by Pollen AI
             </Text>
-            <Text fontSize="sm" textAlign="center" opacity={0.9}>
+            <Text fontSize="sm" textAlign="center" opacity={0.95}>
               Your privacy-first AI assistant that learns and adapts to your needs
             </Text>
           </VStack>
