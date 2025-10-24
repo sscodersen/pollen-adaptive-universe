@@ -1,61 +1,72 @@
 import { useState, useCallback, useRef } from 'react';
 
 export const useSSEStream = () => {
-  const [data, setData] = useState([]);
+  const [data, setData] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
   const [error, setError] = useState(null);
   const eventSourceRef = useRef(null);
 
-  const startStream = useCallback(async (url, requestBody) => {
+  const startStream = useCallback((url, requestBody) => {
     setIsStreaming(true);
     setError(null);
-    setData([]);
+    setData('');
 
-    try {
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(requestBody),
-      });
+    const urlParams = new URLSearchParams(requestBody).toString();
+    const fullUrl = `${url}?${urlParams}`;
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
+    const eventSource = new EventSource(fullUrl);
+    eventSourceRef.current = eventSource;
 
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-
-      while (true) {
-        const { done, value } = await reader.read();
-        
-        if (done) {
+    const handleMessage = (event) => {
+      try {
+        const parsed = JSON.parse(event.data);
+        if (parsed.text) {
+          setData(prev => prev + parsed.text);
+        } else if (parsed.error) {
+          setError(parsed.error);
+          eventSource.close();
           setIsStreaming(false);
-          break;
+        } else if (parsed.content) {
+          setData(prev => prev + parsed.content);
         }
+      } catch (e) {
+        console.warn('Failed to parse SSE data:', e);
+        setData(prev => prev + event.data);
+      }
+    };
 
-        const chunk = decoder.decode(value, { stream: true });
-        const lines = chunk.split('\n');
+    eventSource.onmessage = handleMessage;
+    eventSource.addEventListener('ai_response', handleMessage);
+    eventSource.addEventListener('scraped_content', handleMessage);
 
-        for (const line of lines) {
-          if (line.startsWith('data: ')) {
-            const dataStr = line.substring(6);
-            if (dataStr && dataStr !== '[DONE]') {
-              try {
-                const parsedData = JSON.parse(dataStr);
-                setData(prev => [...prev, parsedData]);
-              } catch (e) {
-                setData(prev => [...prev, dataStr]);
-              }
-            }
+    eventSource.addEventListener('error', (event) => {
+      if (event.data) {
+        try {
+          const parsed = JSON.parse(event.data);
+          if (parsed.error) {
+            setError(parsed.error);
           }
+        } catch (e) {
+          setError('Connection error occurred');
         }
       }
-    } catch (err) {
-      setError(err.message);
+    });
+
+    eventSource.onerror = (err) => {
+      if (eventSource.readyState === EventSource.CLOSED) {
+        setIsStreaming(false);
+      } else {
+        setError('Connection error occurred');
+        eventSource.close();
+        setIsStreaming(false);
+      }
+    };
+
+    eventSource.addEventListener('done', () => {
+      eventSource.close();
       setIsStreaming(false);
-    }
+    });
+
   }, []);
 
   const stopStream = useCallback(() => {
@@ -67,7 +78,7 @@ export const useSSEStream = () => {
   }, []);
 
   const clearData = useCallback(() => {
-    setData([]);
+    setData('');
     setError(null);
   }, []);
 

@@ -35,8 +35,18 @@ class AIService:
                     headers={"Content-Type": "application/json"}
                 ) as response:
                     async for line in response.aiter_lines():
-                        if line:
-                            yield line + "\n"
+                        if line and line.strip():
+                            try:
+                                parsed = json.loads(line)
+                                if "text" in parsed:
+                                    yield json.dumps({"text": parsed["text"]})
+                                elif "content" in parsed:
+                                    yield json.dumps({"text": parsed["content"]})
+                                else:
+                                    text_value = str(parsed) if isinstance(parsed, (dict, list)) else line
+                                    yield json.dumps({"text": text_value})
+                            except json.JSONDecodeError:
+                                yield json.dumps({"text": line.strip()})
         except Exception as e:
             yield json.dumps({"error": f"Custom model error: {str(e)}"})
     
@@ -63,7 +73,15 @@ class AIService:
                         if line and line.startswith("data: "):
                             data = line[6:]
                             if data != "[DONE]":
-                                yield data + "\n"
+                                try:
+                                    parsed = json.loads(data)
+                                    if "choices" in parsed and len(parsed["choices"]) > 0:
+                                        delta = parsed["choices"][0].get("delta", {})
+                                        text = delta.get("content", "")
+                                        if text:
+                                            yield json.dumps({"text": text})
+                                except json.JSONDecodeError:
+                                    pass
         except Exception as e:
             yield json.dumps({"error": f"OpenAI error: {str(e)}"})
 

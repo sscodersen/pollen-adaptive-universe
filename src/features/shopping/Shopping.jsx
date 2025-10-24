@@ -8,11 +8,11 @@ const Shopping = () => {
   const [query, setQuery] = useState('');
   const { data, isStreaming, error, startStream, clearData } = useSSEStream();
 
-  const handleSearch = async () => {
+  const handleSearch = () => {
     if (!query.trim()) return;
     
     clearData();
-    await startStream(API.shopping.search, {
+    startStream(API.shopping.search, {
       query: query,
       user_id: 'user_123',
     });
@@ -71,7 +71,7 @@ const Shopping = () => {
           </Box>
         )}
 
-        {data.length > 0 && (
+        {data && (
           <Box
             w="100%"
             p={4}
@@ -82,15 +82,11 @@ const Shopping = () => {
             borderColor="whiteAlpha.400"
           >
             <Text fontSize="sm" fontWeight="medium" color="gray.800" mb={2}>
-              AI Recommendations (Streaming):
+              AI Recommendations (Live Streaming):
             </Text>
-            <VStack align="start" spacing={2}>
-              {data.map((chunk, index) => (
-                <Text key={index} fontSize="sm" color="gray.700">
-                  {typeof chunk === 'string' ? chunk : JSON.stringify(chunk)}
-                </Text>
-              ))}
-            </VStack>
+            <Text fontSize="sm" color="gray.700" whiteSpace="pre-wrap">
+              {data}
+            </Text>
           </Box>
         )}
       </VStack>
