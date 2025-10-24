@@ -1,21 +1,32 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Query
 from sse_starlette.sse import EventSourceResponse
-from backend.models.schemas import ContentRequest
 from backend.services.ai_service import ai_service
+import json
 
 router = APIRouter()
 
-@router.post("/generate")
-async def generate_content(request: ContentRequest):
+@router.get("/generate")
+async def generate_content(
+    query: str = Query(...),
+    content_type: str = Query("article"),
+    tone: str = Query("professional"),
+    length: str = Query("medium")
+):
     """
     Stream AI-generated content using SSE
     """
     async def generate():
-        prompt = f"Generate {request.content_type} content about: {request.query}"
-        prompt += f" with a {request.tone} tone and {request.length} length."
+        prompt = f"Generate {content_type} content about: {query}"
+        prompt += f" with a {tone} tone and {length} length."
         
-        async for chunk in ai_service.stream_response(prompt, request.context or {}):
-            yield {"event": "message", "data": chunk}
+        try:
+            yield {"event": "message", "data": json.dumps({"text": f"Creating {content_type} content...\n\n"})}
+            async for chunk in ai_service.stream_response(prompt, {}):
+                yield {"event": "message", "data": chunk}
+        except Exception as e:
+            yield {"event": "error", "data": json.dumps({"error": str(e)})}
+        finally:
+            yield {"event": "done", "data": ""}
     
     return EventSourceResponse(generate())
 

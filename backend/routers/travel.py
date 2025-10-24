@@ -1,28 +1,39 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Query
 from sse_starlette.sse import EventSourceResponse
-from backend.models.schemas import TravelRequest
 from backend.services.ai_service import ai_service
+import json
 
 router = APIRouter()
 
-@router.post("/plan")
-async def plan_trip(request: TravelRequest):
+@router.get("/plan")
+async def plan_trip(
+    query: str = Query(...),
+    destination: str = Query(None),
+    budget: float = Query(None),
+    travelers: int = Query(1)
+):
     """
     Stream travel recommendations and itinerary using SSE
     """
     async def generate():
-        prompt = f"Help me plan a trip: {request.query}"
-        if request.destination:
-            prompt += f" to {request.destination}"
-        if request.budget:
-            prompt += f" with a budget of ${request.budget}"
-        if request.travelers:
-            prompt += f" for {request.travelers} travelers"
+        prompt = f"Help me plan a trip: {query}"
+        if destination:
+            prompt += f" to {destination}"
+        if budget:
+            prompt += f" with a budget of ${budget}"
+        if travelers:
+            prompt += f" for {travelers} travelers"
         
         prompt += ". Provide a detailed itinerary with recommendations for accommodations, activities, and dining."
         
-        async for chunk in ai_service.stream_response(prompt, request.context or {}):
-            yield {"event": "message", "data": chunk}
+        try:
+            yield {"event": "message", "data": json.dumps({"text": "Planning your perfect trip...\n\n"})}
+            async for chunk in ai_service.stream_response(prompt, {}):
+                yield {"event": "message", "data": chunk}
+        except Exception as e:
+            yield {"event": "error", "data": json.dumps({"error": str(e)})}
+        finally:
+            yield {"event": "done", "data": ""}
     
     return EventSourceResponse(generate())
 
