@@ -4,17 +4,28 @@ import { ShoppingBag, Sparkles } from 'lucide-react';
 import { useSSEStream } from '@hooks/useSSEStream';
 import { API } from '@services/api';
 import { useLocation } from 'react-router-dom';
+import ResponseActions from '@components/common/ResponseActions';
+import TypingIndicator from '@components/common/TypingIndicator';
+import { useConversationHistory, useFavorites } from '@hooks/useLocalStorage';
 
 const Shopping = () => {
   const location = useLocation();
   const [query, setQuery] = useState(location.state?.query || '');
   const { data, isStreaming, error, startStream, clearData } = useSSEStream();
+  const { addConversation } = useConversationHistory();
+  const { addFavorite, isFavorite } = useFavorites();
 
   useEffect(() => {
     if (location.state?.query) {
       handleSearch();
     }
   }, []);
+
+  useEffect(() => {
+    if (data && !isStreaming && query) {
+      addConversation(query, data, 'Shopping');
+    }
+  }, [data, isStreaming]);
 
   const handleSearch = () => {
     if (!query.trim()) return;
@@ -24,6 +35,12 @@ const Shopping = () => {
       query: query,
       user_id: 'user_123',
     });
+  };
+
+  const handleFavorite = (shouldAdd) => {
+    if (shouldAdd) {
+      addFavorite(query, data, 'Shopping');
+    }
   };
 
   return (
@@ -104,7 +121,7 @@ const Shopping = () => {
           </Box>
         )}
 
-        {data && (
+        {(data || isStreaming) && (
           <Box
             w="100%"
             p={5}
@@ -114,15 +131,32 @@ const Shopping = () => {
             border="1px solid"
             borderColor="whiteAlpha.200"
           >
-            <HStack mb={3} spacing={2}>
-              <Sparkles size={18} color="var(--chakra-colors-purple-400)" />
-              <Text fontSize="sm" fontWeight="semibold" color="purple.300">
-                AI Recommendations
-              </Text>
+            <HStack mb={3} spacing={2} justify="space-between">
+              <HStack spacing={2}>
+                <Sparkles size={18} color="var(--chakra-colors-purple-400)" />
+                <Text fontSize="sm" fontWeight="semibold" color="purple.300">
+                  AI Recommendations
+                </Text>
+              </HStack>
+              {data && !isStreaming && (
+                <ResponseActions 
+                  content={data} 
+                  onFavorite={handleFavorite}
+                  isFavorited={isFavorite(query)}
+                />
+              )}
             </HStack>
-            <Text fontSize="sm" color="gray.200" whiteSpace="pre-wrap" lineHeight="tall">
-              {data}
-            </Text>
+            {isStreaming && !data && (
+              <HStack spacing={3} py={3}>
+                <TypingIndicator color="purple.400" />
+                <Text fontSize="sm" color="gray.400">AI is thinking...</Text>
+              </HStack>
+            )}
+            {data && (
+              <Text fontSize="sm" color="gray.200" whiteSpace="pre-wrap" lineHeight="tall">
+                {data}
+              </Text>
+            )}
           </Box>
         )}
       </VStack>

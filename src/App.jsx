@@ -8,17 +8,9 @@ import ContentGeneration from '@features/content/ContentGeneration';
 import SmartHome from '@features/smarthome/SmartHome';
 import Health from '@features/health/Health';
 import Education from '@features/education/Education';
+import Explore from '@features/explore/Explore';
+import Profile from '@features/profile/Profile';
 import ErrorBoundary from '@components/common/ErrorBoundary';
-import { Box, Text } from '@chakra-ui/react';
-
-const ComingSoon = ({ title }) => (
-  <Box px={4} py={6} textAlign="center">
-    <Text fontSize="2xl" fontWeight="bold" color="gray.800" mb={2}>
-      {title}
-    </Text>
-    <Text color="gray.600">Coming soon...</Text>
-  </Box>
-);
 
 function App() {
   return (
@@ -35,8 +27,8 @@ function App() {
             <Route path="smarthome" element={<SmartHome />} />
             <Route path="health" element={<Health />} />
             <Route path="education" element={<Education />} />
-            <Route path="explore" element={<ComingSoon title="Explore" />} />
-            <Route path="profile" element={<ComingSoon title="Profile" />} />
+            <Route path="explore" element={<Explore />} />
+            <Route path="profile" element={<Profile />} />
           </Route>
         </Routes>
       </Router>

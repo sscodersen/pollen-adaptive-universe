@@ -1,9 +1,15 @@
 # New Frontier AI Platform - Powered by Pollen AI
 
 ## Overview
-A production-ready, privacy-first AI assistant platform featuring SSE (Server-Sent Events) streaming for real-time AI responses across multiple domains. Built with React + Vite frontend and FastAPI backend, optimized for Vercel deployment.
+A production-ready, privacy-first AI assistant platform featuring SSE (Server-Sent Events) streaming for real-time AI responses across multiple domains. Built with React + Vite frontend and FastAPI backend, optimized for deployment with a modern dark theme inspired by AI Sight.
 
-**Last Updated**: October 24, 2025
+**Last Updated**: October 25, 2025
+
+### Privacy-First Design
+- ✅ **100% Anonymous** - No sign-in, no authentication, no user accounts
+- ✅ **Local Storage Only** - All data stored on user's device via localStorage
+- ✅ **Zero Tracking** - No analytics, no external data collection
+- ✅ **Full Control** - Users can export or delete their data anytime
 
 ## Project Architecture
 
@@ -29,31 +35,36 @@ pollen-ai-platform/
 ├── src/
 │   ├── components/
 │   │   ├── layout/
-│   │   │   ├── MainLayout.jsx          # Main app container + FloatingSearchBar
-│   │   │   ├── Header.jsx              # Top header with user avatar
-│   │   │   └── BottomNavigation.jsx    # Bottom nav bar
+│   │   │   ├── MainLayout.jsx          # Main app container with dark theme
+│   │   │   ├── Header.jsx              # Top header with anonymous user
+│   │   │   └── BottomNavigation.jsx    # Bottom nav bar (dark theme)
 │   │   └── common/
-│   │       ├── FloatingSearchBar.jsx   # Global Cmd+K search (NEW)
-│   │       ├── ErrorBoundary.jsx       # Production error handling (NEW)
-│   │       ├── LoadingState.jsx        # Reusable loading component (NEW)
-│   │       ├── ErrorState.jsx          # Reusable error component (NEW)
-│   │       ├── FeatureCard.jsx         # Feature cards
-│   │       └── SearchBar.jsx           # Local search bar
+│   │       ├── UnifiedSearchBar.jsx    # AI Sight-inspired gradient search (NEW)
+│   │       ├── ResponseActions.jsx     # Copy/share/bookmark/download (NEW)
+│   │       ├── TypingIndicator.jsx     # Animated typing indicator (NEW)
+│   │       ├── ErrorBoundary.jsx       # Production error handling
+│   │       ├── LoadingState.jsx        # Reusable loading component
+│   │       ├── ErrorState.jsx          # Reusable error component
+│   │       ├── FeatureCard.jsx         # Feature cards (dark theme)
+│   │       └── SearchBar.jsx           # Legacy local search bar
 │   ├── features/
-│   │   ├── dashboard/                  # Enhanced personalized dashboard (UPDATED)
-│   │   ├── shopping/                   # Shopping assistant with SSE
-│   │   ├── travel/                     # Travel planner with SSE
-│   │   ├── news/                       # News aggregator with SSE
-│   │   ├── content/                    # Content generator with SSE
-│   │   ├── smarthome/                  # Smart home management with SSE
-│   │   ├── health/                     # Health & wellness with SSE
-│   │   └── education/                  # Education assistant with SSE
+│   │   ├── dashboard/                  # Personalized dashboard (dark theme)
+│   │   ├── explore/                    # Explore page with trending (NEW)
+│   │   ├── profile/                    # Profile page - anonymous & local (NEW)
+│   │   ├── shopping/                   # Shopping with actions & typing indicator
+│   │   ├── travel/                     # Travel planner (dark theme)
+│   │   ├── news/                       # News aggregator (dark theme)
+│   │   ├── content/                    # Content generator (dark theme)
+│   │   ├── smarthome/                  # Smart home (dark theme)
+│   │   ├── health/                     # Health & wellness (dark theme)
+│   │   └── education/                  # Education assistant (dark theme)
 │   ├── hooks/
-│   │   └── useSSEStream.js             # SSE streaming React hook
+│   │   ├── useSSEStream.js             # SSE streaming React hook
+│   │   └── useLocalStorage.js          # Privacy-focused local storage (NEW)
 │   ├── services/
 │   │   └── api.js                      # API configuration
 │   ├── theme/
-│   │   └── index.js                    # Chakra UI custom theme
+│   │   └── index.js                    # Chakra UI custom dark theme
 │   └── utils/
 │       └── constants.js                # Feature definitions
 ├── backend/
@@ -148,7 +159,24 @@ The platform is ready to receive your Pollen AI model URL. Simply:
 2. Ensure your model accepts POST with: `{"prompt": "...", "context": {}, "stream": true}`
 3. Model should return SSE format: `data: {"text": "chunk"}`
 
-## Recent Changes (October 24, 2025)
+## Recent Changes (October 25, 2025)
+
+### Platform Redesign & Enhancement
+- ✅ **Dark Theme Overhaul** - Professional dark UI with purple/gray gradients
+- ✅ **Unified Search Bar** - AI Sight-inspired gradient search with Cmd+K support
+- ✅ **Explore Page** - Trending features, quick actions, community activity
+- ✅ **Profile Page** - Anonymous user stats, history, favorites, settings
+- ✅ **Response Actions** - Copy, share, bookmark, download AI responses
+- ✅ **Typing Indicator** - Real-time animated indicator during SSE streaming
+- ✅ **Local Storage System** - Privacy-focused data management
+  - Conversation history (last 50)
+  - Favorites/bookmarks
+  - User statistics
+- ✅ **Enhanced Glassmorphism** - Improved glass effects throughout
+- ✅ **Smooth Animations** - Professional micro-interactions
+- ✅ **Backend Deployment Guide** - Railway/Render/Fly.io instructions
+
+## Previous Changes (October 24, 2025)
 
 ### Production Optimization
 - ✅ Created `vercel.json` for Vercel deployment
@@ -205,12 +233,13 @@ This platform aligns with the "New Frontier of the Internet" vision:
 ✅ **Web Scraper Fallback** - When AI lacks information
 
 ## User Preferences
-- Modern, mobile-inspired design with glassmorphism
-- SSE streaming for all AI interactions
-- Support for custom Pollen AI model via environment variable
-- Privacy-first (no authentication)
-- Production-ready deployment to Vercel
-- Comprehensive documentation
+- **Modern Dark Theme** - AI Sight-inspired design with purple/gray gradients
+- **Privacy-First** - 100% anonymous, no sign-in, local storage only
+- **SSE Streaming** - Real-time AI responses across all features
+- **Professional UI** - Glassmorphism, smooth animations, gradient accents
+- **Custom AI Model** - Support for Pollen AI model via environment variable
+- **Production-Ready** - Deployment guides for Vercel (frontend) and Railway/Render (backend)
+- **Comprehensive Features** - Explore page, Profile page, Response actions, History tracking
 
 ## Next Steps
 1. Add your Pollen AI model URL to `.env`
