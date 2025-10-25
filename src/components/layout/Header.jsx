@@ -22,29 +22,31 @@ const Header = () => {
       top={0}
       zIndex={10}
       backdropFilter="blur(10px)"
-      bg="whiteAlpha.300"
+      bg="blackAlpha.300"
     >
       <Flex justify="space-between" align="center">
         <IconButton
           icon={<Menu size={24} />}
           variant="ghost"
-          color="gray.700"
+          color="gray.300"
           aria-label="Menu"
           size="sm"
+          _hover={{ bg: 'whiteAlpha.200', color: 'white' }}
         />
         
         <Flex align="center" gap={3}>
           <Box textAlign="right" display={{ base: 'none', sm: 'block' }}>
-            <Text fontSize="sm" fontWeight="600" color="gray.800">
+            <Text fontSize="sm" fontWeight="600" color="white">
               {greeting}, {userName}!
             </Text>
           </Box>
           <IconButton
             icon={<Bell size={20} />}
             variant="ghost"
-            color="gray.700"
+            color="gray.300"
             aria-label="Notifications"
             size="sm"
+            _hover={{ bg: 'whiteAlpha.200', color: 'white' }}
           />
           <Avatar size="sm" name={userName} bg="purple.500" />
         </Flex>

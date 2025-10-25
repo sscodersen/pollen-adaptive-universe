@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Box,
   Heading,
@@ -6,15 +6,25 @@ import {
   Text,
   Button,
   Textarea,
+  HStack,
+  Icon,
   useToast
 } from '@chakra-ui/react';
-import { Plane } from 'lucide-react';
+import { Plane, Sparkles } from 'lucide-react';
 import { useSSEStream } from '@hooks/useSSEStream';
+import { useLocation } from 'react-router-dom';
 
 export default function Travel() {
-  const [query, setQuery] = useState('');
+  const location = useLocation();
+  const [query, setQuery] = useState(location.state?.query || '');
   const { data, isStreaming, error, startStream, clearData } = useSSEStream();
   const toast = useToast();
+
+  useEffect(() => {
+    if (location.state?.query) {
+      handleSearch();
+    }
+  }, []);
 
   const handleSearch = () => {
     if (!query.trim()) {
@@ -32,52 +42,77 @@ export default function Travel() {
 
   return (
     <Box px={4} py={6}>
-      <VStack align="start" spacing={4}>
+      <VStack align="start" spacing={5}>
         <Box
-          p={4}
-          borderRadius="xl"
-          bgGradient="linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%)"
-          color="white"
           w="100%"
+          p={6}
+          borderRadius="2xl"
+          bgGradient="linear(135deg, cyan.600, blue.700)"
+          color="white"
+          position="relative"
+          overflow="hidden"
         >
-          <Plane size={32} />
-          <Heading size="lg" mt={2}>Plan Your Trip</Heading>
-          <Text fontSize="sm" mt={1} opacity={0.9}>
-            Personalized travel recommendations and itineraries
-          </Text>
+          <Box position="absolute" right="-20px" top="-20px" opacity={0.2}>
+            <Plane size={120} />
+          </Box>
+          <VStack align="start" spacing={2} position="relative">
+            <HStack>
+              <Icon as={Plane} boxSize={8} />
+              <Heading size="lg">Plan Your Trip</Heading>
+            </HStack>
+            <Text fontSize="sm" opacity={0.9}>
+              Personalized travel recommendations and itineraries
+            </Text>
+          </VStack>
         </Box>
 
-        <Textarea
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Where would you like to go? Tell me about your travel plans..."
-          bg="white"
-          borderRadius="lg"
-          minH="120px"
-        />
+        <VStack w="100%" spacing={4}>
+          <Textarea
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Where would you like to go? Tell me about your travel plans..."
+            bg="whiteAlpha.100"
+            backdropFilter="blur(10px)"
+            border="1px solid"
+            borderColor="whiteAlpha.300"
+            color="white"
+            borderRadius="xl"
+            minH="120px"
+            _placeholder={{ color: 'gray.500' }}
+            _focus={{
+              bg: 'whiteAlpha.150',
+              borderColor: 'cyan.400',
+              boxShadow: '0 0 0 1px var(--chakra-colors-cyan-400)',
+            }}
+          />
 
-        <Button
-          onClick={handleSearch}
-          isLoading={isStreaming}
-          loadingText="Planning..."
-          colorScheme="blue"
-          w="100%"
-          size="lg"
-          isDisabled={!query.trim()}
-        >
-          Plan My Trip
-        </Button>
+          <Button
+            onClick={handleSearch}
+            isLoading={isStreaming}
+            loadingText="Planning..."
+            colorScheme="cyan"
+            w="100%"
+            size="lg"
+            isDisabled={!query.trim()}
+            leftIcon={<Sparkles size={20} />}
+            bgGradient="linear(to-r, cyan.500, blue.600)"
+            _hover={{ bgGradient: 'linear(to-r, cyan.600, blue.700)' }}
+          >
+            Plan My Trip
+          </Button>
+        </VStack>
 
         {error && (
           <Box
             w="100%"
             p={4}
-            bg="red.50"
-            borderRadius="lg"
+            bg="red.900"
+            bgAlpha="0.3"
+            borderRadius="xl"
             border="1px solid"
-            borderColor="red.200"
+            borderColor="red.700"
           >
-            <Text fontSize="sm" color="red.700">
+            <Text fontSize="sm" color="red.200">
               Error: {error}
             </Text>
           </Box>
@@ -86,17 +121,20 @@ export default function Travel() {
         {data && (
           <Box
             w="100%"
-            p={4}
-            bg="whiteAlpha.800"
+            p={5}
+            bg="whiteAlpha.100"
             backdropFilter="blur(10px)"
-            borderRadius="lg"
+            borderRadius="xl"
             border="1px solid"
-            borderColor="whiteAlpha.400"
+            borderColor="whiteAlpha.200"
           >
-            <Text fontSize="sm" fontWeight="medium" color="gray.800" mb={2}>
-              Your Travel Plan (Live Streaming):
-            </Text>
-            <Text fontSize="sm" color="gray.700" whiteSpace="pre-wrap">
+            <HStack mb={3} spacing={2}>
+              <Sparkles size={18} color="var(--chakra-colors-cyan-400)" />
+              <Text fontSize="sm" fontWeight="semibold" color="cyan.300">
+                Your Travel Plan
+              </Text>
+            </HStack>
+            <Text fontSize="sm" color="gray.200" whiteSpace="pre-wrap" lineHeight="tall">
               {data}
             </Text>
           </Box>

@@ -8,18 +8,19 @@ const FeatureCard = ({ feature }) => {
 
   return (
     <Box
-      bg="whiteAlpha.700"
+      bg="whiteAlpha.100"
       backdropFilter="blur(10px)"
       borderRadius="2xl"
       p={5}
       border="1px solid"
-      borderColor="whiteAlpha.400"
+      borderColor="whiteAlpha.200"
       cursor="pointer"
       transition="all 0.3s"
       _hover={{
         transform: 'translateY(-4px)',
         boxShadow: 'xl',
-        bg: 'whiteAlpha.800',
+        bg: 'whiteAlpha.200',
+        borderColor: 'whiteAlpha.300',
       }}
       onClick={() => navigate(feature.path)}
       position="relative"
@@ -32,7 +33,7 @@ const FeatureCard = ({ feature }) => {
         w="100px"
         h="100px"
         bgGradient={feature.gradient}
-        opacity={0.2}
+        opacity={0.15}
         borderRadius="full"
         transform="translate(30%, -30%)"
       />
@@ -48,10 +49,10 @@ const FeatureCard = ({ feature }) => {
         </Box>
 
         <VStack align="start" spacing={1}>
-          <Text fontSize="lg" fontWeight="bold" color="gray.800">
+          <Text fontSize="lg" fontWeight="bold" color="white">
             {feature.title}
           </Text>
-          <Text fontSize="sm" color="gray.600">
+          <Text fontSize="sm" color="gray.400">
             {feature.subtitle}
           </Text>
         </VStack>

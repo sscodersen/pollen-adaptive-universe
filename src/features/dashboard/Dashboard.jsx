@@ -33,13 +33,13 @@ const Dashboard = () => {
           <Text 
             fontSize="2xl" 
             fontWeight="bold" 
-            color="gray.800" 
+            color="white" 
             mb={1}
             display={{ base: 'block', sm: 'none' }}
           >
             {greeting}!
           </Text>
-          <Text fontSize="md" color="gray.600" mb={6}>
+          <Text fontSize="md" color="gray.400" mb={6}>
             What can I help you with today?
           </Text>
 
@@ -52,8 +52,8 @@ const Dashboard = () => {
 
         <Box width="100%" mt={2}>
           <HStack spacing={2} mb={3}>
-            <Icon as={Clock} color="purple.500" boxSize={5} />
-            <Text fontSize="md" fontWeight="semibold" color="gray.700">
+            <Icon as={Clock} color="purple.400" boxSize={5} />
+            <Text fontSize="md" fontWeight="semibold" color="white">
               Recent Activity
             </Text>
           </HStack>
@@ -63,21 +63,21 @@ const Dashboard = () => {
                 key={activity.id}
                 w="100%"
                 p={4}
-                bg="whiteAlpha.800"
+                bg="whiteAlpha.100"
                 backdropFilter="blur(10px)"
                 borderRadius="xl"
                 border="1px solid"
-                borderColor="whiteAlpha.400"
+                borderColor="whiteAlpha.200"
                 cursor="pointer"
                 transition="all 0.2s"
-                _hover={{ bg: 'whiteAlpha.900', transform: 'translateY(-2px)', boxShadow: 'md' }}
+                _hover={{ bg: 'whiteAlpha.200', transform: 'translateY(-2px)', boxShadow: 'lg' }}
               >
                 <HStack justify="space-between">
                   <VStack align="start" spacing={1}>
-                    <Text fontSize="sm" fontWeight="medium" color="gray.800">
+                    <Text fontSize="sm" fontWeight="medium" color="white">
                       {activity.title}
                     </Text>
-                    <Text fontSize="xs" color="gray.600">
+                    <Text fontSize="xs" color="gray.400">
                       {activity.time}
                     </Text>
                   </VStack>
@@ -92,8 +92,8 @@ const Dashboard = () => {
 
         <Box width="100%">
           <HStack spacing={2} mb={3}>
-            <Icon as={TrendingUp} color="orange.500" boxSize={5} />
-            <Text fontSize="md" fontWeight="semibold" color="gray.700">
+            <Icon as={TrendingUp} color="orange.400" boxSize={5} />
+            <Text fontSize="md" fontWeight="semibold" color="white">
               Trending Now
             </Text>
           </HStack>
@@ -103,22 +103,22 @@ const Dashboard = () => {
                 key={topic.id}
                 w="100%"
                 p={4}
-                bg="whiteAlpha.800"
+                bg="whiteAlpha.100"
                 backdropFilter="blur(10px)"
                 borderRadius="xl"
                 border="1px solid"
-                borderColor="whiteAlpha.400"
+                borderColor="whiteAlpha.200"
                 cursor="pointer"
                 transition="all 0.2s"
-                _hover={{ bg: 'whiteAlpha.900', transform: 'translateY(-2px)', boxShadow: 'md' }}
+                _hover={{ bg: 'whiteAlpha.200', transform: 'translateY(-2px)', boxShadow: 'lg' }}
               >
                 <HStack justify="space-between" align="start">
                   <VStack align="start" spacing={1} flex={1}>
                     <HStack>
-                      <Text fontSize="sm" fontWeight="medium" color="gray.800">
+                      <Text fontSize="sm" fontWeight="medium" color="white">
                         {topic.title}
                       </Text>
-                      {topic.hot && <Icon as={Sparkles} color="orange.500" boxSize={4} />}
+                      {topic.hot && <Icon as={Sparkles} color="orange.400" boxSize={4} />}
                     </HStack>
                     <Badge colorScheme="blue" fontSize="xs">
                       {topic.category}

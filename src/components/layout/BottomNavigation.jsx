@@ -21,12 +21,12 @@ const BottomNavigation = () => {
       transform="translateX(-50%)"
       width="100%"
       maxW="480px"
-      bg="whiteAlpha.800"
+      bg="blackAlpha.700"
       backdropFilter="blur(20px)"
       borderTopRadius="2xl"
-      boxShadow="0 -4px 20px rgba(0,0,0,0.1)"
+      boxShadow="0 -4px 20px rgba(0,0,0,0.3)"
       borderTop="1px solid"
-      borderColor="whiteAlpha.400"
+      borderColor="whiteAlpha.200"
       px={4}
       py={2}
       zIndex={100}
@@ -42,9 +42,9 @@ const BottomNavigation = () => {
               spacing={0}
               onClick={() => navigate(item.path)}
               cursor="pointer"
-              color={isActive ? 'brand.500' : 'gray.600'}
+              color={isActive ? 'purple.400' : 'gray.400'}
               transition="all 0.2s"
-              _hover={{ color: 'brand.500' }}
+              _hover={{ color: 'purple.300' }}
             >
               <IconButton
                 icon={<Icon size={22} />}
@@ -52,6 +52,7 @@ const BottomNavigation = () => {
                 size="sm"
                 aria-label={item.label}
                 color="inherit"
+                _hover={{ bg: 'whiteAlpha.200' }}
               />
               <Text fontSize="xs" fontWeight={isActive ? 'bold' : 'normal'}>
                 {item.label}

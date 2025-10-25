@@ -2,13 +2,13 @@ import { Box, Container } from '@chakra-ui/react';
 import { Outlet } from 'react-router-dom';
 import Header from './Header';
 import BottomNavigation from './BottomNavigation';
-import FloatingSearchBar from '../common/FloatingSearchBar';
+import UnifiedSearchBar from '../common/UnifiedSearchBar';
 
 const MainLayout = () => {
   return (
     <Box
       minH="100vh"
-      bgGradient="linear-gradient(135deg, #a8edea 0%, #fed6e3 50%, #ffecd2 100%)"
+      bgGradient="linear(to-br, gray.900, purple.900, gray.900)"
       position="relative"
       overflow="hidden"
     >
@@ -38,7 +38,7 @@ const MainLayout = () => {
         </Box>
 
         <BottomNavigation />
-        <FloatingSearchBar />
+        <UnifiedSearchBar variant="floating" />
       </Container>
     </Box>
   );
