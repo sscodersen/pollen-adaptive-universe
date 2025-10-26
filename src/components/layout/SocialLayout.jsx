@@ -2,6 +2,7 @@ import { Box, Container, Grid, GridItem } from '@chakra-ui/react';
 import { Outlet } from 'react-router-dom';
 import LeftSidebar from './LeftSidebar';
 import RightSidebar from './RightSidebar';
+import UnifiedSearchBar from '../common/UnifiedSearchBar';
 
 const SocialLayout = () => {
   return (
@@ -23,6 +24,7 @@ const SocialLayout = () => {
           gap={4}
           h="100vh"
           p={4}
+          pt={2}
         >
           <GridItem
             display={{ base: 'none', lg: 'block' }}
@@ -89,6 +91,8 @@ const SocialLayout = () => {
             <RightSidebar />
           </GridItem>
         </Grid>
+
+        <UnifiedSearchBar variant="floating" />
       </Container>
     </Box>
   );

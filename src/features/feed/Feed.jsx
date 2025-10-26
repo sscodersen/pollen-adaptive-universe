@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Box, VStack, HStack, Text, Avatar, Icon, Image, Button, Input, InputGroup, InputRightElement, Skeleton } from '@chakra-ui/react';
-import { Heart, MessageCircle, Share2, Bookmark, MoreHorizontal, ThumbsUp, Send, Smile } from 'lucide-react';
+import { Box, VStack, HStack, Text, Avatar, Icon, Image, Button, Badge, Skeleton } from '@chakra-ui/react';
+import { Eye, TrendingUp, Zap, MoreHorizontal, Star } from 'lucide-react';
 
 const Feed = () => {
   const [posts, setPosts] = useState([]);
@@ -44,10 +44,10 @@ const Feed = () => {
       content: 'Design Shot is an invitation to ponder on design as a living entity, capable of embodying and influencing the flow of thoughts and sensations in an ever-changing reality...',
       tags: ['#blender', '#render', '#design'],
       image: null,
-      likes: 1600,
-      comments: 2300,
-      shares: 351,
-      saved: true,
+      views: 24567,
+      engagement: 87,
+      qualityScore: 92,
+      trending: true,
       type: 'post'
     },
     {
@@ -60,13 +60,9 @@ const Feed = () => {
       },
       time: '1h',
       content: 'What a good design! I like how you dealt with the spacing. Where can I get this file?',
-      comments: [
-        {
-          user: '@Benjamin',
-          content: 'here is the link supaui.com/download 👍',
-          time: '45m'
-        }
-      ],
+      views: 8234,
+      engagement: 65,
+      qualityScore: 78,
       type: 'comment_thread'
     },
     {
@@ -80,136 +76,30 @@ const Feed = () => {
       time: '8h',
       content: 'generated a new images on Midjourney',
       image: 'https://images.unsplash.com/photo-1518780664697-55e3ad937233?w=600&h=400&fit=crop',
-      likes: 856,
-      comments: 124,
+      views: 15789,
+      engagement: 73,
+      qualityScore: 85,
+      trending: true,
       type: 'image_post'
     }
   ];
 
-  const stories = [
-    { id: 1, name: 'Add story', type: 'add', avatar: null },
-    { id: 2, name: 'Stephen', avatar: null, viewed: false },
-    { id: 3, name: 'Edgar', avatar: null, viewed: false },
-    { id: 4, name: 'Joyce', avatar: null, viewed: false },
-    { id: 5, name: 'Minnie', avatar: null, viewed: false },
-    { id: 6, name: 'Leon', avatar: null, viewed: false },
-    { id: 7, name: 'Jordan', avatar: null, viewed: false },
-  ];
-
-  const handleLike = (postId) => {
-    setPosts(posts.map(post => 
-      post.id === postId 
-        ? { ...post, likes: post.likes + (post.liked ? -1 : 1), liked: !post.liked }
-        : post
-    ));
+  const getQualityColor = (score) => {
+    if (score >= 90) return 'green';
+    if (score >= 70) return 'blue';
+    if (score >= 50) return 'purple';
+    return 'gray';
   };
 
-  const handleSave = (postId) => {
-    setPosts(posts.map(post => 
-      post.id === postId 
-        ? { ...post, saved: !post.saved }
-        : post
-    ));
+  const getQualityLabel = (score) => {
+    if (score >= 90) return 'Excellent';
+    if (score >= 70) return 'High Quality';
+    if (score >= 50) return 'Good';
+    return 'Standard';
   };
 
   return (
     <VStack spacing={4} align="stretch" pb={4}>
-      <Box
-        p={4}
-        bg="black"
-        borderRadius="xl"
-        border="1px solid"
-        borderColor="whiteAlpha.200"
-      >
-        <HStack spacing={3}>
-          <Avatar
-            size="sm"
-            name="Jane"
-            bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
-          />
-          <Input
-            placeholder="What is happening?"
-            value={newPost}
-            onChange={(e) => setNewPost(e.target.value)}
-            bg="transparent"
-            border="none"
-            color="white"
-            _placeholder={{ color: 'gray.500' }}
-            _focus={{ outline: 'none' }}
-          />
-        </HStack>
-        <HStack justify="space-between" mt={3} pt={3} borderTop="1px solid" borderColor="whiteAlpha.200">
-          <HStack spacing={3}>
-            <Icon as={Smile} boxSize={5} color="gray.400" cursor="pointer" _hover={{ color: 'purple.400' }} />
-            <Icon as={Image} boxSize={5} color="gray.400" cursor="pointer" _hover={{ color: 'purple.400' }} />
-          </HStack>
-          <Button
-            size="sm"
-            colorScheme="purple"
-            isDisabled={!newPost.trim()}
-            rightIcon={<Send size={14} />}
-          >
-            Post
-          </Button>
-        </HStack>
-      </Box>
-
-      <Box
-        overflowX="auto"
-        css={{
-          '&::-webkit-scrollbar': {
-            display: 'none',
-          },
-          scrollbarWidth: 'none',
-        }}
-      >
-        <HStack spacing={3} pb={2}>
-          {stories.map((story) => (
-            <VStack
-              key={story.id}
-              spacing={1}
-              cursor="pointer"
-              minW="70px"
-            >
-              <Box
-                position="relative"
-                p={story.type === 'add' ? 0 : '2px'}
-                borderRadius="full"
-                bgGradient={story.type === 'add' ? 'none' : 'linear(to-br, purple.400, pink.400)'}
-              >
-                <Avatar
-                  size="md"
-                  name={story.name}
-                  bg={story.type === 'add' ? 'whiteAlpha.200' : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'}
-                  border={story.type === 'add' ? '2px dashed' : 'none'}
-                  borderColor="whiteAlpha.400"
-                />
-                {story.type === 'add' && (
-                  <Box
-                    position="absolute"
-                    bottom="0"
-                    right="0"
-                    bg="purple.500"
-                    borderRadius="full"
-                    w="20px"
-                    h="20px"
-                    display="flex"
-                    alignItems="center"
-                    justifyContent="center"
-                    border="2px solid black"
-                  >
-                    <Text fontSize="lg" color="white" lineHeight="1">+</Text>
-                  </Box>
-                )}
-              </Box>
-              <Text fontSize="xs" color="gray.400" textAlign="center" noOfLines={1}>
-                {story.name}
-              </Text>
-            </VStack>
-          ))}
-        </HStack>
-      </Box>
-
       <HStack spacing={2} p={2} bg="black" borderRadius="lg" border="1px solid" borderColor="whiteAlpha.200">
         <Button size="sm" variant="ghost" colorScheme="purple" isActive>
           Personal
@@ -274,6 +164,28 @@ const Feed = () => {
               <Icon as={MoreHorizontal} boxSize={5} color="gray.400" cursor="pointer" />
             </HStack>
 
+            <HStack justify="space-between" mb={3}>
+              <HStack spacing={2}>
+                <Badge colorScheme={getQualityColor(post.qualityScore || 75)} fontSize="xs" px={2} py={1}>
+                  <HStack spacing={1}>
+                    <Icon as={Star} boxSize={3} />
+                    <Text>{post.qualityScore || 75}</Text>
+                  </HStack>
+                </Badge>
+                <Badge colorScheme="purple" fontSize="xs" px={2} py={1} variant="subtle">
+                  {getQualityLabel(post.qualityScore || 75)}
+                </Badge>
+                {post.trending && (
+                  <Badge colorScheme="orange" fontSize="xs" px={2} py={1}>
+                    <HStack spacing={1}>
+                      <Icon as={TrendingUp} boxSize={3} />
+                      <Text>Trending</Text>
+                    </HStack>
+                  </Badge>
+                )}
+              </HStack>
+            </HStack>
+
             {post.content && (
               <Text fontSize="sm" color="white" mb={3}>
                 {post.content}
@@ -283,9 +195,9 @@ const Feed = () => {
             {post.tags && (
               <HStack spacing={2} mb={3} flexWrap="wrap">
                 {post.tags.map((tag, idx) => (
-                  <Text key={idx} fontSize="xs" color="blue.400" cursor="pointer" _hover={{ textDecoration: 'underline' }}>
+                  <Badge key={idx} colorScheme="blue" variant="subtle" fontSize="xs" cursor="pointer" _hover={{ bg: 'blue.900' }}>
                     {tag}
-                  </Text>
+                  </Badge>
                 ))}
               </HStack>
             )}
@@ -324,49 +236,19 @@ const Feed = () => {
 
             <HStack justify="space-between" pt={3} borderTop="1px solid" borderColor="whiteAlpha.200">
               <HStack spacing={4}>
-                <HStack
-                  spacing={1}
-                  cursor="pointer"
-                  onClick={() => handleLike(post.id)}
-                  _hover={{ color: 'red.400' }}
-                >
-                  <Icon
-                    as={Heart}
-                    boxSize={5}
-                    color={post.liked ? 'red.400' : 'gray.400'}
-                    fill={post.liked ? 'currentColor' : 'none'}
-                  />
-                  {post.likes && (
-                    <Text fontSize="xs" color="gray.400">
-                      {post.likes.toLocaleString()}
-                    </Text>
-                  )}
+                <HStack spacing={1}>
+                  <Icon as={Eye} boxSize={5} color="gray.400" />
+                  <Text fontSize="xs" color="gray.400">
+                    {(post.views || Math.floor(Math.random() * 50000) + 5000).toLocaleString()} views
+                  </Text>
                 </HStack>
-                <HStack spacing={1} cursor="pointer" _hover={{ color: 'blue.400' }}>
-                  <Icon as={MessageCircle} boxSize={5} color="gray.400" />
-                  {post.comments && typeof post.comments === 'number' && (
-                    <Text fontSize="xs" color="gray.400">
-                      {post.comments.toLocaleString()}
-                    </Text>
-                  )}
-                </HStack>
-                <HStack spacing={1} cursor="pointer" _hover={{ color: 'green.400' }}>
-                  <Icon as={Share2} boxSize={5} color="gray.400" />
-                  {post.shares && (
-                    <Text fontSize="xs" color="gray.400">
-                      {post.shares}
-                    </Text>
-                  )}
+                <HStack spacing={1}>
+                  <Icon as={Zap} boxSize={5} color="purple.400" />
+                  <Text fontSize="xs" color="gray.400">
+                    {post.engagement || Math.floor(Math.random() * 100)}% engagement
+                  </Text>
                 </HStack>
               </HStack>
-              <Icon
-                as={Bookmark}
-                boxSize={5}
-                color={post.saved ? 'purple.400' : 'gray.400'}
-                fill={post.saved ? 'currentColor' : 'none'}
-                cursor="pointer"
-                onClick={() => handleSave(post.id)}
-              />
             </HStack>
           </Box>
         ))

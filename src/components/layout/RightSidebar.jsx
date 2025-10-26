@@ -93,6 +93,50 @@ const RightSidebar = () => {
         borderRadius="xl"
         border="1px solid"
         borderColor="whiteAlpha.200"
+        position="relative"
+        overflow="hidden"
+      >
+        <Box
+          position="absolute"
+          top={0}
+          right={0}
+          bottom={0}
+          left={0}
+          bgGradient="linear(135deg, purple.500 0%, pink.500 100%)"
+          opacity={0.1}
+        />
+        <VStack spacing={3} position="relative">
+          <Box
+            p={3}
+            borderRadius="lg"
+            bgGradient="linear(to-br, purple.500, pink.500)"
+          >
+            <Icon as={Sparkles} boxSize={6} color="white" />
+          </Box>
+          <Text fontSize="sm" fontWeight="bold" color="white" textAlign="center">
+            Premium Ad Space
+          </Text>
+          <Text fontSize="xs" color="gray.400" textAlign="center">
+            Your brand here - Reach 2.4M users
+          </Text>
+          <Button
+            size="sm"
+            colorScheme="purple"
+            rightIcon={<ExternalLink size={14} />}
+            _hover={{ transform: 'translateY(-2px)' }}
+            transition="all 0.2s"
+          >
+            Advertise
+          </Button>
+        </VStack>
+      </Box>
+
+      <Box
+        p={4}
+        bg="black"
+        borderRadius="xl"
+        border="1px solid"
+        borderColor="whiteAlpha.200"
       >
         <HStack justify="space-between" mb={4}>
           <HStack spacing={2}>
@@ -280,31 +324,31 @@ const RightSidebar = () => {
           right={0}
           bottom={0}
           left={0}
-          bgGradient="linear(135deg, purple.500 0%, pink.500 100%)"
+          bgGradient="linear(135deg, green.500 0%, teal.500 100%)"
           opacity={0.1}
         />
         <VStack spacing={3} position="relative">
           <Box
             p={3}
             borderRadius="lg"
-            bgGradient="linear(to-br, purple.500, pink.500)"
+            bgGradient="linear(to-br, green.500, teal.500)"
           >
-            <Icon as={Sparkles} boxSize={6} color="white" />
+            <Icon as={TrendingUp} boxSize={6} color="white" />
           </Box>
           <Text fontSize="sm" fontWeight="bold" color="white" textAlign="center">
-            Advertise Here
+            Sponsored Content
           </Text>
           <Text fontSize="xs" color="gray.400" textAlign="center">
-            Reach millions of users with targeted advertising
+            Featured partners & premium content
           </Text>
           <Button
             size="sm"
-            colorScheme="purple"
+            colorScheme="green"
             rightIcon={<ExternalLink size={14} />}
             _hover={{ transform: 'translateY(-2px)' }}
             transition="all 0.2s"
           >
-            Learn More
+            Explore
           </Button>
         </VStack>
       </Box>

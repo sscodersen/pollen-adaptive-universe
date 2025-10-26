@@ -174,6 +174,10 @@ def generate_ai_posts(limit: int = 20, interests: Optional[List[str]] = None):
         else:
             time_str = f"{hours_ago // 24}d"
         
+        views = random.randint(1000, 100000)
+        engagement = random.randint(40, 95)
+        quality_score = random.randint(60, 98)
+        
         post = {
             "id": i + 1,
             "user": {
@@ -185,11 +189,10 @@ def generate_ai_posts(limit: int = 20, interests: Optional[List[str]] = None):
             "time": time_str,
             "content": template["content"].format(topic=topic),
             "type": "post",
-            "likes": random.randint(50, 5000),
-            "comments": random.randint(10, 500),
-            "shares": random.randint(5, 200),
-            "saved": False,
-            "liked": False
+            "views": views,
+            "engagement": engagement,
+            "qualityScore": quality_score,
+            "trending": quality_score > 85 and engagement > 75
         }
         
         if template["type"] == "image" and random.random() > 0.5:

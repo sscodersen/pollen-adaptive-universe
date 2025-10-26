@@ -21,15 +21,10 @@ const LeftSidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const user = {
-    name: 'Jane',
-    username: '@janedoe',
-    avatar: null,
-    stats: {
-      posts: 368,
-      followers: '184.3K',
-      following: '1.04M'
-    }
+  const anonymousStats = {
+    activeUsers: '2.4M',
+    postsToday: '847K',
+    qualityScore: 94
   };
 
   const menuItems = [
@@ -60,35 +55,36 @@ const LeftSidebar = () => {
         borderRadius="xl"
         border="1px solid"
         borderColor="whiteAlpha.200"
+        bgGradient="linear(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%)"
       >
-        <HStack spacing={3} mb={4}>
-          <Avatar
-            size="md"
-            name={user.name}
-            bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
-          />
-          <VStack align="start" spacing={0} flex={1}>
-            <Text fontSize="sm" fontWeight="bold" color="white">
-              {user.name}
-            </Text>
-            <Text fontSize="xs" color="gray.400">
-              {user.username}
-            </Text>
-          </VStack>
-        </HStack>
+        <VStack spacing={3} align="center">
+          <Box
+            p={3}
+            borderRadius="lg"
+            bgGradient="linear(to-br, purple.500, pink.500)"
+          >
+            <Icon as={Sparkles} boxSize={6} color="white" />
+          </Box>
+          <Text fontSize="md" fontWeight="bold" color="white" textAlign="center">
+            100% Anonymous Platform
+          </Text>
+          <Text fontSize="xs" color="gray.400" textAlign="center">
+            Privacy-first, AI-powered community
+          </Text>
+        </VStack>
 
-        <HStack spacing={4} justify="space-around" pt={3} borderTop="1px solid" borderColor="whiteAlpha.200">
+        <HStack spacing={4} justify="space-around" pt={3} mt={3} borderTop="1px solid" borderColor="whiteAlpha.200">
           <VStack spacing={0}>
-            <Text fontSize="sm" fontWeight="bold" color="white">{user.stats.posts}</Text>
-            <Text fontSize="xs" color="gray.400">Posts</Text>
+            <Text fontSize="sm" fontWeight="bold" color="purple.400">{anonymousStats.activeUsers}</Text>
+            <Text fontSize="xs" color="gray.400">Active</Text>
           </VStack>
           <VStack spacing={0}>
-            <Text fontSize="sm" fontWeight="bold" color="white">{user.stats.followers}</Text>
-            <Text fontSize="xs" color="gray.400">Followers</Text>
+            <Text fontSize="sm" fontWeight="bold" color="green.400">{anonymousStats.postsToday}</Text>
+            <Text fontSize="xs" color="gray.400">Today</Text>
           </VStack>
           <VStack spacing={0}>
-            <Text fontSize="sm" fontWeight="bold" color="white">{user.stats.following}</Text>
-            <Text fontSize="xs" color="gray.400">Following</Text>
+            <Text fontSize="sm" fontWeight="bold" color="blue.400">{anonymousStats.qualityScore}</Text>
+            <Text fontSize="xs" color="gray.400">Quality</Text>
           </VStack>
         </HStack>
       </Box>
