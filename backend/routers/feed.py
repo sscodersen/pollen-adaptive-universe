@@ -99,13 +99,13 @@ def generate_suggestions(limit: int = 10):
     ]
     
     for i in range(limit):
-        name = random.choice(NAMES)
+        quality_score = random.randint(60, 98)
         suggestions.append({
             "id": i + 1,
-            "name": name,
+            "name": "Anonymous User",
             "bio": random.choice(bios),
-            "username": f"@{name.split()[0].lower()}{name.split()[1].lower()}",
-            "mutual": random.randint(1, 20)
+            "username": None,
+            "mutual": quality_score
         })
     
     return suggestions
@@ -181,10 +181,10 @@ def generate_ai_posts(limit: int = 20, interests: Optional[List[str]] = None):
         post = {
             "id": i + 1,
             "user": {
-                "name": random.choice(NAMES),
-                "username": f"@user{random.randint(1000, 9999)}",
+                "name": "Anonymous",
+                "username": None,
                 "avatar": None,
-                "verified": random.random() > 0.7
+                "verified": False
             },
             "time": time_str,
             "content": template["content"].format(topic=topic),

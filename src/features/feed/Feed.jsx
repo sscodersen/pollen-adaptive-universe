@@ -35,10 +35,10 @@ const Feed = () => {
     {
       id: 1,
       user: {
-        name: 'Brandon Morton',
-        username: '@brandonm',
+        name: 'Anonymous',
+        username: null,
         avatar: null,
-        verified: true
+        verified: false
       },
       time: '12 Aug at 4:21 PM',
       content: 'Design Shot is an invitation to ponder on design as a living entity, capable of embodying and influencing the flow of thoughts and sensations in an ever-changing reality...',
@@ -53,8 +53,8 @@ const Feed = () => {
     {
       id: 2,
       user: {
-        name: 'Benjamin',
-        username: '@benjamin',
+        name: 'Anonymous',
+        username: null,
         avatar: null,
         verified: false
       },
@@ -68,8 +68,8 @@ const Feed = () => {
     {
       id: 3,
       user: {
-        name: 'Jacob',
-        username: '@jacobdesign',
+        name: 'Anonymous',
+        username: null,
         avatar: null,
         verified: false
       },
@@ -142,20 +142,21 @@ const Feed = () => {
           >
             <HStack justify="space-between" mb={3}>
               <HStack spacing={3}>
-                <Avatar
-                  size="sm"
-                  name={post.user.name}
-                  bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
-                />
+                <Box
+                  w="32px"
+                  h="32px"
+                  borderRadius="full"
+                  bgGradient="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="center"
+                >
+                  <Text fontSize="xs" fontWeight="bold" color="white">A</Text>
+                </Box>
                 <VStack align="start" spacing={0}>
-                  <HStack spacing={1}>
-                    <Text fontSize="sm" fontWeight="bold" color="white">
-                      {post.user.name}
-                    </Text>
-                    {post.user.verified && (
-                      <Text fontSize="xs" color="blue.400">✓</Text>
-                    )}
-                  </HStack>
+                  <Text fontSize="sm" fontWeight="bold" color="white">
+                    Anonymous
+                  </Text>
                   <Text fontSize="xs" color="gray.400">
                     {post.time}
                   </Text>

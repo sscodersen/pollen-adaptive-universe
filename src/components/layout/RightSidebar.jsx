@@ -80,9 +80,9 @@ const RightSidebar = () => {
   ];
 
   const mockSuggestions = [
-    { id: 1, name: 'Alex Bishop', bio: 'Sweet, simple, repeat! 🔄✨', username: '@alexbishop', mutual: 4 },
-    { id: 2, name: 'Bella Bean', bio: 'Steering every flavor into...', username: '@bellabea', mutual: 12 },
-    { id: 3, name: 'Tyra Dhillon', bio: 'Style the way to impress w...', username: '@tyradhillon', mutual: 8 },
+    { id: 1, name: 'Anonymous User', bio: 'Sweet, simple, repeat! 🔄✨', username: null, mutual: 84 },
+    { id: 2, name: 'Anonymous User', bio: 'Steering every flavor into...', username: null, mutual: 92 },
+    { id: 3, name: 'Anonymous User', bio: 'Style the way to impress w...', username: null, mutual: 76 },
   ];
 
   return (
@@ -283,24 +283,30 @@ const RightSidebar = () => {
                 <Skeleton height="50px" width="100%" />
               ) : (
                 <>
-                  <Avatar
-                    size="sm"
-                    name={person.name}
-                    bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
-                  />
+                  <Box
+                    w="32px"
+                    h="32px"
+                    borderRadius="full"
+                    bgGradient="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                  >
+                    <Text fontSize="xs" fontWeight="bold" color="white">A</Text>
+                  </Box>
                   <VStack align="start" spacing={0} flex={1}>
                     <Text fontSize="xs" fontWeight="bold" color="white">
-                      {person.name}
+                      Anonymous User
                     </Text>
                     <Text fontSize="xs" color="gray.400" noOfLines={1}>
                       {person.bio}
                     </Text>
-                    <Text fontSize="xs" color="gray.500">
-                      {person.mutual} mutual friends
-                    </Text>
+                    <Badge colorScheme="purple" fontSize="xs" variant="subtle">
+                      Quality Score: {person.mutual * 4}
+                    </Badge>
                   </VStack>
                   <Button size="xs" colorScheme="purple" variant="outline">
-                    Follow
+                    Connect
                   </Button>
                 </>
               )}
