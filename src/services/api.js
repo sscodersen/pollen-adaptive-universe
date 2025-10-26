@@ -22,6 +22,12 @@ export const API = {
     chat: '/api/ai/chat',
     models: '/api/ai/models',
   },
+  finance: {
+    advice: '/api/finance/advice',
+  },
+  code: {
+    help: '/api/code/help',
+  },
 };
 
 export const fetchAPI = async (url, options = {}) => {

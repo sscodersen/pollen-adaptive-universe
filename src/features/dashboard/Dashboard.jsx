@@ -131,17 +131,24 @@ const Dashboard = () => {
         <Box 
           width="100%" 
           p={6} 
-          borderRadius="2xl" 
+          borderRadius="xl" 
           mt={2}
-          bgGradient="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
-          boxShadow="lg"
+          bg="black"
+          border="1px solid"
+          borderColor="whiteAlpha.200"
         >
           <VStack spacing={3} align="center" color="white">
-            <Icon as={Sparkles} boxSize={12} />
+            <Box
+              p={3}
+              borderRadius="lg"
+              bgGradient="linear(to-r, purple.500, pink.500)"
+            >
+              <Icon as={Sparkles} boxSize={8} />
+            </Box>
             <Text fontSize="xl" fontWeight="bold" textAlign="center">
               Powered by Pollen AI
             </Text>
-            <Text fontSize="sm" textAlign="center" opacity={0.95}>
+            <Text fontSize="sm" textAlign="center" color="gray.400">
               Your privacy-first AI assistant that learns and adapts to your needs
             </Text>
           </VStack>

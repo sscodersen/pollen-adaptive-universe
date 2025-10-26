@@ -11,6 +11,8 @@ import Education from '@features/education/Education';
 import Explore from '@features/explore/Explore';
 import Profile from '@features/profile/Profile';
 import Activity from '@features/activity/Activity';
+import Finance from '@features/finance/Finance';
+import CodeHelper from '@features/code/CodeHelper';
 import ErrorBoundary from '@components/common/ErrorBoundary';
 
 function App() {
@@ -31,6 +33,8 @@ function App() {
             <Route path="explore" element={<Explore />} />
             <Route path="profile" element={<Profile />} />
             <Route path="activity" element={<Activity />} />
+            <Route path="finance" element={<Finance />} />
+            <Route path="code" element={<CodeHelper />} />
           </Route>
         </Routes>
       </Router>

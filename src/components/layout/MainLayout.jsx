@@ -7,7 +7,7 @@ const MainLayout = () => {
   return (
     <Box
       minH="100vh"
-      bgGradient="linear(to-br, gray.900, purple.900, gray.900)"
+      bg="#1a1a1a"
       position="relative"
       overflow="hidden"
     >

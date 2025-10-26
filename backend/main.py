@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from backend.routers import shopping, travel, news, content, scraper, ai, smarthome, health, education
+from backend.routers import shopping, travel, news, content, scraper, ai, smarthome, health, education, finance, code
 from backend.database import init_db
 from dotenv import load_dotenv
 import os
@@ -26,6 +26,8 @@ app.include_router(ai.router, prefix="/api/ai", tags=["ai"])
 app.include_router(smarthome.router, prefix="/api/smarthome", tags=["smarthome"])
 app.include_router(health.router, prefix="/api/health", tags=["health"])
 app.include_router(education.router, prefix="/api/education", tags=["education"])
+app.include_router(finance.router, prefix="/api/finance", tags=["finance"])
+app.include_router(code.router, prefix="/api/code", tags=["code"])
 
 @app.on_event("startup")
 async def startup_event():

@@ -34,8 +34,9 @@ const Header = () => {
         position="sticky"
         top={0}
         zIndex={10}
-        backdropFilter="blur(10px)"
-        bg="blackAlpha.300"
+        bg="#1a1a1a"
+        borderBottom="1px solid"
+        borderColor="whiteAlpha.100"
       >
         <Flex justify="space-between" align="center">
           <IconButton
