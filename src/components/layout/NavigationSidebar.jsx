@@ -24,7 +24,9 @@ import {
   Home as HomeIcon,
   Heart,
   GraduationCap,
-  Activity
+  Activity,
+  DollarSign,
+  Code
 } from 'lucide-react';
 
 const NavigationSidebar = ({ isOpen, onClose }) => {
@@ -43,6 +45,8 @@ const NavigationSidebar = ({ isOpen, onClose }) => {
     { icon: HomeIcon, label: 'Smart Home', path: '/smarthome', category: 'Features' },
     { icon: Heart, label: 'Wellness', path: '/health', category: 'Features' },
     { icon: GraduationCap, label: 'Learn', path: '/education', category: 'Features' },
+    { icon: DollarSign, label: 'Finance', path: '/finance', category: 'Features', badge: 'New' },
+    { icon: Code, label: 'Code Helper', path: '/code', category: 'Features', badge: 'New' },
   ];
 
   const handleNavigation = (path) => {
