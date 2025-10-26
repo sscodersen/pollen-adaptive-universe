@@ -226,9 +226,12 @@ const UnifiedSearchBar = ({
 
         <Box
           position="fixed"
-          bottom={{ base: '80px', md: '24px' }}
-          right={{ base: '16px', md: '24px' }}
+          bottom="24px"
+          left="50%"
+          transform="translateX(-50%)"
           zIndex="1000"
+          cursor="pointer"
+          onClick={() => setIsExpanded(true)}
         >
           <Box
             position="relative"
@@ -237,8 +240,6 @@ const UnifiedSearchBar = ({
             bgGradient="linear(to-r, #667eea, #764ba2, #f093fb, #4facfe)"
             backgroundSize="200% 200%"
             animation={`${gradientAnimation} 4s ease infinite`}
-            cursor="pointer"
-            onClick={() => setIsExpanded(true)}
             transition="all 0.3s"
             _hover={{ transform: 'scale(1.05)' }}
           >
@@ -251,7 +252,7 @@ const UnifiedSearchBar = ({
               spacing={2}
             >
               <Sparkles size={20} />
-              <Text fontSize="sm" fontWeight="medium" display={{ base: 'none', md: 'block' }}>
+              <Text fontSize="sm" fontWeight="medium">
                 Ask AI
               </Text>
               <HStack spacing={1} opacity={0.7} display={{ base: 'none', md: 'flex' }}>

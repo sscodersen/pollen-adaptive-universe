@@ -1,7 +1,6 @@
 import { Box, Container } from '@chakra-ui/react';
 import { Outlet } from 'react-router-dom';
 import Header from './Header';
-import BottomNavigation from './BottomNavigation';
 import UnifiedSearchBar from '../common/UnifiedSearchBar';
 
 const MainLayout = () => {
@@ -26,7 +25,7 @@ const MainLayout = () => {
           flex="1"
           overflowY="auto"
           overflowX="hidden"
-          pb="80px"
+          pb="24px"
           css={{
             '&::-webkit-scrollbar': {
               display: 'none',
@@ -37,7 +36,6 @@ const MainLayout = () => {
           <Outlet />
         </Box>
 
-        <BottomNavigation />
         <UnifiedSearchBar variant="floating" />
       </Container>
     </Box>

@@ -1,10 +1,22 @@
 import { useState, useEffect } from 'react';
-import { Box, Flex, Text, Avatar, IconButton } from '@chakra-ui/react';
+import { 
+  Box, 
+  Flex, 
+  Text, 
+  Avatar, 
+  IconButton,
+  useDisclosure,
+  Badge
+} from '@chakra-ui/react';
 import { Bell, Menu } from 'lucide-react';
+import NavigationSidebar from './NavigationSidebar';
+import NotificationsPanel from './NotificationsPanel';
 
 const Header = () => {
   const userName = 'Jane';
   const [greeting, setGreeting] = useState('');
+  const { isOpen: isMenuOpen, onOpen: onMenuOpen, onClose: onMenuClose } = useDisclosure();
+  const { isOpen: isNotifOpen, onOpen: onNotifOpen, onClose: onNotifClose } = useDisclosure();
 
   useEffect(() => {
     const hour = new Date().getHours();
@@ -14,44 +26,64 @@ const Header = () => {
   }, []);
 
   return (
-    <Box
-      px={4}
-      pt={6}
-      pb={4}
-      position="sticky"
-      top={0}
-      zIndex={10}
-      backdropFilter="blur(10px)"
-      bg="blackAlpha.300"
-    >
-      <Flex justify="space-between" align="center">
-        <IconButton
-          icon={<Menu size={24} />}
-          variant="ghost"
-          color="gray.300"
-          aria-label="Menu"
-          size="sm"
-          _hover={{ bg: 'whiteAlpha.200', color: 'white' }}
-        />
-        
-        <Flex align="center" gap={3}>
-          <Box textAlign="right" display={{ base: 'none', sm: 'block' }}>
-            <Text fontSize="sm" fontWeight="600" color="white">
-              {greeting}, {userName}!
-            </Text>
-          </Box>
+    <>
+      <Box
+        px={4}
+        pt={6}
+        pb={4}
+        position="sticky"
+        top={0}
+        zIndex={10}
+        backdropFilter="blur(10px)"
+        bg="blackAlpha.300"
+      >
+        <Flex justify="space-between" align="center">
           <IconButton
-            icon={<Bell size={20} />}
+            icon={<Menu size={24} />}
             variant="ghost"
             color="gray.300"
-            aria-label="Notifications"
+            aria-label="Menu"
             size="sm"
+            onClick={onMenuOpen}
             _hover={{ bg: 'whiteAlpha.200', color: 'white' }}
           />
-          <Avatar size="sm" name={userName} bg="purple.500" />
+          
+          <Flex align="center" gap={3}>
+            <Box textAlign="right" display={{ base: 'none', sm: 'block' }}>
+              <Text fontSize="sm" fontWeight="600" color="white">
+                {greeting}, {userName}!
+              </Text>
+            </Box>
+            <Box position="relative">
+              <IconButton
+                icon={<Bell size={20} />}
+                variant="ghost"
+                color="gray.300"
+                aria-label="Notifications"
+                size="sm"
+                onClick={onNotifOpen}
+                _hover={{ bg: 'whiteAlpha.200', color: 'white' }}
+              />
+              <Badge
+                position="absolute"
+                top="-1"
+                right="-1"
+                colorScheme="red"
+                borderRadius="full"
+                fontSize="xs"
+                px={1.5}
+              >
+                3
+              </Badge>
+            </Box>
+            <Avatar size="sm" name={userName} bg="purple.500" cursor="pointer" />
+          </Flex>
         </Flex>
-      </Flex>
-    </Box>
+      </Box>
+
+      <NavigationSidebar isOpen={isMenuOpen} onClose={onMenuClose} />
+      <NotificationsPanel isOpen={isNotifOpen} onClose={onNotifClose} />
+    </>
   );
 };
 
