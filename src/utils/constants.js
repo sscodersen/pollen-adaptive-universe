@@ -62,6 +62,24 @@ export const FEATURES = [
     description: 'Adaptive learning paths and skill development',
     path: '/education',
   },
+  {
+    id: 'finance',
+    title: 'Finance',
+    subtitle: 'Money Manager',
+    icon: 'DollarSign',
+    gradient: 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)',
+    description: 'Budget planning and investment insights',
+    path: '/finance',
+  },
+  {
+    id: 'code',
+    title: 'Code Helper',
+    subtitle: 'Dev Assistant',
+    icon: 'Code',
+    gradient: 'linear-gradient(135deg, #ee0979 0%, #ff6a00 100%)',
+    description: 'Code review, debugging, and development tips',
+    path: '/code',
+  },
 ];
 
 export const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';

@@ -10,6 +10,7 @@ import Health from '@features/health/Health';
 import Education from '@features/education/Education';
 import Explore from '@features/explore/Explore';
 import Profile from '@features/profile/Profile';
+import Activity from '@features/activity/Activity';
 import ErrorBoundary from '@components/common/ErrorBoundary';
 
 function App() {
@@ -29,6 +30,7 @@ function App() {
             <Route path="education" element={<Education />} />
             <Route path="explore" element={<Explore />} />
             <Route path="profile" element={<Profile />} />
+            <Route path="activity" element={<Activity />} />
           </Route>
         </Routes>
       </Router>

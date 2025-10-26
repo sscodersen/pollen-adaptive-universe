@@ -43,7 +43,7 @@ const Dashboard = () => {
             What can I help you with today?
           </Text>
 
-          <SimpleGrid columns={2} spacing={4}>
+          <SimpleGrid columns={{ base: 2, md: 3 }} spacing={4}>
             {FEATURES.map((feature) => (
               <FeatureCard key={feature.id} feature={feature} />
             ))}
@@ -63,14 +63,13 @@ const Dashboard = () => {
                 key={activity.id}
                 w="100%"
                 p={4}
-                bg="whiteAlpha.100"
-                backdropFilter="blur(10px)"
+                bg="black"
                 borderRadius="xl"
                 border="1px solid"
                 borderColor="whiteAlpha.200"
                 cursor="pointer"
                 transition="all 0.2s"
-                _hover={{ bg: 'whiteAlpha.200', transform: 'translateY(-2px)', boxShadow: 'lg' }}
+                _hover={{ borderColor: 'purple.500', transform: 'translateY(-2px)' }}
               >
                 <HStack justify="space-between">
                   <VStack align="start" spacing={1}>
@@ -103,14 +102,13 @@ const Dashboard = () => {
                 key={topic.id}
                 w="100%"
                 p={4}
-                bg="whiteAlpha.100"
-                backdropFilter="blur(10px)"
+                bg="black"
                 borderRadius="xl"
                 border="1px solid"
                 borderColor="whiteAlpha.200"
                 cursor="pointer"
                 transition="all 0.2s"
-                _hover={{ bg: 'whiteAlpha.200', transform: 'translateY(-2px)', boxShadow: 'lg' }}
+                _hover={{ borderColor: 'purple.500', transform: 'translateY(-2px)' }}
               >
                 <HStack justify="space-between" align="start">
                   <VStack align="start" spacing={1} flex={1}>

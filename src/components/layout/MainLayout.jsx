@@ -12,7 +12,7 @@ const MainLayout = () => {
       overflow="hidden"
     >
       <Container
-        maxW="480px"
+        maxW="800px"
         h="100vh"
         p={0}
         display="flex"
