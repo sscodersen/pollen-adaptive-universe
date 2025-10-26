@@ -15,6 +15,7 @@ import Profile from '@features/profile/Profile';
 import Activity from '@features/activity/Activity';
 import Finance from '@features/finance/Finance';
 import CodeHelper from '@features/code/CodeHelper';
+import Messages from '@features/messages/Messages';
 import ErrorBoundary from '@components/common/ErrorBoundary';
 
 function App() {
@@ -27,6 +28,7 @@ function App() {
             <Route path="explore" element={<Explore />} />
             <Route path="news" element={<News />} />
             <Route path="activity" element={<Activity />} />
+            <Route path="messages" element={<Messages />} />
             <Route path="profile" element={<Profile />} />
           </Route>
           <Route path="/app" element={<MainLayout />}>

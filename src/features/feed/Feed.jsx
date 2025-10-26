@@ -19,6 +19,9 @@ const Feed = () => {
       if (response.ok) {
         const data = await response.json();
         setPosts(data);
+      } else {
+        console.warn('Failed to fetch posts from server, using fallback data');
+        setPosts(mockPosts);
       }
     } catch (error) {
       console.error('Error fetching posts:', error);
