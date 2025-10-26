@@ -3,7 +3,7 @@
 ## Overview
 A production-ready, privacy-first AI assistant platform featuring SSE (Server-Sent Events) streaming for real-time AI responses across multiple domains. Built with React + Vite frontend and FastAPI backend, optimized for deployment with a modern dark theme inspired by AI Sight.
 
-**Last Updated**: October 25, 2025
+**Last Updated**: October 26, 2025
 
 ### Privacy-First Design
 - ✅ **100% Anonymous** - No sign-in, no authentication, no user accounts
@@ -15,7 +15,10 @@ A production-ready, privacy-first AI assistant platform featuring SSE (Server-Se
 
 ### Frontend (React + Vite)
 - **Framework**: React 18 with Vite 4 (production optimized)
-- **UI Library**: Chakra UI with custom gradient theme
+- **UI Library**: Chakra UI with professional dark theme
+- **Layout**: 800px max-width for optimal space utilization
+- **Design**: Flat black cards with purple hover effects
+- **Background**: Solid #1a1a1a for clean, professional look
 - **Routing**: React Router DOM v7
 - **Icons**: Lucide React
 - **Port**: 5000 (configured for Replit + Vercel)
@@ -35,9 +38,10 @@ pollen-ai-platform/
 ├── src/
 │   ├── components/
 │   │   ├── layout/
-│   │   │   ├── MainLayout.jsx          # Main app container with dark theme
-│   │   │   ├── Header.jsx              # Top header with anonymous user
-│   │   │   └── BottomNavigation.jsx    # Bottom nav bar (dark theme)
+│   │   │   ├── MainLayout.jsx          # Main app container (800px, solid dark bg)
+│   │   │   ├── Header.jsx              # Header with nav & notifications
+│   │   │   ├── NavigationSidebar.jsx   # Hamburger menu sidebar (NEW)
+│   │   │   └── NotificationsPanel.jsx  # Notifications drawer (NEW)
 │   │   └── common/
 │   │       ├── UnifiedSearchBar.jsx    # AI Sight-inspired gradient search (NEW)
 │   │       ├── ResponseActions.jsx     # Copy/share/bookmark/download (NEW)
