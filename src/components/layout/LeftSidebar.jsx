@@ -42,12 +42,12 @@ const LeftSidebar = () => {
   ];
 
   const quickAccess = [
-    { id: 'shopping', label: 'Shopping', icon: ShoppingBag, path: '/shopping', gradient: 'linear(to-br, purple.400, purple.600)' },
-    { id: 'travel', label: 'Travel', icon: Plane, path: '/travel', gradient: 'linear(to-br, cyan.400, blue.500)' },
-    { id: 'health', label: 'Wellness', icon: Heart, path: '/health', gradient: 'linear(to-br, pink.400, red.400)' },
-    { id: 'education', label: 'Learn', icon: GraduationCap, path: '/education', gradient: 'linear(to-br, orange.400, yellow.500)' },
-    { id: 'finance', label: 'Finance', icon: TrendingUp, path: '/finance', gradient: 'linear(to-br, green.400, teal.500)' },
-    { id: 'code', label: 'Code', icon: Code, path: '/code', gradient: 'linear(to-br, red.400, pink.500)' },
+    { id: 'shopping', label: 'Shopping', icon: ShoppingBag, path: '/app/shopping', gradient: 'linear(to-br, purple.400, purple.600)' },
+    { id: 'travel', label: 'Travel', icon: Plane, path: '/app/travel', gradient: 'linear(to-br, cyan.400, blue.500)' },
+    { id: 'health', label: 'Wellness', icon: Heart, path: '/app/health', gradient: 'linear(to-br, pink.400, red.400)' },
+    { id: 'education', label: 'Learn', icon: GraduationCap, path: '/app/education', gradient: 'linear(to-br, orange.400, yellow.500)' },
+    { id: 'finance', label: 'Finance', icon: TrendingUp, path: '/app/finance', gradient: 'linear(to-br, green.400, teal.500)' },
+    { id: 'code', label: 'Code', icon: Code, path: '/app/code', gradient: 'linear(to-br, red.400, pink.500)' },
   ];
 
   const isActive = (path) => location.pathname === path;

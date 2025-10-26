@@ -1,6 +1,8 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import MainLayout from '@components/layout/MainLayout';
+import SocialLayout from '@components/layout/SocialLayout';
 import Dashboard from '@features/dashboard/Dashboard';
+import Feed from '@features/feed/Feed';
 import Shopping from '@features/shopping/Shopping';
 import Travel from '@features/travel/Travel';
 import News from '@features/news/News';
@@ -20,19 +22,22 @@ function App() {
     <ErrorBoundary>
       <Router>
         <Routes>
-          <Route path="/" element={<MainLayout />}>
+          <Route path="/" element={<SocialLayout />}>
+            <Route index element={<Feed />} />
+            <Route path="explore" element={<Explore />} />
+            <Route path="news" element={<News />} />
+            <Route path="activity" element={<Activity />} />
+            <Route path="profile" element={<Profile />} />
+          </Route>
+          <Route path="/app" element={<MainLayout />}>
             <Route index element={<Dashboard />} />
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="shopping" element={<Shopping />} />
             <Route path="travel" element={<Travel />} />
-            <Route path="news" element={<News />} />
             <Route path="content" element={<ContentGeneration />} />
             <Route path="smarthome" element={<SmartHome />} />
             <Route path="health" element={<Health />} />
             <Route path="education" element={<Education />} />
-            <Route path="explore" element={<Explore />} />
-            <Route path="profile" element={<Profile />} />
-            <Route path="activity" element={<Activity />} />
             <Route path="finance" element={<Finance />} />
             <Route path="code" element={<CodeHelper />} />
           </Route>
