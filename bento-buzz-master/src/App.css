@@ -1,0 +1,66 @@
+.bento-buzz {
+  background-color: var(--floor-color);
+  min-height: 100vh;
+  display: flex;
+  gap: 32px;
+  padding: 32px;
+  flex-direction: column;
+  overflow-y: scroll;
+}
+
+.bento-buzz header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex: 0 0 72px;
+}
+
+.header-links {
+  display: flex;
+  gap: 64px;
+}
+
+main {
+  display: flex;
+  gap: 32px;
+  flex: 1;
+}
+
+footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex: 0 0;
+}
+
+@media screen and (max-width: 768px) {
+  .bento-buzz {
+    padding: 16px;
+    gap: 16px;
+  }
+
+  .bento-buzz header {
+    flex: 0 0 48px;
+  }
+}
+
+@media screen and (min-width: 768px) {
+  .header-links {
+
+    a:hover,
+    a.active {
+      position: relative;
+
+      &::after {
+        content: '';
+        position: absolute;
+        bottom: -4px;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        background-color: var(--subtle-gold-color);
+      }
+    }
+  }
+
+}
