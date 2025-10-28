@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from backend.routers import shopping, travel, news, content, scraper, ai, smarthome, health, education, finance, code, feed
+from backend.routers import shopping, travel, news, content, scraper, ai, smarthome, health, education, finance, code, feed, adaptive_intelligence
 from backend.database import init_db
 from dotenv import load_dotenv
 import os
@@ -18,6 +18,7 @@ app.add_middleware(
 )
 
 app.include_router(feed.router, prefix="/api/feed", tags=["feed"])
+app.include_router(adaptive_intelligence.router, prefix="/api/adaptive-intelligence", tags=["adaptive-intelligence"])
 app.include_router(shopping.router, prefix="/api/shopping", tags=["shopping"])
 app.include_router(travel.router, prefix="/api/travel", tags=["travel"])
 app.include_router(news.router, prefix="/api/news", tags=["news"])

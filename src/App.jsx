@@ -16,6 +16,7 @@ import Activity from '@features/activity/Activity';
 import Finance from '@features/finance/Finance';
 import CodeHelper from '@features/code/CodeHelper';
 import Messages from '@features/messages/Messages';
+import AdaptiveIntelligence from '@features/adaptive-intelligence/AdaptiveIntelligence';
 import ErrorBoundary from '@components/common/ErrorBoundary';
 
 function App() {
@@ -25,6 +26,7 @@ function App() {
         <Routes>
           <Route path="/" element={<SocialLayout />}>
             <Route index element={<Feed />} />
+            <Route path="adaptive-intelligence" element={<AdaptiveIntelligence />} />
             <Route path="explore" element={<Explore />} />
             <Route path="news" element={<News />} />
             <Route path="activity" element={<Activity />} />
