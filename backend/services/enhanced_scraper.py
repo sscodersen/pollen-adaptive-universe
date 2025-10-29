@@ -357,7 +357,7 @@ class EnhancedScraperService:
     
     async def scrape_exploding_topics(self, max_results: int = 20) -> List[Dict]:
         """
-        Scrape trending topics from Exploding Topics
+        Scrape trending topics from Exploding Topics and crawl individual topic pages
         """
         try:
             async with httpx.AsyncClient(timeout=self.timeout, headers=self.headers) as client:
@@ -377,16 +377,22 @@ class EnhancedScraperService:
                         elif not topic_url:
                             topic_url = "https://explodingtopics.com/"
                         
+                        topic_url_str = str(topic_url) if topic_url else "https://explodingtopics.com/"
+                        topic_details = await self._crawl_exploding_topic_page(topic_url_str, client)
+                        
                         topics.append({
                             "title": f"Trending: {topic_name}",
                             "url": topic_url,
-                            "description": f"Exploding trend in {topic_name}",
+                            "description": topic_details.get("description", f"Exploding trend in {topic_name}"),
                             "source": "Exploding Topics",
                             "category": "trends",
                             "published_at": datetime.now().isoformat(),
                             "engagement_metrics": {
-                                "trend_status": "rising"
-                            }
+                                "trend_status": topic_details.get("trend_status", "rising"),
+                                "growth": topic_details.get("growth", "Unknown"),
+                                "search_volume": topic_details.get("search_volume", "N/A")
+                            },
+                            "details": topic_details
                         })
                     except:
                         continue
@@ -395,6 +401,61 @@ class EnhancedScraperService:
         except Exception as e:
             print(f"Error scraping Exploding Topics: {e}")
             return []
+    
+    async def _crawl_exploding_topic_page(self, url: str, client: httpx.AsyncClient) -> Dict:
+        """
+        Crawl individual Exploding Topics topic page for detailed information
+        """
+        try:
+            response = await client.get(url)
+            soup = BeautifulSoup(response.text, 'html.parser')
+            
+            details = {
+                "description": "",
+                "trend_status": "rising",
+                "growth": "Unknown",
+                "search_volume": "N/A",
+                "related_topics": [],
+                "insights": []
+            }
+            
+            description_elem = soup.find('meta', {'name': 'description'}) or soup.find('meta', {'property': 'og:description'})
+            if description_elem:
+                details["description"] = description_elem.get('content', '')
+            
+            growth_elem = soup.find(text=re.compile(r'\d+%'))
+            if growth_elem:
+                growth_match = re.search(r'(\d+)%', str(growth_elem))
+                if growth_match:
+                    details["growth"] = f"{growth_match.group(1)}%"
+            
+            paragraphs = soup.find_all('p')
+            insights = []
+            for p in paragraphs[:3]:
+                text = p.get_text().strip()
+                if len(text) > 50:
+                    insights.append(text[:200])
+            details["insights"] = insights
+            
+            related_links = soup.find_all('a', href=re.compile(r'/topic/'))
+            related = []
+            for link in related_links[:5]:
+                related_topic = link.get_text().strip()
+                if related_topic and related_topic not in related:
+                    related.append(related_topic)
+            details["related_topics"] = related
+            
+            return details
+        except Exception as e:
+            print(f"Error crawling topic page {url}: {e}")
+            return {
+                "description": "",
+                "trend_status": "rising",
+                "growth": "Unknown",
+                "search_volume": "N/A",
+                "related_topics": [],
+                "insights": []
+            }
     
     async def stream_events(self, category: Optional[str] = None, max_results: int = 20) -> AsyncGenerator[str, None]:
         """

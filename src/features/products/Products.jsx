@@ -6,17 +6,14 @@ import {
   Text,
   HStack,
   Icon,
-  Badge,
   Select,
-  SimpleGrid,
   Spinner,
   useToast,
-  Link,
-  Button,
-  Tag
+  Button
 } from '@chakra-ui/react';
-import { Package, ExternalLink, Star, TrendingUp, RefreshCw, DollarSign } from 'lucide-react';
+import { Package, RefreshCw } from 'lucide-react';
 import { API_BASE_URL } from '@utils/constants';
+import PostCard from '@components/common/PostCard';
 
 export default function Products() {
   const [products, setProducts] = useState([]);
@@ -128,7 +125,7 @@ export default function Products() {
           >
             <option value="" style={{ background: '#1a202c' }}>All Categories</option>
             {categories.map(cat => (
-              <option key={cat} value={cat.toLowerCase().replace(' ', '-')} style={{ background: '#1a202c' }}>
+              <option key={cat} value={cat} style={{ background: '#1a202c' }}>
                 {cat}
               </option>
             ))}
@@ -152,100 +149,19 @@ export default function Products() {
         )}
 
         {products.length > 0 && (
-          <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={4} w="100%">
+          <VStack spacing={4} w="100%">
             {products.map((product, idx) => (
-              <Box
-                key={idx}
-                p={5}
-                bg="whiteAlpha.100"
-                backdropFilter="blur(10px)"
-                borderRadius="xl"
-                border="1px solid"
-                borderColor="whiteAlpha.200"
-                transition="all 0.2s"
-                _hover={{
-                  transform: 'translateY(-4px)',
-                  borderColor: 'green.400',
-                  boxShadow: '0 8px 24px rgba(72, 187, 120, 0.15)',
-                }}
-              >
-                <VStack align="start" spacing={3}>
-                  <HStack justify="space-between" w="100%">
-                    <Badge
-                      colorScheme="green"
-                      fontSize="xs"
-                      px={2}
-                      py={1}
-                      borderRadius="md"
-                    >
-                      {product.category || 'Product'}
-                    </Badge>
-                    {product.adaptive_score && (
-                      <HStack spacing={1}>
-                        <TrendingUp size={14} color="var(--chakra-colors-green-400)" />
-                        <Text fontSize="xs" color="green.400" fontWeight="bold">
-                          {Math.round(product.adaptive_score.overall)}
-                        </Text>
-                      </HStack>
-                    )}
-                  </HStack>
-
-                  <Heading size="sm" color="white" lineHeight="1.3">
-                    {product.title}
-                  </Heading>
-
-                  <Text fontSize="sm" color="gray.400" noOfLines={2}>
-                    {product.description}
-                  </Text>
-
-                  <HStack spacing={3} w="100%">
-                    {product.price && (
-                      <HStack spacing={1}>
-                        <Icon as={DollarSign} boxSize={4} color="green.400" />
-                        <Text fontSize="sm" fontWeight="bold" color="green.400">
-                          {product.price}
-                        </Text>
-                      </HStack>
-                    )}
-                    {product.rating && (
-                      <HStack spacing={1}>
-                        <Icon as={Star} boxSize={4} color="yellow.400" />
-                        <Text fontSize="sm" color="gray.400">
-                          {product.rating}
-                        </Text>
-                      </HStack>
-                    )}
-                  </HStack>
-
-                  {product.reviews && (
-                    <Text fontSize="xs" color="gray.600">
-                      {product.reviews.toLocaleString()} reviews
-                    </Text>
-                  )}
-
-                  {product.url && (
-                    <Link href={product.url} isExternal w="100%">
-                      <Button
-                        size="sm"
-                        w="100%"
-                        variant="outline"
-                        colorScheme="green"
-                        rightIcon={<ExternalLink size={14} />}
-                      >
-                        View Product
-                      </Button>
-                    </Link>
-                  )}
-
-                  <HStack justify="space-between" w="100%" pt={2} borderTop="1px solid" borderColor="whiteAlpha.200">
-                    <Text fontSize="xs" color="gray.600">
-                      {product.source || 'Product Source'}
-                    </Text>
-                  </HStack>
-                </VStack>
-              </Box>
+              <PostCard 
+                key={idx} 
+                post={{
+                  ...product,
+                  content: product.title,
+                  tags: product.price ? [`💰 ${product.price}`] : undefined
+                }} 
+                showImage={false} 
+              />
             ))}
-          </SimpleGrid>
+          </VStack>
         )}
 
         {!isLoading && products.length === 0 && (

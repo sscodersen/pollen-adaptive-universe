@@ -38,17 +38,30 @@ The platform features a dark theme with gradient backgrounds, glassmorphism effe
 - **Production Ready:** Configured for Vercel deployment with enhanced UI/UX (error boundaries, loading states), performance optimizations (code splitting, lazy loading), and SSE streaming across all AI-powered features.
 
 ## External Dependencies
-- **Pollen AI Model:** Primary AI model, integrated via a configurable URL.
-- **OpenAI:** Fallback AI model for content generation.
-- **BeautifulSoup4:** Used for web scraping as a fallback mechanism.
-- **Hacker News:** Real-time tech news and trending topics source.
-- **Exploding Topics:** Market trends and emerging topics discovery.
+- **Pollen AI Model:** Primary and ONLY AI model used throughout the platform, integrated via AI_MODEL_URL environment variable.
+- **BeautifulSoup4:** Used for web scraping and content aggregation.
+- **Hacker News:** Real-time tech news and trending topics source with deep scraping.
+- **Exploding Topics:** Market trends and emerging topics discovery with individual topic page crawling.
 - **RSS Feeds:** TechCrunch, BBC News, Reuters for diverse news coverage.
 - **Vercel:** Frontend deployment platform.
 - **Render/Railway/Fly.io:** Recommended backend deployment platforms.
 - **Vercel Postgres/Supabase:** Optional database integration.
 
 ## Recent Changes (October 29, 2025)
+
+### Major Platform Overhaul - Pollen AI Only & SSE Integration
+- **Removed OpenAI Fallback:** Platform now uses ONLY Pollen AI (via AI_MODEL_URL) for all AI features
+- **Enhanced Web Scraper:** Now crawls individual Exploding Topics topic pages for detailed information including growth metrics, insights, and related topics
+- **Unified Feed Post Design:** Created shared PostCard component used across Feed, News, Adaptive Intelligence, and Products pages for consistent UX
+- **Scraped Content Integration:** Feed now auto-generates posts from:
+  - Hacker News trending stories with points and engagement metrics
+  - Exploding Topics trending data with growth percentages
+  - All scraped content automatically populates feed posts
+- **Live Trending Topics:** Trending sidebar now pulls real data from Exploding Topics and Hacker News instead of mock data
+- **Products Display:** Products page now uses Feed post format showing quality products with prices and ratings
+- **Automatic AI Training:** Scraped high-quality content feeds into platform for training purposes
+
+## Previous Changes (October 29, 2025)
 ### Comprehensive Content Discovery Enhancement
 - **Enhanced Scraper Service:** Integrated Exploding Topics, Hacker News, Google Search capabilities, and multiple RSS feeds for comprehensive content aggregation.
 - **New Backend Endpoints:**

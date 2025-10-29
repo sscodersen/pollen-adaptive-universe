@@ -1,31 +1,21 @@
 import { useState, useEffect } from 'react';
 import {
   Box,
-  Container,
   Heading,
   Text,
   VStack,
   HStack,
   Badge,
-  Card,
-  CardBody,
-  CardHeader,
   Spinner,
   Button,
   Select,
   Progress,
-  Stat,
-  StatLabel,
-  StatNumber,
-  StatHelpText,
-  Grid,
-  GridItem,
   useToast,
-  Link,
   Icon,
-  Tooltip
+  Grid
 } from '@chakra-ui/react';
-import { TrendingUp, Award, Target, Zap, CheckCircle, AlertCircle, Cpu } from 'lucide-react';
+import { Cpu, Zap, CheckCircle } from 'lucide-react';
+import PostCard from '@components/common/PostCard';
 
 const AdaptiveIntelligence = () => {
   const [content, setContent] = useState([]);
@@ -156,142 +146,131 @@ const AdaptiveIntelligence = () => {
     loadKnowledgeBase();
   }, []);
 
-  const getQualityColor = (tier) => {
-    switch (tier) {
-      case 'HIGH QUALITY':
-        return 'green';
-      case 'MEDIUM QUALITY':
-        return 'blue';
-      default:
-        return 'gray';
-    }
-  };
-
-  const ScoreBar = ({ label, value, color }) => (
-    <Box mb={2}>
-      <HStack justify="space-between" mb={1}>
-        <Text fontSize="xs" fontWeight="medium">{label}</Text>
-        <Text fontSize="xs" fontWeight="bold">{value}</Text>
-      </HStack>
-      <Progress value={value} colorScheme={color} size="sm" borderRadius="full" />
-    </Box>
-  );
-
   return (
-    <Container maxW="container.xl" py={8}>
+    <Box px={4} py={6}>
       <VStack spacing={6} align="stretch">
-        {/* Header */}
         <Box>
-          <HStack justify="space-between" align="start">
+          <HStack justify="space-between" align="start" mb={4}>
             <Box>
               <HStack spacing={3} mb={2}>
                 <Icon as={Cpu} boxSize={8} color="purple.500" />
-                <Heading size="xl">
+                <Heading size="xl" color="white">
                   Adaptive Intelligence Worker Bee
                 </Heading>
               </HStack>
-              <Text color="gray.600">
+              <Text color="gray.400">
                 Curated content powered by multidimensional quality analysis for Pollen AI training
               </Text>
             </Box>
-            <VStack align="stretch">
-              <Button
-                colorScheme="purple"
-                onClick={trainPollenAI}
-                isLoading={trainingProgress !== null}
-                leftIcon={<Icon as={Zap} />}
-              >
-                Train Pollen AI
-              </Button>
-            </VStack>
+            <Button
+              colorScheme="purple"
+              onClick={trainPollenAI}
+              isLoading={trainingProgress !== null}
+              leftIcon={<Icon as={Zap} />}
+            >
+              Train Pollen AI
+            </Button>
           </HStack>
         </Box>
 
-        {/* Training Progress */}
         {trainingProgress && (
-          <Card>
-            <CardBody>
-              <VStack spacing={3}>
-                <HStack w="full" justify="space-between">
-                  <Text fontWeight="bold">Training Pollen AI</Text>
-                  <Text fontSize="sm" color="gray.600">
-                    {Math.round(trainingProgress.progress)}%
-                  </Text>
-                </HStack>
-                <Progress
-                  value={trainingProgress.progress}
-                  w="full"
-                  colorScheme="purple"
-                  size="lg"
-                  borderRadius="full"
-                />
-                <Text fontSize="sm" color="gray.600">
-                  {trainingProgress.message}
+          <Box
+            p={4}
+            bg="black"
+            borderRadius="xl"
+            border="1px solid"
+            borderColor="whiteAlpha.200"
+          >
+            <VStack spacing={3}>
+              <HStack w="full" justify="space-between">
+                <Text fontWeight="bold" color="white">Training Pollen AI</Text>
+                <Text fontSize="sm" color="gray.400">
+                  {Math.round(trainingProgress.progress)}%
                 </Text>
-              </VStack>
-            </CardBody>
-          </Card>
+              </HStack>
+              <Progress
+                value={trainingProgress.progress}
+                w="full"
+                colorScheme="purple"
+                size="lg"
+                borderRadius="full"
+              />
+              <Text fontSize="sm" color="gray.400">
+                {trainingProgress.message}
+              </Text>
+            </VStack>
+          </Box>
         )}
 
-        {/* Knowledge Base Stats */}
         {knowledgeBase && (
           <Grid templateColumns="repeat(3, 1fr)" gap={4}>
-            <Card>
-              <CardBody>
-                <Stat>
-                  <StatLabel>Categories</StatLabel>
-                  <StatNumber>{knowledgeBase.total_categories}</StatNumber>
-                  <StatHelpText>Knowledge areas</StatHelpText>
-                </Stat>
-              </CardBody>
-            </Card>
-            <Card>
-              <CardBody>
-                <Stat>
-                  <StatLabel>Training Sessions</StatLabel>
-                  <StatNumber>{knowledgeBase.training_sessions}</StatNumber>
-                  <StatHelpText>Completed</StatHelpText>
-                </Stat>
-              </CardBody>
-            </Card>
-            <Card>
-              <CardBody>
-                <Stat>
-                  <StatLabel>Worker Bee Status</StatLabel>
-                  <StatNumber>
-                    <HStack>
-                      <Icon as={CheckCircle} color="green.500" />
-                      <Text>Active</Text>
-                    </HStack>
-                  </StatNumber>
-                  <StatHelpText>System operational</StatHelpText>
-                </Stat>
-              </CardBody>
-            </Card>
+            <Box
+              p={4}
+              bg="black"
+              borderRadius="xl"
+              border="1px solid"
+              borderColor="whiteAlpha.200"
+            >
+              <Text fontSize="sm" color="gray.400">Categories</Text>
+              <Text fontSize="2xl" fontWeight="bold" color="white">{knowledgeBase.total_categories}</Text>
+              <Text fontSize="xs" color="gray.500">Knowledge areas</Text>
+            </Box>
+            <Box
+              p={4}
+              bg="black"
+              borderRadius="xl"
+              border="1px solid"
+              borderColor="whiteAlpha.200"
+            >
+              <Text fontSize="sm" color="gray.400">Training Sessions</Text>
+              <Text fontSize="2xl" fontWeight="bold" color="white">{knowledgeBase.training_sessions}</Text>
+              <Text fontSize="xs" color="gray.500">Completed</Text>
+            </Box>
+            <Box
+              p={4}
+              bg="black"
+              borderRadius="xl"
+              border="1px solid"
+              borderColor="whiteAlpha.200"
+            >
+              <HStack>
+                <Icon as={CheckCircle} color="green.500" boxSize={6} />
+                <Box>
+                  <Text fontSize="sm" color="gray.400">Status</Text>
+                  <Text fontSize="xl" fontWeight="bold" color="white">Active</Text>
+                  <Text fontSize="xs" color="gray.500">Operational</Text>
+                </Box>
+              </HStack>
+            </Box>
           </Grid>
         )}
 
-        {/* Filters */}
         <HStack spacing={4}>
           <Select
             value={category}
             onChange={(e) => setCategory(e.target.value)}
+            bg="whiteAlpha.100"
+            color="white"
+            borderColor="whiteAlpha.300"
             maxW="200px"
           >
-            <option value="all">All Categories</option>
-            <option value="technology">Technology</option>
-            <option value="business">Business</option>
-            <option value="science">Science</option>
-            <option value="general">General</option>
+            <option value="all" style={{ background: '#1a202c' }}>All Categories</option>
+            <option value="technology" style={{ background: '#1a202c' }}>Technology</option>
+            <option value="business" style={{ background: '#1a202c' }}>Business</option>
+            <option value="science" style={{ background: '#1a202c' }}>Science</option>
+            <option value="general" style={{ background: '#1a202c' }}>General</option>
           </Select>
           <Select
             value={minScore}
             onChange={(e) => setMinScore(Number(e.target.value))}
+            bg="whiteAlpha.100"
+            color="white"
+            borderColor="whiteAlpha.300"
             maxW="200px"
           >
-            <option value="30">Low Quality (30+)</option>
-            <option value="50">Medium Quality (50+)</option>
-            <option value="70">High Quality (70+)</option>
+            <option value="30" style={{ background: '#1a202c' }}>Low Quality (30+)</option>
+            <option value="50" style={{ background: '#1a202c' }}>Medium Quality (50+)</option>
+            <option value="70" style={{ background: '#1a202c' }}>High Quality (70+)</option>
           </Select>
           <Button
             onClick={loadCuratedContent}
@@ -302,101 +281,40 @@ const AdaptiveIntelligence = () => {
           </Button>
         </HStack>
 
-        {/* Loading State */}
         {loading && content.length === 0 && (
           <Box textAlign="center" py={12}>
             <Spinner size="xl" color="purple.500" mb={4} />
-            <Text color="gray.600">Analyzing content sources...</Text>
+            <Text color="gray.400">Analyzing content sources...</Text>
           </Box>
         )}
 
-        {/* Content Grid */}
         <VStack spacing={4} align="stretch">
-          {content.map((item, index) => {
-            const score = item.adaptive_score || {};
-            return (
-              <Card key={index} variant="outline" _hover={{ shadow: 'md', borderColor: 'purple.300' }}>
-                <CardHeader pb={2}>
-                  <HStack justify="space-between" align="start">
-                    <Box flex={1}>
-                      <Link
-                        href={item.url}
-                        isExternal
-                        _hover={{ textDecoration: 'none' }}
-                      >
-                        <Heading size="md" mb={2} _hover={{ color: 'purple.600' }}>
-                          {item.title}
-                        </Heading>
-                      </Link>
-                      <HStack spacing={2} mb={2}>
-                        <Badge colorScheme={getQualityColor(score.quality_tier)}>
-                          {score.quality_tier}
-                        </Badge>
-                        <Badge colorScheme="purple">
-                          Score: {score.overall}
-                        </Badge>
-                        <Badge colorScheme="gray">{item.source}</Badge>
-                        <Badge colorScheme="cyan">{item.category}</Badge>
-                      </HStack>
-                    </Box>
-                    <Tooltip label="Overall Quality Score">
-                      <Box
-                        w="60px"
-                        h="60px"
-                        borderRadius="full"
-                        bg={`${getQualityColor(score.quality_tier)}.100`}
-                        border="4px solid"
-                        borderColor={`${getQualityColor(score.quality_tier)}.400`}
-                        display="flex"
-                        alignItems="center"
-                        justifyContent="center"
-                      >
-                        <Text fontWeight="bold" fontSize="lg" color={`${getQualityColor(score.quality_tier)}.700`}>
-                          {Math.round(score.overall)}
-                        </Text>
-                      </Box>
-                    </Tooltip>
-                  </HStack>
-                </CardHeader>
-                <CardBody pt={0}>
-                  <Text color="gray.600" mb={4}>
-                    {item.description}
-                  </Text>
-
-                  {/* Score Breakdown */}
-                  <Grid templateColumns="repeat(2, 1fr)" gap={4}>
-                    <Box>
-                      <ScoreBar label="📊 Scope" value={score.scope} color="blue" />
-                      <ScoreBar label="⚡ Intensity" value={score.intensity} color="orange" />
-                      <ScoreBar label="✨ Originality" value={score.originality} color="purple" />
-                      <ScoreBar label="⏱️ Immediacy" value={score.immediacy} color="cyan" />
-                    </Box>
-                    <Box>
-                      <ScoreBar label="🎯 Practicability" value={score.practicability} color="teal" />
-                      <ScoreBar label="😊 Positivity" value={score.positivity} color="pink" />
-                      <ScoreBar label="🛡️ Credibility" value={score.credibility} color="green" />
-                    </Box>
-                  </Grid>
-                </CardBody>
-              </Card>
-            );
-          })}
+          {content.map((item, index) => (
+            <PostCard key={index} post={item} showImage={false} />
+          ))}
         </VStack>
 
-        {/* Empty State */}
         {!loading && content.length === 0 && (
-          <Box textAlign="center" py={12}>
-            <Icon as={AlertCircle} boxSize={12} color="gray.400" mb={4} />
-            <Text color="gray.600" fontSize="lg">
+          <Box
+            w="100%"
+            p={8}
+            textAlign="center"
+            bg="whiteAlpha.50"
+            borderRadius="xl"
+            border="1px dashed"
+            borderColor="whiteAlpha.300"
+          >
+            <Icon as={Cpu} boxSize={12} color="gray.400" mb={4} />
+            <Text color="gray.500" fontSize="lg">
               No content found matching your criteria
             </Text>
-            <Text color="gray.500" fontSize="sm">
+            <Text color="gray.600" fontSize="sm">
               Try adjusting the filters or minimum quality score
             </Text>
           </Box>
         )}
       </VStack>
-    </Container>
+    </Box>
   );
 };
 

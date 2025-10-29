@@ -3,6 +3,9 @@ from typing import List, Optional
 import random
 from datetime import datetime, timedelta
 import httpx
+from backend.services.enhanced_scraper import enhanced_scraper
+from backend.services.pollen_ai_trainer import pollen_ai_trainer
+import asyncio
 
 router = APIRouter()
 
@@ -24,7 +27,40 @@ NAMES = [
     "Kevin Lee", "Amanda Davis", "Chris Brown", "Nicole Taylor"
 ]
 
-def generate_trending_topics():
+async def generate_trending_topics():
+    try:
+        exploding_topics = await enhanced_scraper.scrape_exploding_topics(max_results=10)
+        hn_content = await enhanced_scraper._scrape_hacker_news()
+        
+        trends = []
+        
+        for i, topic in enumerate(exploding_topics[:5]):
+            growth = topic.get('engagement_metrics', {}).get('growth', '+15%')
+            if not growth.startswith('+'):
+                growth = f"+{growth}"
+            
+            trends.append({
+                "id": i + 1,
+                "tag": f"#{topic.get('title', 'trending').replace('Trending: ', '').replace(' ', '').lower()[:20]}",
+                "posts": f"{random.randint(20, 200)}K",
+                "trend": growth
+            })
+        
+        if len(trends) < 5:
+            for i, article in enumerate(hn_content[:5 - len(trends)]):
+                trends.append({
+                    "id": len(trends) + 1,
+                    "tag": f"#{article.get('title', 'tech').split()[0].lower()}",
+                    "posts": f"{article.get('engagement_metrics', {}).get('points', 50)}K",
+                    "trend": f"+{random.randint(5, 25)}%"
+                })
+        
+        return trends[:5] if len(trends) > 0 else generate_fallback_trends()
+    except Exception as e:
+        print(f"Error generating trending topics: {e}")
+        return generate_fallback_trends()
+
+def generate_fallback_trends():
     trends = []
     selected_topics = random.sample(TOPICS, 5)
     
@@ -129,8 +165,69 @@ async def fetch_real_news():
         pass
     return []
 
-def generate_ai_posts(limit: int = 20, interests: Optional[List[str]] = None):
+async def generate_ai_posts(limit: int = 20, interests: Optional[List[str]] = None):
     posts = []
+    
+    try:
+        hn_content = await enhanced_scraper._scrape_hacker_news()
+        exploding_topics = await enhanced_scraper.scrape_exploding_topics(max_results=10)
+        
+        scraped_posts = []
+        
+        for article in hn_content[:limit // 2]:
+            hours_ago = random.randint(1, 12)
+            time_str = f"{hours_ago}h" if hours_ago > 1 else "1h"
+            
+            scraped_posts.append({
+                "id": len(scraped_posts) + 1,
+                "user": {
+                    "name": "Anonymous",
+                    "username": None,
+                    "avatar": None,
+                    "verified": False
+                },
+                "time": time_str,
+                "content": article.get('title', ''),
+                "description": article.get('description', ''),
+                "url": article.get('url', ''),
+                "source": article.get('source', 'Hacker News'),
+                "tags": [f"#{article.get('category', 'tech')}"],
+                "views": article.get('engagement_metrics', {}).get('views', random.randint(5000, 50000)),
+                "engagement": random.randint(60, 95),
+                "qualityScore": random.randint(75, 98),
+                "trending": article.get('engagement_metrics', {}).get('points', 0) > 100,
+                "type": "post"
+            })
+        
+        for topic in exploding_topics[:limit // 4]:
+            hours_ago = random.randint(1, 8)
+            time_str = f"{hours_ago}h" if hours_ago > 1 else "1h"
+            
+            scraped_posts.append({
+                "id": len(scraped_posts) + 1,
+                "user": {
+                    "name": "Anonymous",
+                    "username": None,
+                    "avatar": None,
+                    "verified": False
+                },
+                "time": time_str,
+                "content": topic.get('title', ''),
+                "description": topic.get('description', ''),
+                "url": topic.get('url', ''),
+                "source": topic.get('source', 'Exploding Topics'),
+                "tags": ["#trending", f"#{topic.get('category', 'trends')}"],
+                "views": random.randint(10000, 100000),
+                "engagement": random.randint(70, 98),
+                "qualityScore": random.randint(80, 98),
+                "trending": True,
+                "type": "post"
+            })
+        
+        posts.extend(scraped_posts)
+        
+    except Exception as e:
+        print(f"Error generating posts from scraped content: {e}")
     
     post_templates = [
         {
@@ -162,7 +259,7 @@ def generate_ai_posts(limit: int = 20, interests: Optional[List[str]] = None):
         "https://images.unsplash.com/photo-1542831371-29b0f74f9713?w=600&h=400&fit=crop",
     ]
     
-    for i in range(limit):
+    for i in range(max(0, limit - len(posts))):
         template = random.choice(post_templates)
         topic = random.choice(interests or TOPICS)
         
@@ -211,12 +308,12 @@ async def get_feed_posts(
     interests: Optional[str] = Query(None)
 ):
     interest_list = interests.split(",") if interests else None
-    posts = generate_ai_posts(limit, interest_list)
+    posts = await generate_ai_posts(limit, interest_list)
     return posts
 
 @router.get("/trending")
 async def get_trending_topics():
-    return generate_trending_topics()
+    return await generate_trending_topics()
 
 @router.get("/events")
 async def get_events(

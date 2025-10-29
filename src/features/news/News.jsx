@@ -6,19 +6,16 @@ import {
   Text,
   HStack,
   Icon,
-  Badge,
   Select,
-  SimpleGrid,
   Spinner,
   useToast,
-  Link,
   Button
 } from '@chakra-ui/react';
-import { Newspaper, ExternalLink, TrendingUp, RefreshCw } from 'lucide-react';
+import { Newspaper, RefreshCw } from 'lucide-react';
 import { API_BASE_URL } from '@utils/constants';
-import { formatDistanceToNow } from 'date-fns';
+import PostCard from '@components/common/PostCard';
 
-export default function NewsEnhanced() {
+export default function News() {
   const [articles, setArticles] = useState([]);
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('');
@@ -83,15 +80,6 @@ export default function NewsEnhanced() {
     };
 
     return () => eventSource.close();
-  };
-
-  const formatPublishedDate = (dateString) => {
-    try {
-      const date = new Date(dateString);
-      return formatDistanceToNow(date, { addSuffix: true });
-    } catch {
-      return 'recently';
-    }
   };
 
   return (
@@ -161,80 +149,11 @@ export default function NewsEnhanced() {
         )}
 
         {articles.length > 0 && (
-          <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={4} w="100%">
+          <VStack spacing={4} w="100%">
             {articles.map((article, idx) => (
-              <Box
-                key={idx}
-                p={5}
-                bg="whiteAlpha.100"
-                backdropFilter="blur(10px)"
-                borderRadius="xl"
-                border="1px solid"
-                borderColor="whiteAlpha.200"
-                transition="all 0.2s"
-                _hover={{
-                  transform: 'translateY(-4px)',
-                  borderColor: 'pink.400',
-                  boxShadow: '0 8px 24px rgba(236, 72, 153, 0.15)',
-                }}
-              >
-                <VStack align="start" spacing={3}>
-                  <HStack justify="space-between" w="100%">
-                    <Badge
-                      colorScheme="pink"
-                      fontSize="xs"
-                      px={2}
-                      py={1}
-                      borderRadius="md"
-                    >
-                      {article.category || 'News'}
-                    </Badge>
-                    {article.adaptive_score && (
-                      <HStack spacing={1}>
-                        <TrendingUp size={14} color="var(--chakra-colors-pink-400)" />
-                        <Text fontSize="xs" color="pink.400" fontWeight="bold">
-                          {Math.round(article.adaptive_score.overall)}
-                        </Text>
-                      </HStack>
-                    )}
-                  </HStack>
-
-                  <Heading size="sm" color="white" lineHeight="1.3">
-                    {article.title}
-                  </Heading>
-
-                  <Text fontSize="sm" color="gray.400" noOfLines={3}>
-                    {article.description}
-                  </Text>
-
-                  <HStack justify="space-between" w="100%">
-                    <Text fontSize="xs" color="gray.600">
-                      {article.source || 'Source'}
-                    </Text>
-                    {article.published_at && (
-                      <Text fontSize="xs" color="gray.600">
-                        {formatPublishedDate(article.published_at)}
-                      </Text>
-                    )}
-                  </HStack>
-
-                  {article.url && (
-                    <Link href={article.url} isExternal w="100%">
-                      <Button
-                        size="sm"
-                        w="100%"
-                        variant="outline"
-                        colorScheme="pink"
-                        rightIcon={<ExternalLink size={14} />}
-                      >
-                        Read Article
-                      </Button>
-                    </Link>
-                  )}
-                </VStack>
-              </Box>
+              <PostCard key={idx} post={article} showImage={true} />
             ))}
-          </SimpleGrid>
+          </VStack>
         )}
 
         {!isLoading && articles.length === 0 && (
