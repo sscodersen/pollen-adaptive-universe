@@ -14,12 +14,11 @@ import {
   Link,
   Button
 } from '@chakra-ui/react';
-import { Newspaper, ExternalLink, TrendingUp, RefreshCw } from 'lucide-react';
+import { Calendar, MapPin, ExternalLink, TrendingUp, RefreshCw } from 'lucide-react';
 import { API_BASE_URL } from '@utils/constants';
-import { formatDistanceToNow } from 'date-fns';
 
-export default function NewsEnhanced() {
-  const [articles, setArticles] = useState([]);
+export default function Events() {
+  const [events, setEvents] = useState([]);
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -27,25 +26,24 @@ export default function NewsEnhanced() {
   const toast = useToast();
 
   useEffect(() => {
-    fetch(`${API_BASE_URL}/news/categories`)
+    fetch(`${API_BASE_URL}/events/categories`)
       .then(res => res.json())
       .then(data => setCategories(data.categories || []))
       .catch(() => {});
     
-    loadNews();
+    loadEvents();
   }, []);
 
-  const loadNews = () => {
+  const loadEvents = () => {
     setIsLoading(true);
-    setArticles([]);
-    setStatus('Fetching latest news...');
+    setEvents([]);
+    setStatus('Loading events...');
 
     const params = new URLSearchParams();
-    if (selectedCategory) params.append('category', selectedCategory.toLowerCase());
-    params.append('min_score', '50');
+    if (selectedCategory) params.append('category', selectedCategory);
     params.append('max_results', '20');
 
-    const eventSource = new EventSource(`${API_BASE_URL}/news/fetch?${params}`);
+    const eventSource = new EventSource(`${API_BASE_URL}/events/upcoming?${params}`);
 
     eventSource.onmessage = (event) => {
       try {
@@ -53,8 +51,8 @@ export default function NewsEnhanced() {
         
         if (parsed.type === 'status') {
           setStatus(parsed.message);
-        } else if (parsed.type === 'content') {
-          setArticles(prev => [...prev, parsed.data]);
+        } else if (parsed.type === 'event') {
+          setEvents(prev => [...prev, parsed.data]);
         } else if (parsed.type === 'complete') {
           setStatus('');
           setIsLoading(false);
@@ -67,7 +65,7 @@ export default function NewsEnhanced() {
           setStatus('');
           setIsLoading(false);
           toast({
-            title: 'Error loading news',
+            title: 'Error loading events',
             description: parsed.error,
             status: 'error',
             duration: 4000,
@@ -85,12 +83,16 @@ export default function NewsEnhanced() {
     return () => eventSource.close();
   };
 
-  const formatPublishedDate = (dateString) => {
+  const formatDate = (dateString) => {
     try {
       const date = new Date(dateString);
-      return formatDistanceToNow(date, { addSuffix: true });
+      return date.toLocaleDateString('en-US', { 
+        month: 'short', 
+        day: 'numeric', 
+        year: 'numeric' 
+      });
     } catch {
-      return 'recently';
+      return dateString;
     }
   };
 
@@ -101,21 +103,21 @@ export default function NewsEnhanced() {
           w="100%"
           p={6}
           borderRadius="2xl"
-          bgGradient="linear(135deg, pink.600, red.600)"
+          bgGradient="linear(135deg, blue.600, purple.600)"
           color="white"
           position="relative"
           overflow="hidden"
         >
           <Box position="absolute" right="-20px" top="-20px" opacity={0.2}>
-            <Newspaper size={120} />
+            <Calendar size={120} />
           </Box>
           <VStack align="start" spacing={2} position="relative">
             <HStack>
-              <Icon as={Newspaper} boxSize={8} />
-              <Heading size="lg">Unbiased News</Heading>
+              <Icon as={Calendar} boxSize={8} />
+              <Heading size="lg">Upcoming Events</Heading>
             </HStack>
             <Text fontSize="sm" opacity={0.9}>
-              Curated from BBC, TechCrunch, Hacker News & more
+              Discover trending conferences, meetups, and industry events
             </Text>
           </VStack>
         </Box>
@@ -132,20 +134,20 @@ export default function NewsEnhanced() {
             borderRadius="xl"
             _focus={{
               bg: 'whiteAlpha.150',
-              borderColor: 'pink.400',
+              borderColor: 'blue.400',
             }}
           >
             <option value="" style={{ background: '#1a202c' }}>All Categories</option>
             {categories.map(cat => (
-              <option key={cat} value={cat} style={{ background: '#1a202c' }}>
+              <option key={cat} value={cat.toLowerCase()} style={{ background: '#1a202c' }}>
                 {cat}
               </option>
             ))}
           </Select>
           <Button
-            onClick={loadNews}
+            onClick={loadEvents}
             isLoading={isLoading}
-            colorScheme="pink"
+            colorScheme="blue"
             leftIcon={<RefreshCw size={16} />}
             size="md"
           >
@@ -155,14 +157,14 @@ export default function NewsEnhanced() {
 
         {status && (
           <HStack w="100%" justify="center" p={4}>
-            <Spinner size="sm" color="pink.400" />
+            <Spinner size="sm" color="blue.400" />
             <Text fontSize="sm" color="gray.400">{status}</Text>
           </HStack>
         )}
 
-        {articles.length > 0 && (
+        {events.length > 0 && (
           <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={4} w="100%">
-            {articles.map((article, idx) => (
+            {events.map((event, idx) => (
               <Box
                 key={idx}
                 p={5}
@@ -174,70 +176,84 @@ export default function NewsEnhanced() {
                 transition="all 0.2s"
                 _hover={{
                   transform: 'translateY(-4px)',
-                  borderColor: 'pink.400',
-                  boxShadow: '0 8px 24px rgba(236, 72, 153, 0.15)',
+                  borderColor: 'blue.400',
+                  boxShadow: '0 8px 24px rgba(66, 153, 225, 0.15)',
                 }}
               >
                 <VStack align="start" spacing={3}>
                   <HStack justify="space-between" w="100%">
                     <Badge
-                      colorScheme="pink"
+                      colorScheme="blue"
                       fontSize="xs"
                       px={2}
                       py={1}
                       borderRadius="md"
                     >
-                      {article.category || 'News'}
+                      {event.category || 'General'}
                     </Badge>
-                    {article.adaptive_score && (
+                    {event.adaptive_score && (
                       <HStack spacing={1}>
-                        <TrendingUp size={14} color="var(--chakra-colors-pink-400)" />
-                        <Text fontSize="xs" color="pink.400" fontWeight="bold">
-                          {Math.round(article.adaptive_score.overall)}
+                        <TrendingUp size={14} color="var(--chakra-colors-blue-400)" />
+                        <Text fontSize="xs" color="blue.400" fontWeight="bold">
+                          {Math.round(event.adaptive_score.overall)}
                         </Text>
                       </HStack>
                     )}
                   </HStack>
 
                   <Heading size="sm" color="white" lineHeight="1.3">
-                    {article.title}
+                    {event.title}
                   </Heading>
 
-                  <Text fontSize="sm" color="gray.400" noOfLines={3}>
-                    {article.description}
+                  <Text fontSize="sm" color="gray.400" noOfLines={2}>
+                    {event.description}
                   </Text>
 
-                  <HStack justify="space-between" w="100%">
-                    <Text fontSize="xs" color="gray.600">
-                      {article.source || 'Source'}
-                    </Text>
-                    {article.published_at && (
-                      <Text fontSize="xs" color="gray.600">
-                        {formatPublishedDate(article.published_at)}
-                      </Text>
+                  <VStack align="start" spacing={1} w="100%">
+                    {event.date && (
+                      <HStack spacing={2}>
+                        <Icon as={Calendar} boxSize={4} color="gray.500" />
+                        <Text fontSize="xs" color="gray.500">
+                          {formatDate(event.date)}
+                        </Text>
+                      </HStack>
                     )}
-                  </HStack>
+                    {event.location && (
+                      <HStack spacing={2}>
+                        <Icon as={MapPin} boxSize={4} color="gray.500" />
+                        <Text fontSize="xs" color="gray.500">
+                          {event.location}
+                        </Text>
+                      </HStack>
+                    )}
+                  </VStack>
 
-                  {article.url && (
-                    <Link href={article.url} isExternal w="100%">
+                  {event.url && (
+                    <Link href={event.url} isExternal w="100%">
                       <Button
                         size="sm"
                         w="100%"
                         variant="outline"
-                        colorScheme="pink"
+                        colorScheme="blue"
                         rightIcon={<ExternalLink size={14} />}
                       >
-                        Read Article
+                        Learn More
                       </Button>
                     </Link>
                   )}
+
+                  <HStack justify="space-between" w="100%" pt={2} borderTop="1px solid" borderColor="whiteAlpha.200">
+                    <Text fontSize="xs" color="gray.600">
+                      {event.source || 'Event Source'}
+                    </Text>
+                  </HStack>
                 </VStack>
               </Box>
             ))}
           </SimpleGrid>
         )}
 
-        {!isLoading && articles.length === 0 && (
+        {!isLoading && events.length === 0 && (
           <Box
             w="100%"
             p={8}
@@ -247,8 +263,8 @@ export default function NewsEnhanced() {
             border="1px dashed"
             borderColor="whiteAlpha.300"
           >
-            <Newspaper size={48} style={{ margin: '0 auto 16px', opacity: 0.3 }} />
-            <Text color="gray.500">No news found. Try a different category.</Text>
+            <Calendar size={48} style={{ margin: '0 auto 16px', opacity: 0.3 }} />
+            <Text color="gray.500">No events found. Try a different category.</Text>
           </Box>
         )}
       </VStack>

@@ -6,6 +6,8 @@ import Feed from '@features/feed/Feed';
 import Shopping from '@features/shopping/Shopping';
 import Travel from '@features/travel/Travel';
 import News from '@features/news/News';
+import Events from '@features/events/Events';
+import Products from '@features/products/Products';
 import ContentGeneration from '@features/content/ContentGeneration';
 import SmartHome from '@features/smarthome/SmartHome';
 import Health from '@features/health/Health';
@@ -29,6 +31,8 @@ function App() {
             <Route path="adaptive-intelligence" element={<AdaptiveIntelligence />} />
             <Route path="explore" element={<Explore />} />
             <Route path="news" element={<News />} />
+            <Route path="events" element={<Events />} />
+            <Route path="products" element={<Products />} />
             <Route path="activity" element={<Activity />} />
             <Route path="messages" element={<Messages />} />
             <Route path="profile" element={<Profile />} />

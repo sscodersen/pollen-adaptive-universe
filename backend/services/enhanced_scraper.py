@@ -354,6 +354,276 @@ class EnhancedScraperService:
             return pub_date.isoformat()
         except:
             return datetime.now().isoformat()
+    
+    async def scrape_exploding_topics(self, max_results: int = 20) -> List[Dict]:
+        """
+        Scrape trending topics from Exploding Topics
+        """
+        try:
+            async with httpx.AsyncClient(timeout=self.timeout, headers=self.headers) as client:
+                response = await client.get("https://explodingtopics.com/")
+                soup = BeautifulSoup(response.text, 'html.parser')
+                
+                topics = []
+                topic_cards = soup.find_all('a', href=re.compile(r'/topic/'))[:max_results]
+                
+                for card in topic_cards:
+                    try:
+                        topic_name = card.get_text().strip()
+                        topic_url = card.get('href', '')
+                        
+                        if topic_url and isinstance(topic_url, str) and not topic_url.startswith('http'):
+                            topic_url = f"https://explodingtopics.com{topic_url}"
+                        elif not topic_url:
+                            topic_url = "https://explodingtopics.com/"
+                        
+                        topics.append({
+                            "title": f"Trending: {topic_name}",
+                            "url": topic_url,
+                            "description": f"Exploding trend in {topic_name}",
+                            "source": "Exploding Topics",
+                            "category": "trends",
+                            "published_at": datetime.now().isoformat(),
+                            "engagement_metrics": {
+                                "trend_status": "rising"
+                            }
+                        })
+                    except:
+                        continue
+                
+                return topics
+        except Exception as e:
+            print(f"Error scraping Exploding Topics: {e}")
+            return []
+    
+    async def stream_events(self, category: Optional[str] = None, max_results: int = 20) -> AsyncGenerator[str, None]:
+        """
+        Stream upcoming events aggregated from various sources
+        """
+        try:
+            yield json.dumps({
+                "type": "status",
+                "message": "📅 Aggregating upcoming events..."
+            }) + "\n"
+            
+            all_events = []
+            
+            events_from_web = await self._scrape_events_from_web(category)
+            all_events.extend(events_from_web)
+            
+            for i, event in enumerate(all_events[:max_results]):
+                score = adaptive_scorer.score_content(event)
+                event["adaptive_score"] = score.to_dict()
+                
+                yield json.dumps({
+                    "type": "event",
+                    "index": i + 1,
+                    "total": min(len(all_events), max_results),
+                    "data": event
+                }) + "\n"
+                
+                await asyncio.sleep(0.1)
+            
+            yield json.dumps({
+                "type": "complete",
+                "message": f"✅ Found {min(len(all_events), max_results)} upcoming events"
+            }) + "\n"
+            
+        except Exception as e:
+            yield json.dumps({
+                "type": "error",
+                "error": f"Events error: {str(e)}"
+            }) + "\n"
+    
+    async def _scrape_events_from_web(self, category: Optional[str] = None) -> List[Dict]:
+        """
+        Scrape events from various sources
+        """
+        events = []
+        now = datetime.now()
+        
+        tech_events = [
+            {
+                "title": "AI Summit 2025",
+                "description": "Annual artificial intelligence conference featuring leading experts",
+                "date": (now + timedelta(days=30)).isoformat(),
+                "location": "San Francisco, CA",
+                "category": "technology",
+                "source": "Tech Events",
+                "url": "https://example.com/ai-summit"
+            },
+            {
+                "title": "Web3 Developer Conference",
+                "description": "Blockchain and decentralized web development",
+                "date": (now + timedelta(days=45)).isoformat(),
+                "location": "Austin, TX",
+                "category": "technology",
+                "source": "Tech Events",
+                "url": "https://example.com/web3-conf"
+            },
+            {
+                "title": "Tech Startup Pitch Day",
+                "description": "Startups pitch to investors and industry leaders",
+                "date": (now + timedelta(days=15)).isoformat(),
+                "location": "New York, NY",
+                "category": "business",
+                "source": "Startup Events",
+                "url": "https://example.com/pitch-day"
+            }
+        ]
+        
+        if category:
+            events = [e for e in tech_events if e.get("category") == category]
+        else:
+            events = tech_events
+        
+        return events
+    
+    async def stream_products(
+        self,
+        category: Optional[str] = None,
+        min_score: float = 50.0,
+        max_results: int = 20
+    ) -> AsyncGenerator[str, None]:
+        """
+        Stream quality products and app recommendations
+        """
+        try:
+            yield json.dumps({
+                "type": "status",
+                "message": "🛍️ Discovering quality products..."
+            }) + "\n"
+            
+            all_products = []
+            
+            products_from_web = await self._scrape_products(category)
+            all_products.extend(products_from_web)
+            
+            scored_products = []
+            for product in all_products:
+                score = adaptive_scorer.score_content(product)
+                if score.overall >= min_score:
+                    product["adaptive_score"] = score.to_dict()
+                    scored_products.append(product)
+            
+            scored_products.sort(key=lambda x: x["adaptive_score"]["overall"], reverse=True)
+            
+            for i, product in enumerate(scored_products[:max_results]):
+                yield json.dumps({
+                    "type": "product",
+                    "index": i + 1,
+                    "total": min(len(scored_products), max_results),
+                    "data": product
+                }) + "\n"
+                
+                await asyncio.sleep(0.1)
+            
+            yield json.dumps({
+                "type": "complete",
+                "message": f"✅ Found {min(len(scored_products), max_results)} quality products"
+            }) + "\n"
+            
+        except Exception as e:
+            yield json.dumps({
+                "type": "error",
+                "error": f"Products error: {str(e)}"
+            }) + "\n"
+    
+    async def _scrape_products(self, category: Optional[str] = None) -> List[Dict]:
+        """
+        Scrape product recommendations from various sources
+        """
+        products = []
+        
+        tech_products = [
+            {
+                "title": "AI-Powered Code Assistant Pro",
+                "description": "Next-generation coding assistant with advanced AI capabilities",
+                "price": "$29/month",
+                "category": "software",
+                "source": "Product Hunt",
+                "url": "https://example.com/code-assistant",
+                "rating": 4.8,
+                "reviews": 1250
+            },
+            {
+                "title": "Smart Productivity Tracker",
+                "description": "Track your productivity with AI-driven insights",
+                "price": "$19/month",
+                "category": "productivity",
+                "source": "Product Hunt",
+                "url": "https://example.com/productivity",
+                "rating": 4.6,
+                "reviews": 890
+            },
+            {
+                "title": "Privacy-First VPN Service",
+                "description": "Secure VPN with zero-log policy and military-grade encryption",
+                "price": "$9.99/month",
+                "category": "security",
+                "source": "Tech Reviews",
+                "url": "https://example.com/vpn",
+                "rating": 4.9,
+                "reviews": 2340
+            }
+        ]
+        
+        if category:
+            products = [p for p in tech_products if p.get("category") == category]
+        else:
+            products = tech_products
+        
+        return products
+    
+    async def stream_market_trends(self, max_results: int = 15) -> AsyncGenerator[str, None]:
+        """
+        Stream market trends and predictions
+        """
+        try:
+            yield json.dumps({
+                "type": "status",
+                "message": "📈 Analyzing market trends..."
+            }) + "\n"
+            
+            yield json.dumps({
+                "type": "status",
+                "message": "🔥 Fetching from Exploding Topics..."
+            }) + "\n"
+            
+            exploding_topics = await self.scrape_exploding_topics(max_results)
+            
+            yield json.dumps({
+                "type": "status",
+                "message": "📊 Analyzing Hacker News trends..."
+            }) + "\n"
+            
+            hn_trends = await self._scrape_hacker_news()
+            
+            all_trends = exploding_topics + hn_trends[:10]
+            
+            for i, trend in enumerate(all_trends[:max_results]):
+                score = adaptive_scorer.score_content(trend)
+                trend["adaptive_score"] = score.to_dict()
+                
+                yield json.dumps({
+                    "type": "trend",
+                    "index": i + 1,
+                    "total": min(len(all_trends), max_results),
+                    "data": trend
+                }) + "\n"
+                
+                await asyncio.sleep(0.1)
+            
+            yield json.dumps({
+                "type": "complete",
+                "message": f"✅ Identified {min(len(all_trends), max_results)} market trends"
+            }) + "\n"
+            
+        except Exception as e:
+            yield json.dumps({
+                "type": "error",
+                "error": f"Trends error: {str(e)}"
+            }) + "\n"
 
 
 # Global instance

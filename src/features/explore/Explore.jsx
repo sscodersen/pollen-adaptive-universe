@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Box,
   VStack,
@@ -14,7 +14,10 @@ import {
   TabPanel,
   Button,
   Avatar,
-  AvatarGroup
+  AvatarGroup,
+  Link,
+  Spinner,
+  Heading
 } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -29,14 +32,48 @@ import {
   FileText,
   Home as HomeIcon,
   Heart,
-  GraduationCap
+  GraduationCap,
+  ExternalLink,
+  Flame
 } from 'lucide-react';
 import FeatureCard from '@components/common/FeatureCard';
-import { FEATURES } from '@utils/constants';
+import { FEATURES, API_BASE_URL } from '@utils/constants';
 
 const Explore = () => {
   const navigate = useNavigate();
   const [activeCategory, setActiveCategory] = useState('all');
+  const [trendingTopics, setTrendingTopics] = useState([]);
+  const [loadingTrends, setLoadingTrends] = useState(false);
+
+  useEffect(() => {
+    loadMarketTrends();
+  }, []);
+
+  const loadMarketTrends = () => {
+    setLoadingTrends(true);
+    setTrendingTopics([]);
+
+    const eventSource = new EventSource(`${API_BASE_URL}/trends/market?max_results=10`);
+
+    eventSource.onmessage = (event) => {
+      try {
+        const parsed = JSON.parse(event.data);
+        
+        if (parsed.type === 'trend') {
+          setTrendingTopics(prev => [...prev, parsed.data]);
+        } else if (parsed.type === 'complete') {
+          setLoadingTrends(false);
+        }
+      } catch (e) {}
+    };
+
+    eventSource.onerror = () => {
+      eventSource.close();
+      setLoadingTrends(false);
+    };
+
+    return () => eventSource.close();
+  };
 
   const categories = [
     { id: 'all', name: 'All Features', icon: Sparkles },
@@ -116,12 +153,90 @@ const Explore = () => {
   return (
     <Box px={4} py={4}>
       <VStack align="start" spacing={6}>
+        {/* Trending Topics Section */}
+        <Box
+          w="100%"
+          p={6}
+          borderRadius="2xl"
+          bgGradient="linear(135deg, orange.600, red.600)"
+          color="white"
+          position="relative"
+          overflow="hidden"
+        >
+          <Box position="absolute" right="-20px" top="-20px" opacity={0.2}>
+            <Flame size={120} />
+          </Box>
+          <VStack align="start" spacing={3} position="relative">
+            <HStack>
+              <Icon as={Flame} boxSize={8} />
+              <Heading size="lg">Trending Topics</Heading>
+            </HStack>
+            <Text fontSize="sm" opacity={0.9}>
+              From Exploding Topics & Hacker News
+            </Text>
+            
+            {loadingTrends && (
+              <HStack spacing={2} py={2}>
+                <Spinner size="sm" />
+                <Text fontSize="sm">Loading trends...</Text>
+              </HStack>
+            )}
+            
+            {trendingTopics.length > 0 && (
+              <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={3} w="100%" pt={2}>
+                {trendingTopics.slice(0, 6).map((topic, idx) => (
+                  <Link key={idx} href={topic.url} isExternal _hover={{ textDecoration: 'none' }}>
+                    <Box
+                      p={4}
+                      bg="whiteAlpha.200"
+                      backdropFilter="blur(10px)"
+                      borderRadius="lg"
+                      border="1px solid"
+                      borderColor="whiteAlpha.300"
+                      transition="all 0.2s"
+                      _hover={{
+                        transform: 'translateY(-2px)',
+                        bg: 'whiteAlpha.300',
+                      }}
+                    >
+                      <VStack align="start" spacing={2}>
+                        <HStack justify="space-between" w="100%">
+                          <Badge colorScheme="orange" fontSize="xs">
+                            {topic.source}
+                          </Badge>
+                          {topic.adaptive_score && (
+                            <HStack spacing={1}>
+                              <TrendingUp size={12} />
+                              <Text fontSize="xs" fontWeight="bold">
+                                {Math.round(topic.adaptive_score.overall)}
+                              </Text>
+                            </HStack>
+                          )}
+                        </HStack>
+                        <Text fontSize="sm" fontWeight="semibold" noOfLines={2}>
+                          {topic.title}
+                        </Text>
+                        <HStack>
+                          <ExternalLink size={12} />
+                          <Text fontSize="xs" opacity={0.8}>
+                            Learn more
+                          </Text>
+                        </HStack>
+                      </VStack>
+                    </Box>
+                  </Link>
+                ))}
+              </SimpleGrid>
+            )}
+          </VStack>
+        </Box>
+
         {/* Header */}
         <VStack align="start" spacing={2} w="100%">
           <HStack spacing={3}>
             <Icon as={Sparkles} boxSize={8} color="purple.400" />
             <Text fontSize="3xl" fontWeight="bold" color="white">
-              Explore
+              Explore Features
             </Text>
           </HStack>
           <Text fontSize="sm" color="gray.400">

@@ -12,14 +12,14 @@ import {
   Spinner,
   useToast,
   Link,
-  Button
+  Button,
+  Tag
 } from '@chakra-ui/react';
-import { Newspaper, ExternalLink, TrendingUp, RefreshCw } from 'lucide-react';
+import { Package, ExternalLink, Star, TrendingUp, RefreshCw, DollarSign } from 'lucide-react';
 import { API_BASE_URL } from '@utils/constants';
-import { formatDistanceToNow } from 'date-fns';
 
-export default function NewsEnhanced() {
-  const [articles, setArticles] = useState([]);
+export default function Products() {
+  const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -27,25 +27,25 @@ export default function NewsEnhanced() {
   const toast = useToast();
 
   useEffect(() => {
-    fetch(`${API_BASE_URL}/news/categories`)
+    fetch(`${API_BASE_URL}/products/categories`)
       .then(res => res.json())
       .then(data => setCategories(data.categories || []))
       .catch(() => {});
     
-    loadNews();
+    loadProducts();
   }, []);
 
-  const loadNews = () => {
+  const loadProducts = () => {
     setIsLoading(true);
-    setArticles([]);
-    setStatus('Fetching latest news...');
+    setProducts([]);
+    setStatus('Discovering products...');
 
     const params = new URLSearchParams();
-    if (selectedCategory) params.append('category', selectedCategory.toLowerCase());
+    if (selectedCategory) params.append('category', selectedCategory);
     params.append('min_score', '50');
     params.append('max_results', '20');
 
-    const eventSource = new EventSource(`${API_BASE_URL}/news/fetch?${params}`);
+    const eventSource = new EventSource(`${API_BASE_URL}/products/discover?${params}`);
 
     eventSource.onmessage = (event) => {
       try {
@@ -53,8 +53,8 @@ export default function NewsEnhanced() {
         
         if (parsed.type === 'status') {
           setStatus(parsed.message);
-        } else if (parsed.type === 'content') {
-          setArticles(prev => [...prev, parsed.data]);
+        } else if (parsed.type === 'product') {
+          setProducts(prev => [...prev, parsed.data]);
         } else if (parsed.type === 'complete') {
           setStatus('');
           setIsLoading(false);
@@ -67,7 +67,7 @@ export default function NewsEnhanced() {
           setStatus('');
           setIsLoading(false);
           toast({
-            title: 'Error loading news',
+            title: 'Error loading products',
             description: parsed.error,
             status: 'error',
             duration: 4000,
@@ -85,15 +85,6 @@ export default function NewsEnhanced() {
     return () => eventSource.close();
   };
 
-  const formatPublishedDate = (dateString) => {
-    try {
-      const date = new Date(dateString);
-      return formatDistanceToNow(date, { addSuffix: true });
-    } catch {
-      return 'recently';
-    }
-  };
-
   return (
     <Box px={4} py={6}>
       <VStack align="start" spacing={5}>
@@ -101,21 +92,21 @@ export default function NewsEnhanced() {
           w="100%"
           p={6}
           borderRadius="2xl"
-          bgGradient="linear(135deg, pink.600, red.600)"
+          bgGradient="linear(135deg, green.600, teal.600)"
           color="white"
           position="relative"
           overflow="hidden"
         >
           <Box position="absolute" right="-20px" top="-20px" opacity={0.2}>
-            <Newspaper size={120} />
+            <Package size={120} />
           </Box>
           <VStack align="start" spacing={2} position="relative">
             <HStack>
-              <Icon as={Newspaper} boxSize={8} />
-              <Heading size="lg">Unbiased News</Heading>
+              <Icon as={Package} boxSize={8} />
+              <Heading size="lg">Quality Products</Heading>
             </HStack>
             <Text fontSize="sm" opacity={0.9}>
-              Curated from BBC, TechCrunch, Hacker News & more
+              Curated apps and products with AI-powered quality scoring
             </Text>
           </VStack>
         </Box>
@@ -132,20 +123,20 @@ export default function NewsEnhanced() {
             borderRadius="xl"
             _focus={{
               bg: 'whiteAlpha.150',
-              borderColor: 'pink.400',
+              borderColor: 'green.400',
             }}
           >
             <option value="" style={{ background: '#1a202c' }}>All Categories</option>
             {categories.map(cat => (
-              <option key={cat} value={cat} style={{ background: '#1a202c' }}>
+              <option key={cat} value={cat.toLowerCase().replace(' ', '-')} style={{ background: '#1a202c' }}>
                 {cat}
               </option>
             ))}
           </Select>
           <Button
-            onClick={loadNews}
+            onClick={loadProducts}
             isLoading={isLoading}
-            colorScheme="pink"
+            colorScheme="green"
             leftIcon={<RefreshCw size={16} />}
             size="md"
           >
@@ -155,14 +146,14 @@ export default function NewsEnhanced() {
 
         {status && (
           <HStack w="100%" justify="center" p={4}>
-            <Spinner size="sm" color="pink.400" />
+            <Spinner size="sm" color="green.400" />
             <Text fontSize="sm" color="gray.400">{status}</Text>
           </HStack>
         )}
 
-        {articles.length > 0 && (
+        {products.length > 0 && (
           <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={4} w="100%">
-            {articles.map((article, idx) => (
+            {products.map((product, idx) => (
               <Box
                 key={idx}
                 p={5}
@@ -174,70 +165,90 @@ export default function NewsEnhanced() {
                 transition="all 0.2s"
                 _hover={{
                   transform: 'translateY(-4px)',
-                  borderColor: 'pink.400',
-                  boxShadow: '0 8px 24px rgba(236, 72, 153, 0.15)',
+                  borderColor: 'green.400',
+                  boxShadow: '0 8px 24px rgba(72, 187, 120, 0.15)',
                 }}
               >
                 <VStack align="start" spacing={3}>
                   <HStack justify="space-between" w="100%">
                     <Badge
-                      colorScheme="pink"
+                      colorScheme="green"
                       fontSize="xs"
                       px={2}
                       py={1}
                       borderRadius="md"
                     >
-                      {article.category || 'News'}
+                      {product.category || 'Product'}
                     </Badge>
-                    {article.adaptive_score && (
+                    {product.adaptive_score && (
                       <HStack spacing={1}>
-                        <TrendingUp size={14} color="var(--chakra-colors-pink-400)" />
-                        <Text fontSize="xs" color="pink.400" fontWeight="bold">
-                          {Math.round(article.adaptive_score.overall)}
+                        <TrendingUp size={14} color="var(--chakra-colors-green-400)" />
+                        <Text fontSize="xs" color="green.400" fontWeight="bold">
+                          {Math.round(product.adaptive_score.overall)}
                         </Text>
                       </HStack>
                     )}
                   </HStack>
 
                   <Heading size="sm" color="white" lineHeight="1.3">
-                    {article.title}
+                    {product.title}
                   </Heading>
 
-                  <Text fontSize="sm" color="gray.400" noOfLines={3}>
-                    {article.description}
+                  <Text fontSize="sm" color="gray.400" noOfLines={2}>
+                    {product.description}
                   </Text>
 
-                  <HStack justify="space-between" w="100%">
-                    <Text fontSize="xs" color="gray.600">
-                      {article.source || 'Source'}
-                    </Text>
-                    {article.published_at && (
-                      <Text fontSize="xs" color="gray.600">
-                        {formatPublishedDate(article.published_at)}
-                      </Text>
+                  <HStack spacing={3} w="100%">
+                    {product.price && (
+                      <HStack spacing={1}>
+                        <Icon as={DollarSign} boxSize={4} color="green.400" />
+                        <Text fontSize="sm" fontWeight="bold" color="green.400">
+                          {product.price}
+                        </Text>
+                      </HStack>
+                    )}
+                    {product.rating && (
+                      <HStack spacing={1}>
+                        <Icon as={Star} boxSize={4} color="yellow.400" />
+                        <Text fontSize="sm" color="gray.400">
+                          {product.rating}
+                        </Text>
+                      </HStack>
                     )}
                   </HStack>
 
-                  {article.url && (
-                    <Link href={article.url} isExternal w="100%">
+                  {product.reviews && (
+                    <Text fontSize="xs" color="gray.600">
+                      {product.reviews.toLocaleString()} reviews
+                    </Text>
+                  )}
+
+                  {product.url && (
+                    <Link href={product.url} isExternal w="100%">
                       <Button
                         size="sm"
                         w="100%"
                         variant="outline"
-                        colorScheme="pink"
+                        colorScheme="green"
                         rightIcon={<ExternalLink size={14} />}
                       >
-                        Read Article
+                        View Product
                       </Button>
                     </Link>
                   )}
+
+                  <HStack justify="space-between" w="100%" pt={2} borderTop="1px solid" borderColor="whiteAlpha.200">
+                    <Text fontSize="xs" color="gray.600">
+                      {product.source || 'Product Source'}
+                    </Text>
+                  </HStack>
                 </VStack>
               </Box>
             ))}
           </SimpleGrid>
         )}
 
-        {!isLoading && articles.length === 0 && (
+        {!isLoading && products.length === 0 && (
           <Box
             w="100%"
             p={8}
@@ -247,8 +258,8 @@ export default function NewsEnhanced() {
             border="1px dashed"
             borderColor="whiteAlpha.300"
           >
-            <Newspaper size={48} style={{ margin: '0 auto 16px', opacity: 0.3 }} />
-            <Text color="gray.500">No news found. Try a different category.</Text>
+            <Package size={48} style={{ margin: '0 auto 16px', opacity: 0.3 }} />
+            <Text color="gray.500">No products found. Try a different category.</Text>
           </Box>
         )}
       </VStack>
