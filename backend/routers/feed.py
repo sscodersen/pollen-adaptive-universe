@@ -29,8 +29,14 @@ NAMES = [
 
 async def generate_trending_topics():
     try:
-        exploding_topics = await enhanced_scraper.scrape_exploding_topics(max_results=10)
-        hn_content = await enhanced_scraper._scrape_hacker_news()
+        exploding_topics = await asyncio.wait_for(
+            enhanced_scraper.scrape_exploding_topics(max_results=10),
+            timeout=3.0
+        )
+        hn_content = await asyncio.wait_for(
+            enhanced_scraper._scrape_hacker_news(),
+            timeout=3.0
+        )
         
         trends = []
         
@@ -73,6 +79,9 @@ async def generate_trending_topics():
                 })
         
         return trends[:5] if len(trends) > 0 else generate_fallback_trends()
+    except asyncio.TimeoutError:
+        print("Trending topics scraping timed out, using fallback data")
+        return generate_fallback_trends()
     except Exception as e:
         print(f"Error generating trending topics: {e}")
         return generate_fallback_trends()
