@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Box,
@@ -25,14 +25,21 @@ export default function TrendDetail() {
   const [isLoading, setIsLoading] = useState(false);
   const [status, setStatus] = useState('');
   const toast = useToast();
+  const eventSourceRef = useRef(null);
 
   useEffect(() => {
     if (tag) {
-      loadTrendContent();
+      const cleanup = loadTrendContent();
+      return cleanup;
     }
   }, [tag]);
 
   const loadTrendContent = () => {
+    if (eventSourceRef.current) {
+      eventSourceRef.current.close();
+      eventSourceRef.current = null;
+    }
+
     setIsLoading(true);
     setContent([]);
     setStatus(`Loading content for ${tag}...`);
@@ -42,6 +49,7 @@ export default function TrendDetail() {
     params.append('max_results', '20');
 
     const eventSource = new EventSource(`${API_BASE_URL}/trends/market?${params}`);
+    eventSourceRef.current = eventSource;
 
     eventSource.onmessage = (event) => {
       try {
@@ -56,6 +64,8 @@ export default function TrendDetail() {
         } else if (parsed.type === 'complete') {
           setStatus('');
           setIsLoading(false);
+          eventSource.close();
+          eventSourceRef.current = null;
           toast({
             title: parsed.message || 'Content loaded successfully',
             status: 'success',
@@ -64,6 +74,8 @@ export default function TrendDetail() {
         } else if (parsed.type === 'error') {
           setStatus('');
           setIsLoading(false);
+          eventSource.close();
+          eventSourceRef.current = null;
           toast({
             title: 'Error loading trend content',
             description: parsed.error,
@@ -78,6 +90,7 @@ export default function TrendDetail() {
 
     eventSource.onerror = () => {
       eventSource.close();
+      eventSourceRef.current = null;
       setIsLoading(false);
       setStatus('');
       
@@ -91,7 +104,12 @@ export default function TrendDetail() {
       }
     };
 
-    return () => eventSource.close();
+    return () => {
+      if (eventSourceRef.current) {
+        eventSourceRef.current.close();
+        eventSourceRef.current = null;
+      }
+    };
   };
 
   const topicName = tag?.replace('#', '') || 'Trending Topic';

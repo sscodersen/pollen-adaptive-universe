@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   Box,
   Heading,
@@ -22,6 +22,7 @@ export default function Events() {
   const [isLoading, setIsLoading] = useState(false);
   const [status, setStatus] = useState('');
   const toast = useToast();
+  const eventSourceRef = useRef(null);
 
   useEffect(() => {
     fetch(`${API_BASE_URL}/events/categories`)
@@ -29,10 +30,16 @@ export default function Events() {
       .then(data => setCategories(data.categories || []))
       .catch(() => {});
     
-    loadEvents();
-  }, []);
+    const cleanup = loadEvents();
+    return cleanup;
+  }, [selectedCategory]);
 
   const loadEvents = () => {
+    if (eventSourceRef.current) {
+      eventSourceRef.current.close();
+      eventSourceRef.current = null;
+    }
+
     setIsLoading(true);
     setEvents([]);
     setStatus('Loading events...');
@@ -42,6 +49,7 @@ export default function Events() {
     params.append('max_results', '20');
 
     const eventSource = new EventSource(`${API_BASE_URL}/events/upcoming?${params}`);
+    eventSourceRef.current = eventSource;
 
     eventSource.onmessage = (event) => {
       try {
@@ -54,6 +62,8 @@ export default function Events() {
         } else if (parsed.type === 'complete') {
           setStatus('');
           setIsLoading(false);
+          eventSource.close();
+          eventSourceRef.current = null;
           toast({
             title: parsed.message,
             status: 'success',
@@ -62,6 +72,8 @@ export default function Events() {
         } else if (parsed.type === 'error') {
           setStatus('');
           setIsLoading(false);
+          eventSource.close();
+          eventSourceRef.current = null;
           toast({
             title: 'Error loading events',
             description: parsed.error,
@@ -74,11 +86,17 @@ export default function Events() {
 
     eventSource.onerror = () => {
       eventSource.close();
+      eventSourceRef.current = null;
       setIsLoading(false);
       setStatus('');
     };
 
-    return () => eventSource.close();
+    return () => {
+      if (eventSourceRef.current) {
+        eventSourceRef.current.close();
+        eventSourceRef.current = null;
+      }
+    };
   };
 
   const formatDate = (dateString) => {
