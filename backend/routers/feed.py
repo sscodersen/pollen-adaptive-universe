@@ -35,23 +35,40 @@ async def generate_trending_topics():
         trends = []
         
         for i, topic in enumerate(exploding_topics[:5]):
-            growth = topic.get('engagement_metrics', {}).get('growth', '+15%')
-            if not growth.startswith('+'):
-                growth = f"+{growth}"
+            title = topic.get('title', 'trending').replace('Trending: ', '').strip()
+            words = title.split()
+            tag = ' '.join(words[:3]) if len(words) > 3 else title
+            
+            growth = topic.get('engagement_metrics', {}).get('growth', '')
+            if growth and isinstance(growth, (int, float)):
+                growth = f"+{int(growth)}%"
+            elif growth and not growth.startswith('+'):
+                growth = f"+{growth}" if '%' in str(growth) else f"+{growth}%"
+            else:
+                growth = f"+{random.randint(10, 50)}%"
+            
+            volume = topic.get('engagement_metrics', {}).get('volume', random.randint(50, 500))
+            posts = f"{volume}K" if isinstance(volume, int) else str(volume)
             
             trends.append({
                 "id": i + 1,
-                "tag": f"#{topic.get('title', 'trending').replace('Trending: ', '').replace(' ', '').lower()[:20]}",
-                "posts": f"{random.randint(20, 200)}K",
+                "tag": f"#{tag}",
+                "posts": posts,
                 "trend": growth
             })
         
         if len(trends) < 5:
             for i, article in enumerate(hn_content[:5 - len(trends)]):
+                title = article.get('title', 'tech')
+                words = title.split()
+                tag = ' '.join(words[:2]) if len(words) > 2 else words[0] if words else 'tech'
+                
+                points = article.get('engagement_metrics', {}).get('points', 50)
+                
                 trends.append({
                     "id": len(trends) + 1,
-                    "tag": f"#{article.get('title', 'tech').split()[0].lower()}",
-                    "posts": f"{article.get('engagement_metrics', {}).get('points', 50)}K",
+                    "tag": f"#{tag}",
+                    "posts": f"{points}",
                     "trend": f"+{random.randint(5, 25)}%"
                 })
         
