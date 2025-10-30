@@ -6,16 +6,14 @@ import {
   Text,
   HStack,
   Icon,
-  Badge,
   Select,
-  SimpleGrid,
   Spinner,
   useToast,
-  Link,
   Button
 } from '@chakra-ui/react';
-import { Calendar, MapPin, ExternalLink, TrendingUp, RefreshCw } from 'lucide-react';
+import { Calendar, RefreshCw } from 'lucide-react';
 import { API_BASE_URL } from '@utils/constants';
+import PostCard from '@components/common/PostCard';
 
 export default function Events() {
   const [events, setEvents] = useState([]);
@@ -163,94 +161,23 @@ export default function Events() {
         )}
 
         {events.length > 0 && (
-          <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={4} w="100%">
+          <VStack spacing={4} w="100%">
             {events.map((event, idx) => (
-              <Box
-                key={idx}
-                p={5}
-                bg="whiteAlpha.100"
-                backdropFilter="blur(10px)"
-                borderRadius="xl"
-                border="1px solid"
-                borderColor="whiteAlpha.200"
-                transition="all 0.2s"
-                _hover={{
-                  transform: 'translateY(-4px)',
-                  borderColor: 'blue.400',
-                  boxShadow: '0 8px 24px rgba(66, 153, 225, 0.15)',
-                }}
-              >
-                <VStack align="start" spacing={3}>
-                  <HStack justify="space-between" w="100%">
-                    <Badge
-                      colorScheme="blue"
-                      fontSize="xs"
-                      px={2}
-                      py={1}
-                      borderRadius="md"
-                    >
-                      {event.category || 'General'}
-                    </Badge>
-                    {event.adaptive_score && (
-                      <HStack spacing={1}>
-                        <TrendingUp size={14} color="var(--chakra-colors-blue-400)" />
-                        <Text fontSize="xs" color="blue.400" fontWeight="bold">
-                          {Math.round(event.adaptive_score.overall)}
-                        </Text>
-                      </HStack>
-                    )}
-                  </HStack>
-
-                  <Heading size="sm" color="white" lineHeight="1.3">
-                    {event.title}
-                  </Heading>
-
-                  <Text fontSize="sm" color="gray.400" noOfLines={2}>
-                    {event.description}
-                  </Text>
-
-                  <VStack align="start" spacing={1} w="100%">
-                    {event.date && (
-                      <HStack spacing={2}>
-                        <Icon as={Calendar} boxSize={4} color="gray.500" />
-                        <Text fontSize="xs" color="gray.500">
-                          {formatDate(event.date)}
-                        </Text>
-                      </HStack>
-                    )}
-                    {event.location && (
-                      <HStack spacing={2}>
-                        <Icon as={MapPin} boxSize={4} color="gray.500" />
-                        <Text fontSize="xs" color="gray.500">
-                          {event.location}
-                        </Text>
-                      </HStack>
-                    )}
-                  </VStack>
-
-                  {event.url && (
-                    <Link href={event.url} isExternal w="100%">
-                      <Button
-                        size="sm"
-                        w="100%"
-                        variant="outline"
-                        colorScheme="blue"
-                        rightIcon={<ExternalLink size={14} />}
-                      >
-                        Learn More
-                      </Button>
-                    </Link>
-                  )}
-
-                  <HStack justify="space-between" w="100%" pt={2} borderTop="1px solid" borderColor="whiteAlpha.200">
-                    <Text fontSize="xs" color="gray.600">
-                      {event.source || 'Event Source'}
-                    </Text>
-                  </HStack>
-                </VStack>
-              </Box>
+              <PostCard 
+                key={idx} 
+                post={{
+                  ...event,
+                  content: event.title,
+                  tags: [
+                    event.category,
+                    event.date && `📅 ${formatDate(event.date)}`,
+                    event.location && `📍 ${event.location}`
+                  ].filter(Boolean)
+                }} 
+                showImage={true} 
+              />
             ))}
-          </SimpleGrid>
+          </VStack>
         )}
 
         {!isLoading && events.length === 0 && (

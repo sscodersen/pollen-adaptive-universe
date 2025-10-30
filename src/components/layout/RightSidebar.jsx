@@ -159,6 +159,7 @@ const RightSidebar = () => {
               cursor="pointer"
               transition="all 0.2s"
               _hover={{ bg: 'whiteAlpha.50' }}
+              onClick={() => !loading && navigate(`/trends/${encodeURIComponent(topic.tag)}`)}
             >
               {loading ? (
                 <Skeleton height="40px" />

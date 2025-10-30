@@ -19,6 +19,7 @@ import Finance from '@features/finance/Finance';
 import CodeHelper from '@features/code/CodeHelper';
 import Messages from '@features/messages/Messages';
 import AdaptiveIntelligence from '@features/adaptive-intelligence/AdaptiveIntelligence';
+import TrendDetail from '@features/trends/TrendDetail';
 import ErrorBoundary from '@components/common/ErrorBoundary';
 
 function App() {
@@ -33,6 +34,7 @@ function App() {
             <Route path="news" element={<News />} />
             <Route path="events" element={<Events />} />
             <Route path="products" element={<Products />} />
+            <Route path="trends/:tag" element={<TrendDetail />} />
             <Route path="activity" element={<Activity />} />
             <Route path="messages" element={<Messages />} />
             <Route path="profile" element={<Profile />} />
