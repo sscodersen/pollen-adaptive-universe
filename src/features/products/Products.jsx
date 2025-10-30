@@ -24,7 +24,7 @@ export default function Products() {
   const toast = useToast();
 
   useEffect(() => {
-    fetch(`${API_BASE_URL}/products/categories`)
+    fetch(`${API_BASE_URL}/api/products/categories`)
       .then(res => res.json())
       .then(data => setCategories(data.categories || []))
       .catch(() => {});
@@ -42,7 +42,7 @@ export default function Products() {
     params.append('min_score', '50');
     params.append('max_results', '20');
 
-    const eventSource = new EventSource(`${API_BASE_URL}/products/discover?${params}`);
+    const eventSource = new EventSource(`${API_BASE_URL}/api/products/discover?${params}`);
 
     eventSource.onmessage = (event) => {
       try {

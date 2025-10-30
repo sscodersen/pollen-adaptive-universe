@@ -48,7 +48,7 @@ export default function TrendDetail() {
     params.append('topic', tag.replace('#', ''));
     params.append('max_results', '20');
 
-    const eventSource = new EventSource(`${API_BASE_URL}/trends/market?${params}`);
+    const eventSource = new EventSource(`${API_BASE_URL}/api/trends/market?${params}`);
     eventSourceRef.current = eventSource;
 
     eventSource.onmessage = (event) => {

@@ -25,7 +25,7 @@ export default function Events() {
   const eventSourceRef = useRef(null);
 
   useEffect(() => {
-    fetch(`${API_BASE_URL}/events/categories`)
+    fetch(`${API_BASE_URL}/api/events/categories`)
       .then(res => res.json())
       .then(data => setCategories(data.categories || []))
       .catch(() => {});
@@ -48,7 +48,7 @@ export default function Events() {
     if (selectedCategory) params.append('category', selectedCategory);
     params.append('max_results', '20');
 
-    const eventSource = new EventSource(`${API_BASE_URL}/events/upcoming?${params}`);
+    const eventSource = new EventSource(`${API_BASE_URL}/api/events/upcoming?${params}`);
     eventSourceRef.current = eventSource;
 
     eventSource.onmessage = (event) => {

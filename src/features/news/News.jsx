@@ -24,7 +24,7 @@ export default function News() {
   const toast = useToast();
 
   useEffect(() => {
-    fetch(`${API_BASE_URL}/news/categories`)
+    fetch(`${API_BASE_URL}/api/news/categories`)
       .then(res => res.json())
       .then(data => setCategories(data.categories || []))
       .catch(() => {});
@@ -42,7 +42,7 @@ export default function News() {
     params.append('min_score', '50');
     params.append('max_results', '20');
 
-    const eventSource = new EventSource(`${API_BASE_URL}/news/fetch?${params}`);
+    const eventSource = new EventSource(`${API_BASE_URL}/api/news/fetch?${params}`);
 
     eventSource.onmessage = (event) => {
       try {

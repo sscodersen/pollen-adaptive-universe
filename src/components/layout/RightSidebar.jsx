@@ -28,15 +28,19 @@ const RightSidebar = () => {
         responses.map(r => r.ok ? r.json() : Promise.resolve([]))
       );
 
+      console.log('Trending data:', trendingData);
+      console.log('Events data:', eventsData);
+      console.log('Suggestions data:', suggestionsData);
+
       setTrending(trendingData.length > 0 ? trendingData : mockTrending);
       setEvents(eventsData.length > 0 ? eventsData : mockEvents);
       setSuggestions(suggestionsData.length > 0 ? suggestionsData : mockSuggestions);
+      setLoading(false);
     } catch (error) {
       console.warn('Error fetching sidebar content, using fallback data:', error.message);
       setTrending(mockTrending);
       setEvents(mockEvents);
       setSuggestions(mockSuggestions);
-    } finally {
       setLoading(false);
     }
   };

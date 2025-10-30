@@ -53,7 +53,7 @@ const Explore = () => {
     setLoadingTrends(true);
     setTrendingTopics([]);
 
-    const eventSource = new EventSource(`${API_BASE_URL}/trends/market?max_results=10`);
+    const eventSource = new EventSource(`${API_BASE_URL}/api/trends/market?max_results=10`);
 
     eventSource.onmessage = (event) => {
       try {

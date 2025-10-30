@@ -186,8 +186,15 @@ async def generate_ai_posts(limit: int = 20, interests: Optional[List[str]] = No
     posts = []
     
     try:
-        hn_content = await enhanced_scraper._scrape_hacker_news()
-        exploding_topics = await enhanced_scraper.scrape_exploding_topics(max_results=10)
+        # Use a 3-second timeout for scraping operations to prevent hanging
+        hn_content = await asyncio.wait_for(
+            enhanced_scraper._scrape_hacker_news(), 
+            timeout=3.0
+        )
+        exploding_topics = await asyncio.wait_for(
+            enhanced_scraper.scrape_exploding_topics(max_results=10),
+            timeout=3.0
+        )
         
         scraped_posts = []
         
@@ -243,6 +250,8 @@ async def generate_ai_posts(limit: int = 20, interests: Optional[List[str]] = No
         
         posts.extend(scraped_posts)
         
+    except asyncio.TimeoutError:
+        print("Scraping timed out after 3 seconds, skipping scraped content")
     except Exception as e:
         print(f"Error generating posts from scraped content: {e}")
     
@@ -293,7 +302,7 @@ async def generate_ai_posts(limit: int = 20, interests: Optional[List[str]] = No
         quality_score = random.randint(60, 98)
         
         post = {
-            "id": i + 1,
+            "id": len(posts) + i + 1,
             "user": {
                 "name": "Anonymous",
                 "username": None,
