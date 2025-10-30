@@ -369,8 +369,46 @@ class EnhancedScraperService:
                 
                 for card in topic_cards:
                     try:
-                        topic_name = card.get_text().strip()
                         topic_url = card.get('href', '')
+                        
+                        # Primary method: Extract from URL path (cleanest source)
+                        topic_name = None
+                        if topic_url and '/topic/' in str(topic_url):
+                            url_topic = str(topic_url).split('/topic/')[-1].split('?')[0]
+                            url_topic = url_topic.replace('-', ' ').replace('_', ' ').strip()
+                            words = url_topic.split()
+                            
+                            # Filter out random ID-looking words (e.g., Qeudsvds, Rbql9Yyx)
+                            cleaned_words = []
+                            for word in words:
+                                # Skip if word has too many consonants in a row (sign of random ID)
+                                consonant_runs = re.findall(r'[bcdfghjklmnpqrstvwxyz]{4,}', word.lower())
+                                if consonant_runs:
+                                    continue
+                                
+                                # Skip words with mixed case in weird patterns (e.g., QeUdSvDs, Rbql9Yyx)
+                                if len(word) > 5 and sum(c.isupper() for c in word) > 1 and sum(c.islower() for c in word) > 1:
+                                    continue
+                                
+                                # Keep good words
+                                cleaned_words.append(word)
+                            
+                            # Take first 3 meaningful words
+                            topic_name = ' '.join(cleaned_words[:3]).strip().title()
+                        
+                        # Fallback: Try to extract from card text
+                        if not topic_name or len(topic_name) < 3:
+                            raw_text = card.get_text().strip()
+                            # Remove common patterns and keep only the topic
+                            topic_name = re.split(r'\d+\.?\d*K', raw_text)[0]  # Split at volume numbers
+                            topic_name = re.split(r'[+\-]?\d+%', topic_name)[0]  # Split at percentages
+                            topic_name = topic_name.replace('Volume', '').replace('Growth', '')
+                            topic_name = topic_name.replace('View Topic', '')
+                            topic_name = re.sub(r'\s+', ' ', topic_name).strip()
+                        
+                        # Skip if still invalid
+                        if not topic_name or len(topic_name) < 3:
+                            continue
                         
                         if topic_url and isinstance(topic_url, str) and not topic_url.startswith('http'):
                             topic_url = f"https://explodingtopics.com{topic_url}"
