@@ -12,7 +12,7 @@ const RightSidebar = () => {
 
   useEffect(() => {
     fetchContent();
-    const interval = setInterval(fetchContent, 60000);
+    const interval = setInterval(fetchContent, 30000);
     return () => clearInterval(interval);
   }, []);
 
