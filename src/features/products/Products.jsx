@@ -39,7 +39,7 @@ export default function Products() {
 
     const params = new URLSearchParams();
     if (selectedCategory) params.append('category', selectedCategory);
-    params.append('min_score', '50');
+    params.append('min_score', '20');
     params.append('max_results', '20');
 
     const eventSource = new EventSource(`${API_BASE_URL}/api/products/discover?${params}`);

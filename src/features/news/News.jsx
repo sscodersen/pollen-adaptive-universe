@@ -39,10 +39,24 @@ export default function News() {
 
     const params = new URLSearchParams();
     if (selectedCategory) params.append('category', selectedCategory.toLowerCase());
-    params.append('min_score', '50');
+    params.append('min_score', '0');
     params.append('max_results', '20');
 
     const eventSource = new EventSource(`${API_BASE_URL}/api/news/fetch?${params}`);
+    
+    const timeout = setTimeout(() => {
+      eventSource.close();
+      setIsLoading(false);
+      setStatus('');
+      if (articles.length === 0) {
+        toast({
+          title: 'Loading timeout',
+          description: 'News feed took too long to load',
+          status: 'warning',
+          duration: 3000,
+        });
+      }
+    }, 15000);
 
     eventSource.onmessage = (event) => {
       try {
@@ -53,16 +67,20 @@ export default function News() {
         } else if (parsed.type === 'content') {
           setArticles(prev => [...prev, parsed.data]);
         } else if (parsed.type === 'complete') {
+          clearTimeout(timeout);
           setStatus('');
           setIsLoading(false);
+          eventSource.close();
           toast({
             title: parsed.message,
             status: 'success',
             duration: 2000,
           });
         } else if (parsed.type === 'error') {
+          clearTimeout(timeout);
           setStatus('');
           setIsLoading(false);
+          eventSource.close();
           toast({
             title: 'Error loading news',
             description: parsed.error,
@@ -74,12 +92,16 @@ export default function News() {
     };
 
     eventSource.onerror = () => {
+      clearTimeout(timeout);
       eventSource.close();
       setIsLoading(false);
       setStatus('');
     };
 
-    return () => eventSource.close();
+    return () => {
+      clearTimeout(timeout);
+      eventSource.close();
+    };
   };
 
   return (
