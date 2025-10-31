@@ -11,6 +11,7 @@ import {
   useToast,
   Button
 } from '@chakra-ui/react';
+import { motion } from 'framer-motion';
 import { Calendar, RefreshCw } from 'lucide-react';
 import { API_BASE_URL } from '@utils/constants';
 import PostCard from '@components/common/PostCard';
@@ -181,19 +182,30 @@ export default function Events() {
         {events.length > 0 && (
           <VStack spacing={4} w="100%">
             {events.map((event, idx) => (
-              <PostCard 
-                key={idx} 
-                post={{
-                  ...event,
-                  content: event.title,
-                  tags: [
-                    event.category,
-                    event.date && `📅 ${formatDate(event.date)}`,
-                    event.location && `📍 ${event.location}`
-                  ].filter(Boolean)
-                }} 
-                showImage={true} 
-              />
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                transition={{
+                  duration: 0.4,
+                  delay: idx * 0.1,
+                  ease: [0.4, 0, 0.2, 1]
+                }}
+                style={{ width: '100%' }}
+              >
+                <PostCard 
+                  post={{
+                    ...event,
+                    content: event.title,
+                    tags: [
+                      event.category,
+                      event.date && `📅 ${formatDate(event.date)}`,
+                      event.location && `📍 ${event.location}`
+                    ].filter(Boolean)
+                  }} 
+                  showImage={true} 
+                />
+              </motion.div>
             ))}
           </VStack>
         )}

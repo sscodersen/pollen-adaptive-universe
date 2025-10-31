@@ -11,6 +11,7 @@ import {
   useToast,
   Button
 } from '@chakra-ui/react';
+import { motion } from 'framer-motion';
 import { Package, RefreshCw } from 'lucide-react';
 import { API_BASE_URL } from '@utils/constants';
 import PostCard from '@components/common/PostCard';
@@ -151,15 +152,26 @@ export default function Products() {
         {products.length > 0 && (
           <VStack spacing={4} w="100%">
             {products.map((product, idx) => (
-              <PostCard 
-                key={idx} 
-                post={{
-                  ...product,
-                  content: product.title,
-                  tags: product.price ? [`💰 ${product.price}`] : undefined
-                }} 
-                showImage={false} 
-              />
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                transition={{
+                  duration: 0.4,
+                  delay: idx * 0.1,
+                  ease: [0.4, 0, 0.2, 1]
+                }}
+                style={{ width: '100%' }}
+              >
+                <PostCard 
+                  post={{
+                    ...product,
+                    content: product.title,
+                    tags: product.price ? [`💰 ${product.price}`] : undefined
+                  }} 
+                  showImage={false} 
+                />
+              </motion.div>
             ))}
           </VStack>
         )}
