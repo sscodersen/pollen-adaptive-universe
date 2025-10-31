@@ -49,6 +49,13 @@ The platform features a dark theme with gradient backgrounds, glassmorphism effe
 
 ## Recent Changes (October 31, 2025)
 
+### Smooth Pop-Up Animations for Content Pages
+- **Framer-Motion Integration:** Added smooth pop-up animations to News, Events, and Products pages
+  - Content items animate in with opacity fade, scale, and vertical slide effects
+  - Staggered delay creates cascading animation effect (0.1s per item)
+  - Consistent animation across all content discovery pages
+  - Enhances user engagement with polished, professional feel
+
 ### Major Platform Enhancement - Social Features & PWA
 - **Post Sharing with Preview Cards:** SharePostDialog component with beautiful preview cards, social media sharing (Twitter, Facebook, LinkedIn, Email), and link copying functionality
 - **Pollen AI Playground:** Unified interface with 7 modes:
