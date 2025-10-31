@@ -16,7 +16,6 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { 
   Home, 
   Compass, 
-  Newspaper, 
   User, 
   ShoppingBag,
   Plane,
@@ -48,7 +47,6 @@ const NavigationSidebar = ({ isOpen, onClose }) => {
     { icon: User, label: 'Profile', path: '/profile', category: 'Main' },
     { icon: ShoppingBag, label: 'Shopping', path: '/shopping', category: 'Features' },
     { icon: Plane, label: 'Travel', path: '/travel', category: 'Features' },
-    { icon: Newspaper, label: 'News', path: '/news', category: 'Features' },
     { icon: Sparkles, label: 'Content', path: '/content', category: 'Features' },
     { icon: HomeIcon, label: 'Smart Home', path: '/smarthome', category: 'Features' },
     { icon: Heart, label: 'Wellness', path: '/health', category: 'Features' },

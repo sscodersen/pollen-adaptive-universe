@@ -3,9 +3,6 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { 
   Home, 
   Compass, 
-  Newspaper,
-  Calendar,
-  Package,
   Bell, 
   MessageCircle, 
   User, 
@@ -16,7 +13,8 @@ import {
   Heart,
   GraduationCap,
   TrendingUp,
-  Code
+  Code,
+  Award
 } from 'lucide-react';
 
 const LeftSidebar = () => {
@@ -31,10 +29,8 @@ const LeftSidebar = () => {
 
   const menuItems = [
     { id: 'feed', label: 'Feed', icon: Home, path: '/', badge: null },
+    { id: 'ai-worker-bee', label: 'AI Worker Bee', icon: Award, path: '/adaptive-intelligence', badge: 'New' },
     { id: 'explore', label: 'Explore', icon: Compass, path: '/explore', badge: null },
-    { id: 'news', label: 'News', icon: Newspaper, path: '/news', badge: null },
-    { id: 'events', label: 'Events', icon: Calendar, path: '/events', badge: null },
-    { id: 'products', label: 'Products', icon: Package, path: '/products', badge: null },
     { id: 'activity', label: 'Activity', icon: Bell, path: '/activity', badge: 3 },
     { id: 'messages', label: 'Messages', icon: MessageCircle, path: '/messages', badge: 8 },
     { id: 'profile', label: 'Profile', icon: User, path: '/profile', badge: null },
