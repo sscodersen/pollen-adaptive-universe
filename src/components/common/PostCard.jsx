@@ -1,5 +1,6 @@
 import { Box, VStack, HStack, Text, Icon, Image, Badge } from '@chakra-ui/react';
 import { Eye, TrendingUp, Zap, MoreHorizontal, Star } from 'lucide-react';
+import PostActions from './PostActions';
 
 const PostCard = ({ post, showImage = true }) => {
   const getQualityColor = (score) => {
@@ -121,35 +122,41 @@ const PostCard = ({ post, showImage = true }) => {
         />
       )}
 
-      <HStack justify="space-between" pt={3} borderTop="1px solid" borderColor="whiteAlpha.200">
-        <HStack spacing={4}>
-          <HStack spacing={1}>
-            <Icon as={Eye} boxSize={5} color="gray.400" />
-            <Text fontSize="xs" color="gray.400">
-              {views.toLocaleString()} views
-            </Text>
+      <VStack spacing={3} align="stretch">
+        <HStack justify="space-between" pt={3} borderTop="1px solid" borderColor="whiteAlpha.200">
+          <HStack spacing={4}>
+            <HStack spacing={1}>
+              <Icon as={Eye} boxSize={5} color="gray.400" />
+              <Text fontSize="xs" color="gray.400">
+                {views.toLocaleString()} views
+              </Text>
+            </HStack>
+            <HStack spacing={1}>
+              <Icon as={Zap} boxSize={5} color="purple.400" />
+              <Text fontSize="xs" color="gray.400">
+                {Math.round(engagement)}% engagement
+              </Text>
+            </HStack>
           </HStack>
-          <HStack spacing={1}>
-            <Icon as={Zap} boxSize={5} color="purple.400" />
-            <Text fontSize="xs" color="gray.400">
-              {Math.round(engagement)}% engagement
+          {post.url && (
+            <Text
+              as="a"
+              href={post.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              fontSize="xs"
+              color="purple.400"
+              _hover={{ color: 'purple.300', textDecoration: 'underline' }}
+            >
+              Read more →
             </Text>
-          </HStack>
+          )}
         </HStack>
-        {post.url && (
-          <Text
-            as="a"
-            href={post.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            fontSize="xs"
-            color="purple.400"
-            _hover={{ color: 'purple.300', textDecoration: 'underline' }}
-          >
-            Read more →
-          </Text>
-        )}
-      </HStack>
+
+        <Box pt={2} borderTop="1px solid" borderColor="whiteAlpha.100">
+          <PostActions post={post} />
+        </Box>
+      </VStack>
     </Box>
   );
 };

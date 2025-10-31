@@ -20,6 +20,9 @@ import CodeHelper from '@features/code/CodeHelper';
 import Messages from '@features/messages/Messages';
 import AdaptiveIntelligence from '@features/adaptive-intelligence/AdaptiveIntelligence';
 import TrendDetail from '@features/trends/TrendDetail';
+import PollenPlayground from '@features/playground/PollenPlayground';
+import Bookmarks from '@features/bookmarks/Bookmarks';
+import AnalyticsDashboard from '@features/analytics/AnalyticsDashboard';
 import ErrorBoundary from '@components/common/ErrorBoundary';
 
 function App() {
@@ -30,6 +33,9 @@ function App() {
           <Route path="/" element={<SocialLayout />}>
             <Route index element={<Feed />} />
             <Route path="adaptive-intelligence" element={<AdaptiveIntelligence />} />
+            <Route path="playground" element={<PollenPlayground />} />
+            <Route path="bookmarks" element={<Bookmarks />} />
+            <Route path="analytics" element={<AnalyticsDashboard />} />
             <Route path="explore" element={<Explore />} />
             <Route path="news" element={<News />} />
             <Route path="events" element={<Events />} />

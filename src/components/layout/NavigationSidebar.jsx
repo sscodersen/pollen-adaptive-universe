@@ -27,7 +27,10 @@ import {
   Activity,
   DollarSign,
   Code,
-  Award
+  Award,
+  Cpu,
+  Bookmark,
+  BarChart3
 } from 'lucide-react';
 
 const NavigationSidebar = ({ isOpen, onClose }) => {
@@ -37,6 +40,9 @@ const NavigationSidebar = ({ isOpen, onClose }) => {
   const navItems = [
     { icon: Home, label: 'Home', path: '/', category: 'Main' },
     { icon: Award, label: 'AI Worker Bee', path: '/adaptive-intelligence', category: 'Main', badge: 'New' },
+    { icon: Cpu, label: 'Playground', path: '/playground', category: 'Main', badge: 'New' },
+    { icon: Bookmark, label: 'Bookmarks', path: '/bookmarks', category: 'Main', badge: 'New' },
+    { icon: BarChart3, label: 'Analytics', path: '/analytics', category: 'Main', badge: 'New' },
     { icon: Compass, label: 'Explore', path: '/explore', category: 'Main' },
     { icon: Activity, label: 'Activity', path: '/activity', category: 'Main' },
     { icon: User, label: 'Profile', path: '/profile', category: 'Main' },
