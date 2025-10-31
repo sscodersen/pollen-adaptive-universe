@@ -1,13 +1,19 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from backend.routers import shopping, travel, news, content, scraper, ai, smarthome, health, education, finance, code, feed, adaptive_intelligence, events, products, trends, playground
+from backend.routers import shopping, travel, news, content, scraper, ai, smarthome, health, education, finance, code, feed, feed_v2, adaptive_intelligence, events, products, trends, playground
 from backend.database import init_db
+from backend.services.background_scraper import background_scraper
 from dotenv import load_dotenv
 import os
+import asyncio
 
 load_dotenv()
 
-app = FastAPI(title="New Frontier AI Platform", version="1.0.0", description="Privacy-first anonymous AI assistant platform")
+app = FastAPI(
+    title="Pollen AI Platform - Bento Buzz Powered", 
+    version="2.0.0", 
+    description="Privacy-first AI platform with Bento Buzz scoring and Pollen AI training"
+)
 
 app.add_middleware(
     CORSMiddleware,
@@ -17,6 +23,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(feed_v2.router, prefix="/api/feed-v2", tags=["feed-v2-database"])
 app.include_router(feed.router, prefix="/api/feed", tags=["feed"])
 app.include_router(adaptive_intelligence.router, prefix="/api/adaptive-intelligence", tags=["adaptive-intelligence"])
 app.include_router(playground.router, prefix="/api/playground", tags=["playground"])
@@ -38,14 +45,48 @@ app.include_router(code.router, prefix="/api/code", tags=["code"])
 @app.on_event("startup")
 async def startup_event():
     init_db()
+    print("✅ Database initialized")
+    print("🚀 Pollen AI Platform ready - Bento Buzz scoring active")
+    
+    asyncio.create_task(background_scraper.start_periodic_scraping(interval_hours=24))
+    print("⏰ Background scraper scheduled - runs every 24 hours")
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    background_scraper.stop()
+    print("⏸️  Background scraper stopped")
 
 @app.get("/")
 async def root():
-    return {"message": "New Frontier AI Platform API - Privacy First, No Sign-in Required", "version": "1.0.0"}
+    last_run = background_scraper.last_run.isoformat() if background_scraper.last_run else "Never"
+    return {
+        "message": "Pollen AI Platform - Bento Buzz Powered", 
+        "version": "2.0.0",
+        "features": [
+            "Bento Buzz 7-Factor Content Scoring",
+            "Real-time Pollen AI Training",
+            "Privacy-First Architecture",
+            "High-Quality Content Curation",
+            "Automated Daily Scraping"
+        ],
+        "endpoints": {
+            "database_feed": "/api/feed-v2/posts",
+            "stats": "/api/feed-v2/stats",
+            "scrape": "/api/feed-v2/trigger-scrape"
+        },
+        "scraper": {
+            "status": "running" if background_scraper.is_running else "stopped",
+            "last_run": last_run
+        }
+    }
 
 @app.get("/health")
 async def health_check():
-    return {"status": "healthy"}
+    return {
+        "status": "healthy", 
+        "platform": "bento-buzz-powered",
+        "scraper_active": background_scraper.is_running
+    }
 
 if __name__ == "__main__":
     import uvicorn

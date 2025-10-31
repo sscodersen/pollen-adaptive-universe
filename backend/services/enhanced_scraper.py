@@ -674,6 +674,12 @@ class EnhancedScraperService:
         
         return products
     
+    async def _scrape_products_from_web(self, category: Optional[str] = None) -> List[Dict]:
+        """
+        Alias for _scrape_products for background scraper compatibility
+        """
+        return await self._scrape_products(category)
+    
     async def stream_market_trends(self, max_results: int = 15) -> AsyncGenerator[str, None]:
         """
         Stream market trends and predictions
