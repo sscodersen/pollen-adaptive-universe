@@ -9,3 +9,4 @@ sqlalchemy==2.0.27
 psycopg2-binary==2.9.9
 sse-starlette==2.0.0
 python-multipart
+python-multipart
