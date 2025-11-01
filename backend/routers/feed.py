@@ -1,10 +1,13 @@
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Query, Depends
 from typing import List, Optional
 import random
 from datetime import datetime, timedelta
 import httpx
+from sqlalchemy.orm import Session
 from backend.services.enhanced_scraper import enhanced_scraper
 from backend.services.pollen_ai_trainer import pollen_ai_trainer
+from backend.services.content_storage import content_storage
+from backend.database import get_db
 import asyncio
 
 router = APIRouter()
@@ -347,26 +350,116 @@ async def get_feed_posts(
     return posts
 
 @router.get("/trending")
-async def get_trending_topics():
-    return await generate_trending_topics()
+async def get_trending_topics(db: Session = Depends(get_db)):
+    try:
+        trending_content = content_storage.get_content_by_category(
+            db,
+            category="trend",
+            limit=10,
+            min_quality=50.0
+        )
+        
+        if not trending_content:
+            return generate_fallback_trends()
+        
+        trends = []
+        for i, item in enumerate(trending_content[:5]):
+            title = item.get('title', 'trending').replace('Trending: ', '').strip()
+            words = title.split()
+            tag = ' '.join(words[:3]) if len(words) > 3 else title
+            
+            metrics = item.get('engagement_metrics', {})
+            growth = metrics.get('growth', f"+{random.randint(10, 50)}%")
+            if isinstance(growth, (int, float)):
+                growth = f"+{int(growth)}%"
+            elif not str(growth).startswith('+'):
+                growth = f"+{growth}" if '%' in str(growth) else f"+{growth}%"
+            
+            volume = metrics.get('volume', random.randint(50, 500))
+            posts = f"{volume}K" if isinstance(volume, int) else str(volume)
+            
+            trends.append({
+                "id": i + 1,
+                "tag": f"#{tag}",
+                "posts": posts,
+                "trend": growth
+            })
+        
+        return trends if trends else generate_fallback_trends()
+        
+    except Exception as e:
+        print(f"Error fetching trending from database: {e}")
+        return generate_fallback_trends()
 
 @router.get("/events")
 async def get_events(
     limit: int = Query(10, ge=1, le=50),
-    location: Optional[str] = Query(None)
+    location: Optional[str] = Query(None),
+    db: Session = Depends(get_db)
 ):
-    events = generate_events(limit)
-    
-    if location:
-        events = [e for e in events if location.lower() in e["location"].lower()]
-    
-    return events
+    try:
+        events_content = content_storage.get_content_by_category(
+            db,
+            category="event",
+            limit=limit,
+            min_quality=40.0
+        )
+        
+        if not events_content:
+            return generate_events(limit)
+        
+        events = []
+        for i, item in enumerate(events_content):
+            events.append({
+                "id": i + 1,
+                "title": item.get('title', 'Event'),
+                "time": item.get('engagement_metrics', {}).get('date', 'TBA'),
+                "attendees": item.get('engagement_metrics', {}).get('attendees', '0+ interested'),
+                "category": item.get('category', 'Event'),
+                "location": item.get('engagement_metrics', {}).get('location', 'Virtual'),
+                "image": item.get('image_url')
+            })
+        
+        if location:
+            events = [e for e in events if location.lower() in e["location"].lower()]
+        
+        return events if events else generate_events(limit)
+        
+    except Exception as e:
+        print(f"Error fetching events from database: {e}")
+        return generate_events(limit)
 
 @router.get("/suggestions")
 async def get_suggestions(
-    limit: int = Query(10, ge=1, le=50)
+    limit: int = Query(10, ge=1, le=50),
+    db: Session = Depends(get_db)
 ):
-    return generate_suggestions(limit)
+    try:
+        high_quality_content = content_storage.get_training_dataset(
+            db,
+            min_quality=75.0,
+            max_items=limit,
+            unused_only=False
+        )
+        
+        if not high_quality_content:
+            return generate_suggestions(limit)
+        
+        suggestions = []
+        for i, item in enumerate(high_quality_content[:limit]):
+            suggestions.append({
+                "id": i + 1,
+                "name": "Anonymous User",
+                "bio": item.get('description', '')[:50] + "...",
+                "username": None,
+                "mutual": int(item.get('quality_score', 70))
+            })
+        
+        return suggestions if suggestions else generate_suggestions(limit)
+        
+    except Exception as e:
+        print(f"Error fetching suggestions from database: {e}")
+        return generate_suggestions(limit)
 
 @router.get("/news")
 async def get_news_feed(

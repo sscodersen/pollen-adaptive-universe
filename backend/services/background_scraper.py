@@ -22,6 +22,12 @@ class BackgroundScraperService:
         self.scraper = EnhancedScraperService()
         self.is_running = False
         self.last_run = None
+        self.trending_task = None
+        self.products_events_task = None
+        self.news_task = None
+        self.last_trending_run = None
+        self.last_products_events_run = None
+        self.last_news_run = None
     
     async def run_daily_scrape_job(self):
         """
@@ -201,21 +207,93 @@ class BackgroundScraperService:
         except Exception as e:
             logger.error(f"Error training Pollen AI: {e}")
     
-    async def start_periodic_scraping(self, interval_hours: int = 24):
-        """
-        Start periodic scraping at specified interval
-        """
-        self.is_running = True
-        logger.info(f"🔄 Starting periodic scraping every {interval_hours} hours")
+    async def scrape_trending_task(self, interval_minutes: int = 15):
+        """Scrape trending topics every 15 minutes"""
+        logger.info(f"📈 Starting trending scraper - runs every {interval_minutes} minutes")
         
         while self.is_running:
-            await self.run_daily_scrape_job()
-            await asyncio.sleep(interval_hours * 3600)
+            db = SessionLocal()
+            try:
+                await self._scrape_and_store_trends(db)
+                self.last_trending_run = datetime.utcnow()
+            except Exception as e:
+                logger.error(f"Trending scraper error: {e}")
+            finally:
+                db.close()
+            
+            await asyncio.sleep(interval_minutes * 60)
+    
+    async def scrape_products_events_task(self, interval_minutes: int = 30):
+        """Scrape products and events every 30 minutes"""
+        logger.info(f"📦📅 Starting products/events scraper - runs every {interval_minutes} minutes")
+        
+        while self.is_running:
+            db = SessionLocal()
+            try:
+                await self._scrape_and_store_products(db)
+                await self._scrape_and_store_events(db)
+                self.last_products_events_run = datetime.utcnow()
+            except Exception as e:
+                logger.error(f"Products/events scraper error: {e}")
+            finally:
+                db.close()
+            
+            await asyncio.sleep(interval_minutes * 60)
+    
+    async def scrape_news_task(self, interval_minutes: int = 60):
+        """Scrape news every 60 minutes"""
+        logger.info(f"📰 Starting news scraper - runs every {interval_minutes} minutes")
+        
+        while self.is_running:
+            db = SessionLocal()
+            try:
+                await self._scrape_and_store_news(db)
+                self.last_news_run = datetime.utcnow()
+                
+                if datetime.utcnow().hour % 6 == 0:
+                    await self._train_pollen_ai(db)
+            except Exception as e:
+                logger.error(f"News scraper error: {e}")
+            finally:
+                db.close()
+            
+            await asyncio.sleep(interval_minutes * 60)
+    
+    async def start_tiered_scraping(self):
+        """
+        Start tiered scraping with multiple intervals:
+        - Trending: every 15 minutes
+        - Products/Events: every 30 minutes  
+        - News: every 60 minutes
+        """
+        self.is_running = True
+        logger.info("🚀 Starting tiered scraping system")
+        
+        self.trending_task = asyncio.create_task(self.scrape_trending_task(15))
+        self.products_events_task = asyncio.create_task(self.scrape_products_events_task(30))
+        self.news_task = asyncio.create_task(self.scrape_news_task(60))
+        
+        logger.info("✅ Tiered scraping tasks started")
+        logger.info("📈 Trending: 15min | 📦📅 Products/Events: 30min | 📰 News: 60min")
+    
+    async def start_periodic_scraping(self, interval_hours: int = 24):
+        """
+        Legacy method - now starts tiered scraping instead
+        """
+        await self.start_tiered_scraping()
     
     def stop(self):
-        """Stop periodic scraping"""
+        """Stop all scraping tasks"""
         self.is_running = False
-        logger.info("⏸️  Stopped periodic scraping")
+        
+        if self.trending_task:
+            self.trending_task.cancel()
+        if self.products_events_task:
+            self.products_events_task.cancel()
+        if self.news_task:
+            self.news_task.cancel()
+            
+        logger.info("⏸️  Stopped all scraping tasks")
 
 
 background_scraper = BackgroundScraperService()

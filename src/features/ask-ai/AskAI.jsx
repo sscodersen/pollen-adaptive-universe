@@ -160,22 +160,7 @@ const AskAI = () => {
   };
   
   const getEndpointForMode = (mode) => {
-    const endpoints = {
-      chat: '/api/playground/chat',
-      code: '/api/playground/code-assist',
-      shopping: '/api/shopping/search',
-      travel: '/api/travel/plan',
-      health: '/api/health/advice',
-      education: '/api/education/learn',
-      finance: '/api/finance/advice',
-      image: '/api/playground/generate-image',
-      video: '/api/playground/generate-video',
-      audio: '/api/playground/voice-to-text',
-      music: '/api/playground/generate-music',
-      react: '/api/playground/react-mode',
-      automation: '/api/playground/automate-task',
-    };
-    return endpoints[mode] || '/api/playground/chat';
+    return `/api/ask-ai/${mode}`;
   };
   
   return (
