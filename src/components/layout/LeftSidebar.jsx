@@ -8,12 +8,7 @@ import {
   User, 
   Settings,
   Sparkles,
-  ShoppingBag,
-  Plane,
-  Heart,
-  GraduationCap,
-  TrendingUp,
-  Code,
+  Zap,
   Award
 } from 'lucide-react';
 
@@ -29,20 +24,12 @@ const LeftSidebar = () => {
 
   const menuItems = [
     { id: 'feed', label: 'Feed', icon: Home, path: '/', badge: null },
-    { id: 'ai-worker-bee', label: 'AI Worker Bee', icon: Award, path: '/adaptive-intelligence', badge: 'New' },
+    { id: 'ask-ai', label: 'Ask AI', icon: Zap, path: '/ask-ai', badge: 'New' },
+    { id: 'ai-worker-bee', label: 'AI Worker Bee', icon: Award, path: '/adaptive-intelligence', badge: null },
     { id: 'explore', label: 'Explore', icon: Compass, path: '/explore', badge: null },
     { id: 'activity', label: 'Activity', icon: Bell, path: '/activity', badge: 3 },
     { id: 'messages', label: 'Messages', icon: MessageCircle, path: '/messages', badge: 8 },
     { id: 'profile', label: 'Profile', icon: User, path: '/profile', badge: null },
-  ];
-
-  const quickAccess = [
-    { id: 'shopping', label: 'Shopping', icon: ShoppingBag, path: '/app/shopping', gradient: 'linear(to-br, purple.400, purple.600)' },
-    { id: 'travel', label: 'Travel', icon: Plane, path: '/app/travel', gradient: 'linear(to-br, cyan.400, blue.500)' },
-    { id: 'health', label: 'Wellness', icon: Heart, path: '/app/health', gradient: 'linear(to-br, pink.400, red.400)' },
-    { id: 'education', label: 'Learn', icon: GraduationCap, path: '/app/education', gradient: 'linear(to-br, orange.400, yellow.500)' },
-    { id: 'finance', label: 'Finance', icon: TrendingUp, path: '/app/finance', gradient: 'linear(to-br, green.400, teal.500)' },
-    { id: 'code', label: 'Code', icon: Code, path: '/app/code', gradient: 'linear(to-br, red.400, pink.500)' },
   ];
 
   const isActive = (path) => location.pathname === path;
@@ -125,46 +112,6 @@ const LeftSidebar = () => {
                   {item.badge}
                 </Badge>
               )}
-            </HStack>
-          ))}
-        </VStack>
-      </Box>
-
-      <Box
-        p={3}
-        bg="black"
-        borderRadius="xl"
-        border="1px solid"
-        borderColor="whiteAlpha.200"
-      >
-        <HStack spacing={2} mb={3}>
-          <Icon as={Sparkles} color="purple.400" boxSize={4} />
-          <Text fontSize="xs" fontWeight="bold" color="white" textTransform="uppercase">
-            Quick Access
-          </Text>
-        </HStack>
-        <VStack spacing={2} align="stretch">
-          {quickAccess.map((item) => (
-            <HStack
-              key={item.id}
-              spacing={3}
-              p={2}
-              borderRadius="lg"
-              cursor="pointer"
-              _hover={{ bg: 'whiteAlpha.50' }}
-              transition="all 0.2s"
-              onClick={() => navigate(item.path)}
-            >
-              <Box
-                p={2}
-                borderRadius="md"
-                bgGradient={item.gradient}
-              >
-                <Icon as={item.icon} boxSize={4} color="white" />
-              </Box>
-              <Text fontSize="xs" color="gray.300">
-                {item.label}
-              </Text>
             </HStack>
           ))}
         </VStack>
