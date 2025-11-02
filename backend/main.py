@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from backend.routers import shopping, travel, news, content, scraper, ai, smarthome, health, education, finance, code, feed, feed_v2, adaptive_intelligence, events, products, trends, playground, ask_ai
+from backend.routers import shopping, travel, news, content, scraper, ai, smarthome, health, education, finance, code, feed, feed_v2, adaptive_intelligence, events, products, trends, playground, ask_ai, iot, ai_content, agriculture, geo_optimization
 from backend.database import init_db
 from backend.services.background_scraper import background_scraper
 from dotenv import load_dotenv
@@ -42,6 +42,10 @@ app.include_router(health.router, prefix="/api/health", tags=["health"])
 app.include_router(education.router, prefix="/api/education", tags=["education"])
 app.include_router(finance.router, prefix="/api/finance", tags=["finance"])
 app.include_router(code.router, prefix="/api/code", tags=["code"])
+app.include_router(iot.router, prefix="/api/iot", tags=["iot"])
+app.include_router(ai_content.router, prefix="/api/ai-content", tags=["ai-content"])
+app.include_router(agriculture.router, prefix="/api/agriculture", tags=["agriculture"])
+app.include_router(geo_optimization.router, prefix="/api/geo-optimization", tags=["geo-optimization"])
 
 @app.on_event("startup")
 async def startup_event():
@@ -62,18 +66,26 @@ async def root():
     last_run = background_scraper.last_run.isoformat() if background_scraper.last_run else "Never"
     return {
         "message": "Pollen AI Platform - Bento Buzz Powered", 
-        "version": "2.0.0",
+        "version": "3.0.0",
         "features": [
             "Bento Buzz 7-Factor Content Scoring",
             "Real-time Pollen AI Training",
             "Privacy-First Architecture",
             "High-Quality Content Curation",
-            "Automated Daily Scraping"
+            "Automated Daily Scraping",
+            "IoT Device Management",
+            "AI Content Detection",
+            "Agriculture Optimization",
+            "Geo-Location Optimization"
         ],
         "endpoints": {
             "database_feed": "/api/feed-v2/posts",
             "stats": "/api/feed-v2/stats",
-            "scrape": "/api/feed-v2/trigger-scrape"
+            "scrape": "/api/feed-v2/trigger-scrape",
+            "iot_devices": "/api/iot/devices",
+            "ai_content_detection": "/api/ai-content/analyze",
+            "agriculture_data": "/api/agriculture/data",
+            "geo_optimization": "/api/geo-optimization/optimize"
         },
         "scraper": {
             "status": "running" if background_scraper.is_running else "stopped",
